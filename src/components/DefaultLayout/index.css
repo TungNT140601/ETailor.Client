@@ -1,0 +1,12 @@
+.container {
+    height: 1449px;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.container::-webkit-scrollbar {
+    display: none;
+}
