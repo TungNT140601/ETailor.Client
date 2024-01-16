@@ -1,0 +1,16 @@
+.header-container{
+    width: 100vw;
+    background-color: #D9D9D9;
+    height: 120px;
+    position: fixed;
+    display: flex;
+}
+.header-logo {
+    padding-left: 80px;
+    width: 200px;
+}
+
+.header-menu{
+    display: flex;
+    justify-content: space-between;
+}
