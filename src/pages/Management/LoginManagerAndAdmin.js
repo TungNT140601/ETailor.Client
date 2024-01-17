@@ -1,17 +1,16 @@
 import * as React from "react";
-import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import { useState } from "react";
 import { InputAdornment } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -23,13 +22,43 @@ const defaultTheme = createTheme();
 
 export default function LoginManagerAndAdmin() {
   const [showPass, setShowPass] = useState(false);
-  const handleSubmit = (event) => {
+  const navigate = useNavigate();
+
+  const loginAdminUrl =
+    "https://etailorapi.azurewebsites.net/api/auth/staff/login";
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+    console.log("data: ", data.get("userName"));
+
     console.log({
-      email: data.get("email"),
+      email: data.get("userName"),
       password: data.get("password"),
     });
+
+    try {
+      const response = await fetch(loginAdminUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: data.get("userName"),
+          password: data.get("password"),
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        if (data.role === "Admin") {
+          localStorage.setItem("admin", JSON.stringify(data));
+          navigate("/admin");
+        }
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   const showPassword = () => {
