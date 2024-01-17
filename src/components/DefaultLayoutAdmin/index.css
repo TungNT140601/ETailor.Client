@@ -1,0 +1,13 @@
+.default-layout-admin {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-color: rgb(196, 196, 196, 0.3);
+    display: flex;
+}
+
+.admin-sidebar {
+    background-color: #FFFFFF;
+    width: 300px;
+}
