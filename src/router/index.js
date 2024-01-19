@@ -8,6 +8,11 @@ import AdminRouters from "./AdminRouter";
 import CustomerRouter from "./CustomerRouter";
 import NotFound from "../pages/NotFound/NotFound";
 import LoginManagerAndAdmin from "../pages/Management/LoginManagerAndAdmin";
+import { AccountCus } from "../pages/Management/Admin/AccountCus";
+import { DefaultLayoutAdmin } from "../components/DefaultLayoutAdmin";
+import { AccountStaff } from "../pages/Management/Admin/AccountStaff";
+import { Measurement } from "../pages/Management/Admin/Measurement";
+import { SystemConfig } from "../pages/Management/Admin/SystemConfig";
 export const customerRouters = [];
 
 export const publicRouters = [
@@ -28,6 +33,30 @@ export const publicRouters = [
     name: "login-admin",
     component: LoginManagerAndAdmin,
     layout: null,
+  },
+  {
+    path: "/admin",
+    name: "home-admin",
+    component: AccountCus,
+    layout: DefaultLayoutAdmin,
+  },
+  {
+    path: "/admin/account/staff",
+    name: "home-admin-account-staff",
+    component: AccountStaff,
+    layout: DefaultLayoutAdmin,
+  },
+  {
+    path: "/admin/measurement",
+    name: "measurement",
+    component: Measurement,
+    layout: DefaultLayoutAdmin,
+  },
+  {
+    path: "/admin/system-configuration",
+    name: "system-configuration",
+    component: SystemConfig,
+    layout: DefaultLayoutAdmin,
   },
 ];
 
