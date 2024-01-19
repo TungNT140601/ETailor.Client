@@ -1,9 +1,8 @@
-import { RouterComponents } from "./router";
-
+import { RouterComponents } from './router';
 function App() {
   return (
-    <div>
-      <RouterComponents />
+    <div style={{fontFamily:"Alumni Sans"}}>
+      <RouterComponents/>
     </div>
   );
 }
