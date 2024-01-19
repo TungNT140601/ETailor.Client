@@ -11,6 +11,7 @@ import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import { useState } from "react";
 import { InputAdornment } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -23,6 +24,7 @@ const defaultTheme = createTheme();
 export default function LoginManagerAndAdmin() {
   const [showPass, setShowPass] = useState(false);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const loginAdminUrl =
     "https://etailorapi.azurewebsites.net/api/auth/staff/login";
@@ -37,6 +39,7 @@ export default function LoginManagerAndAdmin() {
     });
 
     try {
+      setLoading(true);
       const response = await fetch(loginAdminUrl, {
         method: "POST",
         headers: {
@@ -47,7 +50,7 @@ export default function LoginManagerAndAdmin() {
           password: data.get("password"),
         }),
       });
-
+      setLoading(false);
       if (response.ok) {
         const data = await response.json();
         console.log(data);
@@ -58,6 +61,8 @@ export default function LoginManagerAndAdmin() {
       }
     } catch (error) {
       console.error("Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,14 +143,20 @@ export default function LoginManagerAndAdmin() {
                 control={<Checkbox value="remember" color="primary" />}
                 label="Ghi nhớ đăng nhập"
               />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2, backgroundColor: "#172039" }}
-              >
-                Đăng nhập
-              </Button>
+              <div style={{ textAlign: "center" }}>
+                {loading ? (
+                  <CircularProgress size={30} sx={{ color: "#172039" }} />
+                ) : (
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2, backgroundColor: "#172039" }}
+                  >
+                    Đăng nhập
+                  </Button>
+                )}
+              </div>
             </Box>
           </Box>
         </Grid>
