@@ -1,16 +1,25 @@
-.header-container{
+.header-container {
     width: 100vw;
     background-color: #D9D9D9;
     height: 120px;
     position: fixed;
     display: flex;
+
 }
+
 .header-logo {
     padding-left: 80px;
     width: 200px;
 }
 
-.header-menu{
+.header-menu {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
+    margin: auto;
+}
+.gray{
+    color: #999999;
+}
+.dark{
+    color: dark;
 }
