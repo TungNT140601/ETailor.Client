@@ -1,9 +1,12 @@
 import { RouterComponents } from './router';
+
 function App() {
   return (
-    <div style={{fontFamily:"Alumni Sans"}}>
-      <RouterComponents/>
-    </div>
+    <div className='test' style={{
+      fontFamily: 'Open Sans, sans - serif'
+    }}>
+      <RouterComponents />
+    </div >
   );
 }
 

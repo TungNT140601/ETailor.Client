@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
 import DefaultLayout from "../components/DefaultLayout";
-import Home from "../pages/Customer/Home";
+import Home from "../pages/Customer/Homepage/Home";
 import AdminRouters from "./AdminRouter";
 import CustomerRouter from "./CustomerRouter";
 import NotFound from "../pages/NotFound/NotFound";
@@ -20,8 +20,14 @@ export const publicRouters = [
     path: "/",
     name: "home",
     component: Home,
+    layout: DefaultLayout,
   },
-
+  {
+    path: "/home",
+    name: "home",
+    component: Home,
+    layout: DefaultLayout,
+  },
   {
     path: "/error",
     name: "error",
