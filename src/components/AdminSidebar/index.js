@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../../assets/logo.png";
 import "./index.css";
 import Typography from "@mui/material/Typography";
@@ -54,7 +54,7 @@ export const AdminSidebar = () => {
   };
   const handleNavigate = (value) => {
     if (value === isActiveSupAccount) {
-      setIsActiveSupAccount(null);
+      setIsActiveSupAccount(value);
     } else {
       setIsActiveSupAccount(value);
       if (value === 1) {
@@ -85,6 +85,16 @@ export const AdminSidebar = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === "/admin/account/staff") {
+      setIsActiveSupAccount(2);
+    } else if (path === "/admin/system-configuration") {
+      setIsActiveSupAccount(null);
+      setOpenAccount(false);
+      setIsActive(3);
+    }
+  }, []);
   return (
     <div>
       <div className="logo-content">
