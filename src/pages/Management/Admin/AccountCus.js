@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./index.css";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ReactPaginate from "react-paginate";
 
 const AccountCusHeader = () => {
+  const admin = JSON.parse(localStorage.getItem("admin"));
   return (
     <div>
       <div className="columns">
@@ -17,7 +18,7 @@ const AccountCusHeader = () => {
         </div>
         <div
           className="column is-three-fifths"
-          style={{ width: "550px", paddingTop: "30px" }}
+          style={{ width: "550px", paddingTop: "30px", paddingLeft: "80px" }}
         >
           <div className="field">
             <p className="control has-icons-left has-icons-right">
@@ -40,7 +41,7 @@ const AccountCusHeader = () => {
           <div>
             <AccountCircleIcon fontSize="large" />
           </div>
-          <h5 className="title is-4 pl-4 pt-1">Admin</h5>
+          <h5 className="title is-4 pl-4 pt-1">{admin.role}</h5>
         </div>
       </div>
       <div className="pl-5">
@@ -52,9 +53,9 @@ const AccountCusHeader = () => {
               </a>
             </li>
             <li>
-              <a href="/admin">
-                <h5 className="subtitle is-5">Khách hàng</h5>
-              </a>
+              <h5 className="subtitle is-5">
+                <a href="/admin">Khách hàng</a>
+              </h5>
             </li>
           </ul>
         </nav>
@@ -146,7 +147,7 @@ const AccountCusContent = ({ itemsPerPage }) => {
   };
   return (
     <div className="table-container">
-      <table className="table table is-narrow is-fullwidth">
+      <table className="table table is-narrow is-fullwidth is-hoverabley">
         <thead>
           <tr>
             <th>
