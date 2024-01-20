@@ -1,0 +1,66 @@
+.admin-account-customer-main-container {
+    position: relative;
+}
+
+.admin-account-custommer-header {
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    width: 1180px;
+    height: 190px;
+    position: absolute;
+    left: 30px;
+    top: 20px;
+}
+
+.admin-account-customer-content {
+    background-color: #FFFFFF;
+    width: 1180px;
+    height: 545px;
+    position: absolute;
+    left: 30px;
+    top: 220px;
+    border-radius: 10px;
+    padding: 40px;
+}
+
+.admin-paginate {
+    display: flex;
+    justify-content: center;
+}
+
+
+.pagination {
+    color: #000000;
+}
+
+.page-item-previous {
+    padding: 10px 20px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.page-item-next {
+    padding: 10px 20px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    margin-left: 10px;
+    color: black !important;
+}
+
+.page-item {
+    padding: 10px 20px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    margin: 0 10px;
+}
+
+.active {
+    background-color: #172039;
+    color: #FFFFFF;
+}
+
+.active:hover {
+    color: #FFFFFF;
+
+}

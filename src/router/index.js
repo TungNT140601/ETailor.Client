@@ -40,6 +40,18 @@ export const publicRouters = [
     component: LoginManagerAndAdmin,
     layout: null,
   },
+];
+
+export const privateRouters = [
+  // {
+  //     path: '/profile',
+  //     name: 'user-profile',
+  //     component: Profile,
+  //     layout: LayoutWithoutFilter,
+  // },
+];
+
+export const adminRouters = [
   {
     path: "/admin",
     name: "home-admin",
@@ -65,17 +77,6 @@ export const publicRouters = [
     layout: DefaultLayoutAdmin,
   },
 ];
-
-export const privateRouters = [
-  // {
-  //     path: '/profile',
-  //     name: 'user-profile',
-  //     component: Profile,
-  //     layout: LayoutWithoutFilter,
-  // },
-];
-
-export const adminRouters = [];
 
 //Scroll Top when clicked another page
 function ScrollToTop() {

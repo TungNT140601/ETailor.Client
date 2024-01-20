@@ -14,12 +14,18 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import Button from "@mui/material/Button";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
+import CircularProgress from "@mui/material/CircularProgress";
 
 export const AdminSidebar = () => {
   const [openAccount, setOpenAccount] = React.useState(true);
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState(1);
   const [isActiveSupAccount, setIsActiveSupAccount] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const admin = JSON.parse(localStorage.getItem("admin"));
+
+  const logoutAdminUrl =
+    "https://etailorapi.azurewebsites.net/api/auth/staff/logout";
 
   const handleClick = (value) => {
     if (value === isActive) {
@@ -56,6 +62,27 @@ export const AdminSidebar = () => {
       } else if (value === 2) {
         navigate("/admin/account/staff");
       }
+    }
+  };
+  const handleLogout = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(logoutAdminUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${admin?.token}`,
+        },
+      });
+      setLoading(false);
+      if (response.ok) {
+        localStorage.removeItem("admin");
+        navigate("/management/login");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -156,13 +183,17 @@ export const AdminSidebar = () => {
         </ListItemButton>
       </div>
       <div className="admin-logout">
-        <Button
-          variant="contained"
-          sx={{ width: "270px", backgroundColor: "#172039" }}
-        >
-          <LogoutIcon />
-          &nbsp; &nbsp; Đăng xuất
-        </Button>
+        {loading ? (
+          <CircularProgress size={30} sx={{ color: "#172039" }} />
+        ) : (
+          <Button
+            variant="contained"
+            sx={{ width: "270px", backgroundColor: "#172039" }}
+            onClick={handleLogout}
+          >
+            <LogoutIcon /> &nbsp; &nbsp; Đăng xuất
+          </Button>
+        )}
       </div>
     </div>
   );
