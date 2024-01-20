@@ -1,0 +1,14 @@
+.login-form{
+    padding: 60px 70px;
+}
+.input-form{
+    width: 90%;
+    padding: 10px;
+}
+.remember-user{
+    padding-left: 10px;
+}
+.loginbtn-submit{
+    padding-top: 20px;
+    padding-left: 10px
+}

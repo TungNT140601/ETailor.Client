@@ -2,65 +2,93 @@ import React, { useState } from 'react'
 import "./index.css"
 import Logo from "../../assets/logo.png"
 import { Link } from 'react-router-dom'
+import ShoppingBag from "../../assets/images/shopping-bag.png"
+import Login from '../../pages/Customer/Login/Login'
+
 const Header = () => {
     const [clickedSection, setClickedSection] = useState("Trang Chu")
-    console.log('Section:', clickedSection)
-
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => {
+        setOpen(true);
+    }
+    const handleClose = () => {
+        setOpen(false)
+    };
     return (
         <nav className='mobile'>
             <div className='header-container'>
-                <div className='header-logo'>
-                    <figure className="image is-128x128">
-                        <img className="is-rounded" src={Logo}></img>
-                    </figure>
-                </div>
-                <div className='header-menu'>
-                    <div className='navbar-item'>
-                        <Link to="/#" onClick={() => setClickedSection("Trang Chu")}>
-                            <h1 className="subtitle is-4 " style={{ color: clickedSection === "Trang Chu" ? "#000000" : "#999999" }}>
-                                Trang chủ
-                            </h1>
+                <div className='header-menu-wrapper'>
+                    <div className='header-logo'>
+                        <Link to="/">
+                            <figure className="image is-128x128">
+                                <img className="is-rounded" src={Logo}></img>
+                            </figure>
                         </Link>
+
                     </div>
 
-                    <div className='navbar-item'>
-                        <Link to="/#" onClick={() => setClickedSection("Bai Viet")} >
-                            <h1 className="subtitle is-4"  style={{ color: clickedSection === "Bai Viet" ? "#000000" : "#999999" }}>
-                                Bài viết
-                            </h1>
-                        </Link>
-                    </div>
-                    <div className='navbar-item'>
-                        <Link to="/#" onClick={() => setClickedSection("Lien He")}>
-                            <h1 className="subtitle is-4 "  style={{ color: clickedSection === "Lien He" ? "#000000" : "#999999" }}>
-                                Liên hệ
-                            </h1>
-                        </Link>
-                    </div>
-                    <div className="navbar-item has-dropdown is-hoverable">
-                        <div className='navbar-item' >
-                            <Link className='nav-link' to="/#" onClick={() => setClickedSection("Dat May")}>
-                                <h1 className="subtitle is-4 "  style={{ color: clickedSection === "Dat May" ? "#000000" : "#999999" }}>
-                                    Đặt may
+                    <div className='header-menu'>
+                        <div className='navbar-item'>
+                            <Link to="/" onClick={() => setClickedSection("Trang Chu")} >
+                                <h1 className="subtitle is-5 " style={{ color: clickedSection === "Trang Chu" ? "#9F78FF" : "#1D2547" }}>
+                                    TRANG CHỦ
                                 </h1>
                             </Link>
                         </div>
 
-                        <div className="navbar-dropdown is-boxed">
-                            <a className="navbar-item">
-                                About
-                            </a>
-                            <a className="navbar-item">
-                                Jobs
-                            </a>
-                            <a className="navbar-item">
-                                Contact
-                            </a>
+                        <div className='navbar-item'>
+                            <Link to="/#" onClick={() => setClickedSection("Bai Viet")} >
+                                <h1 className="subtitle is-5" style={{ color: clickedSection === "Bai Viet" ? "#9F78FF" : "#1D2547" }}>
+                                    BÀI VIẾT
+                                </h1>
+                            </Link>
+                        </div>
+                        <div className='navbar-item'>
+                            <Link to="/#" onClick={() => setClickedSection("Lien He")} >
+                                <h1 className="subtitle is-5 " style={{ color: clickedSection === "Lien He" ? "#9F78FF" : "#1D2547" }}>
+                                    LIÊN HỆ
+                                </h1>
+                            </Link>
+                        </div>
+                        <div className="navbar-item has-dropdown is-hoverable">
+                            <div className='navbar-item' >
+                                <Link className='nav-link' to="/#" onClick={() => setClickedSection("Dat May")}>
+                                    <h1 className="subtitle is-5 " style={{ color: clickedSection === "Dat May" ? "#9F78FF" : "#1D2547" }}>
+                                        ĐẶT MAY
+                                    </h1>
+                                </Link>
+                            </div>
+
+                            <div className="navbar-dropdown is-boxed">
+                                <a className="navbar-item">
+                                    About
+                                </a>
+                                <a className="navbar-item">
+                                    Jobs
+                                </a>
+                                <a className="navbar-item">
+                                    Contact
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
+                <div className='header-end'>
+                    <div className='navbar-items login'>
+                        <h1 className='subtitle is-5' onClick={handleOpen}>LOGIN</h1>
+
+                    </div>
+                    <div className='navbar-items'>
+                        <button class="button is-rounded is-medium wrapper-shopping">
+                            <img src={ShoppingBag}></img>
+                            <p style={{ paddingLeft: 10, color: '#FFFFFF' }}>0</p>
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+            {open && <Login openModal={handleOpen} closeModal={handleClose} />}
         </nav >
 
     )
