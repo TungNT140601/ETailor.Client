@@ -10,7 +10,7 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { Button } from "@mui/material";
 import { MultiSelect } from "react-multi-select-component";
 
-const AccountStaffHeader = () => {
+const AccountManagerHeader = () => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
@@ -63,7 +63,7 @@ const AccountStaffHeader = () => {
             </li>
             <li>
               <h5 className="subtitle is-5">
-                <a href="/admin/account/staff">Nhân viên</a>
+                <a href="/admin/account/manager">Quản lý</a>
               </h5>
             </li>
           </ul>
@@ -80,7 +80,7 @@ const AccountStaffHeader = () => {
           className="button is-link is-outlined mb-2 ml-4"
           onClick={handleOpen}
         >
-          <i className="fa-solid fa-plus"></i> &nbsp;&nbsp;Thêm mới nhân viên
+          <i className="fa-solid fa-plus"></i> &nbsp;&nbsp;Thêm mới quản lý
         </button>
       </div>
       <BasicModal open={open} handleClose={handleClose} />
@@ -122,7 +122,7 @@ function BasicModal({ open, handleClose }) {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <h2 className="title is-2">Thêm mới nhân viên</h2>
+          <h2 className="title is-2">Thêm mới quản lý</h2>
           <br />
           <div
             style={{
@@ -139,7 +139,7 @@ function BasicModal({ open, handleClose }) {
                 type="text"
                 placeholder="Nhập họ và tên"
               />
-              <h4 className="subtitle is-4 mt-5">Tên người dùng</h4>
+              <h4 className="subtitle is-4 mt-5">Tên đăng nhập</h4>
               <input
                 style={{ width: "350px" }}
                 className="input is-normal"
@@ -366,7 +366,7 @@ const items = [
   },
 ];
 
-const AccountStaffContent = ({ itemsPerPage }) => {
+const AccountManagerContent = ({ itemsPerPage }) => {
   console.log(itemsPerPage);
   const [itemOffset, setItemOffset] = useState(0);
   const endOffset = itemOffset + itemsPerPage;
@@ -383,6 +383,7 @@ const AccountStaffContent = ({ itemsPerPage }) => {
   const style = [
     {
       textAlign: "center",
+      height: "20px !important",
     },
     {
       centerTableHead: {
@@ -575,17 +576,19 @@ const AccountStaffContent = ({ itemsPerPage }) => {
   );
 };
 
-export const AccountStaff = () => {
+const AccountManager = () => {
   return (
     <>
-      <div className="admin-account-staff-main-container">
-        <div className="admin-account-staff-header">
-          <AccountStaffHeader />
+      <div className="admin-account-manager-main-container">
+        <div className="admin-account-manager-header">
+          <AccountManagerHeader />
         </div>
-        <div className="admin-account-staff-content">
-          <AccountStaffContent itemsPerPage={5} />
+        <div className="admin-account-manager-content">
+          <AccountManagerContent itemsPerPage={5} />
         </div>
       </div>
     </>
   );
 };
+
+export default AccountManager;
