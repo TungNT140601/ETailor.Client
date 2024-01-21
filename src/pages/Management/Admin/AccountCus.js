@@ -145,39 +145,54 @@ const AccountCusContent = ({ itemsPerPage }) => {
     );
     setItemOffset(newOffset);
   };
+  const style = [
+    {
+      textAlign: "center",
+    },
+    {
+      centerTableHead: {
+        textAlign: "center",
+        width: "200px",
+      },
+    },
+  ];
   return (
     <div className="table-container">
       <table className="table table is-narrow is-fullwidth is-hoverabley">
         <thead>
           <tr>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">STT</h6>
             </th>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">Ảnh đại diện</h6>
             </th>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">Tên người dùng</h6>
             </th>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">Họ và tên</h6>
             </th>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">Số điện thoại</h6>
             </th>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">Email</h6>
             </th>
           </tr>
         </thead>
         <tbody>
           {currentItems.map((item) => (
-            <tr>
+            <tr style={style[0]}>
               <td>{item.Id}</td>
               <td>
-                <figure className="image is-64x64">
-                  <img src={item.Avatar} alt="#logo" />
-                </figure>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <div>
+                    <figure className="image is-64x64">
+                      <img src={item.Avatar} />
+                    </figure>
+                  </div>
+                </div>
               </td>
               <td>{item.UserName}</td>
               <td>{item.FullName}</td>

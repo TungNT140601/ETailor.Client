@@ -11,8 +11,8 @@ import LoginManagerAndAdmin from "../pages/Management/LoginManagerAndAdmin";
 import { AccountCus } from "../pages/Management/Admin/AccountCus";
 import { DefaultLayoutAdmin } from "../components/DefaultLayoutAdmin";
 import { AccountStaff } from "../pages/Management/Admin/AccountStaff";
-import { Measurement } from "../pages/Management/Admin/Measurement";
 import { SystemConfig } from "../pages/Management/Admin/SystemConfig";
+import AccountManager from "../pages/Management/Admin/AccountManager";
 export const customerRouters = [];
 
 export const publicRouters = [
@@ -65,9 +65,9 @@ export const adminRouters = [
     layout: DefaultLayoutAdmin,
   },
   {
-    path: "/admin/measurement",
-    name: "measurement",
-    component: Measurement,
+    path: "/admin/account/manager",
+    name: "home-admin-account-manager",
+    component: AccountManager,
     layout: DefaultLayoutAdmin,
   },
   {
