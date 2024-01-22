@@ -4,6 +4,11 @@ import Logo from "../../assets/logo.png"
 import { Link } from 'react-router-dom'
 import ShoppingBag from "../../assets/images/shopping-bag.png"
 import Login from '../../pages/Customer/Login/Login'
+import Menu from '@mui/joy/Menu';
+import MenuButton from '@mui/joy/MenuButton';
+import MenuItem from '@mui/joy/MenuItem';
+import Dropdown from '@mui/joy/Dropdown';
+import UserLogo from '../../assets/images/user.png'
 
 const Header = () => {
     const [clickedSection, setClickedSection] = useState("Trang Chu")
@@ -75,17 +80,37 @@ const Header = () => {
                 </div>
 
                 <div className='header-end'>
+                    <div style={{ height: 'auto' }}>
+                        <Dropdown>
+                            <MenuButton className="user-logo" sx={{ border: "none" }}>
+
+                                <img src={UserLogo} width={30} height={30}></img>
+
+                            </MenuButton>
+                            <Menu sx={{ zIndex: 100000000 }}>
+                                <Link to="/profile">
+                                    <MenuItem>Profile</MenuItem>
+                                </Link>
+
+                                <MenuItem>
+                                    <Link to="/profile">My account</Link>
+                                </MenuItem>
+                                <MenuItem>Logout</MenuItem>
+                            </Menu>
+                        </Dropdown>
+                    </div>
                     <div className='navbar-items login'>
-                        <h1 className='subtitle is-5' onClick={handleOpen}>LOGIN</h1>
+                        <h1 className='subtitle is-5' onClick={handleOpen}>Đăng nhập</h1>
 
                     </div>
                     <div className='navbar-items'>
-                        <button class="button is-rounded is-medium wrapper-shopping">
+                        <button className="button is-rounded is-medium wrapper-shopping">
                             <img src={ShoppingBag}></img>
                             <p style={{ paddingLeft: 10, color: '#FFFFFF' }}>0</p>
                         </button>
 
                     </div>
+
                 </div>
             </div>
             {open && <Login openModal={handleOpen} closeModal={handleClose} />}
