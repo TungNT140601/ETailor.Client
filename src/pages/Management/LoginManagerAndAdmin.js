@@ -145,7 +145,15 @@ export default function LoginManagerAndAdmin() {
               />
               <div style={{ textAlign: "center" }}>
                 {loading ? (
-                  <CircularProgress size={30} sx={{ color: "#172039" }} />
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2, backgroundColor: "#172039" }}
+                  >
+                    Đăng nhập &nbsp; &nbsp;
+                    <CircularProgress size={20} sx={{ color: "#FFFFFF" }} />
+                  </Button>
                 ) : (
                   <Button
                     type="submit"
