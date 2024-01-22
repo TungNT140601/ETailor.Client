@@ -41,6 +41,12 @@ export const publicRouters = [
     component: CustomerProfile,
     layout: DefaultLayout,
   },
+  {
+    path: "/management/login",
+    name: "admin-login",
+    component: LoginManagerAndAdmin,
+    layout: null,
+  },
 ];
 
 export const privateRouters = [
