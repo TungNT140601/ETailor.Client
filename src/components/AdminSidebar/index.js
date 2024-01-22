@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../../assets/logo.png";
 import "./index.css";
 import Typography from "@mui/material/Typography";
@@ -33,16 +33,11 @@ export const AdminSidebar = () => {
         setOpenAccount(false);
         setIsActive(null);
       } else {
-        setIsActive(null);
+        setIsActive(value);
       }
     } else {
       if (value === 1) {
         setOpenAccount(true);
-        setIsActive(value);
-      } else if (value === 2) {
-        navigate("/admin/measurement");
-        setIsActiveSupAccount(null);
-        setOpenAccount(false);
         setIsActive(value);
       } else if (value === 3) {
         navigate("/admin/system-configuration");
@@ -54,13 +49,15 @@ export const AdminSidebar = () => {
   };
   const handleNavigate = (value) => {
     if (value === isActiveSupAccount) {
-      setIsActiveSupAccount(null);
+      setIsActiveSupAccount(value);
     } else {
       setIsActiveSupAccount(value);
       if (value === 1) {
         navigate("/admin");
       } else if (value === 2) {
         navigate("/admin/account/staff");
+      } else if (value === 3) {
+        navigate("/admin/account/manager");
       }
     }
   };
@@ -85,6 +82,18 @@ export const AdminSidebar = () => {
       setLoading(false);
     }
   };
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === "/admin/account/staff") {
+      setIsActiveSupAccount(2);
+    } else if (path === "/admin/account/manager") {
+      setIsActiveSupAccount(3);
+    } else if (path === "/admin/system-configuration") {
+      setIsActiveSupAccount(null);
+      setOpenAccount(false);
+      setIsActive(3);
+    }
+  }, []);
   return (
     <div>
       <div className="logo-content">
@@ -146,26 +155,20 @@ export const AdminSidebar = () => {
             </ListItemButton>
           </List>
           <List component="div" disablePadding>
-            <ListItemButton sx={{ pl: 9, pt: 1 }}>
+            <ListItemButton
+              sx={{
+                pl: 9,
+                pt: 1,
+                backgroundColor:
+                  isActiveSupAccount === 3 ? "#D9D9D9" : "#FFFFFF",
+                color: isActiveSupAccount === 3 ? "#000000" : "#000000",
+              }}
+              onClick={() => handleNavigate(3)}
+            >
               <ListItemText primary="Quản lý" />
             </ListItemButton>
           </List>
         </Collapse>
-        <ListItemButton
-          onClick={() => handleClick(2)}
-          sx={{
-            "&:hover": {
-              backgroundColor: "#172039",
-              color: "#FFFFFF",
-            },
-            backgroundColor: isActive === 2 ? "#172039" : "#FFFFFF",
-            color: isActive === 2 ? "#FFFFFF" : "#000000",
-          }}
-        >
-          <StraightenIcon />
-          &nbsp; &nbsp; &nbsp; &nbsp;
-          <ListItemText primary="Quản lý số đo" />
-        </ListItemButton>
         <ListItemButton
           onClick={() => handleClick(3)}
           sx={{

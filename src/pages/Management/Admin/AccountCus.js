@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import "./index.css";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ReactPaginate from "react-paginate";
 
 const AccountCusHeader = () => {
+  const admin = JSON.parse(localStorage.getItem("admin"));
   return (
     <div>
       <div className="columns">
@@ -17,7 +18,7 @@ const AccountCusHeader = () => {
         </div>
         <div
           className="column is-three-fifths"
-          style={{ width: "550px", paddingTop: "30px" }}
+          style={{ width: "550px", paddingTop: "30px", paddingLeft: "80px" }}
         >
           <div className="field">
             <p className="control has-icons-left has-icons-right">
@@ -40,7 +41,7 @@ const AccountCusHeader = () => {
           <div>
             <AccountCircleIcon fontSize="large" />
           </div>
-          <h5 className="title is-4 pl-4 pt-1">Admin</h5>
+          <h5 className="title is-4 pl-4 pt-1">{admin.role}</h5>
         </div>
       </div>
       <div className="pl-5">
@@ -52,9 +53,9 @@ const AccountCusHeader = () => {
               </a>
             </li>
             <li>
-              <a href="/admin">
-                <h5 className="subtitle is-5">Khách hàng</h5>
-              </a>
+              <h5 className="subtitle is-5">
+                <a href="/admin">Khách hàng</a>
+              </h5>
             </li>
           </ul>
         </nav>
@@ -144,39 +145,54 @@ const AccountCusContent = ({ itemsPerPage }) => {
     );
     setItemOffset(newOffset);
   };
+  const style = [
+    {
+      textAlign: "center",
+    },
+    {
+      centerTableHead: {
+        textAlign: "center",
+        width: "200px",
+      },
+    },
+  ];
   return (
     <div className="table-container">
-      <table className="table table is-narrow is-fullwidth">
+      <table className="table table is-narrow is-fullwidth is-hoverabley">
         <thead>
           <tr>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">STT</h6>
             </th>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">Ảnh đại diện</h6>
             </th>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">Tên người dùng</h6>
             </th>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">Họ và tên</h6>
             </th>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">Số điện thoại</h6>
             </th>
-            <th>
+            <th style={style[1].centerTableHead}>
               <h6 className="title is-5">Email</h6>
             </th>
           </tr>
         </thead>
         <tbody>
           {currentItems.map((item) => (
-            <tr>
+            <tr style={style[0]}>
               <td>{item.Id}</td>
               <td>
-                <figure className="image is-64x64">
-                  <img src={item.Avatar} alt="#logo" />
-                </figure>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <div>
+                    <figure className="image is-64x64">
+                      <img src={item.Avatar} />
+                    </figure>
+                  </div>
+                </div>
               </td>
               <td>{item.UserName}</td>
               <td>{item.FullName}</td>
