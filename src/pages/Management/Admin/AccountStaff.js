@@ -9,11 +9,13 @@ import { useNavigate } from "react-router-dom";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { Button } from "@mui/material";
 import { MultiSelect } from "react-multi-select-component";
+import { useQuery } from "react-query";
 
 const AccountStaffHeader = () => {
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
   return (
     <div>
       <div className="columns">
@@ -391,6 +393,17 @@ const AccountStaffContent = ({ itemsPerPage }) => {
       },
     },
   ];
+  const admin = JSON.parse(localStorage.getItem("admin"));
+  const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
+  const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
+    fetch(getStaffUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${admin?.token}`,
+      },
+    }).then((response) => response.json())
+  );
+  console.log("all staffs", staffs);
 
   return (
     <div className="table-container">
