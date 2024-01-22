@@ -104,6 +104,10 @@
     display: none;
 }
 
+.modal-account-admin::-webkit-scrollbar {
+    display: none;
+}
+
 .admin-paginate {
     display: flex;
     justify-content: center;

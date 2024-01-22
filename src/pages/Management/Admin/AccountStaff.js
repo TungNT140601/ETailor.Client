@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./index.css";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ReactPaginate from "react-paginate";
@@ -10,6 +10,8 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { Button } from "@mui/material";
 import { MultiSelect } from "react-multi-select-component";
 import { useQuery } from "react-query";
+import AvatarEditor from "react-avatar-edit";
+import Swal from "sweetalert2";
 
 const AccountStaffHeader = () => {
   const [open, setOpen] = React.useState(false);
@@ -92,6 +94,16 @@ const AccountStaffHeader = () => {
 
 function BasicModal({ open, handleClose }) {
   const [selectedSkill, setSelectedSkill] = useState([]);
+
+  const [Fullname, setFullname] = useState("");
+  const [Phone, setPhone] = useState("");
+  const [Address, setAddress] = useState("");
+  const [Username, setUsername] = useState("");
+  const [Password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const createStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
+  const admin = JSON.parse(localStorage.getItem("admin"));
+
   const style = {
     position: "absolute",
     top: "50%",
@@ -106,6 +118,41 @@ function BasicModal({ open, handleClose }) {
     overflowY: "scroll",
   };
 
+  // const [src, setSrc] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [imageName, setImageName] = useState(null);
+
+  // const onCrop = (view) => {
+  //   setPreview(view);
+  // };
+  // const onClose = () => {
+  //   setPreview(null);
+  // };
+
+  // const handleNewImage = (e) => {
+  //   const file = e.target.files[0];
+  //   setImageName(file.name);
+
+  //   const reader = new FileReader();
+  //   reader.onloadend = () => {
+  //     setSrc(reader.result);
+  //   };
+  //   reader.readAsDataURL(file);
+  // };
+
+  const handleNewImage = (e) => {
+    const file = e.target.files[0];
+    setImageName(file);
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+  };
+  console.log("name ne", imageName);
+
+  const handleChange = () => {
+    setImageName(null);
+    setPreview(null);
+  };
+
   const options = [
     { id: 1, name: "Cắt vải" },
     { id: 2, name: "Ráp đồ" },
@@ -115,6 +162,55 @@ function BasicModal({ open, handleClose }) {
     label: test.name,
     value: test.id,
   }));
+
+  const handleCreate = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("AvatarImage", imageName);
+      formData.append("Fullname", Fullname);
+      formData.append("Address", Address);
+      formData.append("Phone", Phone);
+      formData.append("Username", Username);
+      formData.append("Password", Password);
+      const response = await fetch(createStaffUrl, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${admin?.token}`,
+        },
+        body: formData,
+      });
+      console.log("response ne`", response.status);
+      if (response.status === 200) {
+        setFullname("");
+        setUsername("");
+        setPhone("");
+        setAddress("");
+        setPassword("");
+        setPasswordConfirm("");
+        setImageName(null);
+        setPreview(null);
+        handleClose();
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Thêm thành công",
+          showConfirmButton: false,
+          timer: 2000,
+        });
+      } else {
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Thêm thất bại",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div>
       <Modal
@@ -123,69 +219,102 @@ function BasicModal({ open, handleClose }) {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style}>
+        <Box sx={style} className="modal-account-admin">
           <h2 className="title is-2">Thêm mới nhân viên</h2>
           <br />
           <div
             style={{
               display: "flex",
-              alignItems: "center",
               justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
             <div>
               <h4 className="subtitle is-4">Họ và tên</h4>
               <input
-                style={{ width: "350px" }}
                 className="input is-normal"
+                style={{ width: 350 }}
                 type="text"
                 placeholder="Nhập họ và tên"
+                value={Fullname}
+                onChange={(e) => setFullname(e.target.value)}
               />
               <h4 className="subtitle is-4 mt-5">Tên người dùng</h4>
               <input
-                style={{ width: "350px" }}
                 className="input is-normal"
+                style={{ width: 350 }}
                 type="text"
                 placeholder="Nhập tên người dùng"
+                value={Username}
+                onChange={(e) => setUsername(e.target.value)}
               ></input>
             </div>
             <div>
               <Button
-                sx={{
-                  // backgroundImage: `url(${selectedImage || 'your-default-image-url.jpg'
-                  //     })`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  width: "160px",
-                  height: "160px",
-                  marginTop: "40px",
-                  borderRadius: "50%",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  border: "2px dashed rgb(243, 156, 18)",
+                variant="outlined"
+                style={{
+                  width: 200,
+                  height: 200,
+                  border: "2px dashed #409EFF",
                 }}
               >
-                <input
-                  // ref={fileInputRef}
-                  type="file"
-                  style={{ display: "none" }}
-                  // onChange={handleImageChange}
-                />
-                <AddPhotoAlternateIcon
-                  fontSize="large"
-                  // sx={{ ...buttonStyle }}
-                />
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="#"
+                    onClick={handleChange}
+                    style={{ height: 180 }}
+                  />
+                ) : (
+                  <>
+                    <label>Chọn ảnh đại diện</label>
+                    <input
+                      type="file"
+                      onChange={handleNewImage}
+                      style={{
+                        width: "200px",
+                        height: 200,
+                        border: "2px dashed #409EFF",
+                        opacity: 0,
+                        position: "absolute",
+                      }}
+                    />
+                  </>
+                )}
               </Button>
             </div>
           </div>
+
+          {/* <div>
+            <input
+              type="file"
+              onChange={handleNewImage}
+              style={src ? { display: "none" } : {}}
+            />
+            {src && (
+              <AvatarEditor
+                onClose={onClose}
+                onCrop={onCrop}
+                src={src}
+                width={250}
+                height={250}
+                border={50}
+                color={[255, 255, 255, 0.6]}
+                scale={1.2}
+                rotate={0}
+              />
+            )}
+          </div> */}
+
           <h4 className="subtitle is-4 mt-5">Nhập mật khẩu</h4>
           <p className="control has-icons-right">
             <input
               className="input is-normal"
+              style={{ width: 900 }}
               type="password"
               placeholder="Nhập mật khẩu"
+              value={Password}
+              onChange={(e) => setPassword(e.target.value)}
             ></input>
             <span className="icon is-small is-right">
               <i className="fa-solid fa-eye"></i>
@@ -196,8 +325,20 @@ function BasicModal({ open, handleClose }) {
           <p className="control has-icons-right">
             <input
               className="input is-normal"
+              style={{ width: 900 }}
               type="password"
               placeholder="Xác nhận mật khẩu"
+              value={passwordConfirm}
+              onInput={(e) => {
+                const confirm = e.target.value;
+                console.log("confirm:", confirm, "pass", Password);
+                setPasswordConfirm(confirm);
+                if (confirm !== Password) {
+                  console.log("Mật Khẩu không đúng");
+                } else {
+                  console.log("Mật Khẩu đúng");
+                }
+              }}
             ></input>
             <span className="icon is-small is-right">
               <i className="fa-solid fa-eye"></i>
@@ -206,22 +347,28 @@ function BasicModal({ open, handleClose }) {
           <h4 className="subtitle is-4 mt-5">Địa chỉ</h4>
           <input
             className="input is-normal"
+            style={{ width: 900 }}
             type="text"
             placeholder="Nhập địa chỉ"
+            value={Address}
+            onChange={(e) => setAddress(e.target.value)}
           ></input>
           <h4 className="subtitle is-4 mt-5">Số điện thoại</h4>
           <input
             className="input is-normal"
+            style={{ width: 900 }}
             type="tel"
             placeholder="Nhập số điện thoại"
+            value={Phone}
+            onChange={(e) => setPhone(e.target.value)}
           ></input>
-          <h4 className="subtitle is-4 mt-5">Kỹ năng chuyên môn</h4>
+          {/* <h4 className="subtitle is-4 mt-5">Kỹ năng chuyên môn</h4>
           <MultiSelect
             options={choose}
             value={selectedSkill}
             onChange={setSelectedSkill}
             labelledBy="Chọn chuyên môn phù hợp"
-          />
+          /> */}
           <div
             className="mt-5"
             style={{ display: "flex", justifyContent: "center" }}
@@ -234,13 +381,28 @@ function BasicModal({ open, handleClose }) {
               Từ chối
             </button>
             &nbsp; &nbsp;
-            <button
-              className="button is-normal"
-              type="submit"
-              style={{ color: "#FFFFFF", backgroundColor: "#172039" }}
-            >
-              Tạo mới
-            </button>
+            {passwordConfirm === null ||
+            passwordConfirm === undefined ||
+            passwordConfirm === "" ||
+            passwordConfirm !== Password ? (
+              <button
+                className="button is-normal"
+                type="submit"
+                style={{ color: "#FFFFFF", backgroundColor: "#172039" }}
+                disabled
+              >
+                Tạo mới
+              </button>
+            ) : (
+              <button
+                className="button is-normal"
+                type="submit"
+                style={{ color: "#FFFFFF", backgroundColor: "#172039" }}
+                onClick={handleCreate}
+              >
+                Tạo mới
+              </button>
+            )}
           </div>
         </Box>
       </Modal>
@@ -248,135 +410,27 @@ function BasicModal({ open, handleClose }) {
   );
 }
 
-const items = [
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-  {
-    Id: 1,
-    UserName: "anhtu",
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    FullName: "Dao Anh Tu",
-    Address: "117/18 Phan Văn Hân, Phường 17, Quận Bình Thạnh",
-    Phone: "0937550256",
-    Skills: "Cắt đồ",
-  },
-];
-
 const AccountStaffContent = ({ itemsPerPage }) => {
+  const admin = JSON.parse(localStorage.getItem("admin"));
+  const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
+  const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
+    fetch(getStaffUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${admin?.token}`,
+      },
+    }).then((response) => response.json())
+  );
+  console.log("all staffs", staffs);
+
   console.log(itemsPerPage);
   const [itemOffset, setItemOffset] = useState(0);
   const endOffset = itemOffset + itemsPerPage;
   console.log(`Loading items from ${itemOffset} to ${endOffset}`);
-  const currentItems = items.slice(itemOffset, endOffset);
-  const pageCount = Math.ceil(items.length / itemsPerPage);
+  const currentItems = staffs?.data?.slice(itemOffset, endOffset);
+  const pageCount = Math.ceil(staffs?.data?.length / itemsPerPage);
   const handlePageClick = (event) => {
-    const newOffset = (event.selected * itemsPerPage) % items.length;
+    const newOffset = (event.selected * itemsPerPage) % staffs?.data?.length;
     console.log(
       `User requested page number ${event.selected}, which is offset ${newOffset}`
     );
@@ -393,17 +447,6 @@ const AccountStaffContent = ({ itemsPerPage }) => {
       },
     },
   ];
-  const admin = JSON.parse(localStorage.getItem("admin"));
-  const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-    fetch(getStaffUrl, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${admin?.token}`,
-      },
-    }).then((response) => response.json())
-  );
-  console.log("all staffs", staffs);
 
   return (
     <div className="table-container">
@@ -428,108 +471,114 @@ const AccountStaffContent = ({ itemsPerPage }) => {
             <th style={style[1].centerTableHead}>
               <h6 className="title is-6">Số điện thoại</h6>
             </th>
-            <th style={style[1].centerTableHead}>
-              <h6 className="title is-6">Chuyên môn</h6>
-            </th>
+
             <th style={style[1].centerTableHead}>
               <h6 className="title is-6">Tùy chỉnh</h6>
             </th>
           </tr>
         </thead>
         <tbody>
-          {currentItems.map((item) => (
-            <tr style={style[0]}>
+          {currentItems?.map((item, index) => (
+            <tr style={style[0]} key={item.id}>
               <td>
-                <h6
-                  className="subtitle is-6"
-                  style={{ height: 20, overflowY: "hidden" }}
-                >
-                  {item.Id}
-                </h6>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <h6
+                    className="subtitle is-6"
+                    style={{ height: 20, overflowY: "hidden" }}
+                  >
+                    {item.stt}
+                  </h6>
+                </div>
               </td>
               <td>
-                <p
-                  className="subtitle is-6"
-                  style={{
-                    height: 60,
-                    width: 140,
-                    overflowY: "hidden",
-                    overflowX: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {item.UserName}
-                </p>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <p
+                    className="subtitle is-6"
+                    style={{
+                      height: 60,
+                      width: 100,
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {item.username}
+                  </p>{" "}
+                </div>
               </td>
               <td>
                 <div style={{ display: "flex", justifyContent: "center" }}>
                   <div>
-                    <figure className="image is-64x64">
-                      <img src={item.Avatar} />
-                    </figure>
+                    <img
+                      src={item.avatar}
+                      alt=""
+                      style={{
+                        height: "64px",
+                        width: "64px",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        backgroundSize: "cover",
+                      }}
+                    />
                   </div>
                 </div>
               </td>
               <td>
-                <p
-                  className="subtitle is-6"
-                  style={{
-                    height: 60,
-                    width: 140,
-                    overflowY: "hidden",
-                    overflowX: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {item.FullName}
-                </p>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <p
+                    className="subtitle is-6"
+                    style={{
+                      height: 60,
+                      width: 100,
+                      textAlign: "center",
+                      overflowY: "hidden",
+                      overflowX: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {item.fullname}
+                  </p>
+                </div>
               </td>
               <td>
-                <p
-                  className="subtitle is-6"
-                  style={{
-                    height: 60,
-                    width: 140,
-                    overflowY: "hidden",
-                    overflowX: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {item.Address}
-                </p>
+                <div style={{ display: "flex", justifyContent: "center" }}>
+                  <p
+                    className="subtitle is-6"
+                    style={{
+                      height: 60,
+                      width: 100,
+                      overflowY: "hidden",
+                      overflowX: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {item.address}
+                  </p>
+                </div>
               </td>
               <td>
-                <p
-                  className="subtitle is-6"
+                <div
                   style={{
-                    height: 60,
-                    width: 140,
-                    overflowY: "hidden",
-                    overflowX: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
+                    display: "flex",
+                    justifyContent: "center",
                   }}
                 >
-                  {item.Phone}
-                </p>
-              </td>
-              <td>
-                <p
-                  className="subtitle is-6"
-                  style={{
-                    height: 60,
-                    width: 140,
-                    overflowY: "hidden",
-                    overflowX: "hidden",
-                    whiteSpace: "nowrap",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {item.Skills}
-                </p>
+                  <p
+                    className="subtitle is-6"
+                    style={{
+                      height: 60,
+                      width: 140,
+                      overflowY: "hidden",
+                      overflowX: "hidden",
+                      whiteSpace: "nowrap",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {item.phone}
+                  </p>
+                </div>
               </td>
               <td>
                 <div>

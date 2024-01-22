@@ -13,9 +13,11 @@ import { DefaultLayoutAdmin } from "../components/DefaultLayoutAdmin";
 import { AccountStaff } from "../pages/Management/Admin/AccountStaff";
 import { SystemConfig } from "../pages/Management/Admin/SystemConfig";
 import CustomerProfile from "../pages/Customer/Profile";
-import AccountManager from "../pages/Management/Admin/AccountManager";
 import CustomerSidebar from "../components/CustomerSidebar/CustomerSidebar";
 import UserProfileLayout from "../components/UserProfileLayout";
+import DefaultLayoutManager from "../components/DefaultLayoutManager";
+import ManagementStaff from "../pages/Management/Manager/ManagementStaff";
+import ManagerRouter from "./ManagerRouter";
 export const customerRouters = [];
 
 export const publicRouters = [
@@ -73,17 +75,20 @@ export const adminRouters = [
     component: AccountStaff,
     layout: DefaultLayoutAdmin,
   },
-  {
-    path: "/admin/account/manager",
-    name: "home-admin-account-manager",
-    component: AccountManager,
-    layout: DefaultLayoutAdmin,
-  },
+
   {
     path: "/admin/system-configuration",
     name: "system-configuration",
     component: SystemConfig,
     layout: DefaultLayoutAdmin,
+  },
+];
+export const managerRouters = [
+  {
+    path: "/manager",
+    name: "staff-manager",
+    component: ManagementStaff,
+    layout: DefaultLayoutManager,
   },
 ];
 
@@ -148,6 +153,28 @@ export const RouterComponents = () => {
                     </Route> */}
           <Route exact path="/" element={<AdminRouters />}>
             {adminRouters.map((route, index) => {
+              const Page = route.component;
+              let Layout = DefaultLayout;
+              if (route.layout) {
+                Layout = route.layout;
+              } else if (route.layout === null) {
+                Layout = Fragment;
+              }
+              return (
+                <Route
+                  key={index}
+                  path={route.path}
+                  element={
+                    <Layout>
+                      <Page />
+                    </Layout>
+                  }
+                />
+              );
+            })}
+          </Route>
+          <Route exact path="/" element={<ManagerRouter />}>
+            {managerRouters.map((route, index) => {
               const Page = route.component;
               let Layout = DefaultLayout;
               if (route.layout) {
