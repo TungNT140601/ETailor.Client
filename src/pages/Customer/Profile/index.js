@@ -7,9 +7,11 @@ export default function CustomerProfile() {
         <div className='wrapper-profile'>
             <div>
                 <div className='avatar-wrapper'>
-                    <figure class="image is-256x256">
+                    <figure class="image is-32x32">
                         <img className='user-avatar' src={UserAvatar}></img>
+
                     </figure>
+                    <h2 className='subtitle is-4'>Nguyễn Công Vũ </h2>
                 </div>
 
             </div>
