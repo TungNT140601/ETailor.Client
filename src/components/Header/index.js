@@ -9,6 +9,7 @@ import MenuButton from '@mui/joy/MenuButton';
 import MenuItem from '@mui/joy/MenuItem';
 import Dropdown from '@mui/joy/Dropdown';
 import UserLogo from '../../assets/images/user.png'
+import MenuDropIcon from '../../assets/images/caret-down.png'
 
 const Header = () => {
     const [clickedSection, setClickedSection] = useState("Trang Chu")
@@ -57,22 +58,25 @@ const Header = () => {
                         </div>
                         <div className="navbar-item has-dropdown is-hoverable">
                             <div className='navbar-item' >
-                                <Link className='nav-link' to="/#" onClick={() => setClickedSection("Dat May")}>
-                                    <h1 className="subtitle is-5 " style={{ color: clickedSection === "Dat May" ? "#9F78FF" : "#1D2547" }}>
-                                        ĐẶT MAY
-                                    </h1>
-                                </Link>
+                                <div style={{ height: "auto" }}>
+                                    <Link className='nav-link' to="/#" onClick={() => setClickedSection("Dat May")}>
+                                        <h1 className="subtitle is-5 " style={{ color: clickedSection === "Dat May" ? "#9F78FF" : "#1D2547" }}>
+                                            ĐẶT MAY <img width={15} height={15} src={MenuDropIcon}></img>
+                                        </h1>
+                                    </Link>
+                                </div>
+
                             </div>
 
-                            <div className="navbar-dropdown is-boxed">
+                            <div className="navbar-dropdown is-boxed" style={{ zIndex: "9999999999999999" }}>
                                 <a className="navbar-item">
-                                    About
+                                    Áo sơ mi
                                 </a>
                                 <a className="navbar-item">
-                                    Jobs
+                                    Áo vest
                                 </a>
                                 <a className="navbar-item">
-                                    Contact
+                                    Áo dài
                                 </a>
                             </div>
                         </div>
@@ -89,10 +93,11 @@ const Header = () => {
                                 <Link to="/profile">
                                     <MenuItem>Profile</MenuItem>
                                 </Link>
-
-                                <MenuItem>
-                                    <Link to="/profile">My account</Link>
-                                </MenuItem>
+                                <Link to="/profile">
+                                    <MenuItem>
+                                        My account
+                                    </MenuItem>
+                                </Link>
                                 <MenuItem>Logout</MenuItem>
                             </Menu>
                         </Dropdown>
