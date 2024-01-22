@@ -13,6 +13,7 @@ import { DefaultLayoutAdmin } from "../components/DefaultLayoutAdmin";
 import { AccountStaff } from "../pages/Management/Admin/AccountStaff";
 import { Measurement } from "../pages/Management/Admin/Measurement";
 import { SystemConfig } from "../pages/Management/Admin/SystemConfig";
+import CustomerProfile from "../pages/Customer/Profile";
 export const customerRouters = [];
 
 export const publicRouters = [
@@ -35,10 +36,10 @@ export const publicRouters = [
     layout: null,
   },
   {
-    path: "/management/login",
-    name: "login-admin",
-    component: LoginManagerAndAdmin,
-    layout: null,
+    path: "/profile",
+    name: "customer-profile",
+    component: CustomerProfile,
+    layout: DefaultLayout,
   },
 ];
 

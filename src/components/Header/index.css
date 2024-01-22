@@ -56,3 +56,6 @@
 .login{
     cursor: pointer;
 }
+.user-logo:hover{
+    background-color: #fff!important;
+}

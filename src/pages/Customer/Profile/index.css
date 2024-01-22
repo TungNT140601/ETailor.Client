@@ -1,0 +1,15 @@
+.wrapper-profile {
+    display: grid;
+    grid-template-columns: 30% 70%;
+}
+.user-avatar{
+    width: 300px !important;
+    height: 350px !important;
+    border-radius: 20px
+}
+.avatar-wrapper{
+    padding-left: 120px;
+}
+.user-info{
+   text-align: start;
+}

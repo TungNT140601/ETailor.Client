@@ -12,6 +12,13 @@ import Step3Img from '../../../assets/images/offers3.png'
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
 import 'swiper/css';
 const HomePage = () => {
+    const [isHovered, setIsHovered] = useState(0)
+    const handleHovered = (num) => {
+        setIsHovered(num)
+    }
+    const handleHoveredOut = () => {
+        setIsHovered(0)
+    }
     return (
         <>
             <div className='homepage-container'>
@@ -42,13 +49,35 @@ const HomePage = () => {
                     </div>
                 </div>
                 <div className='wrapper-body'>
-                    <div>
-                        <img src={Step1Img}></img>
+                    <div className='step-des'>
+                        <img src={Step1Img} onMouseEnter={() => { handleHovered(1) }} onMouseLeave={handleHoveredOut} className="step-img"></img>
+                        <div>
+                            <h1 className={`title is-3 ${isHovered === 1 ? "text-hover" : ""}`} style={{ color: "#1D2547" }}><span className={`${isHovered === 1 ? "dot-hover" : "dot"} `}><p>1</p></span>  Lấy số đo</h1>
+                        </div>
+                        <div>
+                            <h1 className='subtitle is-6'> Lấy số đo</h1>
+                        </div>
                     </div>
-                    <div>   <img src={Step2Img}></img></div>
-                    <div>   <img src={Step3Img}></img></div>
-                </div>
-            </div>
+                    <div className='step-des'>
+                        <img src={Step2Img} onMouseEnter={() => { handleHovered(2) }} onMouseLeave={handleHoveredOut} className="step-img"></img>
+                        <div>
+                            <h1 className={`title is-3 ${isHovered === 2 ? "text-hover" : ""}`} style={{ color: "#1D2547" }}><span className={`${isHovered === 2 ? "dot-hover" : "dot"} `}>2</span>  Lấy số đo</h1>
+                        </div>
+                        <div>
+                            <h1 className='subtitle is-6'> Lấy số đo</h1>
+                        </div>
+                    </div>
+                    <div className='step-des'>
+                        <img src={Step3Img} onMouseEnter={() => { handleHovered(3) }} onMouseLeave={handleHoveredOut} className="step-img"></img>
+                        <div>
+                            <h1 className={`title is-3 ${isHovered === 3 ? "text-hover" : ""}`} style={{ color: "#1D2547" }}><span className={`${isHovered === 3 ? "dot-hover" : "dot"} `}>3</span>  Lấy số đo</h1>
+                        </div>
+                        <div>
+                            <h1 className='subtitle is-6'> Lấy số đo</h1>
+                        </div>
+                    </div>
+                </div >
+            </div >
         </>
     )
 }
