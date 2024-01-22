@@ -5,11 +5,11 @@ import './index.css'
 const DefaultLayout = ({ children }) => {
     return (
         <>
-            <div className='container'>
+            <div className='container-wrapper'>
                 <div>
                     <Header />
                 </div>
-                <div className='home-wrapper'>
+                <div className='section-wrapper'>
                     {children}
                 </div>
 
