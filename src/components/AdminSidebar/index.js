@@ -187,7 +187,14 @@ export const AdminSidebar = () => {
       </div>
       <div className="admin-logout">
         {loading ? (
-          <CircularProgress size={30} sx={{ color: "#172039" }} />
+          <Button
+            variant="contained"
+            sx={{ width: "270px", backgroundColor: "#172039" }}
+            onClick={handleLogout}
+          >
+            <LogoutIcon /> &nbsp; &nbsp; Đăng xuất &nbsp; &nbsp;{" "}
+            <CircularProgress size={20} sx={{ color: "#FFFFFF" }} />
+          </Button>
         ) : (
           <Button
             variant="contained"
