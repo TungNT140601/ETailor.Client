@@ -1,22 +1,42 @@
-.wrapper-profile {
-    display: grid;
-    grid-template-columns: 30% 70%;
-}
-
-.user-avatar {
-    width: 300px !important;
-    height: 350px !important;
-    border-radius: 20px
-}
-
-.avatar-wrapper {
-    padding-left: 120px;
-}
-
 .user-info {
-    text-align: start;
+
+    display: flex;
+    align-items: center;
+    padding-bottom: 10px;
+    display: grid;
+    grid-template-columns: 30% auto;
 }
 
-.user-info>h2 {
-    
+.input-title {
+    display: flex;
+    justify-self: end;
+    padding-right: 20px;
+}
+
+.input-area {
+    display: flex;
+    align-items: center;
+}
+
+.btn-change {
+    border-radius: 20px;
+    margin-left: 20px;
+    background-color: #9F78FF;
+    color: #fff;
+    transition: 0.5s linear;
+
+
+}
+
+.save-btn {
+    width: 100vw;
+    height: 200px;
+    bottom: 0;
+    position: relative;
+}
+
+
+.btn-change:hover {
+    background-color: #6f42c1;
+    color: #fff;
 }

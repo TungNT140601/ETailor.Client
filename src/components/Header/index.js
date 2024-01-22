@@ -83,9 +83,7 @@ const Header = () => {
                     <div style={{ height: 'auto' }}>
                         <Dropdown>
                             <MenuButton className="user-logo" sx={{ border: "none" }}>
-
                                 <img src={UserLogo} width={30} height={30}></img>
-
                             </MenuButton>
                             <Menu sx={{ zIndex: 100000000 }}>
                                 <Link to="/profile">
