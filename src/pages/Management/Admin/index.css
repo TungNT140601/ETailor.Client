@@ -15,6 +15,7 @@
     width: 97%;
     border-radius: 10px;
     padding: 20px;
+    padding-bottom: 0px;
     margin: 20px 30px;
 }
 
@@ -28,14 +29,17 @@
     width: 97%;
     height: 200px;
     margin: 20px 30px;
+    margin-top: 10px;
 }
 
 .admin-account-staff-content {
     background-color: #FFFFFF;
     width: 97%;
-    padding: 20px;
-    margin: 20px 30px;
     border-radius: 10px;
+    padding: 20px;
+    padding-bottom: 0px;
+    margin: 20px 30px;
+    margin-bottom: 0px;
 }
 
 /* .admin-account-manager-main-container {
@@ -63,6 +67,7 @@
     padding: 20px;
 } */
 
+
 .admin-account-system-main-container {
     width: 100%;
 }
@@ -81,8 +86,10 @@
     height: 545px;
     border-radius: 10px;
     padding: 20px;
+    padding-bottom: 0px;
     overflow-y: scroll;
     margin: 20px 30px;
+    margin-bottom: 0px;
 
 }
 
@@ -97,6 +104,7 @@
 .admin-paginate {
     display: flex;
     justify-content: center;
+    padding-bottom: 10px;
 }
 
 
