@@ -7,32 +7,42 @@ const AccountCusHeader = () => {
   const admin = JSON.parse(localStorage.getItem("admin"));
   return (
     <div>
-      <div className="columns">
-        <div className="column is-one-fifth">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center" }}>
           <h4
             className="title is-3"
-            style={{ paddingLeft: "20px", paddingTop: "20px" }}
+            style={{
+              paddingLeft: "20px",
+              paddingTop: "20px",
+            }}
           >
             Tài khoản
           </h4>
-        </div>
-        <div
-          className="column is-three-fifths"
-          style={{ width: "550px", paddingTop: "30px", paddingLeft: "80px" }}
-        >
-          <div className="field">
+
+          <div className="field ml-5">
             <p className="control has-icons-left has-icons-right">
-              <input className="input" type="text" placeholder="Tìm kiếm" />
+              <input
+                className="input"
+                type="text"
+                placeholder="Tìm kiếm"
+                style={{ width: "400px" }}
+              />
               <span className="icon is-small is-left">
                 <i className="fa-solid fa-magnifying-glass"></i>
               </span>
             </p>
           </div>
         </div>
+
         <div
-          className="column is-one-fifth"
           style={{
-            marginLeft: "200px",
+            marginRight: "100px",
             paddingTop: "35px",
             display: "flex",
             alignContent: "center",
