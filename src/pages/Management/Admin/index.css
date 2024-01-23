@@ -1,54 +1,44 @@
 .admin-account-customer-main-container {
-    position: relative;
+    width: 100%;
 }
 
 .admin-account-custommer-header {
     background-color: #FFFFFF;
     border-radius: 10px;
-    width: 1180px;
+    width: 97%;
     height: 190px;
-    position: absolute;
-    left: 30px;
-    top: 20px;
+    margin: 20px 30px;
 }
 
 .admin-account-customer-content {
     background-color: #FFFFFF;
-    width: 1180px;
-    height: 545px;
-    position: absolute;
-    left: 30px;
-    top: 220px;
+    width: 97%;
     border-radius: 10px;
     padding: 20px;
+    margin: 20px 30px;
 }
 
 .admin-account-staff-main-container {
-    position: relative;
+    width: 100%;
 }
 
 .admin-account-staff-header {
     background-color: #FFFFFF;
     border-radius: 10px;
-    width: 1180px;
-    height: 190px;
-    position: absolute;
-    left: 30px;
-    top: 20px;
+    width: 97%;
+    height: 200px;
+    margin: 20px 30px;
 }
 
 .admin-account-staff-content {
     background-color: #FFFFFF;
-    width: 1180px;
-    height: 545px;
-    position: absolute;
-    left: 30px;
-    top: 220px;
-    border-radius: 10px;
+    width: 97%;
     padding: 20px;
+    margin: 20px 30px;
+    border-radius: 10px;
 }
 
-.admin-account-manager-main-container {
+/* .admin-account-manager-main-container {
     position: relative;
 }
 
@@ -71,32 +61,28 @@
     top: 220px;
     border-radius: 10px;
     padding: 20px;
-}
+} */
 
 .admin-account-system-main-container {
-    position: relative;
+    width: 100%;
 }
 
 .admin-account-system-header {
     background-color: #FFFFFF;
     border-radius: 10px;
-    width: 1180px;
+    width: 97%;
     height: 190px;
-    position: absolute;
-    left: 30px;
-    top: 20px;
+    margin: 20px 30px;
 }
 
 .admin-account-system-content {
     background-color: #FFFFFF;
-    width: 1180px;
+    width: 97%;
     height: 545px;
-    position: absolute;
-    left: 30px;
-    top: 220px;
     border-radius: 10px;
     padding: 20px;
     overflow-y: scroll;
+    margin: 20px 30px;
 
 }
 

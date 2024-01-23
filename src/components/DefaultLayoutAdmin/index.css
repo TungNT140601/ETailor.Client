@@ -4,10 +4,15 @@
     padding: 0;
     height: 100vh;
     background-color: rgb(196, 196, 196, 0.3);
-    display: flex;
+    display: grid;
+    grid-template-columns: 20% 80%;
 }
 
 .admin-sidebar {
     background-color: #FFFFFF;
-    width: 300px;
+    height: 100%;
+}
+
+.admin-children {
+    height: 100%;
 }
