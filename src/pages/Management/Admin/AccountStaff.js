@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./index.css";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import ReactPaginate from "react-paginate";
@@ -11,6 +11,7 @@ import { Button } from "@mui/material";
 import { MultiSelect } from "react-multi-select-component";
 import { useQuery } from "react-query";
 import AvatarEditor from "react-avatar-edit";
+import Swal from "sweetalert2";
 
 const AccountStaffHeader = () => {
   const [open, setOpen] = React.useState(false);
@@ -93,16 +94,14 @@ const AccountStaffHeader = () => {
 
 function BasicModal({ open, handleClose }) {
   const [selectedSkill, setSelectedSkill] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [selectedImageName, setSelectedImageName] = useState(null);
-  const [editor, setEditor] = useState(null);
+
   const [Fullname, setFullname] = useState("");
   const [Phone, setPhone] = useState("");
   const [Address, setAddress] = useState("");
   const [Username, setUsername] = useState("");
   const [Password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-  const createStaffUrl = "https://localhost:7259/api/staff";
+  const createStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
   const admin = JSON.parse(localStorage.getItem("admin"));
 
   const style = {
@@ -119,6 +118,41 @@ function BasicModal({ open, handleClose }) {
     overflowY: "scroll",
   };
 
+  // const [src, setSrc] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [imageName, setImageName] = useState(null);
+
+  // const onCrop = (view) => {
+  //   setPreview(view);
+  // };
+  // const onClose = () => {
+  //   setPreview(null);
+  // };
+
+  // const handleNewImage = (e) => {
+  //   const file = e.target.files[0];
+  //   setImageName(file.name);
+
+  //   const reader = new FileReader();
+  //   reader.onloadend = () => {
+  //     setSrc(reader.result);
+  //   };
+  //   reader.readAsDataURL(file);
+  // };
+
+  const handleNewImage = (e) => {
+    const file = e.target.files[0];
+    setImageName(file);
+    const url = URL.createObjectURL(file);
+    setPreview(url);
+  };
+  console.log("name ne", imageName);
+
+  const handleChange = () => {
+    setImageName(null);
+    setPreview(null);
+  };
+
   const options = [
     { id: 1, name: "Cắt vải" },
     { id: 2, name: "Ráp đồ" },
@@ -128,26 +162,49 @@ function BasicModal({ open, handleClose }) {
     label: test.name,
     value: test.id,
   }));
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      setSelectedImage(file);
-      setSelectedImageName(file.name);
-    }
-  };
 
   const handleCreate = async () => {
     try {
+      const formData = new FormData();
+      formData.append("AvatarImage", imageName);
+      formData.append("Fullname", Fullname);
+      formData.append("Address", Address);
+      formData.append("Phone", Phone);
+      formData.append("Username", Username);
+      formData.append("Password", Password);
       const response = await fetch(createStaffUrl, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${admin?.token}`,
         },
-        body: JSON.stringify({}),
+        body: formData,
       });
-      if (response.ok) {
-        const data = JSON.stringify(response);
-        console.log(data);
+      console.log("response ne`", response.status);
+      if (response.status === 200) {
+        setFullname("");
+        setUsername("");
+        setPhone("");
+        setAddress("");
+        setPassword("");
+        setPasswordConfirm("");
+        setImageName(null);
+        setPreview(null);
+        handleClose();
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Thêm thành công",
+          showConfirmButton: false,
+          timer: 2000,
+        });
+      } else {
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "Thêm thất bại",
+          showConfirmButton: false,
+          timer: 1500,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -162,59 +219,98 @@ function BasicModal({ open, handleClose }) {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
-        <Box sx={style}>
+        <Box sx={style} className="modal-account-admin">
           <h2 className="title is-2">Thêm mới nhân viên</h2>
           <br />
-
-          <h4 className="subtitle is-4">Họ và tên</h4>
-          <input
-            className="input is-normal"
-            type="text"
-            placeholder="Nhập họ và tên"
-            value={Fullname}
-            onChange={(e) => setFullname(e.target.value)}
-          />
-          <h4 className="subtitle is-4 mt-5">Tên người dùng</h4>
-          <input
-            className="input is-normal"
-            type="text"
-            placeholder="Nhập tên người dùng"
-            value={Username}
-            onChange={(e) => setUsername(e.target.value)}
-          ></input>
-          <h4 className="subtitle is-4 mt-5">Ảnh đại diện</h4>
-          <div>
-            <div class="file is-info has-name">
-              <label class="file-label">
-                <input
-                  class="file-input"
-                  type="file"
-                  onChange={handleFileChange}
-                  name="resume"
-                />
-                <span class="file-cta">
-                  <span class="file-icon">
-                    <i class="fas fa-upload"></i>
-                  </span>
-                  <span class="file-label">Upload your image…</span>
-                </span>
-              </label>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div>
+              <h4 className="subtitle is-4">Họ và tên</h4>
+              <input
+                className="input is-normal"
+                style={{ width: 350 }}
+                type="text"
+                placeholder="Nhập họ và tên"
+                value={Fullname}
+                onChange={(e) => setFullname(e.target.value)}
+              />
+              <h4 className="subtitle is-4 mt-5">Tên người dùng</h4>
+              <input
+                className="input is-normal"
+                style={{ width: 350 }}
+                type="text"
+                placeholder="Nhập tên người dùng"
+                value={Username}
+                onChange={(e) => setUsername(e.target.value)}
+              ></input>
             </div>
-            {selectedImage && (
-              <div>
-                {/* Display the selected image or perform other actions */}
-                <img
-                  src={URL.createObjectURL(selectedImage)}
-                  alt="preview-image"
-                />
-              </div>
-            )}
+            <div>
+              <Button
+                variant="outlined"
+                style={{
+                  width: 200,
+                  height: 200,
+                  border: "2px dashed #409EFF",
+                }}
+              >
+                {preview ? (
+                  <img
+                    src={preview}
+                    alt="#"
+                    onClick={handleChange}
+                    style={{ height: 180 }}
+                  />
+                ) : (
+                  <>
+                    <label>Chọn ảnh đại diện</label>
+                    <input
+                      type="file"
+                      onChange={handleNewImage}
+                      style={{
+                        width: "200px",
+                        height: 200,
+                        border: "2px dashed #409EFF",
+                        opacity: 0,
+                        position: "absolute",
+                      }}
+                    />
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
+
+          {/* <div>
+            <input
+              type="file"
+              onChange={handleNewImage}
+              style={src ? { display: "none" } : {}}
+            />
+            {src && (
+              <AvatarEditor
+                onClose={onClose}
+                onCrop={onCrop}
+                src={src}
+                width={250}
+                height={250}
+                border={50}
+                color={[255, 255, 255, 0.6]}
+                scale={1.2}
+                rotate={0}
+              />
+            )}
+          </div> */}
 
           <h4 className="subtitle is-4 mt-5">Nhập mật khẩu</h4>
           <p className="control has-icons-right">
             <input
               className="input is-normal"
+              style={{ width: 900 }}
               type="password"
               placeholder="Nhập mật khẩu"
               value={Password}
@@ -229,6 +325,7 @@ function BasicModal({ open, handleClose }) {
           <p className="control has-icons-right">
             <input
               className="input is-normal"
+              style={{ width: 900 }}
               type="password"
               placeholder="Xác nhận mật khẩu"
               value={passwordConfirm}
@@ -250,6 +347,7 @@ function BasicModal({ open, handleClose }) {
           <h4 className="subtitle is-4 mt-5">Địa chỉ</h4>
           <input
             className="input is-normal"
+            style={{ width: 900 }}
             type="text"
             placeholder="Nhập địa chỉ"
             value={Address}
@@ -258,6 +356,7 @@ function BasicModal({ open, handleClose }) {
           <h4 className="subtitle is-4 mt-5">Số điện thoại</h4>
           <input
             className="input is-normal"
+            style={{ width: 900 }}
             type="tel"
             placeholder="Nhập số điện thoại"
             value={Phone}

@@ -57,6 +57,9 @@ export default function LoginManagerAndAdmin() {
         if (data.role === "Admin") {
           localStorage.setItem("admin", JSON.stringify(data));
           navigate("/admin");
+        } else if (data.role === "Manager") {
+          localStorage.setItem("manager", JSON.stringify(data));
+          navigate("/manager");
         }
       }
     } catch (error) {

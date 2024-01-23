@@ -9,22 +9,21 @@ import Collapse from "@mui/material/Collapse";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
-import StraightenIcon from "@mui/icons-material/Straighten";
 import SettingsIcon from "@mui/icons-material/Settings";
 import Button from "@mui/material/Button";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
 
-export const AdminSidebar = () => {
+const ManagerSidebar = () => {
   const [openAccount, setOpenAccount] = React.useState(true);
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState(1);
   const [isActiveSupAccount, setIsActiveSupAccount] = useState(1);
   const [loading, setLoading] = useState(false);
-  const admin = JSON.parse(localStorage.getItem("admin"));
+  const manager = JSON.parse(localStorage.getItem("manager"));
 
-  const logoutAdminUrl =
+  const logoutManagerUrl =
     "https://etailorapi.azurewebsites.net/api/auth/staff/logout";
 
   const handleClick = (value) => {
@@ -62,16 +61,16 @@ export const AdminSidebar = () => {
   const handleLogout = async () => {
     try {
       setLoading(true);
-      const response = await fetch(logoutAdminUrl, {
+      const response = await fetch(logoutManagerUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${admin?.token}`,
+          Authorization: `Bearer ${manager?.token}`,
         },
       });
       setLoading(false);
       if (response.ok) {
-        localStorage.removeItem("admin");
+        localStorage.removeItem("manager");
         navigate("/management/login");
       }
     } catch (error) {
@@ -95,16 +94,16 @@ export const AdminSidebar = () => {
       <div className="logo-content">
         <img src={logo} alt="#logo" className="sidebar-logo" />
       </div>
-      <div className="admin-sidebar-title">
+      <div className="manager-sidebar-title">
         <Typography
           variant="h6"
           component="h2"
           sx={{ fontWeight: 700, marginBottom: "30px" }}
         >
-          Xin chào, Admin
+          Xin chào, Manager
         </Typography>
       </div>
-      <div className="admin-vertical-menu">
+      <div className="manager-vertical-menu">
         <ListItemButton
           onClick={() => handleClick(1)}
           sx={{
@@ -150,20 +149,6 @@ export const AdminSidebar = () => {
               <ListItemText primary="Nhân viên" />
             </ListItemButton>
           </List>
-          {/* <List component="div" disablePadding>
-            <ListItemButton
-              sx={{
-                pl: 9,
-                pt: 1,
-                backgroundColor:
-                  isActiveSupAccount === 3 ? "#D9D9D9" : "#FFFFFF",
-                color: isActiveSupAccount === 3 ? "#000000" : "#000000",
-              }}
-              onClick={() => handleNavigate(3)}
-            >
-              <ListItemText primary="Quản lý" />
-            </ListItemButton>
-          </List> */}
         </Collapse>
         <ListItemButton
           onClick={() => handleClick(3)}
@@ -181,7 +166,7 @@ export const AdminSidebar = () => {
           <ListItemText primary="Quản lý hệ thống" />
         </ListItemButton>
       </div>
-      <div className="admin-logout">
+      <div className="manager-logout">
         {loading ? (
           <Button
             variant="contained"
@@ -204,3 +189,5 @@ export const AdminSidebar = () => {
     </div>
   );
 };
+
+export default ManagerSidebar;
