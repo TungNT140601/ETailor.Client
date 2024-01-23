@@ -18,6 +18,7 @@ import UserProfileLayout from "../components/UserProfileLayout";
 import DefaultLayoutManager from "../components/DefaultLayoutManager";
 import ManagementStaff from "../pages/Management/Manager/ManagementStaff";
 import ManagerRouter from "./ManagerRouter";
+import Catalogue from "../pages/Customer/Catalogue";
 export const customerRouters = [];
 
 export const publicRouters = [
@@ -50,6 +51,12 @@ export const publicRouters = [
     name: "admin-login",
     component: LoginManagerAndAdmin,
     layout: null,
+  },
+  {
+    path: "/catalogue",
+    name: "home-catalogue",
+    component: Catalogue,
+    layout: DefaultLayout,
   },
 ];
 
