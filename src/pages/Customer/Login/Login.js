@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types';
 import { styled, css } from '@mui/system';
 import { Modal as BaseModal } from '@mui/base/Modal';
@@ -10,6 +10,7 @@ import { Button } from '@mui/base/Button';
 import { Input as BaseInput, inputClasses } from '@mui/base/Input';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import Register from '../../Register';
 
 const Input = React.forwardRef(function CustomInput(props, ref) {
     const { slots, ...other } = props;
@@ -42,6 +43,14 @@ export default function Login({ openModal, closeModal }) {
         showPassword: false,
     });
 
+    const [loginOrReg, setLoginOrReg] = useState('LOGIN')
+    const handleRegisterClick = () => {
+        setLoginOrReg('REGISTER')
+    }
+    const handleLoginClick = () => {
+        setLoginOrReg('LOGIN')
+    }
+
     const handleChange = (prop) => (event) => {
         setValues({ ...values, [prop]: event.target.value });
     };
@@ -69,76 +78,151 @@ export default function Login({ openModal, closeModal }) {
                 slots={{ backdrop: StyledBackdrop }}
             >
                 <Fade in={openModal}>
-                    <ModalContent sx={style}>
+                    {loginOrReg === "LOGIN" ? (
+                        < ModalContent sx={style}>
 
-                        <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                            <div className='login-form' style={{ width: "50%" }}>
-                                <h1 className="title is-2">Đăng nhập</h1>
-                                <div className='input-form' >
-                                    <Input
-                                        id="outlined-start-adornment"
-                                        placeholder="Tên người dùng hoặc email"
-                                    />
-                                </div>
-                                <div className='input-form'>
-                                    <Input
-                                        id="outlined-adornment-password"
-                                        placeholder="Mật khẩu"
-                                        type={values.showPassword ? 'text' : 'password'}
-                                        value={values.password}
-                                        onChange={handleChange('password')}
-                                        endAdornment={
-                                            <InputAdornment>
-                                                <IconButton
-                                                    size="small"
-                                                    aria-label="toggle password visibility"
-                                                    onClick={handleClickShowPassword}
-                                                    onMouseDown={handleMouseDownPassword}
-                                                >
-                                                    {values.showPassword ? (
-                                                        <VisibilityOff fontSize="small" />
-                                                    ) : (
-                                                        <Visibility fontSize="small" />
-                                                    )}
-                                                </IconButton>
-                                            </InputAdornment>
-                                        }
-                                    />
-                                </div>
-                                <div className='remember-user'>
-                                    <label className="checkbox">
-                                        <input type="checkbox">
+                            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                <div className='login-form' style={{ width: "50%" }}>
+                                    <h1 className="title is-2">Đăng nhập</h1>
+                                    <div className='input-form' >
+                                        <Input
+                                            id="outlined-start-adornment"
+                                            placeholder="Tên người dùng hoặc email"
+                                        />
+                                    </div>
+                                    <div className='input-form'>
+                                        <Input
+                                            id="outlined-adornment-password"
+                                            placeholder="Mật khẩu"
+                                            type={values.showPassword ? 'text' : 'password'}
+                                            value={values.password}
+                                            onChange={handleChange('password')}
+                                            endAdornment={
+                                                <InputAdornment>
+                                                    <IconButton
+                                                        size="small"
+                                                        aria-label="toggle password visibility"
+                                                        onClick={handleClickShowPassword}
+                                                        onMouseDown={handleMouseDownPassword}
+                                                    >
+                                                        {values.showPassword ? (
+                                                            <VisibilityOff fontSize="small" />
+                                                        ) : (
+                                                            <Visibility fontSize="small" />
+                                                        )}
+                                                    </IconButton>
+                                                </InputAdornment>
+                                            }
+                                        />
+                                    </div>
+                                    <div className='remember-user'>
+                                        <label className="checkbox">
+                                            <input type="checkbox">
 
-                                        </input> Ghi nhớ đăng nhập
-                                    </label>
+                                            </input> Ghi nhớ đăng nhập
+                                        </label>
+
+                                    </div>
+                                    <div className="field loginbtn-submit">
+                                        <p className="control">
+                                            <button className="button" style={{ backgroundColor: "#26282E", color: "#FFFFFF", width: '90%', fontSize: "1rem", borderRadius: "5px" }}>
+                                                Đăng nhập
+                                            </button>
+                                        </p>
+                                    </div>
+                                    <div className="field" style={{ paddingLeft: 10 }}>
+                                        <p className="control">
+                                            Chưa có tài khoản <a href="#" onClick={handleRegisterClick}>Đăng ký ngay</a>
+                                        </p>
+                                        <p className="control" style={{ paddingTop: '10px' }}>
+                                            <a href="#" >Quên mật khẩu</a>
+                                        </p>
+                                    </div>
 
                                 </div>
-                                <div className="field loginbtn-submit">
-                                    <p className="control">
-                                        <button className="button" style={{ backgroundColor: "#26282E", color: "#FFFFFF", width: '90%', fontSize: "1rem", borderRadius: "5px" }}>
-                                            Đăng nhập
-                                        </button>
-                                    </p>
+                                <div>
+                                    <img src={LogoImg} width={500} height={500}></img>
                                 </div>
-                                <div className="field" style={{ paddingLeft: 10 }}>
-                                    <p className="control">
-                                        Chưa có tài khoản <a href="#">Đăng ký ngay</a>
-                                    </p>
-                                    <p className="control" style={{paddingTop:'10px'}}>
-                                        <a href="#">Quên mật khẩu</a>
-                                    </p>
-                                </div>
-
                             </div>
-                            <div>
-                                <img src={LogoImg} width={500} height={500}></img>
-                            </div>
-                        </div>
 
-                    </ModalContent>
+                        </ModalContent>) :
+                        (
+                            < ModalContent sx={style}>
+
+                                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                    <div className='login-form' style={{ width: "50%" }}>
+                                        <h1 className="title is-2">Đăng ký tài khoản</h1>
+                                        <div className='input-form' >
+                                            <Input
+                                                id="outlined-start-adornment"
+                                                placeholder="Tên người dùng hoặc email"
+                                            />
+                                        </div>
+                                        <div className='input-form'>
+                                            <Input
+                                                id="outlined-adornment-password"
+                                                placeholder="Mật khẩu"
+                                                type={values.showPassword ? 'text' : 'password'}
+                                                value={values.password}
+                                                onChange={handleChange('password')}
+                                                endAdornment={
+                                                    <InputAdornment>
+                                                        <IconButton
+                                                            size="small"
+                                                            aria-label="toggle password visibility"
+                                                            onClick={handleClickShowPassword}
+                                                            onMouseDown={handleMouseDownPassword}
+                                                        >
+                                                            {values.showPassword ? (
+                                                                <VisibilityOff fontSize="small" />
+                                                            ) : (
+                                                                <Visibility fontSize="small" />
+                                                            )}
+                                                        </IconButton>
+                                                    </InputAdornment>
+                                                }
+                                            />
+                                        </div>
+                                        <div className='input-form' >
+                                            <Input
+                                                id="outlined-start-adornment"
+                                                placeholder="Số điện thoại"
+                                                inputProps={{
+                                                    inputMode: 'numeric',
+                                                    pattern: '[0-9]*',
+                                                    style: {
+                                                        textAlign: 'center',  
+                                                    },
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="field loginbtn-submit">
+                                            <p className="control">
+                                                <button className="button" style={{ backgroundColor: "#26282E", color: "#FFFFFF", width: '90%', fontSize: "1rem", borderRadius: "5px" }}>
+                                                    Đăng ký
+                                                </button>
+                                            </p>
+                                        </div>
+                                        <div className="field" style={{ paddingLeft: 10 }}>
+                                            <p className="control">
+                                                Đã có tài khoản <a href="#" onClick={handleLoginClick}>Đăng nhập ngay</a>
+                                            </p>
+
+                                        </div>
+
+                                    </div>
+                                    <div>
+                                        <img src={LogoImg} width={500} height={500}></img>
+                                    </div>
+                                </div>
+
+                            </ModalContent>
+                        )
+                    }
+
                 </Fade>
             </Modal>
-        </div>
+        </div >
 
     )
 

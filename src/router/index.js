@@ -14,6 +14,8 @@ import { AccountStaff } from "../pages/Management/Admin/AccountStaff";
 import { SystemConfig } from "../pages/Management/Admin/SystemConfig";
 import CustomerProfile from "../pages/Customer/Profile";
 import AccountManager from "../pages/Management/Admin/AccountManager";
+import CustomerSidebar from "../components/CustomerSidebar/CustomerSidebar";
+import UserProfileLayout from "../components/UserProfileLayout";
 export const customerRouters = [];
 
 export const publicRouters = [
@@ -39,7 +41,7 @@ export const publicRouters = [
     path: "/profile",
     name: "customer-profile",
     component: CustomerProfile,
-    layout: DefaultLayout,
+    layout: UserProfileLayout,
   },
   {
     path: "/management/login",

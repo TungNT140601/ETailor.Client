@@ -50,27 +50,44 @@ const HomePage = () => {
                 </div>
                 <div className='wrapper-body'>
                     <div className='step-des'>
-                        <img src={Step1Img} onMouseEnter={() => { handleHovered(1) }} onMouseLeave={handleHoveredOut} className="step-img"></img>
-                        <div>
-                            <h1 className={`title is-3 ${isHovered === 1 ? "text-hover" : ""}`} style={{ color: "#1D2547" }}><span className={`${isHovered === 1 ? "dot-hover" : "dot"} `}><p>1</p></span>  Lấy số đo</h1>
+                        <div className='image-container'>
+                            <img src={Step1Img} onMouseEnter={() => { handleHovered(1) }} onMouseLeave={handleHoveredOut} className="step-img"></img>
+                        </div>
+
+                        <div className='step-detail'>
+                            <div className={`${isHovered === 1 ? "dot-hover" : "dot"} `}>
+                                <p>1</p>
+                            </div>
+                            <h1 className={`title is-3 ${isHovered === 1? "text-hover" : ""}`} style={{ color: "#1D2547" }}> Lấy số đo</h1>
                         </div>
                         <div>
                             <h1 className='subtitle is-6'> Lấy số đo</h1>
                         </div>
                     </div>
                     <div className='step-des'>
-                        <img src={Step2Img} onMouseEnter={() => { handleHovered(2) }} onMouseLeave={handleHoveredOut} className="step-img"></img>
-                        <div>
-                            <h1 className={`title is-3 ${isHovered === 2 ? "text-hover" : ""}`} style={{ color: "#1D2547" }}><span className={`${isHovered === 2 ? "dot-hover" : "dot"} `}>2</span>  Lấy số đo</h1>
+                        <div className='image-container'>
+                            <img src={Step2Img} onMouseEnter={() => { handleHovered(2) }} onMouseLeave={handleHoveredOut} className="step-img"></img>
+                        </div>
+
+                        <div className='step-detail'>
+                            <div className={`${isHovered === 2 ? "dot-hover" : "dot"} `}>
+                                <p>2</p>
+                            </div>
+                            <h1 className={`title is-3 ${isHovered === 2 ? "text-hover" : ""}`} style={{ color: "#1D2547" }}>Xử lý vải</h1>
                         </div>
                         <div>
                             <h1 className='subtitle is-6'> Lấy số đo</h1>
                         </div>
                     </div>
                     <div className='step-des'>
-                        <img src={Step3Img} onMouseEnter={() => { handleHovered(3) }} onMouseLeave={handleHoveredOut} className="step-img"></img>
-                        <div>
-                            <h1 className={`title is-3 ${isHovered === 3 ? "text-hover" : ""}`} style={{ color: "#1D2547" }}><span className={`${isHovered === 3 ? "dot-hover" : "dot"} `}>3</span>  Lấy số đo</h1>
+                        <div className='image-container'>
+                            <img src={Step3Img} onMouseEnter={() => { handleHovered(3) }} onMouseLeave={handleHoveredOut} className="step-img"></img>
+                        </div>
+                        <div className='step-detail'>
+                            <div className={`${isHovered === 3 ? "dot-hover" : "dot"} `}>
+                                <p>3</p>
+                            </div>
+                            <h1 className={`title is-3 ${isHovered === 3 ? "text-hover" : ""}`} style={{ color: "#1D2547" }}> Hoàn thiện </h1>
                         </div>
                         <div>
                             <h1 className='subtitle is-6'> Lấy số đo</h1>
