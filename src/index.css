@@ -17,3 +17,7 @@ code {
   src: url('./fonts/OpenSans-VariableFont_wdth\,wght.ttf')format('truetype');
   ;
 }
+
+html{
+  scroll-behavior: smooth;
+}

@@ -10,7 +10,9 @@ import { Button } from '@mui/base/Button';
 import { Input as BaseInput, inputClasses } from '@mui/base/Input';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import Register from '../../Register';
+import UserIcon from '../../../assets/images/user.png'
+import PasswordIcon from '../../../assets/images/key.png'
+import PhoneIcone from '../../../assets/images/telephone.png'
 
 const Input = React.forwardRef(function CustomInput(props, ref) {
     const { slots, ...other } = props;
@@ -156,11 +158,13 @@ export default function Login({ openModal, closeModal }) {
                                             <Input
                                                 id="outlined-start-adornment"
                                                 placeholder="Tên người dùng hoặc email"
+                                                startAdornment={<InputAdornment><img width={24} height={24} src={UserIcon}></img></InputAdornment>}
                                             />
                                         </div>
                                         <div className='input-form'>
                                             <Input
                                                 id="outlined-adornment-password"
+                                                startAdornment={<InputAdornment><img width={24} height={24} src={PasswordIcon}></img></InputAdornment>}
                                                 placeholder="Mật khẩu"
                                                 type={values.showPassword ? 'text' : 'password'}
                                                 value={values.password}
@@ -187,11 +191,12 @@ export default function Login({ openModal, closeModal }) {
                                             <Input
                                                 id="outlined-start-adornment"
                                                 placeholder="Số điện thoại"
+                                                startAdornment={<InputAdornment><img width={24} height={24} src={PhoneIcone}></img></InputAdornment>}
                                                 inputProps={{
                                                     inputMode: 'numeric',
                                                     pattern: '[0-9]*',
                                                     style: {
-                                                        textAlign: 'center',  
+                                                        textAlign: 'center',
                                                     },
                                                 }}
                                             />
