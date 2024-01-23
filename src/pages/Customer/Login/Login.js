@@ -13,6 +13,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import UserIcon from '../../../assets/images/user.png'
 import PasswordIcon from '../../../assets/images/key.png'
 import PhoneIcone from '../../../assets/images/telephone.png'
+import CircularProgress from "@mui/material/CircularProgress";
 
 const Input = React.forwardRef(function CustomInput(props, ref) {
     const { slots, ...other } = props;
@@ -38,12 +39,46 @@ Input.propTypes = {
 };
 export default function Login({ openModal, closeModal }) {
     const [values, setValues] = React.useState({
-        amount: '',
-        password: '',
-        weight: '',
-        weightRange: '',
+        login_email: '',
+        login_password: '',
+        regis_email: "",
+        regis_password: "",
         showPassword: false,
     });
+    const [loading, setLoading] = useState(false)
+
+    const handleLoginBtn = async (event) => {
+        setLoading(true)
+        console.log({
+            email: values.login_email,
+            password: values.login_password,
+        });
+        const LOGIN_URL = `https://etailorapi.azurewebsites.net/api/auth/customer/login`
+        try {
+            const response = await fetch(LOGIN_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    emailOrUsername: values.login_email,
+                    password: values.login_password,
+                    clientToken: "",
+                }),
+            });
+
+            if (response.ok) {
+                setLoading(false);
+                const data = await response.json();
+                closeModal()
+                localStorage.setItem("customer", data);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const [loginOrReg, setLoginOrReg] = useState('LOGIN')
     const handleRegisterClick = () => {
@@ -89,7 +124,10 @@ export default function Login({ openModal, closeModal }) {
                                     <div className='input-form' >
                                         <Input
                                             id="outlined-start-adornment"
+                                            name="email"
+                                            value={values.email}
                                             placeholder="Tên người dùng hoặc email"
+                                            onChange={handleChange('login_email')}
                                         />
                                     </div>
                                     <div className='input-form'>
@@ -98,7 +136,8 @@ export default function Login({ openModal, closeModal }) {
                                             placeholder="Mật khẩu"
                                             type={values.showPassword ? 'text' : 'password'}
                                             value={values.password}
-                                            onChange={handleChange('password')}
+                                            name="password"
+                                            onChange={handleChange('login_password')}
                                             endAdornment={
                                                 <InputAdornment>
                                                     <IconButton
@@ -127,8 +166,8 @@ export default function Login({ openModal, closeModal }) {
                                     </div>
                                     <div className="field loginbtn-submit">
                                         <p className="control">
-                                            <button className="button" style={{ backgroundColor: "#26282E", color: "#FFFFFF", width: '90%', fontSize: "1rem", borderRadius: "5px" }}>
-                                                Đăng nhập
+                                            <button className="button" onClick={handleLoginBtn} style={{ backgroundColor: "#26282E", color: "#FFFFFF", width: '90%', fontSize: "1rem", borderRadius: "5px" }}>
+                                                Đăng nhập &nbsp; {loading && <CircularProgress size={20} sx={{ color: "#FFFFFF" }} />}
                                             </button>
                                         </p>
                                     </div>
