@@ -59,7 +59,7 @@ const Header = () => {
                         <div className="navbar-item has-dropdown is-hoverable">
                             <div className='navbar-item' >
                                 <div style={{ height: "auto" }}>
-                                    <Link className='nav-link' to="/#" onClick={() => setClickedSection("Dat May")}>
+                                    <Link className='nav-link' to="/catalogue" onClick={() => setClickedSection("Dat May")}>
                                         <h1 className="subtitle is-5 " style={{ color: clickedSection === "Dat May" ? "#9F78FF" : "#1D2547" }}>
                                             ĐẶT MAY <img width={15} height={15} src={MenuDropIcon}></img>
                                         </h1>
