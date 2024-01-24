@@ -38,30 +38,18 @@ const HomePage = () => {
         setCatalogHover(0)
     }
     useEffect(() => {
-        const handleScroll = () => {
-            const element = document.querySelector('.wrapper-body');
-            if (element.getBoundingClientRect().top < window.innerHeight / 2) {
-                ScrollReveal().reveal('.catalog-wrapper', {
-                    duration: 1500,
-                    distance: '20px',
-                    scale: 0.85,
-                    easing: 'cubic-bezier(0.5, 0, 0, 1)',
-                    mobile: true,
-                });
-                window.removeEventListener('scroll', handleScroll);
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
+        ScrollReveal().reveal('.wrapper-body', {
+            duration: 2500,
+            distance: '60px',
+            scale: 0.85,
+            easing: 'cubic-bezier(0.5, 0, 0, 1)',
+            mobile: true,
+        });
     }, []);
-
     return (
         <>
             <div className='homepage-container'>
-                <div className='wrapper-main'>
+                <div className='wrapper-main' >
                     <div className='banner-swiper'>
 
                         <button className='btn-main' style={{ zIndex: "10", position: "absolute", bottom: "30px", left: "43.5%" }}>ĐẶT MAY NGAY</button>
@@ -182,7 +170,7 @@ const HomePage = () => {
                 </div >
                 <div className='wrapper-container-content'>
                     <div className='product-title'>
-                        <p className='title is-2'>HI</p>
+                        <p className='title is-2'>New Arrival</p>
                     </div>
                 </div>
             </div >
