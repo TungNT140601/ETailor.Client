@@ -91,7 +91,7 @@ export const AdminSidebar = () => {
     }
   }, []);
   return (
-    <div>
+    <div className="admin-sidebar-container">
       <div className="logo-content">
         <img src={logo} alt="#logo" className="sidebar-logo" />
       </div>

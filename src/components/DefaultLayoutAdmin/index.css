@@ -1,18 +1,19 @@
-.default-layout-admin {
+html, body {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
+}
+
+.default-layout-admin {
     background-color: rgb(196, 196, 196, 0.3);
     display: grid;
     grid-template-columns: 20% 80%;
+    height: 100vh;
 }
 
 .admin-sidebar {
     background-color: #FFFFFF;
-    height: 100%;
-}
-
-.admin-children {
     height: 100%;
 }
