@@ -14,6 +14,9 @@ import Button from "@mui/material/Button";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
+import HomeIcon from "@mui/icons-material/Home";
+import StraightenIcon from "@mui/icons-material/Straighten";
+import ArtTrackIcon from "@mui/icons-material/ArtTrack";
 
 const ManagerSidebar = () => {
   const [openAccount, setOpenAccount] = React.useState(true);
@@ -115,9 +118,41 @@ const ManagerSidebar = () => {
             color: isActive === 1 ? "#FFFFFF" : "#000000",
           }}
         >
-          <InboxIcon />
+          <HomeIcon />
           &nbsp; &nbsp; &nbsp; &nbsp;
-          <ListItemText primary="Tài khoản" />
+          <ListItemText primary="Trang chủ" />
+        </ListItemButton>
+
+        <ListItemButton
+          onClick={() => handleClick(2)}
+          sx={{
+            "&:hover": {
+              backgroundColor: "#172039",
+              color: "#FFFFFF",
+            },
+            backgroundColor: isActive === 2 ? "#172039" : "#FFFFFF",
+            color: isActive === 2 ? "#FFFFFF" : "#000000",
+          }}
+        >
+          <StraightenIcon />
+          &nbsp; &nbsp; &nbsp; &nbsp;
+          <ListItemText primary="Số đo cơ thể" />
+        </ListItemButton>
+
+        <ListItemButton
+          onClick={() => handleClick(3)}
+          sx={{
+            "&:hover": {
+              backgroundColor: "#172039",
+              color: "#FFFFFF",
+            },
+            backgroundColor: isActive === 3 ? "#172039" : "#FFFFFF",
+            color: isActive === 3 ? "#FFFFFF" : "#000000",
+          }}
+        >
+          <ArtTrackIcon />
+          &nbsp; &nbsp; &nbsp; &nbsp;
+          <ListItemText primary="Quản lý bản mẫu" />
           {openAccount ? <ExpandLess /> : <ExpandMore />}
         </ListItemButton>
         <Collapse in={openAccount}>
@@ -132,7 +167,7 @@ const ManagerSidebar = () => {
               }}
               onClick={() => handleNavigate(1)}
             >
-              <ListItemText primary="Khách hàng" />
+              <ListItemText primary="Bản mẫu sản phẩm" />
             </ListItemButton>
           </List>
           <List component="div" disablePadding>
@@ -146,24 +181,69 @@ const ManagerSidebar = () => {
               }}
               onClick={() => handleNavigate(2)}
             >
-              <ListItemText primary="Nhân viên" />
+              <ListItemText primary="Phân loại sản phẩm" />
             </ListItemButton>
           </List>
         </Collapse>
         <ListItemButton
-          onClick={() => handleClick(3)}
+          onClick={() => handleClick(4)}
           sx={{
             "&:hover": {
               backgroundColor: "#172039",
               color: "#FFFFFF",
             },
-            backgroundColor: isActive === 3 ? "#172039" : "#FFFFFF",
-            color: isActive === 3 ? "#FFFFFF" : "#000000",
+            backgroundColor: isActive === 4 ? "#172039" : "#FFFFFF",
+            color: isActive === 4 ? "#FFFFFF" : "#000000",
           }}
         >
           <SettingsIcon />
           &nbsp; &nbsp; &nbsp; &nbsp;
-          <ListItemText primary="Quản lý hệ thống" />
+          <ListItemText primary="Nguyên liệu" />
+        </ListItemButton>
+        <ListItemButton
+          onClick={() => handleClick(5)}
+          sx={{
+            "&:hover": {
+              backgroundColor: "#172039",
+              color: "#FFFFFF",
+            },
+            backgroundColor: isActive === 5 ? "#172039" : "#FFFFFF",
+            color: isActive === 5 ? "#FFFFFF" : "#000000",
+          }}
+        >
+          <SettingsIcon />
+          &nbsp; &nbsp; &nbsp; &nbsp;
+          <ListItemText primary="Đơn hàng" />
+        </ListItemButton>
+        <ListItemButton
+          onClick={() => handleClick(6)}
+          sx={{
+            "&:hover": {
+              backgroundColor: "#172039",
+              color: "#FFFFFF",
+            },
+            backgroundColor: isActive === 6 ? "#172039" : "#FFFFFF",
+            color: isActive === 6 ? "#FFFFFF" : "#000000",
+          }}
+        >
+          <SettingsIcon />
+          &nbsp; &nbsp; &nbsp; &nbsp;
+          <ListItemText primary="Giảm giá" />
+        </ListItemButton>
+        <ListItemButton
+          onClick={() => handleClick(7)}
+          sx={{
+            "&:hover": {
+              backgroundColor: "#172039",
+              color: "#FFFFFF",
+            },
+            backgroundColor: isActive === 7 ? "#172039" : "#FFFFFF",
+            color: isActive === 7 ? "#FFFFFF" : "#000000",
+          }}
+        >
+          <SettingsIcon />
+          &nbsp; &nbsp; &nbsp; &nbsp;
+          <ListItemText primary="Bài viết" />
         </ListItemButton>
       </div>
       <div className="manager-logout">

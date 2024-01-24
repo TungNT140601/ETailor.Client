@@ -2,9 +2,11 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    width: 100%;
     height: 100vh;
     background-color: rgb(196, 196, 196, 0.3);
-    display: flex;
+    display: grid;
+    grid-template-columns: 20% 80%;
 }
 
 .manager-sidebar {
