@@ -1,64 +1,74 @@
 import React, { useState } from "react";
 import "./index.css";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import { Breadcrumb } from "antd";
+import { HomeOutlined, UserOutlined } from "@ant-design/icons";
+import { Typography } from "antd";
 
-const AccountCusHeader = () => {
+import { Input } from "antd";
+import { Divider } from "antd";
+import { Table, Checkbox, Button } from "antd";
+import { Image } from "antd";
+import { useQuery } from "react-query";
+
+const { Search } = Input;
+const { Title, Text } = Typography;
+
+const AccountSysHeader = () => {
   const admin = JSON.parse(localStorage.getItem("admin"));
+  const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <div className="column is-two-fifths">
-          <h4
-            className="title is-3"
-            style={{ paddingLeft: "20px", paddingTop: "20px" }}
-          >
-            Quản lý hệ thống
-          </h4>
-        </div>
-
-        <div
-          className="column is-one-fifth"
-          style={{
-            marginLeft: "200px",
-            paddingTop: "35px",
-            display: "flex",
-            alignContent: "center",
-          }}
-        >
-          <div>
-            <AccountCircleIcon fontSize="large" />
-          </div>
-          <h5 className="title is-4 pl-4 pt-1">{admin.role}</h5>
-        </div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <div>
+        <Breadcrumb
+          items={[
+            {
+              href: "/admin",
+              title: <HomeOutlined />,
+            },
+            {
+              href: "/admin",
+              title: (
+                <>
+                  <UserOutlined />
+                  <span>Khách hàng</span>
+                </>
+              ),
+            },
+          ]}
+        />
+        <Title level={4}>Khách hàng</Title>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <div className="tags are-large mt-5 ml-5">
-          <span
-            className="tag"
-            style={{ backgroundColor: "#172039", color: "#FFFFFF" }}
-          >
-            Tổng cộng (2)
-          </span>
-          <button className="button is-link is-outlined mb-2 ml-4">
-            <i className="fa-solid fa-plus"></i> &nbsp;&nbsp;Thêm mới câu hỏi
-          </button>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <Search
+            placeholder="Tìm kiếm"
+            onSearch={onSearch}
+            style={{
+              width: 250,
+            }}
+          />
         </div>
-        <div
-          style={{
-            width: "350px",
-            paddingRight: "30px",
-            paddingTop: "25px",
-            marginLeft: "30px",
-          }}
-        >
-          <div className="field">
-            <p className="control has-icons-left has-icons-right">
-              <input className="input" type="text" placeholder="Tìm kiếm" />
-              <span className="icon is-small is-left">
-                <i className="fa-solid fa-magnifying-glass"></i>
-              </span>
-            </p>
-          </div>
+        &nbsp; &nbsp; &nbsp;
+        <div>
+          <UserOutlined
+            style={{
+              fontSize: "24px",
+            }}
+          />
+          &nbsp; &nbsp;
+          <Text>{admin.role}</Text>
         </div>
       </div>
     </div>
@@ -86,7 +96,7 @@ const items = [
   },
 ];
 
-const AccountCusContent = () => {
+const AccountSysContent = () => {
   return (
     <div className="table-container">
       <div>
@@ -133,13 +143,10 @@ const AccountCusContent = () => {
 export const SystemConfig = () => {
   return (
     <>
-      <div className="admin-account-system-main-container">
-        <div className="admin-account-system-header">
-          <AccountCusHeader />
-        </div>
-        <div className="admin-account-system-content">
-          <AccountCusContent />
-        </div>
+      <AccountSysHeader />
+      <Divider />
+      <div className="admin-account-system-content">
+        <AccountSysContent />
       </div>
     </>
   );

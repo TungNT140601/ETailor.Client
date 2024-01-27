@@ -1,253 +1,185 @@
 import React, { useState } from "react";
 import "./index.css";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import ReactPaginate from "react-paginate";
+import { Breadcrumb } from "antd";
+import { HomeOutlined, UserOutlined } from "@ant-design/icons";
+import { Typography } from "antd";
+
+import { Input } from "antd";
+import { Divider } from "antd";
+import { Table, Checkbox } from "antd";
+import { Image } from "antd";
+
+const { Search } = Input;
+const { Title, Text } = Typography;
 
 const AccountCusHeader = () => {
   const admin = JSON.parse(localStorage.getItem("admin"));
+  const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <div>
+        <Breadcrumb
+          items={[
+            {
+              href: "/admin",
+              title: <HomeOutlined />,
+            },
+            {
+              href: "/admin",
+              title: (
+                <>
+                  <UserOutlined />
+                  <span>Khách hàng</span>
+                </>
+              ),
+            },
+          ]}
+        />
+        <Title level={4}>Khách hàng</Title>
+      </div>
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
           alignItems: "center",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <h4
-            className="title is-3"
+        <div>
+          <Search
+            placeholder="Tìm kiếm"
+            onSearch={onSearch}
             style={{
-              paddingLeft: "20px",
-              paddingTop: "20px",
+              width: 250,
             }}
-          >
-            Tài khoản
-          </h4>
-
-          <div className="field ml-5">
-            <p className="control has-icons-left has-icons-right">
-              <input
-                className="input"
-                type="text"
-                placeholder="Tìm kiếm"
-                style={{ width: "400px" }}
-              />
-              <span className="icon is-small is-left">
-                <i className="fa-solid fa-magnifying-glass"></i>
-              </span>
-            </p>
-          </div>
+          />
         </div>
-
-        <div
-          style={{
-            marginRight: "100px",
-            paddingTop: "35px",
-            display: "flex",
-            alignContent: "center",
-          }}
-        >
-          <div>
-            <AccountCircleIcon fontSize="large" />
-          </div>
-          <h5 className="title is-4 pl-4 pt-1">{admin.role}</h5>
+        &nbsp; &nbsp; &nbsp;
+        <div>
+          <UserOutlined
+            style={{
+              fontSize: "24px",
+            }}
+          />
+          &nbsp; &nbsp;
+          <Text>{admin.role}</Text>
         </div>
-      </div>
-      <div className="pl-5">
-        <nav className="breadcrumb" aria-label="breadcrumbs">
-          <ul>
-            <li>
-              <a href="/admin">
-                <h5 className="subtitle is-5">Tài khoản</h5>
-              </a>
-            </li>
-            <li>
-              <h5 className="subtitle is-5">
-                <a href="/admin">Khách hàng</a>
-              </h5>
-            </li>
-          </ul>
-        </nav>
-      </div>
-      <div className="tags are-large mt-5 ml-5">
-        <span
-          className="tag"
-          style={{ backgroundColor: "#172039", color: "#FFFFFF" }}
-        >
-          Tổng cộng (2)
-        </span>
       </div>
     </div>
   );
 };
 
-const items = [
-  {
-    Id: 1,
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    UserName: "anhtu",
-    FullName: "AnhTu",
-    Phone: "0937550256",
-    Email: "tudase151149@fpt.edu.vn",
-  },
-  {
-    Id: 1,
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    UserName: "anhtu",
-    FullName: "AnhTu",
-    Phone: "0937550256",
-    Email: "tudase151149@fpt.edu.vn",
-  },
-  {
-    Id: 1,
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    UserName: "anhtu",
-    FullName: "AnhTu",
-    Phone: "0937550256",
-    Email: "tudase151149@fpt.edu.vn",
-  },
-  {
-    Id: 1,
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    UserName: "anhtu",
-    FullName: "AnhTu",
-    Phone: "0937550256",
-    Email: "tudase151149@fpt.edu.vn",
-  },
-  {
-    Id: 1,
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    UserName: "anhtu",
-    FullName: "AnhTu",
-    Phone: "0937550256",
-    Email: "tudase151149@fpt.edu.vn",
-  },
-  {
-    Id: 1,
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    UserName: "anhtu",
-    FullName: "AnhTu",
-    Phone: "0937550256",
-    Email: "tudase151149@fpt.edu.vn",
-  },
-  {
-    Id: 1,
-    Avatar: "https://bulma.io/images/placeholders/256x256.png",
-    UserName: "anhtu",
-    FullName: "AnhTu",
-    Phone: "0937550256",
-    Email: "tudase151149@fpt.edu.vn",
-  },
-];
-
 const AccountCusContent = ({ itemsPerPage }) => {
-  console.log(itemsPerPage);
-  const [itemOffset, setItemOffset] = useState(0);
-  const endOffset = itemOffset + itemsPerPage;
-  console.log(`Loading items from ${itemOffset} to ${endOffset}`);
-  const currentItems = items.slice(itemOffset, endOffset);
-  const pageCount = Math.ceil(items.length / itemsPerPage);
-  const handlePageClick = (event) => {
-    const newOffset = (event.selected * itemsPerPage) % items.length;
-    console.log(
-      `User requested page number ${event.selected}, which is offset ${newOffset}`
-    );
-    setItemOffset(newOffset);
-  };
-  const style = [
+  const columns = [
     {
-      textAlign: "center",
+      title: "STT",
+      width: 50,
+      dataIndex: "index",
+      key: "index",
+      fixed: "left",
     },
     {
-      centerTableHead: {
-        textAlign: "center",
-        width: "200px",
-      },
+      title: "Hình đại diện",
+      width: 150,
+      dataIndex: "avatar",
+      key: "avatar",
+      render: () => (
+        <Image
+          width={100}
+          height={90}
+          style={{ objectFit: "contain" }}
+          src="https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2Fadmin.jpg?alt=media&token=db12c20e-d638-40e3-b538-61f4cb9706a9"
+        />
+      ),
+    },
+    {
+      title: "Tên người dùng",
+      dataIndex: "username",
+      key: "1",
+      width: 150,
+    },
+    {
+      title: "Họ và tên",
+      dataIndex: "fullname",
+      key: "2",
+      width: 150,
+    },
+    {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      key: "3",
+      width: 150,
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      key: "4",
+      width: 150,
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "5",
+      width: 150,
     },
   ];
+  const data = [];
+  for (let i = 0; i < 100; i++) {
+    data.push({
+      index: i,
+      username: `Tú ${i}`,
+      fullname: `Đào Anh Tú ${i}`,
+      phone: `0937550256`,
+      email: `tudase151149@fpt.edu.vn ${i}`,
+      avatar: "https://bulma.io/images/placeholders/256x256.png",
+      address: `Hcm ${i}`,
+    });
+  }
+  const defaultCheckedList = columns.map((item) => item.key);
+  const [checkedList, setCheckedList] = useState(defaultCheckedList);
+  const options = columns.map(({ key, title }) => ({
+    label: title,
+    value: key,
+  }));
+  const newColumns = columns.map((item) => ({
+    ...item,
+    hidden: !checkedList.includes(item.key),
+  }));
   return (
-    <div className="table-container">
-      <table className="table table is-narrow is-fullwidth is-hoverabley">
-        <thead>
-          <tr>
-            <th style={style[1].centerTableHead}>
-              <h6 className="title is-5">STT</h6>
-            </th>
-            <th style={style[1].centerTableHead}>
-              <h6 className="title is-5">Ảnh đại diện</h6>
-            </th>
-            <th style={style[1].centerTableHead}>
-              <h6 className="title is-5">Tên người dùng</h6>
-            </th>
-            <th style={style[1].centerTableHead}>
-              <h6 className="title is-5">Họ và tên</h6>
-            </th>
-            <th style={style[1].centerTableHead}>
-              <h6 className="title is-5">Số điện thoại</h6>
-            </th>
-            <th style={style[1].centerTableHead}>
-              <h6 className="title is-5">Email</h6>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map((item) => (
-            <tr style={style[0]}>
-              <td>{item.Id}</td>
-              <td>
-                <div style={{ display: "flex", justifyContent: "center" }}>
-                  <div>
-                    <figure className="image is-64x64">
-                      <img src={item.Avatar} />
-                    </figure>
-                  </div>
-                </div>
-              </td>
-              <td>{item.UserName}</td>
-              <td>{item.FullName}</td>
-              <td>{item.Phone}</td>
-              <td>{item.Email}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <br />
-      <ReactPaginate
-        breakLabel="..."
-        nextLabel="Tiếp theo >>"
-        onPageChange={handlePageClick}
-        pageRangeDisplayed={3}
-        pageCount={pageCount}
-        previousLabel="<< Quay lại"
-        className="admin-paginate"
-        marginPagesDisplayed={10}
-        renderOnZeroPageCount={null}
-        pageClassName="page-item"
-        pageLinkClassName="pagination"
-        previousClassName="page-item-previous"
-        nextClassName="page-item-next"
-        breakClassName="page-item"
-        containerClassName="pagination"
-        activeClassName="active"
-        activeLinkClassName="active"
-        previousLinkClassName="pagination"
-        nextLinkClassName="pagination"
+    <>
+      <Checkbox.Group
+        value={checkedList}
+        options={options}
+        onChange={(value) => {
+          setCheckedList(value);
+        }}
       />
-    </div>
+      <Table
+        columns={newColumns}
+        dataSource={data}
+        style={{
+          marginTop: 24,
+        }}
+        scroll={{
+          x: 1500,
+          y: 420,
+        }}
+      />
+    </>
   );
 };
 
 export const AccountCus = () => {
   return (
     <>
-      <div className="admin-account-customer-main-container">
-        <div className="admin-account-custommer-header">
-          <AccountCusHeader />
-        </div>
-        <div className="admin-account-customer-content">
-          <AccountCusContent itemsPerPage={5} />
-        </div>
+      <div>
+        <AccountCusHeader />
+        <Divider />
+        <AccountCusContent />
       </div>
     </>
   );
