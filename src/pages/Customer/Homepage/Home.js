@@ -15,6 +15,7 @@ import CatalogType1 from '../../../assets/images/catalog-type/414110991e17d3770d
 import CatalogType2 from '../../../assets/images/catalog-type/e71121ea0e13b8391dc7e1f8026fe4c8.jpg'
 import CatalogType3 from '../../../assets/images/catalog-type/9294174f7778b13ee82e7861b749603f.jpg'
 import CatalogType4 from '../../../assets/images/catalog-type/vest.jpg'
+import Banner3 from '../../../assets/images/Banner.png'
 import ScrollReveal from 'scrollreveal';
 
 
@@ -169,8 +170,13 @@ const HomePage = () => {
                     </div>
                 </div >
                 <div className='wrapper-container-content'>
-                    <div className='product-title'>
-                        <p className='title is-2'>New Arrival</p>
+                    <div style={{ width: "80%" }}>
+
+                        <div className='product-title'>
+                            <p className='title is-2'>New Arrival</p>
+                        </div>
+                        <img src={Banner3}>
+                        </img>
                     </div>
                 </div>
             </div >

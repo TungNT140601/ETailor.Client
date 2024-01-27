@@ -49,7 +49,7 @@ const Header = () => {
             <div className='header-container'>
                 <div className='header-menu-wrapper'>
                     <div className='header-logo'>
-                        <Link to="/">
+                        <Link to="/"  onClick={() => setClickedSection("Trang Chu")}>
                             <figure className="image is-128x128">
                                 <img className="is-rounded" src={Logo}></img>
                             </figure>
