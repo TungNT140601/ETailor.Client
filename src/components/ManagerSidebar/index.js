@@ -288,10 +288,23 @@
 // export default ManagerSidebar;
 
 import React, { useState, useRef } from "react";
-import { FileOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  FileOutlined,
+  UserOutlined,
+  HomeOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import StraightenIcon from "@mui/icons-material/Straighten";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import CheckroomIcon from "@mui/icons-material/Checkroom";
+import CategoryIcon from "@mui/icons-material/Category";
+import FactCheckIcon from "@mui/icons-material/FactCheck";
+import DiscountIcon from "@mui/icons-material/Discount";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+
 const { Sider } = Layout;
 function getItem(label, key, icon, children) {
   return {
@@ -305,37 +318,69 @@ function getItem(label, key, icon, children) {
 export const ManagerSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
-  const admin = JSON.parse(localStorage.getItem("admin"));
-  const active = useRef(localStorage.getItem("activeKey") || "/admin");
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const active = useRef(localStorage.getItem("activeKey") || "/manager");
   console.log("active", active);
   const logoutAdminUrl =
     "https://etailorapi.azurewebsites.net/api/auth/staff/logout";
 
   const items = [
     {
-      key: "/admin",
-      label: "Tài khoản",
+      key: "/manager/dashboard",
+      label: <Link to="/manager/dashboard">Trang chủ</Link>,
+      icon: <HomeOutlined />,
+    },
+    {
+      key: "/manager/account/staffs",
+      label: <Link to="/manager/account/staffs">Nhân viên</Link>,
       icon: <UserOutlined />,
+    },
+    {
+      key: "/manager/body-size",
+      label: <Link to="/manager/body-size">Số đo cơ thể</Link>,
+      icon: <StraightenIcon />,
+    },
+    {
+      key: "/manager/orders",
+      label: <Link to="/manager/orders">Đơn hàng</Link>,
+      icon: <ShoppingCartIcon />,
+    },
+    {
+      key: "/manager",
+      label: "Quản lý bản mẫu",
+      icon: <CheckroomIcon />,
       children: [
         {
-          key: "/admin",
-          label: <Link to="/admin">Khách hàng</Link>,
+          key: "/manager",
+          label: <Link to="/manager">Bản mẫu</Link>,
+          icon: <CheckroomIcon />,
         },
         {
-          key: "/admin/account/staff",
-          label: <Link to="/admin/account/staff">Nhân viên</Link>,
+          key: "/manager/product-category",
+          label: <Link to="/manager/product-category">Loại bản mẫu</Link>,
+          icon: <CategoryIcon />,
         },
       ],
     },
     {
-      key: "/admin/system-configuration",
-      label: <Link to="/admin/system-configuration">Quản lý hệ thống</Link>,
-      icon: <FileOutlined />,
+      key: "/manager/material",
+      label: <Link to="/manager/material">Nguyên liệu</Link>,
+      icon: <FactCheckIcon />,
+    },
+    {
+      key: "/manager/discount",
+      label: <Link to="/manager/discount">Mã giảm giá</Link>,
+      icon: <DiscountIcon />,
+    },
+    {
+      key: "/manager/blog",
+      label: <Link to="/manager/blog">Bài viết</Link>,
+      icon: <MenuBookIcon />,
     },
     {
       key: "/management/login",
       label: <Link to="/management/login">Đăng xuất</Link>,
-      icon: <FileOutlined />,
+      icon: <LogoutOutlined />,
     },
   ];
 
@@ -345,12 +390,12 @@ export const ManagerSidebar = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${admin?.token}`,
+          Authorization: `Bearer ${manager?.token}`,
         },
       });
 
       if (response.ok) {
-        localStorage.removeItem("admin");
+        localStorage.removeItem("manager");
         localStorage.removeItem("activeKey");
         navigate("/management/login");
       }

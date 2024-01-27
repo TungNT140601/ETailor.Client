@@ -191,7 +191,11 @@
 // };
 
 import React, { useState, useEffect, useRef } from "react";
-import { FileOutlined, UserOutlined } from "@ant-design/icons";
+import {
+  UserOutlined,
+  SettingOutlined,
+  LogoutOutlined,
+} from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
@@ -233,12 +237,12 @@ export const AdminSidebar = () => {
     {
       key: "/admin/system-configuration",
       label: <Link to="/admin/system-configuration">Quản lý hệ thống</Link>,
-      icon: <FileOutlined />,
+      icon: <SettingOutlined />,
     },
     {
       key: "/management/login",
       label: <Link to="/management/login">Đăng xuất</Link>,
-      icon: <FileOutlined />,
+      icon: <LogoutOutlined />,
     },
   ];
 

@@ -19,6 +19,9 @@ import DefaultLayoutManager from "../components/DefaultLayoutManager";
 import ManagementStaff from "../pages/Management/Manager/ManagementStaff";
 import ManagerRouter from "./ManagerRouter";
 import Catalogue from "../pages/Customer/Catalogue";
+import ManagementProductTemplate, {
+  ManagementCreateProductTemplate,
+} from "../pages/Management/Manager/ManagementProductTemplate";
 export const customerRouters = [];
 
 export const publicRouters = [
@@ -93,9 +96,15 @@ export const adminRouters = [
 export const managerRouters = [
   {
     path: "/manager",
-    name: "staff-manager",
-    component: ManagementStaff,
+    name: "manager",
+    component: ManagementProductTemplate,
     layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/create/product-template",
+    name: "manager",
+    component: ManagementCreateProductTemplate,
+    layout: null,
   },
 ];
 

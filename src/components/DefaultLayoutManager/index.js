@@ -6,7 +6,7 @@ import { Layout, theme } from "antd";
 const { Content } = Layout;
 const DefaultLayoutManager = ({ children }) => {
   const {
-    token: { colorBgContainer },
+    token: { colorBgContainer = "#D4D4D4" },
   } = theme.useToken();
   return (
     <Layout
@@ -20,9 +20,9 @@ const DefaultLayoutManager = ({ children }) => {
         <Content>
           <div
             style={{
-              padding: 24,
-              minHeight: 360,
-              background: colorBgContainer,
+              padding: 10,
+              height: "100vh",
+              background: "rgba(217, 217,217, 0.7)",
             }}
           >
             {children}
