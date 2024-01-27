@@ -1,24 +1,3 @@
-.admin-account-customer-main-container {
-    width: 100%;
-}
-
-.admin-account-custommer-header {
-    background-color: #FFFFFF;
-    border-radius: 10px;
-    width: 97%;
-    height: 190px;
-    margin: 20px 30px;
-}
-
-.admin-account-customer-content {
-    background-color: #FFFFFF;
-    width: 97%;
-    border-radius: 10px;
-    padding: 20px;
-    padding-bottom: 0px;
-    margin: 20px 30px;
-}
-
 .admin-account-staff-main-container {
     width: 100%;
 }
@@ -83,7 +62,7 @@
 .admin-account-system-content {
     background-color: #FFFFFF;
     width: 97%;
-    height: 545px;
+    height: 580px;
     border-radius: 10px;
     padding: 20px;
     padding-bottom: 0px;

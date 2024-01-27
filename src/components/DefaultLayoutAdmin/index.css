@@ -6,14 +6,9 @@ html, body {
     height: 100%;
 }
 
-.default-layout-admin {
-    background-color: rgb(196, 196, 196, 0.3);
-    display: grid;
-    grid-template-columns: 20% 80%;
-    height: 100vh;
-}
 
-.admin-sidebar {
-    background-color: #FFFFFF;
-    height: 100%;
+
+
+.default-admin-layout::-webkit-scrollbar {
+    display: none;
 }
