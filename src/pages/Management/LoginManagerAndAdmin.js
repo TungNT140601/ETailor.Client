@@ -15,6 +15,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import Swal from "sweetalert2";
 
 import logo from "../../assets/logo.png";
 import image from "../../assets/1.png";
@@ -31,13 +32,6 @@ export default function LoginManagerAndAdmin() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log("data: ", data.get("userName"));
-
-    console.log({
-      email: data.get("userName"),
-      password: data.get("password"),
-    });
-
     try {
       setLoading(true);
       const response = await fetch(loginAdminUrl, {
@@ -51,7 +45,7 @@ export default function LoginManagerAndAdmin() {
         }),
       });
       setLoading(false);
-      if (response.ok) {
+      if (response.status === 200) {
         const data = await response.json();
         console.log(data);
         if (data.role === "Admin") {
@@ -61,6 +55,14 @@ export default function LoginManagerAndAdmin() {
           localStorage.setItem("manager", JSON.stringify(data));
           navigate("/manager");
         }
+      } else if (response.status === 400) {
+        const dataError = await response.text();
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `${dataError}`,
+          timer: 4000,
+        });
       }
     } catch (error) {
       console.error("Error:", error);
