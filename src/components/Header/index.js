@@ -9,7 +9,8 @@ import MenuButton from '@mui/joy/MenuButton';
 import MenuItem from '@mui/joy/MenuItem';
 import Dropdown from '@mui/joy/Dropdown';
 import UserLogo from '../../assets/images/user.png'
-import MenuDropIcon from '../../assets/images/caret-down.png'
+import MenuDropIcon from '../../assets/images/caret-down.png';
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
     const [clickedSection, setClickedSection] = useState("Trang Chu")
@@ -21,6 +22,28 @@ const Header = () => {
     const handleClose = () => {
         setOpen(false)
     };
+    const navigate = useNavigate();
+    const handleLogout = async () => {
+        const LOG_OUT_API = `https://etailorapi.azurewebsites.net/api/auth/customer/logout`;
+        const customer = localStorage.getItem("customer")
+        const token = JSON.parse(customer).token
+        try {
+            const response = await fetch(LOG_OUT_API, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+            });
+
+            if (response.ok) {
+                localStorage.removeItem("customer");
+                navigate("/")
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    }
     return (
         <nav className='mobile'>
             <div className='header-container'>
@@ -100,7 +123,7 @@ const Header = () => {
                                             My account
                                         </MenuItem>
                                     </Link>
-                                    <MenuItem>Logout</MenuItem>
+                                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
                                 </Menu>
                             </Dropdown>
                         </div>
