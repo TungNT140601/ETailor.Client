@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import PropTypes from 'prop-types';
 import { styled, css } from '@mui/system';
 import { Modal as BaseModal } from '@mui/base/Modal';
@@ -12,8 +12,12 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import UserIcon from '../../../assets/images/user.png'
 import PasswordIcon from '../../../assets/images/key.png'
-import PhoneIcone from '../../../assets/images/telephone.png'
+import EmailIcon from '../../../assets/images/gmail.png'
+import EmailVerifyIcon from '../../../assets/images/verify-emails.png'
 import CircularProgress from "@mui/material/CircularProgress";
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import SendIcon from '@mui/icons-material/Send';
 
 const Input = React.forwardRef(function CustomInput(props, ref) {
     const { slots, ...other } = props;
@@ -38,15 +42,109 @@ Input.propTypes = {
     }),
 };
 export default function Login({ openModal, closeModal }) {
+    // ----------------------------------------------- HANDLE VERIFY EMAIL ---------------------------------------------------
+    const inputRefs = useRef([]);
+    const [otpValues, setOtpValues] = useState(['', '', '', '']);
+    const [verified, setVerified] = useState("")
+
+    const [error, setError] = useState({
+        email_err: "",
+        otp_err: "",
+        regis_username_err: "",
+        regis_password_err: ""
+    })
+
+    const handleErrorChange = (prop) => (event) => {
+        setError({ ...values, [prop]: event.target.value });
+    };
+
+    const handleInputOTP = (index, event) => {
+        const { value } = event.target;
+        const updatedOtpValues = [...otpValues];
+        updatedOtpValues[index] = value;
+        setOtpValues(updatedOtpValues);
+
+        if (value.length === 1 && index < inputRefs.current.length - 1) {
+            inputRefs.current[index + 1].focus();
+        }
+        setError({ ...error, otp_err: "" })
+    };
+
+    const checkOTPEmail = async () => {
+        console.log("OTP:", otpValues)
+        setLoading(true)
+        const CHECK_OTP_URL = `https://etailorapi.azurewebsites.net/api/auth/customer/verify-otp`
+        try {
+            const response = await fetch(CHECK_OTP_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": " application/json",
+                },
+
+                body: JSON.stringify({
+                    phoneOrEmail: values.regis_email,
+                    otp: otpValues.join(""),
+                }),
+            });
+
+            if (response.ok) {
+                console.log(response)
+                setLoading(false)
+                setOpenVerify("VERIFIED")
+            }
+            else {
+                const errorText = await response.text()
+                setVerified("INCORRECT_OTP")
+                setError({ ...error, otp_err: errorText })
+                setLoading(false)
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+
+    const handleVerifyEmail = async () => {
+        setLoadingSendMail(true)
+        const VERIFY_MAIL_URL = `https://etailorapi.azurewebsites.net/api/auth/customer/verify-email?email=${values.regis_email}`
+        try {
+            const response = await fetch(VERIFY_MAIL_URL, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "text/plain",
+                }
+            });
+            if (response.ok) {
+                setOpenVerify("OPEN")
+                setLoadingSendMail(false)
+            }
+            else {
+                const errorText = await response.text();
+                setError(() => ({ ...error, email_err: errorText }));
+
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
+    // ----------------------------------------------- HANDLE LOGIN ---------------------------------------------------
     const [values, setValues] = React.useState({
         login_email: '',
         login_password: '',
+        regis_username: "",
         regis_email: "",
         regis_password: "",
         showPassword: false,
     });
     const [loading, setLoading] = useState(false)
-
+    const [loadingSendMail, setLoadingSendMail] = useState(false)
+    const [openVerify, setOpenVerify] = useState("")
+    console.log("openVerify:", openVerify)
     const handleLoginBtn = async (event) => {
         setLoading(true)
         console.log({
@@ -66,17 +164,21 @@ export default function Login({ openModal, closeModal }) {
                     clientToken: "",
                 }),
             });
-
+            console.log("hi", JSON.stringify(response))
             if (response.ok) {
                 setLoading(false);
+
                 const data = await response.json();
+                console.log(response)
                 closeModal()
-                localStorage.setItem("customer", data);
+                localStorage.setItem("customer", JSON.stringify(data));
             }
+
         } catch (error) {
             console.error("Error:", error);
+            setLoading(false)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
     };
 
@@ -90,6 +192,11 @@ export default function Login({ openModal, closeModal }) {
 
     const handleChange = (prop) => (event) => {
         setValues({ ...values, [prop]: event.target.value });
+        if (prop === "regis_email") {
+            setError(() => ({ ...error, email_err: '' }));
+            setLoadingSendMail(false)
+            setOpenVerify("")
+        }
     };
 
     const handleClickShowPassword = () => {
@@ -102,7 +209,41 @@ export default function Login({ openModal, closeModal }) {
     const handleMouseDownPassword = (event) => {
         event.preventDefault();
     };
+    // ----------------------------------------------- HANDLE REGISTER ---------------------------------------------------
 
+    const handleRegister = async (event) => {
+        setLoading(true)
+        const formData = new FormData();
+        formData.append('Email', values.regis_email);
+        formData.append('Username', values.regis_username);
+        formData.append('Password', values.regis_password);
+        console.log({
+            email: values.regis_email,
+            password: values.regis_password,
+            email: values.regis_email
+        });
+        const LOGIN_URL = `https://etailorapi.azurewebsites.net/api/customer-management/regis`
+        try {
+            const response = await fetch(LOGIN_URL, {
+                method: "POST",
+                body: formData
+            });
+            console.log("hi", JSON.stringify(response))
+            if (response.ok) {
+                setLoading(false);
+                const data = await response.json();
+                console.log(response)
+                closeModal()
+                localStorage.setItem("customer", JSON.stringify(data));
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+            setLoading(false)
+        } finally {
+            setLoading(false)
+        }
+    };
     return (
         <div>
 
@@ -118,13 +259,15 @@ export default function Login({ openModal, closeModal }) {
                     {loginOrReg === "LOGIN" ? (
                         < ModalContent sx={style}>
 
-                            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                            <div style={{ display: "flex", justifyContent: "flex-end", height: "100%", padding: "40px 0px" }}>
                                 <div className='login-form' style={{ width: "50%" }}>
                                     <h1 className="title is-2">Đăng nhập</h1>
                                     <div className='input-form' >
                                         <Input
                                             id="outlined-start-adornment"
                                             name="email"
+                                            autoFocus
+                                            startAdornment={<InputAdornment><img width={24} height={24} src={UserIcon}></img></InputAdornment>}
                                             value={values.email}
                                             placeholder="Tên người dùng hoặc email"
                                             onChange={handleChange('login_email')}
@@ -135,9 +278,10 @@ export default function Login({ openModal, closeModal }) {
                                             id="outlined-adornment-password"
                                             placeholder="Mật khẩu"
                                             type={values.showPassword ? 'text' : 'password'}
-                                            value={values.password}
+                                            value={values.login_password}
                                             name="password"
                                             onChange={handleChange('login_password')}
+                                            startAdornment={<InputAdornment><img width={24} height={24} src={PasswordIcon}></img></InputAdornment>}
                                             endAdornment={
                                                 <InputAdornment>
                                                     <IconButton
@@ -156,15 +300,14 @@ export default function Login({ openModal, closeModal }) {
                                             }
                                         />
                                     </div>
-                                    <div className='remember-user'>
+                                    <div className='remember-user' style={{ paddingTop: "10px" }}>
                                         <label className="checkbox">
                                             <input type="checkbox">
-
                                             </input> Ghi nhớ đăng nhập
                                         </label>
 
                                     </div>
-                                    <div className="field loginbtn-submit">
+                                    <div className="field loginbtn-submit" style={{ paddingTop: "20px" }}>
                                         <p className="control">
                                             <button className="button" onClick={handleLoginBtn} style={{ backgroundColor: "#26282E", color: "#FFFFFF", width: '90%', fontSize: "1rem", borderRadius: "5px" }}>
                                                 Đăng nhập &nbsp; {loading && <CircularProgress size={20} sx={{ color: "#FFFFFF" }} />}
@@ -190,14 +333,17 @@ export default function Login({ openModal, closeModal }) {
                         (
                             < ModalContent sx={style}>
 
-                                <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                                <div style={{ display: "flex", justifyContent: "flex-end", height: '100%' }}>
                                     <div className='login-form' style={{ width: "50%" }}>
-                                        <h1 className="title is-2">Đăng ký tài khoản</h1>
+                                        <h1 className="title is-2" style={{ marginBottom: "10px" }}>Đăng ký tài khoản</h1>
                                         <div className='input-form' >
                                             <Input
                                                 id="outlined-start-adornment"
-                                                placeholder="Tên người dùng hoặc email"
+                                                placeholder="Tên người dùng"
+                                                autoFocus
                                                 startAdornment={<InputAdornment><img width={24} height={24} src={UserIcon}></img></InputAdornment>}
+                                                value={values.regis_username}
+                                                onChange={handleChange('regis_username')}
                                             />
                                         </div>
                                         <div className='input-form'>
@@ -206,8 +352,9 @@ export default function Login({ openModal, closeModal }) {
                                                 startAdornment={<InputAdornment><img width={24} height={24} src={PasswordIcon}></img></InputAdornment>}
                                                 placeholder="Mật khẩu"
                                                 type={values.showPassword ? 'text' : 'password'}
-                                                value={values.password}
-                                                onChange={handleChange('password')}
+                                                value={values.regis_password}
+                                                onChange={handleChange('regis_password')}
+
                                                 endAdornment={
                                                     <InputAdornment>
                                                         <IconButton
@@ -228,22 +375,86 @@ export default function Login({ openModal, closeModal }) {
                                         </div>
                                         <div className='input-form' >
                                             <Input
-                                                id="outlined-start-adornment"
-                                                placeholder="Số điện thoại"
-                                                startAdornment={<InputAdornment><img width={24} height={24} src={PhoneIcone}></img></InputAdornment>}
-                                                inputProps={{
-                                                    inputMode: 'numeric',
-                                                    pattern: '[0-9]*',
-                                                    style: {
-                                                        textAlign: 'center',
-                                                    },
-                                                }}
+                                                id="outlined-adornment-password"
+                                                placeholder="Email"
+
+                                                startAdornment={<InputAdornment><img width={24} height={24} src={EmailIcon}></img></InputAdornment>}
+                                                value={values.regis_email}
+                                                onChange={handleChange("regis_email")}
+                                                type="email"
+                                                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+                                                endAdornment={
+                                                    <>
+                                                        {values.regis_email.length > 0 && (
+                                                            <InputAdornment >
+                                                                {loadingSendMail ? (
+                                                                    <CircularProgress size={20} sx={{ color: "rgb(94, 119, 194)" }} />
+                                                                ) : (
+                                                                    <>
+                                                                        {openVerify === "VERIFIED" ? (
+                                                                            <img src={EmailVerifyIcon}></img>
+                                                                        ) : (
+                                                                            <span className='email-verify-btn' onClick={handleVerifyEmail}>
+                                                                                Gửi mã
+                                                                            </span>
+                                                                        )}
+
+                                                                    </>
+
+                                                                )}
+                                                            </InputAdornment>
+                                                        )}
+                                                    </>
+                                                }
                                             />
+                                            {error.email_err.length > 0 && <span style={{ color: "red", fontSize: "12px", paddingLeft: "5px" }}>{error.email_err}</span>}
+                                            {openVerify === "OPEN" && (
+                                                <>
+                                                    <Typography id="transition-modal-description" sx={{ mt: 1 }}>
+                                                        Mã xác nhận đã được gửi đến email của bạn.
+                                                    </Typography>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px', mt: 1 }}>
+                                                        {[0, 1, 2, 3].map((index) => (
+                                                            <TextField
+                                                                key={index}
+                                                                inputRef={(ref) => (inputRefs.current[index] = ref)}
+                                                                variant="outlined"
+                                                                onChange={(event) => handleInputOTP(index, event)}
+                                                                inputProps={{
+                                                                    maxLength: 1,
+                                                                    style: { textAlign: 'center' },
+                                                                }}
+                                                            />
+                                                        ))}
+                                                    </Box>
+                                                    <Box sx={{ pt: 2, display: 'flex', justifyContent: 'center' }}>
+                                                        {loading ? (
+                                                            <CircularProgress size={20} sx={{ color: "rgb(94, 119, 194)" }} />
+                                                        ) : (<>
+                                                            {error.otp_err.length > 0 ? (
+                                                                <div style={{ display: "flex" }}>
+                                                                    <span className='text-error' >{error.otp_err}</span>
+                                                                    <p style={{ fontSize: "12px", color: 'rgb(94, 119, 194)', paddingLeft: "5px" }}>Gửi lại</p>
+                                                                </div>
+
+                                                            ) : (
+                                                                < span className='button email-verify-btn' onClick={checkOTPEmail}>
+                                                                    Xác nhận
+                                                                </span>
+                                                            )}
+
+                                                        </>
+
+                                                        )}
+
+                                                    </Box>
+                                                </>
+                                            )}
                                         </div>
-                                        <div className="field loginbtn-submit">
+                                        <div className="field loginbtn-submit" style={{ paddingTop: "10px" }}>
                                             <p className="control">
-                                                <button className="button" style={{ backgroundColor: "#26282E", color: "#FFFFFF", width: '90%', fontSize: "1rem", borderRadius: "5px" }}>
-                                                    Đăng ký
+                                                <button className="button" onClick={handleRegister} style={{ backgroundColor: "#26282E", color: "#FFFFFF", width: '90%', fontSize: "1rem", borderRadius: "5px" }}>
+                                                    Đăng ký&nbsp;&nbsp; {loading && <CircularProgress size={20} sx={{ color: "#FFFFFF" }} />}
                                                 </button>
                                             </p>
                                         </div>
@@ -255,7 +466,7 @@ export default function Login({ openModal, closeModal }) {
                                         </div>
 
                                     </div>
-                                    <div>
+                                    <div style={{ display: "flex", alignItems: "center" }}>
                                         <img src={LogoImg} width={500} height={500}></img>
                                     </div>
                                 </div>
@@ -330,7 +541,7 @@ const style = {
     left: '50%',
     transform: 'translate(-50%, -50%)',
     width: 1000,
-    height: 500,
+    height: 600,
 };
 
 const ModalContent = styled('div')(
