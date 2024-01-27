@@ -14,6 +14,7 @@ import MenuDropIcon from '../../assets/images/caret-down.png'
 const Header = () => {
     const [clickedSection, setClickedSection] = useState("Trang Chu")
     const [open, setOpen] = React.useState(false);
+    const customer = localStorage.getItem("customer")
     const handleOpen = () => {
         setOpen(true);
     }
@@ -84,28 +85,33 @@ const Header = () => {
                 </div>
 
                 <div className='header-end'>
-                    <div style={{ height: 'auto' }}>
-                        <Dropdown>
-                            <MenuButton className="user-logo" sx={{ border: "none" }}>
-                                <img src={UserLogo} width={30} height={30}></img>
-                            </MenuButton>
-                            <Menu sx={{ zIndex: 100000000 }}>
-                                <Link to="/profile">
-                                    <MenuItem>Profile</MenuItem>
-                                </Link>
-                                <Link to="/profile">
-                                    <MenuItem>
-                                        My account
-                                    </MenuItem>
-                                </Link>
-                                <MenuItem>Logout</MenuItem>
-                            </Menu>
-                        </Dropdown>
-                    </div>
-                    <div className='navbar-items login'>
-                        <h1 className='subtitle is-5' onClick={handleOpen}>Đăng nhập</h1>
+                    {customer ? (
+                        <div style={{ height: 'auto' }}>
+                            <Dropdown>
+                                <MenuButton className="user-logo" sx={{ border: "none" }}>
+                                    <img src={UserLogo} width={30} height={30}></img>
+                                </MenuButton>
+                                <Menu sx={{ zIndex: 100000000 }}>
+                                    <Link to="/profile">
+                                        <MenuItem>Profile</MenuItem>
+                                    </Link>
+                                    <Link to="/profile">
+                                        <MenuItem>
+                                            My account
+                                        </MenuItem>
+                                    </Link>
+                                    <MenuItem>Logout</MenuItem>
+                                </Menu>
+                            </Dropdown>
+                        </div>
+                    ) : (
+                        <div className='navbar-items login'>
+                            <h1 className='subtitle is-5' onClick={handleOpen}>Đăng nhập</h1>
 
-                    </div>
+                        </div>
+                    )}
+
+
                     <div className='navbar-items'>
                         <button className="button is-rounded is-medium wrapper-shopping">
                             <img src={ShoppingBag}></img>

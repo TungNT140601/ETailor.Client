@@ -1,0 +1,20 @@
+.catalogue-wrapper {
+    display: flex
+}
+
+.catalog-section-1 {
+    display: grid;
+    grid-template-columns: auto auto;
+}
+
+.catalog-1 {
+    display: flex;
+    justify-content: end;
+    position: relative;
+    cursor: pointer;
+}
+
+.catalog-1>img {
+    object-fit: cover;
+    border-radius: 5px;
+}
