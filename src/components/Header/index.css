@@ -36,6 +36,7 @@
     justify-content: flex-end;
     align-items: center;
     float: right;
+    padding-right: 70px;
 }
 
 .gray {
@@ -48,6 +49,8 @@
 
 .wrapper-shopping {
     background-color: #9F78FF;
+    width: 70px;
+    height: 40px;
 }
 
 .header-end .navbar-items{

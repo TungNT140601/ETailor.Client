@@ -1,0 +1,32 @@
+.product-detail-wrapper {
+    display: grid;
+    grid-template-columns: 15% 40% 40%;
+    column-gap: 20px;
+}
+
+.product-detail-items {
+    width: 100%;
+    height: auto;
+
+}
+
+.product-detail-preview {
+    justify-content: end;
+    display: grid;
+    grid-template-columns: auto;
+    row-gap: 10px;
+
+}
+
+.product-component-style-items {
+    padding-right: 10px;
+}
+
+.btn-contact {
+    padding: 10px;
+    background-color: #080404;
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}

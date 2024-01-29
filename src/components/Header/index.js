@@ -11,7 +11,8 @@ import Dropdown from '@mui/joy/Dropdown';
 import UserLogo from '../../assets/images/user.png'
 import MenuDropIcon from '../../assets/images/caret-down.png';
 import { useNavigate } from "react-router-dom";
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 const Header = () => {
     const [clickedSection, setClickedSection] = useState("Trang Chu")
     const [open, setOpen] = React.useState(false);
@@ -49,7 +50,7 @@ const Header = () => {
             <div className='header-container'>
                 <div className='header-menu-wrapper'>
                     <div className='header-logo'>
-                        <Link to="/"  onClick={() => setClickedSection("Trang Chu")}>
+                        <Link to="/" onClick={() => setClickedSection("Trang Chu")}>
                             <figure className="image is-128x128">
                                 <img className="is-rounded" src={Logo}></img>
                             </figure>
@@ -112,11 +113,12 @@ const Header = () => {
                         <div style={{ height: 'auto' }}>
                             <Dropdown>
                                 <MenuButton className="user-logo" sx={{ border: "none" }}>
-                                    <img src={UserLogo} width={30} height={30}></img>
+                                    {/* <img src={UserLogo} width={30} height={30}></img> */}
+                                    <FontAwesomeIcon style={{ fontSize: "32px" }} icon={faUser} />
                                 </MenuButton>
                                 <Menu sx={{ zIndex: 100000000 }}>
                                     <Link to="/profile">
-                                        <MenuItem>Profile</MenuItem>
+                                        <MenuItem>Thông tin cá nhân</MenuItem>
                                     </Link>
                                     <Link to="/profile">
                                         <MenuItem>
@@ -137,8 +139,8 @@ const Header = () => {
 
                     <div className='navbar-items'>
                         <button className="button is-rounded is-medium wrapper-shopping">
-                            <img src={ShoppingBag}></img>
-                            <p style={{ paddingLeft: 10, color: '#FFFFFF' }}>0</p>
+                            <img src={ShoppingBag} width={18} height={18}></img>
+                            <p style={{ paddingLeft: 10, color: '#FFFFFF', fontSize: "15px" }}>0</p>
                         </button>
 
                     </div>

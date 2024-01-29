@@ -46,6 +46,18 @@ const HomePage = () => {
             easing: 'cubic-bezier(0.5, 0, 0, 1)',
             mobile: true,
         });
+
+        ScrollReveal().reveal('.wrapper-container-content', {
+            duration: 1500,
+            distance: '60px',
+            scale: 0.85,
+            easing: 'ease-in',
+            mobile: true,
+            rotate: {
+                x: 20,
+                z: 20
+            }
+        });
     }, []);
     return (
         <>
@@ -53,7 +65,7 @@ const HomePage = () => {
                 <div className='wrapper-main' >
                     <div className='banner-swiper'>
 
-                        <button className='btn-main' style={{ zIndex: "10", position: "absolute", bottom: "30px", left: "43.5%" }}>ĐẶT MAY NGAY</button>
+                        <button className='btn-main' style={{ zIndex: "10", position: "absolute", bottom: "80px", left: "43.5%" }}>ĐẶT MAY NGAY</button>
                         <Swiper
                             spaceBetween={30}
                             centeredSlides={true}
@@ -170,15 +182,16 @@ const HomePage = () => {
                     </div>
                 </div >
                 <div className='wrapper-container-content'>
-                    <div style={{ width: "80%" }}>
+                    <div style={{ width: "80%", height: "auto" }}>
 
                         <div className='product-title'>
-                            <p className='title is-2'>New Arrival</p>
+                            <p className='title is-2'>Thời trang</p>
                         </div>
                         <img src={Banner3}>
                         </img>
                     </div>
                 </div>
+
             </div >
         </>
     )

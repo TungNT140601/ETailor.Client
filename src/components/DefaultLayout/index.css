@@ -1,10 +1,18 @@
 .container-wrapper {
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
     margin: 0;
     padding: 0;
     position: relative;
+    display: block;
 }
-.section-wrapper{
+
+.section-wrapper {
     padding-top: 128px;
+}
+
+.footer-container {
+    position: absolute;
+    bottom: 20px;
+    z-index: 1000;
 }
