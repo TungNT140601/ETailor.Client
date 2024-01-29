@@ -1,0 +1,14 @@
+.manager-header {
+    border-radius: 10px;
+}
+
+.manager-content {
+    border-radius: 10px;
+    padding: 20px 20px;
+    background-color: #FFFFFF;
+    margin: 10px 0px;
+}
+
+.manager-content::-webkit-scrollbar {
+    display: none;
+}

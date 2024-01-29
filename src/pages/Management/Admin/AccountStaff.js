@@ -801,7 +801,7 @@ const AccountStaffContent = () => {
         }}
         scroll={{
           x: 1500,
-          y: 410,
+          y: 440,
         }}
       />
     </>

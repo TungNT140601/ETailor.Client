@@ -21,8 +21,10 @@ import ManagerRouter from "./ManagerRouter";
 import Catalogue from "../pages/Customer/Catalogue";
 import ProductDetail from "../pages/Customer/Catalogue/detail";
 import BodyProfile from "../pages/Customer/BodyProfile/BodyProfile";
-export const customerRouters = [
+import ManagementProductTemplate, { ManagementCreateProductTemplate } from "../pages/Management/Manager/ManagementProductTemplate";
 
+
+export const customerRouters = [
   {
     path: "/body-profile",
     name: "user-body-profile",
@@ -110,9 +112,15 @@ export const adminRouters = [
 export const managerRouters = [
   {
     path: "/manager",
-    name: "staff-manager",
-    component: ManagementStaff,
+    name: "manager",
+    component: ManagementProductTemplate,
     layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/create/product-template",
+    name: "manager",
+    component: ManagementCreateProductTemplate,
+    layout: null,
   },
 ];
 
