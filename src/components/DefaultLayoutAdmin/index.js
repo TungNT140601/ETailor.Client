@@ -11,7 +11,7 @@ export const DefaultLayoutAdmin = ({ children }) => {
   return (
     <Layout
       style={{
-        minHeight: "100vh",
+        height: "100%",
         position: "relative",
       }}
       className="default-admin-layout"

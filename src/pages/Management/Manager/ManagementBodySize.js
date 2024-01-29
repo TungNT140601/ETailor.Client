@@ -45,7 +45,7 @@ const { Option } = Select;
 const manager = JSON.parse(localStorage.getItem("manager"));
 console.log("manager", manager);
 
-const ManagementStaffHeader = () => {
+const ManagementBodySizeHeader = () => {
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -110,18 +110,18 @@ const ManagementStaffHeader = () => {
   );
 };
 
-const ManagementStaffContent = () => {
-  const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  const admin = JSON.parse(localStorage.getItem("admin"));
-  const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-    fetch(getStaffUrl, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${admin?.token}`,
-      },
-    }).then((response) => response.json())
-  );
-  console.log("staffs", staffs);
+const ManagementBodySizeContent = () => {
+  //   const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
+  //   const manager = JSON.parse(localStorage.getItem("manager"));
+  //   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
+  //     fetch(getStaffUrl, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${manager?.token}`,
+  //       },
+  //     }).then((response) => response.json())
+  //   );
+
   const columns = [
     {
       title: "STT",
@@ -131,53 +131,109 @@ const ManagementStaffContent = () => {
       fixed: "left",
     },
     {
-      title: "Hình đại diện",
+      title: "Hình ảnh",
       width: 150,
-      dataIndex: "avatar",
-      key: "avatar",
-      render: (_, record) => (
+      dataIndex: "image",
+      key: "image",
+      render: () => (
         <Image
-          width={100}
-          height={90}
-          style={{ objectFit: "contain" }}
-          src={record.avatar}
+          width={150}
+          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
         />
       ),
+      //   render: (_, record) => (
+      //     <Image
+      //       width={100}
+      //       height={90}
+      //       style={{ objectFit: "contain" }}
+      //       src={record.avatar}
+      //     />
+      //   ),
     },
     {
-      title: "Tên người dùng",
-      dataIndex: "username",
+      title: "Số đo từng bộ phận",
+      dataIndex: "BodyPart",
       key: "1",
       width: 150,
     },
     {
-      title: "Họ và tên",
-      dataIndex: "fullname",
+      title: "Tên cơ thể",
+      dataIndex: "name",
       key: "2",
       width: 150,
     },
     {
-      title: "Địa chỉ",
-      dataIndex: "address",
+      title: "Clip hướng dẫn",
+      dataIndex: "GuideVideoLink",
       key: "3",
       width: 150,
+      render: () => (
+        <Button type="link">
+          <a href="#">Nhấn vào để xem</a>
+        </Button>
+      ),
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
+      title: "Giá trị tối thiểu",
+      dataIndex: "MinValidValue",
       key: "4",
       width: 150,
     },
+    {
+      title: "Giá trị tối đa",
+      dataIndex: "MaxValidValue",
+      key: "5",
+      width: 150,
+    },
+    {
+      title: "Action",
+      dataIndex: "Action",
+      key: "6",
+      width: 100,
+      fixed: "right",
+      render: () => (
+        <Row justify="center">
+          <Col span={4}>
+            <Button
+              type="primary"
+              icon={<DeleteOutlined />}
+              size="default"
+              danger
+            />
+          </Col>
+          <Col span={4} offset={5}>
+            <Button
+              type="primary"
+              icon={<EditOutlined />}
+              size="default"
+              warning
+            />
+          </Col>
+        </Row>
+      ),
+    },
   ];
 
-  const getApi = staffs?.data?.map((item) => ({
-    stt: item.stt,
-    avatar: item.avatar,
-    username: item.username,
-    fullname: item.fullname,
-    address: item.address,
-    phone: item.phone,
-  }));
+  //   const getApi = staffs?.data?.map((item) => ({
+  //     stt: item.stt,
+  //     avatar: item.avatar,
+  //     username: item.username,
+  //     fullname: item.fullname,
+  //     address: item.address,
+  //     phone: item.phone,
+  //   }));
+
+  const data = [];
+  for (let i = 0; i < 100; i++) {
+    data.push({
+      stt: i,
+      name: `Edward ${i}`,
+      BodyPart: `${i}`,
+      address: `London Park no. ${i}`,
+      MinValidValue: `${i}`,
+      MaxValidValue: `${i}`,
+    });
+  }
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -209,7 +265,7 @@ const ManagementStaffContent = () => {
         </div>
         <Row justify="start" style={{ paddingRight: "24px" }}>
           <Col span={4}>
-            <Button>Tổng cộng ({staffs?.totalData})</Button>
+            <Button>Tổng cộng ({manager?.totalData})</Button>
           </Col>
           <Col span={4} offset={12}>
             <Button type="primary">Thêm mới</Button>
@@ -219,7 +275,7 @@ const ManagementStaffContent = () => {
 
       <Table
         columns={newColumns}
-        dataSource={getApi}
+        dataSource={data}
         style={{
           marginTop: 24,
         }}
@@ -232,7 +288,7 @@ const ManagementStaffContent = () => {
   );
 };
 
-function ManagementStaff() {
+function ManagementBodySize() {
   return (
     <div>
       <div
@@ -242,16 +298,16 @@ function ManagementStaff() {
         }}
         className="manager-header"
       >
-        <ManagementStaffHeader />
+        <ManagementBodySizeHeader />
       </div>
       <div
         className="manager-content"
         style={{ height: "84vh", overflowY: "scroll" }}
       >
-        <ManagementStaffContent />
+        <ManagementBodySizeContent />
       </div>
     </div>
   );
 }
 
-export default ManagementStaff;
+export default ManagementBodySize;

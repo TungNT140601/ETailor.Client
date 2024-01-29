@@ -22,6 +22,9 @@ import Catalogue from "../pages/Customer/Catalogue";
 import ManagementProductTemplate, {
   ManagementCreateProductTemplate,
 } from "../pages/Management/Manager/ManagementProductTemplate";
+import ManagementBodySize from "../pages/Management/Manager/ManagementBodySize";
+import ManagementMaterial from "../pages/Management/Manager/ManagementMaterial";
+import ManagementDiscount from "../pages/Management/Manager/ManagementDiscount";
 export const customerRouters = [];
 
 export const publicRouters = [
@@ -104,7 +107,31 @@ export const managerRouters = [
     path: "/manager/create/product-template",
     name: "manager",
     component: ManagementCreateProductTemplate,
-    layout: null,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/account/staffs",
+    name: "management-staff",
+    component: ManagementStaff,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/body-size",
+    name: "management-body-size",
+    component: ManagementBodySize,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/material",
+    name: "management-material",
+    component: ManagementMaterial,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/discount",
+    name: "management-material",
+    component: ManagementDiscount,
+    layout: DefaultLayoutManager,
   },
 ];
 
