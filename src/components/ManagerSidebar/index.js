@@ -421,6 +421,9 @@ export const ManagerSidebar = () => {
       collapsible
       collapsed={collapsed}
       onCollapse={(value) => setCollapsed(value)}
+      style={{
+        minHeight: "100vh",
+      }}
     >
       <div className="demo-logo-vertical" />
       <Menu

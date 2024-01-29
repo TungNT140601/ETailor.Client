@@ -166,7 +166,7 @@ const AccountCusContent = ({ itemsPerPage }) => {
         }}
         scroll={{
           x: 1500,
-          y: 420,
+          y: "84vh",
         }}
       />
     </>
