@@ -5,7 +5,7 @@ import { Navigate, Outlet } from 'react-router'
 
 const CustomerRouter = (role) => {
     let isAuthenticated = JSON.parse(localStorage.getItem("customer"));
-    return isAuthenticated?.role === 'Cooker' ? <Outlet /> : <Navigate to="/error" />;
+    return isAuthenticated ? <Outlet /> : <Navigate to="/error" />;
 }
 
 export default CustomerRouter

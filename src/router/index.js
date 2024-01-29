@@ -19,7 +19,17 @@ import DefaultLayoutManager from "../components/DefaultLayoutManager";
 import ManagementStaff from "../pages/Management/Manager/ManagementStaff";
 import ManagerRouter from "./ManagerRouter";
 import Catalogue from "../pages/Customer/Catalogue";
-export const customerRouters = [];
+import ProductDetail from "../pages/Customer/Catalogue/detail";
+import BodyProfile from "../pages/Customer/BodyProfile/BodyProfile";
+export const customerRouters = [
+
+  {
+    path: "/body-profile",
+    name: "user-body-profile",
+    component: BodyProfile,
+    layout: DefaultLayout,
+  },
+];
 
 export const publicRouters = [
   {
@@ -56,6 +66,13 @@ export const publicRouters = [
     path: "/catalogue",
     name: "home-catalogue",
     component: Catalogue,
+    layout: DefaultLayout,
+  },
+
+  {
+    path: "/catalogue/product",
+    name: "product-detail",
+    component: ProductDetail,
     layout: DefaultLayout,
   },
 ];
