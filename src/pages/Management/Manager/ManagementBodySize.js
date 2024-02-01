@@ -276,6 +276,9 @@ const ManagementBodySizeContent = () => {
       <Table
         columns={newColumns}
         dataSource={data}
+        pagination={{
+          position: ["bottomCenter"],
+        }}
         style={{
           marginTop: 24,
         }}

@@ -12,3 +12,7 @@
 .manager-content::-webkit-scrollbar {
     display: none;
 }
+
+.gutter-row::-webkit-scrollbar {
+    display: none;
+}

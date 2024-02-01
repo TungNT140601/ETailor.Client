@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
@@ -179,24 +179,38 @@ export const ManagementCreateProductTemplate = () => {
     }
   };
   //-------------------------------------------------------------step 2----------------------------------------------
+  const dataStep2 = [
+    {
+      id: 1,
+      name: "Cổ áo",
+    },
+    {
+      id: 2,
+      name: "Tay áo",
+    },
+    {
+      id: 3,
+      name: "Thân áo",
+    },
+  ];
+  const [cards, setCards] = useState([]);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [changeValue, setChangeValue] = useState("");
-  const [changeImage, setChangeImage] = useState("");
+  const [open, setOpen] = useState(false);
+  const saveStep = useRef("");
 
-  const showModal = () => {
-    setIsModalOpen(true);
+  const handleOpen = (value) => {
+    saveStep.current = value;
+    setOpen(true);
   };
-  const handleOk = () => {
-    console.log("gia tri ne`", changeValue);
-    console.log("hinh anh ne`", changeImage);
-    // setIsModalOpen(false);
-  };
-  const handleChangeImage = ({ changeImage: newFileList }) => {
-    setChangeImage(newFileList);
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
+  const onCreate = (values) => {
+    console.log("Received values of form: ", values);
+    const newCard = {
+      title: values.title,
+      image: values.image,
+      section: saveStep.current.id,
+    };
+    setCards([...cards, newCard]);
+    setOpen(false);
   };
 
   //--------------------------------------------------------------step 3---------------------------------------------
@@ -366,108 +380,112 @@ export const ManagementCreateProductTemplate = () => {
     {
       title: "Thông tin cơ bản",
       content: (
-        <Form
-          name="basic"
-          labelCol={{
-            span: 8,
-          }}
-          wrapperCol={{
-            span: 16,
-          }}
-          initialValues={{
-            remember: true,
-          }}
-          style={{ minWidth: 240 }}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
-          autoComplete="off"
-        >
-          <Row gutter={[16, 24]} style={{ marginTop: 24, padding: "0 50px" }}>
-            <Col span={12}>
-              <Title level={3}>1. Cổ áo</Title>
-
-              <Button type="primary" onClick={showModal}>
-                Thêm mới thành phần
-              </Button>
-              <Modal
-                title="Basic Modal"
-                open={isModalOpen}
-                onOk={handleOk}
-                onCancel={handleCancel}
-              >
-                <div>
-                  <Typography.Title level={5}>Tên thành phần</Typography.Title>
-                  <Input
-                    placeholder="Nhập tên"
-                    value={changeValue}
-                    onChange={(e) => setChangeValue(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Typography.Title level={5}>Hình ảnh</Typography.Title>
-                  <Upload
-                    action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                    listType="picture"
-                    maxCount={1}
-                    onChange={handleChangeImage}
-                  >
-                    <Button icon={<UploadOutlined />}>Upload</Button>
-                  </Upload>
-                </div>
-              </Modal>
-            </Col>
-            <Col span={12}>
-              <Title level={3}>1. Cổ áo</Title>
-
-              <Button type="primary" onClick={showModal}>
-                Thêm mới thành phần
-              </Button>
-              <Modal
-                title="Basic Modal"
-                open={isModalOpen}
-                onOk={handleOk}
-                onCancel={handleCancel}
-              >
-                <div>
-                  <Typography.Title level={5}>Tên thành phần</Typography.Title>
-                  <Input placeholder="Nhập tên" />
-                </div>
-                <div>
-                  <Typography.Title level={5}>Hình ảnh</Typography.Title>
-                  <Upload
-                    action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                    listType="picture"
-                    maxCount={1}
-                  >
-                    <Button icon={<UploadOutlined />}>Upload</Button>
-                  </Upload>
-                </div>
-              </Modal>
-            </Col>
-          </Row>
-          <Row justify="center" style={{ marginTop: 220 }}>
+        <>
+          <Row justify="center" style={{ marginTop: 30 }}>
             <Col span={2}>
-              <Form.Item
-                wrapperCol={{
-                  span: 24,
+              <Button
+                style={{
+                  margin: "0 8px",
                 }}
+                onClick={() => prev()}
               >
-                <Button onClick={() => prev()}>Lùi lại</Button>
-              </Form.Item>
+                Previous
+              </Button>
             </Col>
             <Col span={2}>
-              <Form.Item
-                wrapperCol={{
-                  span: 16,
-                }}
-              >
-                <Button type="primary" onClick={() => next()}>
-                  Tiếp theo
-                </Button>
-              </Form.Item>
+              <Button type="primary" onClick={() => next()}>
+                Tiếp theo
+              </Button>
             </Col>
           </Row>
-        </Form>
+          <Row gutter={[16, 24]} style={{ marginTop: 20 }}>
+            {dataStep2.map((data, index) => {
+              return (
+                <>
+                  <Col
+                    className="gutter-row"
+                    span={12}
+                    style={{
+                      marginTop: 24,
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                      }}
+                    >
+                      <Title level={4}>
+                        {index + 1} - {data.name}
+                      </Title>
+                      <Button
+                        type="primary"
+                        onClick={() => handleOpen(data)}
+                        style={{ marginLeft: 24 }}
+                      >
+                        Thêm mới
+                      </Button>
+                    </div>
+                    <div>
+                      {cards
+                        .filter((card) => card.section === data.id)
+                        .map((card, cardIndex) => (
+                          <>
+                            <Row
+                              justify="start"
+                              className="gutter-row"
+                              style={{
+                                backgroundColor: "#D4D4D4",
+                                borderRadius: "10px",
+                                width: 550,
+                                height: 350,
+                                overflowY: "scroll",
+                              }}
+                            >
+                              <Col offset={2}>
+                                <Card
+                                  style={{
+                                    width: 200,
+                                    marginTop: 10,
+                                    border: "1px solid #D4D4D4",
+                                  }}
+                                  cover={
+                                    <Image
+                                      width={200}
+                                      height={200}
+                                      src={card.image}
+                                      style={{
+                                        border: "1px solid #D4D4D4",
+                                      }}
+                                    />
+                                  }
+                                  actions={[<DeleteOutlined key="delete" />]}
+                                >
+                                  <Meta title={card.title} />
+                                </Card>
+                              </Col>
+                            </Row>
+
+                            {/* <Card key={cardIndex} title={card.title}>
+                            <Image src={card.image} />
+                          </Card> */}
+                          </>
+                        ))}
+                    </div>
+                  </Col>
+                </>
+              );
+            })}
+
+            <CollectionCreateForm
+              open={open}
+              onCreate={onCreate}
+              onCancel={() => {
+                setOpen(false);
+              }}
+              currentStepData={saveStep.current}
+            />
+          </Row>
+        </>
       ),
     },
     {
@@ -706,6 +724,84 @@ export const ManagementCreateProductTemplate = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const CollectionCreateForm = ({
+  open,
+  onCreate,
+  onCancel,
+  currentStepData,
+}) => {
+  const [form] = Form.useForm();
+
+  const getBase64 = (img, callback) => {
+    const reader = new FileReader();
+    reader.addEventListener("load", () => callback(reader.result));
+    reader.readAsDataURL(img);
+  };
+
+  const handleOk = async () => {
+    try {
+      const values = await form.validateFields();
+      form.resetFields();
+      onCreate(values);
+    } catch (errorInfo) {
+      console.log("Validate Failed:", errorInfo);
+    }
+  };
+  const handleUploadChange = async (info) => {
+    if (info.file.status === "done") {
+      getBase64(info.file.originFileObj, (url) => {
+        form.setFieldsValue({
+          image: url,
+        });
+      });
+    } else if (info.file.status === "error") {
+      message.error(`${info.file.name} file upload failed.`);
+    }
+  };
+  return (
+    <Modal
+      open={open}
+      title={`Create a new collection for ${currentStepData.name}`}
+      okText="Create"
+      cancelText="Cancel"
+      onCancel={onCancel}
+      onOk={handleOk}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+        }}
+      >
+        <Form.Item
+          name="title"
+          label="Title"
+          rules={[
+            {
+              required: true,
+              message: "Please input the title of collection!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item name="image" label="Upload Image">
+          <Upload
+            name="file"
+            action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+            onChange={handleUploadChange}
+            listType="picture"
+          >
+            <Button icon={<UploadOutlined />}>Click to Upload</Button>
+          </Upload>
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

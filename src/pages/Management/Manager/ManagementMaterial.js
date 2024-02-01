@@ -142,14 +142,14 @@ const ManagementMaterialContent = () => {
   const columns = [
     {
       title: "STT",
-      width: 50,
+      width: "4%",
       dataIndex: "stt",
       key: "index",
       fixed: "left",
     },
     {
       title: "Hình ảnh",
-      width: 150,
+      width: "7%",
       dataIndex: "image",
       key: "image",
       render: () => (
@@ -171,13 +171,13 @@ const ManagementMaterialContent = () => {
       title: "Tên nguyên liệu",
       dataIndex: "BodyPart",
       key: "1",
-      width: 150,
+      width: "7%",
     },
     {
       title: "Số lượng",
       dataIndex: "name",
       key: "2",
-      width: 150,
+      width: "7%",
     },
     // {
     //   title: "Clip hướng dẫn",
@@ -206,7 +206,7 @@ const ManagementMaterialContent = () => {
       title: "Action",
       dataIndex: "Action",
       key: "6",
-      width: 100,
+      width: "5%",
       fixed: "right",
       render: () => (
         <Row justify="center">
@@ -218,7 +218,7 @@ const ManagementMaterialContent = () => {
               danger
             />
           </Col>
-          <Col span={4} offset={1}>
+          <Col span={4} offset={2}>
             <Button
               type="primary"
               icon={<EditOutlined />}
@@ -358,7 +358,7 @@ const ManagementMaterialContent = () => {
               danger
             />
           </Col>
-          <Col span={4} offset={1}>
+          <Col span={4} offset={3}>
             <Button
               type="primary"
               icon={<EditOutlined />}
@@ -430,6 +430,7 @@ const ManagementMaterialContent = () => {
                 onChange={onChange}
                 onSearch={onSearch}
                 filterOption={filterOption}
+                defaultValue={"1"}
                 options={[
                   {
                     value: "1",
@@ -459,11 +460,13 @@ const ManagementMaterialContent = () => {
           <Table
             columns={newColumns}
             dataSource={data}
+            pagination={{
+              position: ["bottomCenter"],
+            }}
             style={{
               marginTop: 24,
             }}
             scroll={{
-              x: 1500,
               y: 435,
             }}
           />
@@ -522,11 +525,13 @@ const ManagementMaterialContent = () => {
           <Table
             columns={newColumns1}
             dataSource={data1}
+            pagination={{
+              position: ["bottomCenter"],
+            }}
             style={{
               marginTop: 24,
             }}
             scroll={{
-              x: 1500,
               y: 435,
             }}
           />
@@ -585,11 +590,13 @@ const ManagementMaterialContent = () => {
           <Table
             columns={newColumns2}
             dataSource={data2}
+            pagination={{
+              position: ["bottomCenter"],
+            }}
             style={{
               marginTop: 24,
             }}
             scroll={{
-              x: 1500,
               y: 435,
             }}
           />
