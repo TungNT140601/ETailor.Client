@@ -141,12 +141,12 @@
     background-color: #9F78FF;
     transition: 0.8s;
     color: #fff;
-    font: inherit;
     line-height: 1;
     border: none;
     margin: 0.5em;
-    padding: 1em 2em;
+    padding: 1em 1.8em;
     cursor: pointer;
+    font-family: 'Lexend Deca', sans-serif;
 }
 
 .btn-main:hover,
