@@ -112,12 +112,12 @@ const ManagementStaffHeader = () => {
 
 const ManagementStaffContent = () => {
   const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  const admin = JSON.parse(localStorage.getItem("admin"));
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
     fetch(getStaffUrl, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${admin?.token}`,
+        Authorization: `Bearer ${manager?.token}`,
       },
     }).then((response) => response.json())
   );
@@ -220,6 +220,9 @@ const ManagementStaffContent = () => {
       <Table
         columns={newColumns}
         dataSource={getApi}
+        pagination={{
+          position: ["bottomCenter"],
+        }}
         style={{
           marginTop: 24,
         }}
