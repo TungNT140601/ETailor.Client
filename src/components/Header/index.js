@@ -68,7 +68,7 @@ const Header = () => {
                         </div>
 
                         <div className='navbar-item'>
-                            <Link to="/#" onClick={() => setClickedSection("Bai Viet")} >
+                            <Link to="/blog" onClick={() => setClickedSection("Bai Viet")} >
                                 <h1 className="subtitle is-5" style={{ color: clickedSection === "Bai Viet" ? "#9F78FF" : "#1D2547" }}>
                                     BÀI VIẾT
                                 </h1>
