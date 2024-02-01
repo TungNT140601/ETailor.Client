@@ -63,3 +63,7 @@
 .user-logo:hover{
     background-color: #fff!important;
 }
+
+.navbar-items h1{
+    font-weight: 400;
+}
