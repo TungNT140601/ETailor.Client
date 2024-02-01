@@ -17,3 +17,14 @@
     bottom: 20px;
     right: 50px;
 }
+.blog-banner-title{
+    position: absolute;
+    bottom: 20%;
+    left: 28%;
+}
+
+.blog-readmore-btn{
+    position: absolute;
+    bottom: 5px;
+    left: 20px;
+}
