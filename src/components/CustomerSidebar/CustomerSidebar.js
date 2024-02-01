@@ -4,6 +4,7 @@ import UserAvatar from "../../../src/assets/images/user-avatar.jpg"
 import UserIcon from "../../../src/assets/images/profile-user.png"
 import OrderIcon from "../../../src/assets/images/box.png"
 import BodyIcon from "../../../src/assets/images/tape-measure.png"
+import { Link } from 'react-router-dom'
 
 export default function CustomerSidebar() {
     return (
@@ -26,10 +27,15 @@ export default function CustomerSidebar() {
                 <p className='subtitle is-5' style={{ paddingLeft: "15px" }}> Quản lý đơn hàng </p>
             </div>
             <hr class="dropdown-divider" />
-            <div className='profile-detail'>
-                <img className='detail-icon' src={BodyIcon}></img>
-                <p className='subtitle is-5' style={{ paddingLeft: "15px" }}> Hồ sơ số đo </p>
-            </div>
+            <Link to="/body-profile">
+                <div className='profile-detail'>
+
+                    <img className='detail-icon' src={BodyIcon}></img>
+                    <p className='subtitle is-5' style={{ paddingLeft: "15px" }}> Hồ sơ số đo </p>
+
+
+                </div>
+            </Link>
         </>
     )
 }

@@ -19,7 +19,7 @@ export default function Catalogue() {
     const prependNumber = useRef(1);
     // Create array with 500 slides
     const [slides, setSlides] = useState(
-        Array.from({ length: 10 }).map((_, index) => `Slide ${index + 1}`)
+        Array.from({ length: 5}).map((_, index) => `Slide ${index + 1}`)
     );
 
     const prepend = () => {
@@ -86,7 +86,7 @@ export default function Catalogue() {
                                                 <div className="card-content">
                                                     <div className="media">
                                                         <div className="media-content">
-                                                            <p className="title is-4">John Smith</p>
+                                                            <p className="title is-4">Áo sơ mi</p>
 
                                                         </div>
                                                     </div>
@@ -146,7 +146,7 @@ export default function Catalogue() {
                                             <div className="card-content">
                                                 <div className="media">
                                                     <div className="media-content">
-                                                        <p className="title is-4">John Smith</p>
+                                                        <p className="title is-4">Áo sơ mi</p>
 
                                                     </div>
                                                 </div>

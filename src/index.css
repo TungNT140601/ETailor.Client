@@ -18,6 +18,11 @@ code {
   ;
 }
 
-html{
+html {
   scroll-behavior: smooth;
+}
+
+@font-face {
+  font-family: 'Lexend Deca';
+  src: url(./assets/fonts/Lexend/LexendDeca-VariableFont_wght.ttf);
 }

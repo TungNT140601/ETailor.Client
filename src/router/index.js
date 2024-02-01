@@ -28,13 +28,14 @@ import BodyProfile from "../pages/Customer/BodyProfile/BodyProfile";
 import ManagementProductTemplate, {
   ManagementCreateProductTemplate,
 } from "../pages/Management/Manager/ManagementProductTemplate";
+import Blog from "../pages/Customer/Blogs/Blog";
 
 export const customerRouters = [
   {
     path: "/body-profile",
     name: "user-body-profile",
     component: BodyProfile,
-    layout: DefaultLayout,
+    layout: UserProfileLayout,
   },
 ];
 
@@ -43,6 +44,12 @@ export const publicRouters = [
     path: "/",
     name: "home",
     component: Home,
+    layout: DefaultLayout,
+  },
+  {
+    path: "/blog",
+    name: "blog",
+    component: Blog,
     layout: DefaultLayout,
   },
   {
