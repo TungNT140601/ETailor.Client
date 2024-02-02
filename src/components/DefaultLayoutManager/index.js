@@ -7,11 +7,9 @@ const { Content } = Layout;
 const DefaultLayoutManager = ({ children }) => {
   return (
     <Layout
-      className="default-layout-manager"
       style={{
         height: "100%",
-        width: "100%",
-        position: "relative",
+        maxWidth: "100%",
         background: "rgba(217, 217,217, 0.2)",
       }}
     >
@@ -25,6 +23,7 @@ const DefaultLayoutManager = ({ children }) => {
           <div
             style={{
               padding: 10,
+              paddingRight: 0,
               maxHeight: "100vh",
               background: "rgba(217, 217,217, 0.2)",
             }}

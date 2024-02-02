@@ -103,8 +103,8 @@ const ManagementBodySizeHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          {manager.avatar ? (
-            <Avatar src={manager.avatar} />
+          {manager?.avatar ? (
+            <Avatar src={manager?.avatar} />
           ) : (
             <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
           )}
@@ -143,7 +143,7 @@ const ManagementBodySizeContent = () => {
       key: "image",
       render: () => (
         <Image
-          width={150}
+          width={100}
           src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
         />
       ),
@@ -207,7 +207,7 @@ const ManagementBodySizeContent = () => {
               danger
             />
           </Col>
-          <Col span={4} offset={5}>
+          <Col span={4} offset={7}>
             <EditOutlined
               style={{
                 backgroundColor: "blue",
@@ -293,10 +293,6 @@ const ManagementBodySizeContent = () => {
         }}
         style={{
           marginTop: 24,
-        }}
-        scroll={{
-          x: 1500,
-          y: 435,
         }}
       />
     </div>

@@ -43,7 +43,6 @@ const { Meta } = Card;
 const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
-console.log("manager", manager);
 
 const ManagementStaffHeader = () => {
   const onSearch = (value, _e, info) => console.log(info?.source, value);
@@ -103,8 +102,8 @@ const ManagementStaffHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          {manager.avatar ? (
-            <Avatar src={manager.avatar} />
+          {manager?.avatar ? (
+            <Avatar src={manager?.avatar} />
           ) : (
             <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
           )}
@@ -265,9 +264,6 @@ const ManagementStaffContent = () => {
         }}
         style={{
           marginTop: 24,
-        }}
-        scroll={{
-          y: 435,
         }}
       />
     </div>

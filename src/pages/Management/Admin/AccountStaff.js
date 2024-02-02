@@ -617,22 +617,52 @@
 // };
 
 import React, { useState } from "react";
-import "./index.css";
 import { Breadcrumb } from "antd";
-import { HomeOutlined, UserOutlined } from "@ant-design/icons";
-import { Typography } from "antd";
+import {
+  HomeOutlined,
+  UserOutlined,
+  PushpinOutlined,
+  PlusCircleOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  RollbackOutlined,
+  PlusOutlined,
+  CloseOutlined,
+} from "@ant-design/icons";
+import { Typography, Carousel, Table, Checkbox } from "antd";
+import "./index.css";
 
 import { Input } from "antd";
-import { Divider } from "antd";
-import { Table, Checkbox, Button } from "antd";
+import { Button, Flex, Divider } from "antd";
 import { Image } from "antd";
+import {
+  Avatar,
+  Card,
+  Col,
+  Row,
+  message,
+  Steps,
+  theme,
+  Form,
+  Space,
+  Select,
+  Upload,
+  Radio,
+} from "antd";
+
+import Paragraph from "antd/es/skeleton/Paragraph";
+import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 
-const { Search } = Input;
+const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
+const { Meta } = Card;
+const { Option } = Select;
+
+const admin = JSON.parse(localStorage.getItem("admin"));
 
 const AccountStaffHeader = () => {
-  const admin = JSON.parse(localStorage.getItem("admin"));
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -646,21 +676,32 @@ const AccountStaffHeader = () => {
         <Breadcrumb
           items={[
             {
-              href: "/admin",
+              href: "#",
               title: <HomeOutlined />,
             },
             {
-              href: "/admin",
+              href: "/manager/account/staffs",
               title: (
                 <>
-                  <UserOutlined />
-                  <span>Khách hàng</span>
+                  <Link to="/manager/account/staffs">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#9F78FF",
+                      }}
+                    >
+                      <UserOutlined fontSize="small" />
+                      &nbsp;
+                      <span>Nhân viên</span>
+                    </div>
+                  </Link>
                 </>
               ),
             },
           ]}
         />
-        <Title level={4}>Khách hàng</Title>
+        <Title level={4}>Nhân viên</Title>
       </div>
       <div
         style={{
@@ -679,13 +720,9 @@ const AccountStaffHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          <UserOutlined
-            style={{
-              fontSize: "24px",
-            }}
-          />
+          <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
           &nbsp; &nbsp;
-          <Text>{admin.role}</Text>
+          <Text>{admin?.name}</Text>
         </div>
       </div>
     </div>
@@ -694,12 +731,12 @@ const AccountStaffHeader = () => {
 
 const AccountStaffContent = () => {
   const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  const admin = JSON.parse(localStorage.getItem("admin"));
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
     fetch(getStaffUrl, {
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${admin?.token}`,
+        Authorization: `Bearer ${manager?.token}`,
       },
     }).then((response) => response.json())
   );
@@ -772,7 +809,7 @@ const AccountStaffContent = () => {
     hidden: !checkedList.includes(item.key),
   }));
   return (
-    <>
+    <div>
       <div
         style={{
           display: "flex",
@@ -787,35 +824,56 @@ const AccountStaffContent = () => {
             onChange={(value) => {
               setCheckedList(value);
             }}
+            style={{ backgroundColor: "" }}
           />
         </div>
-
-        <Button>Tổng cộng ({staffs?.totalData})</Button>
+        <Row justify="start">
+          <Col span={4}>
+            <Button>Tổng cộng ({staffs?.totalData})</Button>
+          </Col>
+        </Row>
       </div>
 
       <Table
         columns={newColumns}
         dataSource={getApi}
+        pagination={{
+          position: ["bottomCenter"],
+        }}
         style={{
           marginTop: 24,
         }}
         scroll={{
-          x: 1500,
-          y: 440,
+          y: 435,
         }}
       />
-    </>
+    </div>
   );
 };
 
-export const AccountStaff = () => {
+export function AccountStaff() {
   return (
-    <>
-      <div>
+    <div>
+      <div
+        style={{
+          padding: "20px 20px",
+          backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
+        }}
+        className="admin-header"
+      >
         <AccountStaffHeader />
-        <Divider />
+      </div>
+      <div
+        className="admin-content"
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
+      >
         <AccountStaffContent />
       </div>
-    </>
+    </div>
   );
-};
+}
