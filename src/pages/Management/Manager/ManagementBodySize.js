@@ -63,14 +63,20 @@ const ManagementBodySizeHeader = () => {
               title: <HomeOutlined />,
             },
             {
-              href: "/manager/account/staffs",
+              href: "/manager/body-size",
               title: (
                 <>
-                  <Link to="/manager/account/staffs">
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                  <Link to="/manager/body-size">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#9F78FF",
+                      }}
+                    >
                       <UserOutlined fontSize="small" />
                       &nbsp;
-                      <span>Nhân viên</span>
+                      <span>Số đo cơ thể</span>
                     </div>
                   </Link>
                 </>
@@ -78,7 +84,7 @@ const ManagementBodySizeHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Nhân viên</Title>
+        <Title level={4}>Số đo cơ thể</Title>
       </div>
       <div
         style={{
@@ -97,11 +103,11 @@ const ManagementBodySizeHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          <UserOutlined
-            style={{
-              fontSize: "24px",
-            }}
-          />
+          {manager.avatar ? (
+            <Avatar src={manager.avatar} />
+          ) : (
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+          )}
           &nbsp; &nbsp;
           <Text>{manager?.name}</Text>
         </div>
@@ -202,11 +208,15 @@ const ManagementBodySizeContent = () => {
             />
           </Col>
           <Col span={4} offset={5}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              size="default"
-              warning
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 9,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
         </Row>
@@ -267,8 +277,10 @@ const ManagementBodySizeContent = () => {
           <Col span={4}>
             <Button>Tổng cộng ({manager?.totalData})</Button>
           </Col>
-          <Col span={4} offset={12}>
-            <Button type="primary">Thêm mới</Button>
+          <Col span={4} offset={10}>
+            <Button>
+              Thêm mới <PlusOutlined />
+            </Button>
           </Col>
         </Row>
       </div>
@@ -298,6 +310,7 @@ function ManagementBodySize() {
         style={{
           padding: "20px 20px",
           backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
         }}
         className="manager-header"
       >
@@ -305,7 +318,11 @@ function ManagementBodySize() {
       </div>
       <div
         className="manager-content"
-        style={{ height: "84vh", overflowY: "scroll" }}
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
       >
         <ManagementBodySizeContent />
       </div>

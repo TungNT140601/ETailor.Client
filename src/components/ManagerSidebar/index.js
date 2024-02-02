@@ -294,7 +294,7 @@ import {
   HomeOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, ConfigProvider } from "antd";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import StraightenIcon from "@mui/icons-material/Straighten";
@@ -304,6 +304,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import DiscountIcon from "@mui/icons-material/Discount";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import "./index.css";
 
 const { Sider } = Layout;
 function getItem(label, key, icon, children) {
@@ -423,11 +424,13 @@ export const ManagerSidebar = () => {
       onCollapse={(value) => setCollapsed(value)}
       style={{
         minHeight: "100vh",
+        borderRight: "1px solid #9F78FF",
       }}
+      theme="light"
     >
       <div className="demo-logo-vertical" />
       <Menu
-        theme="dark"
+        theme="light"
         defaultSelectedKeys={[active.current]}
         mode="inline"
         items={items}

@@ -97,11 +97,11 @@ const ManagementDiscountHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          <UserOutlined
-            style={{
-              fontSize: "24px",
-            }}
-          />
+          {manager.avatar ? (
+            <Avatar src={manager.avatar} />
+          ) : (
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+          )}
           &nbsp; &nbsp;
           <Text>{manager?.name}</Text>
         </div>
@@ -184,11 +184,15 @@ const ManagementDiscountContent = () => {
             />
           </Col>
           <Col offset={2}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              size="default"
-              warning
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 9,
+                borderRadius: "5px",
+                fontSize: 14,
+                cursor: "pointer",
+              }}
             />
           </Col>
         </Row>
@@ -280,6 +284,7 @@ function ManagementDiscount() {
         style={{
           padding: "20px 20px",
           backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
         }}
         className="manager-header"
       >
@@ -287,7 +292,11 @@ function ManagementDiscount() {
       </div>
       <div
         className="manager-content"
-        style={{ height: "84vh", overflowY: "scroll" }}
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
       >
         <ManagementDiscountContent />
       </div>
