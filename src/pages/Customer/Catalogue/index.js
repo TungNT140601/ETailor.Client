@@ -70,7 +70,7 @@ export default function Catalogue() {
                             spaceBetween={40}
                             navigation={true}
                             virtual
-                            initialSlide={4}
+                            initialSlide={2}
 
                         >
                             {slides.map((slideContent, index) => (
