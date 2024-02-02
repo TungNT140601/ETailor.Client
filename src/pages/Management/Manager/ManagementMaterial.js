@@ -67,8 +67,17 @@ const ManagementMaterialHeader = () => {
               title: (
                 <>
                   <Link to="/manager/material">
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <FactCheckIcon fontSize="small" />
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#9F78FF",
+                      }}
+                    >
+                      <FactCheckIcon
+                        fontSize="small"
+                        style={{ fontSize: "18px" }}
+                      />
                       &nbsp;
                       <span>Nguyên liệu</span>
                     </div>
@@ -97,11 +106,11 @@ const ManagementMaterialHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          <UserOutlined
-            style={{
-              fontSize: "24px",
-            }}
-          />
+          {manager.avatar ? (
+            <Avatar src={manager.avatar} />
+          ) : (
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+          )}
           &nbsp; &nbsp;
           <Text>{manager?.name}</Text>
         </div>
@@ -219,11 +228,15 @@ const ManagementMaterialContent = () => {
             />
           </Col>
           <Col span={4} offset={2}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              size="default"
-              warning
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 9,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
         </Row>
@@ -363,8 +376,10 @@ const ManagementMaterialContent = () => {
               type="primary"
               icon={<EditOutlined />}
               size="default"
-              warning
-            />
+              className="button-edit"
+            >
+              Edit
+            </Button>
           </Col>
         </Row>
       ),
@@ -613,6 +628,7 @@ function ManagementMaterial() {
         style={{
           padding: "20px 20px",
           backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
         }}
         className="manager-header"
       >
@@ -620,7 +636,11 @@ function ManagementMaterial() {
       </div>
       <div
         className="manager-content"
-        style={{ height: "84vh", overflowY: "scroll" }}
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
       >
         <ManagementMaterialContent />
       </div>

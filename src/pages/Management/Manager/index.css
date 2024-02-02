@@ -16,3 +16,53 @@
 .gutter-row::-webkit-scrollbar {
     display: none;
 }
+
+.ant-btn-default {
+    border: 1px solid #9F78FF !important;
+    color: #9F78FF;
+    transition: 0.8s;
+    font-weight: 700;
+}
+
+.ant-btn-default:hover,
+.ant-btn-default:focus {
+    color: #fff !important;
+    box-shadow: inset 11em 0 0 0 #9F78FF;
+}
+
+.ant-btn-icon-only.ant-input-search-button {
+    background-color: #9F78FF;
+    color: #FFFFFF !important;
+
+}
+
+.ant-input-outlined:hover {
+    border: 1px solid #9F78FF !important;
+    box-shadow: none !important;
+}
+
+.ant-steps-item-active .ant-steps-item-icon {
+    background-color: #9F78FF !important;
+    border: 1px solid #9F78FF !important;
+}
+
+.ant-btn-primary {
+    background-color: #9F78FF !important;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon {
+    background-color: #9f78ff4f !important;
+    color: #9F78FF !important;
+}
+
+.ant-steps-finish-icon {
+    color: #9F78FF !important;
+}
+
+.ant-btn-dangerous {
+    background-color: red !important;
+}
+
+.ant-btn .ant-btn-primary .ant-btn-icon-only {
+    background-color: blue !important;
+}

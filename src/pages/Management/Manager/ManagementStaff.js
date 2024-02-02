@@ -67,7 +67,13 @@ const ManagementStaffHeader = () => {
               title: (
                 <>
                   <Link to="/manager/account/staffs">
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#9F78FF",
+                      }}
+                    >
                       <UserOutlined fontSize="small" />
                       &nbsp;
                       <span>Nhân viên</span>
@@ -97,11 +103,11 @@ const ManagementStaffHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          <UserOutlined
-            style={{
-              fontSize: "24px",
-            }}
-          />
+          {manager.avatar ? (
+            <Avatar src={manager.avatar} />
+          ) : (
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+          )}
           &nbsp; &nbsp;
           <Text>{manager?.name}</Text>
         </div>
@@ -168,6 +174,37 @@ const ManagementStaffContent = () => {
       key: "4",
       width: 150,
     },
+    {
+      title: "Action",
+      dataIndex: "Action",
+      key: "5",
+      width: 150,
+      fixed: "right",
+      render: () => (
+        <Row justify="center">
+          <Col span={4}>
+            <Button
+              type="primary"
+              icon={<DeleteOutlined />}
+              size="default"
+              danger
+            />
+          </Col>
+          <Col span={4} offset={2}>
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 9,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
+            />
+          </Col>
+        </Row>
+      ),
+    },
   ];
 
   const getApi = staffs?.data?.map((item) => ({
@@ -205,14 +242,17 @@ const ManagementStaffContent = () => {
             onChange={(value) => {
               setCheckedList(value);
             }}
+            style={{ backgroundColor: "" }}
           />
         </div>
         <Row justify="start" style={{ paddingRight: "24px" }}>
           <Col span={4}>
             <Button>Tổng cộng ({staffs?.totalData})</Button>
           </Col>
-          <Col span={4} offset={12}>
-            <Button type="primary">Thêm mới</Button>
+          <Col span={4} offset={10}>
+            <Button>
+              Thêm mới <PlusOutlined />
+            </Button>
           </Col>
         </Row>
       </div>
@@ -227,7 +267,6 @@ const ManagementStaffContent = () => {
           marginTop: 24,
         }}
         scroll={{
-          x: 1500,
           y: 435,
         }}
       />
@@ -242,6 +281,7 @@ function ManagementStaff() {
         style={{
           padding: "20px 20px",
           backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
         }}
         className="manager-header"
       >
@@ -249,7 +289,11 @@ function ManagementStaff() {
       </div>
       <div
         className="manager-content"
-        style={{ height: "84vh", overflowY: "scroll" }}
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
       >
         <ManagementStaffContent />
       </div>

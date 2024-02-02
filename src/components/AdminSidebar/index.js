@@ -283,10 +283,11 @@ export const AdminSidebar = () => {
       collapsible
       collapsed={collapsed}
       onCollapse={(value) => setCollapsed(value)}
+      theme="light"
     >
       <div className="demo-logo-vertical" />
       <Menu
-        theme="dark"
+        theme="light"
         defaultSelectedKeys={[active.current]}
         mode="inline"
         items={items}
