@@ -1,8 +1,0 @@
-.default-layout-manager::-webkit-scrollbar {
-    display: none;
-}
-
-.manager-sidebar {
-    background-color: #FFFFFF;
-    width: 300px;
-}

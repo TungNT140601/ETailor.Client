@@ -1,26 +1,3 @@
-.admin-account-staff-main-container {
-    width: 100%;
-}
-
-.admin-account-staff-header {
-    background-color: #FFFFFF;
-    border-radius: 10px;
-    width: 97%;
-    height: 200px;
-    margin: 20px 30px;
-    margin-top: 10px;
-}
-
-.admin-account-staff-content {
-    background-color: #FFFFFF;
-    width: 97%;
-    border-radius: 10px;
-    padding: 20px;
-    padding-bottom: 0px;
-    margin: 20px 30px;
-    margin-bottom: 0px;
-}
-
 /* .admin-account-manager-main-container {
     position: relative;
 }
@@ -46,8 +23,52 @@
     padding: 20px;
 } */
 
+.admin-header {
+    border-radius: 10px;
+}
 
-.admin-account-system-main-container {
+.admin-content {
+    border-radius: 10px;
+    padding: 20px 20px;
+    background-color: #FFFFFF;
+    margin: 10px 0px;
+}
+
+.admin-cus-header {
+    border-radius: 10px;
+}
+
+.admin-cus-content {
+    border-radius: 10px;
+    padding: 20px 20px;
+    background-color: #FFFFFF;
+    margin: 10px 0px;
+}
+
+.system-config-header {
+    border-radius: 10px;
+}
+
+.system-config-content {
+    border-radius: 10px;
+    padding: 20px 20px;
+    background-color: #FFFFFF;
+    margin: 10px 0px;
+}
+
+.admin-content::-webkit-scrollbar {
+    display: none;
+}
+
+.admin-cus-content::-webkit-scrollbar {
+    display: none;
+}
+
+.system-config-content::-webkit-scrollbar {
+    display: none;
+}
+
+/* .admin-account-system-main-container {
     width: 100%;
 }
 
@@ -84,9 +105,9 @@
     display: flex;
     justify-content: center;
     padding-bottom: 10px;
-}
+} */
 
-
+/* 
 .pagination {
     color: #000000;
 }
@@ -121,4 +142,4 @@
 .active:hover {
     color: #FFFFFF;
 
-}
+} */

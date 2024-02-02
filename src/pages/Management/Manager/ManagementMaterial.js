@@ -106,8 +106,8 @@ const ManagementMaterialHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          {manager.avatar ? (
-            <Avatar src={manager.avatar} />
+          {manager?.avatar ? (
+            <Avatar src={manager?.avatar} />
           ) : (
             <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
           )}
@@ -163,7 +163,7 @@ const ManagementMaterialContent = () => {
       key: "image",
       render: () => (
         <Image
-          width={150}
+          width={100}
           src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
         />
       ),
@@ -301,11 +301,15 @@ const ManagementMaterialContent = () => {
             />
           </Col>
           <Col span={4} offset={1}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              size="default"
-              warning
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 9,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
         </Row>
@@ -372,14 +376,16 @@ const ManagementMaterialContent = () => {
             />
           </Col>
           <Col span={4} offset={3}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              size="default"
-              className="button-edit"
-            >
-              Edit
-            </Button>
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 9,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
+            />
           </Col>
         </Row>
       ),
@@ -480,9 +486,6 @@ const ManagementMaterialContent = () => {
             }}
             style={{
               marginTop: 24,
-            }}
-            scroll={{
-              y: 435,
             }}
           />
         </>

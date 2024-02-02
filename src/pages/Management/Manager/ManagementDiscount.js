@@ -97,8 +97,8 @@ const ManagementDiscountHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          {manager.avatar ? (
-            <Avatar src={manager.avatar} />
+          {manager?.avatar ? (
+            <Avatar src={manager?.avatar} />
           ) : (
             <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
           )}
@@ -269,9 +269,9 @@ const ManagementDiscountContent = () => {
         style={{
           marginTop: 24,
         }}
-        scroll={{
-          y: 435,
-        }}
+        // scroll={{
+        //   y: 435,
+        // }}
       />
     </div>
   );

@@ -66,3 +66,54 @@
 .ant-btn .ant-btn-primary .ant-btn-icon-only {
     background-color: blue !important;
 }
+
+.ant-select-selection-overflow {
+
+    height: 100px;
+    overflow-y: scroll;
+}
+
+.ant-select-selection-overflow::-webkit-scrollbar {
+    display: none;
+}
+
+.ant-select-selection-overflow-item {
+    padding: 5px;
+    text-align: center;
+
+}
+
+
+.ant-select-selection-item span {
+    font-size: 18px;
+    width: 50px;
+
+}
+
+.ant-select-selection-overflow-item .ant-select-selection-item {
+    height: 40px !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #9e78ff1a !important;
+    border: 1px solid #9F78FF !important;
+    color: #9F78FF !important;
+    margin: 10px;
+}
+
+.ant-select-selection-item-remove span {
+    color: #9F78FF !important;
+}
+
+
+.anticon.anticon-down.ant-select-suffix {
+    font-size: 20px;
+}
+
+.anticon.anticon-search.ant-select-suffix {
+    font-size: 20px;
+}
+
+.ant-select-selector:hover {
+    border: 1px solid #9F78FF !important;
+}

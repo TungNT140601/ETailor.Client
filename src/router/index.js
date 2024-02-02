@@ -30,6 +30,7 @@ import ManagementProductTemplate, {
 } from "../pages/Management/Manager/ManagementProductTemplate";
 import Blog from "../pages/Customer/Blogs/Blog";
 import BlogDetail from "../pages/Customer/Blogs/BlogDetail";
+import ManagementBlog from "../pages/Management/Manager/ManagementBlog";
 
 export const customerRouters = [
   {
@@ -163,6 +164,12 @@ export const managerRouters = [
     path: "/manager/discount",
     name: "management-material",
     component: ManagementDiscount,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/blog",
+    name: "management-blog",
+    component: ManagementBlog,
     layout: DefaultLayoutManager,
   },
 ];
