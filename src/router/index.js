@@ -29,6 +29,7 @@ import ManagementProductTemplate, {
   ManagementCreateProductTemplate,
 } from "../pages/Management/Manager/ManagementProductTemplate";
 import Blog from "../pages/Customer/Blogs/Blog";
+import BlogDetail from "../pages/Customer/Blogs/BlogDetail";
 
 export const customerRouters = [
   {
@@ -82,11 +83,17 @@ export const publicRouters = [
     component: Catalogue,
     layout: DefaultLayout,
   },
-
   {
     path: "/catalogue/product",
     name: "product-detail",
     component: ProductDetail,
+    layout: DefaultLayout,
+  },
+  ,
+  {
+    path: "/blog/blog-id",
+    name: "blog-detail",
+    component: BlogDetail,
     layout: DefaultLayout,
   },
 ];
