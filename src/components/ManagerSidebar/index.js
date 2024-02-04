@@ -293,8 +293,11 @@ import {
   UserOutlined,
   HomeOutlined,
   LogoutOutlined,
+  AppstoreAddOutlined,
+  FileTextOutlined,
+  OrderedListOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, ConfigProvider } from "antd";
+import { Layout, Menu, ConfigProvider, Image, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import StraightenIcon from "@mui/icons-material/Straighten";
@@ -304,7 +307,10 @@ import CategoryIcon from "@mui/icons-material/Category";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import DiscountIcon from "@mui/icons-material/Discount";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import logo from "../../assets/logo.png";
 import "./index.css";
+
+const { Title, Text } = Typography;
 
 const { Sider } = Layout;
 function getItem(label, key, icon, children) {
@@ -327,57 +333,102 @@ export const ManagerSidebar = () => {
 
   const items = [
     {
-      key: "/manager/dashboard",
-      label: <Link to="/manager/dashboard">Trang chủ</Link>,
+      key: "/manager",
+      label: <Link to="/manager">Dashboard</Link>,
       icon: <HomeOutlined />,
     },
+    { type: "divider" },
     {
-      key: "/manager/account/staffs",
-      label: <Link to="/manager/account/staffs">Nhân viên</Link>,
-      icon: <UserOutlined />,
-    },
-    {
-      key: "/manager/body-size",
-      label: <Link to="/manager/body-size">Số đo cơ thể</Link>,
-      icon: <StraightenIcon />,
-    },
-    {
-      key: "/manager/orders",
-      label: <Link to="/manager/orders">Đơn hàng</Link>,
-      icon: <ShoppingCartIcon />,
-    },
-    {
-      key: "/manager",
-      label: "Quản lý bản mẫu",
-      icon: <CheckroomIcon />,
+      type: "group",
+      label: (
+        <Title level={5} style={{ margin: 0 }}>
+          Khách hàng
+        </Title>
+      ),
       children: [
         {
-          key: "/manager",
-          label: <Link to="/manager">Bản mẫu</Link>,
-          icon: <CheckroomIcon />,
+          key: "/manager/account/customer",
+          label: <Link to="/manager/account/customer">Thông tin</Link>,
+          icon: <UserOutlined />,
         },
         {
-          key: "/manager/product-category",
-          label: <Link to="/manager/product-category">Loại bản mẫu</Link>,
-          icon: <CategoryIcon />,
+          key: "/manager/orders",
+          label: <Link to="/manager/orders">Đơn hàng</Link>,
+          icon: <ShoppingCartIcon />,
         },
       ],
     },
+    { type: "divider" },
     {
-      key: "/manager/material",
-      label: <Link to="/manager/material">Nguyên liệu</Link>,
-      icon: <FactCheckIcon />,
+      type: "group",
+      label: (
+        <Title level={5} style={{ margin: 0 }}>
+          Quản lý
+        </Title>
+      ),
+      children: [
+        {
+          key: "/manager/account/staffs",
+          label: <Link to="/manager/account/staffs">Nhân viên</Link>,
+          icon: <UserOutlined />,
+        },
+        {
+          key: "/manager/body-size",
+          label: <Link to="/manager/body-size">Số đo cơ thể</Link>,
+          icon: <StraightenIcon />,
+        },
+
+        {
+          key: "/manager/product-template",
+          label: "Quản lý bản mẫu",
+          icon: <CheckroomIcon />,
+          children: [
+            {
+              key: "/manager/product-template",
+              label: <Link to="/manager/product-template">Bản mẫu</Link>,
+              icon: <CheckroomIcon />,
+            },
+            {
+              key: "/manager/product-category",
+              label: <Link to="/manager/product-category">Loại bản mẫu</Link>,
+              icon: <CategoryIcon />,
+            },
+          ],
+        },
+        {
+          label: "Nguyên liệu",
+          icon: <FactCheckIcon />,
+          children: [
+            {
+              key: "/manager/material",
+              label: <Link to="/manager/product-template">Thông tin</Link>,
+              icon: <FileTextOutlined />,
+            },
+            {
+              key: "/manager/material-category",
+              label: <Link to="/manager/product-template">Danh mục</Link>,
+              icon: <AppstoreAddOutlined />,
+            },
+            {
+              key: "/manager/material-type",
+              label: <Link to="/manager/product-category">Các loại</Link>,
+              icon: <OrderedListOutlined />,
+            },
+          ],
+        },
+        {
+          key: "/manager/discount",
+          label: <Link to="/manager/discount">Mã giảm giá</Link>,
+          icon: <DiscountIcon />,
+        },
+        {
+          key: "/manager/blog",
+          label: <Link to="/manager/blog">Bài viết</Link>,
+          icon: <MenuBookIcon />,
+        },
+      ],
     },
-    {
-      key: "/manager/discount",
-      label: <Link to="/manager/discount">Mã giảm giá</Link>,
-      icon: <DiscountIcon />,
-    },
-    {
-      key: "/manager/blog",
-      label: <Link to="/manager/blog">Bài viết</Link>,
-      icon: <MenuBookIcon />,
-    },
+
     {
       key: "/management/login",
       label: <Link to="/management/login">Đăng xuất</Link>,
@@ -429,9 +480,18 @@ export const ManagerSidebar = () => {
       theme="light"
     >
       <div className="demo-logo-vertical" />
+      <div
+        style={{
+          width: 120,
+          marginLeft: "35px",
+        }}
+      >
+        <img src={logo} alt="logo" />
+      </div>
+
       <Menu
         theme="light"
-        defaultSelectedKeys={[active.current]}
+        defaultSelectedKeys={[active?.current]}
         mode="inline"
         items={items}
         style={{

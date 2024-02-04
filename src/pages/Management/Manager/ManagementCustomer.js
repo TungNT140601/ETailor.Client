@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
@@ -11,6 +10,7 @@ import {
   RollbackOutlined,
   PlusOutlined,
   CloseOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel, Table, Checkbox } from "antd";
 import "./index.css";
@@ -44,8 +44,9 @@ const { Meta } = Card;
 const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
+console.log("manager", manager);
 
-const ManagementBlogHeader = () => {
+const ManagementCustomerHeader = () => {
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -63,10 +64,10 @@ const ManagementBlogHeader = () => {
               title: <HomeOutlined />,
             },
             {
-              href: "/manager/account/staffs",
+              href: "/manager/body-size",
               title: (
                 <>
-                  <Link to="/manager/account/staffs">
+                  <Link to="/manager/body-size">
                     <div
                       style={{
                         display: "flex",
@@ -74,9 +75,9 @@ const ManagementBlogHeader = () => {
                         color: "#9F78FF",
                       }}
                     >
-                      <MenuBookIcon fontSize="small" />
+                      <UserOutlined fontSize="small" />
                       &nbsp;
-                      <span>Bài viết</span>
+                      <span>Số đo cơ thể</span>
                     </div>
                   </Link>
                 </>
@@ -84,7 +85,7 @@ const ManagementBlogHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Bài viết</Title>
+        <Title level={4}>Số đo cơ thể</Title>
       </div>
       <div
         style={{
@@ -116,7 +117,7 @@ const ManagementBlogHeader = () => {
   );
 };
 
-const ManagementBlogContent = () => {
+const ManagementCustomerContent = () => {
   //   const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
   //   const manager = JSON.parse(localStorage.getItem("manager"));
   //   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
@@ -131,44 +132,61 @@ const ManagementBlogContent = () => {
   const columns = [
     {
       title: "STT",
-      width: "10%",
+      width: 50,
       dataIndex: "stt",
-      key: "stt",
+      key: "index",
       fixed: "left",
     },
     {
-      title: "Tựa đề",
-      width: "70%",
-      dataIndex: "title",
-      key: "title",
+      title: "Hình ảnh",
+      width: 150,
+      dataIndex: "image",
+      key: "image",
+      render: () => (
+        <Image
+          width={40}
+          height={30}
+          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+        />
+      ),
     },
-
+    {
+      title: "Tên người dùng",
+      dataIndex: "username",
+      key: "1",
+      width: 150,
+    },
+    {
+      title: "Họ và tên",
+      dataIndex: "fullname",
+      key: "2",
+      width: 150,
+    },
+    {
+      title: "Địa chỉ",
+      dataIndex: "address",
+      key: "3",
+      width: 150,
+    },
+    {
+      title: "Số điện thoại",
+      dataIndex: "phone",
+      key: "4",
+      width: 150,
+    },
     {
       title: "Action",
-      width: "20%",
-
       dataIndex: "Action",
-      key: "Action",
-
+      key: "5",
+      width: 100,
       fixed: "right",
       render: () => (
         <Row justify="start">
           <Col span={4}>
-            <DeleteOutlined
+            <EyeOutlined
+              title="Xem chi tiết"
               style={{
-                backgroundColor: "red",
-                color: "white",
-                padding: 6,
-                borderRadius: "5px",
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-            />
-          </Col>
-          <Col span={4}>
-            <EditOutlined
-              style={{
-                backgroundColor: "blue",
+                backgroundColor: "rgb(140, 173, 245)",
                 color: "white",
                 padding: 6,
                 borderRadius: "5px",
@@ -194,49 +212,11 @@ const ManagementBlogContent = () => {
   const data = [];
   for (let i = 0; i < 100; i++) {
     data.push({
-      key: i,
       stt: i,
-      title: `Những nội dung thời trang được sử dụng với mục đích tiếp thị, quảng cáo thì nội dung phải lôi cuốn, hấp dẫn người đọc mới giữ chân người mua, từ đó tỷ suất mua hàng càng tăng và ngược lại.  ${i}`,
-      description: (
-        <Typography>
-          <Title>Introduction</Title>
-          <p>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum.
-          </p>
-          <Title>Introduction</Title>
-          <p>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum.
-          </p>
-          <Title>Introduction</Title>
-          <p>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum.
-          </p>
-        </Typography>
-      ),
+      username: `Edward ${i}`,
+      fullname: `Edward ${i}`,
+      address: `London Park no. ${i}`,
+      phone: `1234567890 ${i}`,
     });
   }
 
@@ -282,29 +262,19 @@ const ManagementBlogContent = () => {
 
       <Table
         columns={newColumns}
-        style={{ marginTop: 24 }}
-        expandable={{
-          expandedRowRender: (record) => (
-            <p
-              style={{
-                margin: 0,
-              }}
-            >
-              {record.description}
-            </p>
-          ),
-          rowExpandable: (record) => record.stt !== "Not Expandable",
-        }}
+        dataSource={data}
         pagination={{
           position: ["bottomCenter"],
         }}
-        dataSource={data}
+        style={{
+          marginTop: 24,
+        }}
       />
     </div>
   );
 };
 
-function ManagementBlog() {
+function ManagementCustomer() {
   return (
     <div>
       <div
@@ -315,7 +285,7 @@ function ManagementBlog() {
         }}
         className="manager-header"
       >
-        <ManagementBlogHeader />
+        <ManagementCustomerHeader />
       </div>
       <div
         className="manager-content"
@@ -325,10 +295,10 @@ function ManagementBlog() {
           border: "1px solid #9F78FF",
         }}
       >
-        <ManagementBlogContent />
+        <ManagementCustomerContent />
       </div>
     </div>
   );
 }
 
-export default ManagementBlog;
+export default ManagementCustomer;

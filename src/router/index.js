@@ -20,7 +20,10 @@ import ManagementStaff from "../pages/Management/Manager/ManagementStaff";
 import ManagerRouter from "./ManagerRouter";
 import Catalogue from "../pages/Customer/Catalogue";
 import ManagementBodySize from "../pages/Management/Manager/ManagementBodySize";
-import ManagementMaterial from "../pages/Management/Manager/ManagementMaterial";
+import ManagementMaterial, {
+  ManagementMaterialCategory,
+  ManagementMaterialType,
+} from "../pages/Management/Manager/ManagementMaterial";
 import ManagementDiscount from "../pages/Management/Manager/ManagementDiscount";
 
 import ProductDetail from "../pages/Customer/Catalogue/detail";
@@ -31,6 +34,8 @@ import ManagementProductTemplate, {
 import Blog from "../pages/Customer/Blogs/Blog";
 import BlogDetail from "../pages/Customer/Blogs/BlogDetail";
 import ManagementBlog from "../pages/Management/Manager/ManagementBlog";
+import ManagementDashboard from "../pages/Management/Manager/ManagementDashboard";
+import ManagementCustomer from "../pages/Management/Manager/ManagementCustomer";
 
 export const customerRouters = [
   {
@@ -90,7 +95,6 @@ export const publicRouters = [
     component: ProductDetail,
     layout: DefaultLayout,
   },
-  ,
   {
     path: "/blog/blog-id",
     name: "blog-detail",
@@ -131,8 +135,8 @@ export const adminRouters = [
 ];
 export const managerRouters = [
   {
-    path: "/manager",
-    name: "manager",
+    path: "/manager/product-template",
+    name: "manager-product-template",
     component: ManagementProductTemplate,
     layout: DefaultLayoutManager,
   },
@@ -170,6 +174,30 @@ export const managerRouters = [
     path: "/manager/blog",
     name: "management-blog",
     component: ManagementBlog,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager",
+    name: "management",
+    component: ManagementDashboard,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/account/customer",
+    name: "management-customer",
+    component: ManagementCustomer,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/material-category",
+    name: "management-customer",
+    component: ManagementMaterialCategory,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/material-type",
+    name: "management-customer",
+    component: ManagementMaterialType,
     layout: DefaultLayoutManager,
   },
 ];

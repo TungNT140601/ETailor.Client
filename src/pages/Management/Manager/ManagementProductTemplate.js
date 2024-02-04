@@ -488,11 +488,11 @@ export const ManagementCreateProductTemplate = () => {
                                   display: "flex",
                                   justifyContent: "center",
                                   alignItems: "center",
-                                  paddingLeft: 90,
+                                  paddingLeft: 125,
                                 }}
                               >
                                 <Title level={4}>
-                                  Chưa có component nào. Hãy thêm vào
+                                  Chưa có kiểu nào. Hãy thêm vào
                                 </Title>
                               </div>
                             );

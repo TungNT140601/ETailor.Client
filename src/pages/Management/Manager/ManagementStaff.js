@@ -138,12 +138,13 @@ const ManagementStaffContent = () => {
     {
       title: "Hình đại diện",
       width: 150,
+
       dataIndex: "avatar",
       key: "avatar",
       render: (_, record) => (
         <Image
-          width={100}
-          height={90}
+          width={60}
+          height={30}
           style={{ objectFit: "contain" }}
           src={record.avatar}
         />
@@ -180,13 +181,17 @@ const ManagementStaffContent = () => {
       width: 150,
       fixed: "right",
       render: () => (
-        <Row justify="center">
+        <Row justify="start">
           <Col span={4}>
-            <Button
-              type="primary"
-              icon={<DeleteOutlined />}
-              size="default"
-              danger
+            <DeleteOutlined
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
           <Col span={4} offset={2}>
@@ -194,7 +199,7 @@ const ManagementStaffContent = () => {
               style={{
                 backgroundColor: "blue",
                 color: "white",
-                padding: 9,
+                padding: 6,
                 borderRadius: "5px",
                 fontSize: 15,
                 cursor: "pointer",

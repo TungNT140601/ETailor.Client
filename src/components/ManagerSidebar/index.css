@@ -16,8 +16,19 @@
     color: black !important;
 }
 
+
+
 .ant-menu-submenu-open .ant-menu-submenu-title {
     color: #9F78FF !important;
+}
+
+.ant-layout-sider-children {
+    max-height: 700px;
+    overflow-y: scroll;
+}
+
+.ant-layout-sider-children::-webkit-scrollbar {
+    display: none;
 }
 
 .ant-layout-sider-trigger {
