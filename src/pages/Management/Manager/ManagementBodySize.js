@@ -143,7 +143,8 @@ const ManagementBodySizeContent = () => {
       key: "image",
       render: () => (
         <Image
-          width={100}
+          width={40}
+          height={30}
           src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
         />
       ),
@@ -198,13 +199,23 @@ const ManagementBodySizeContent = () => {
       width: 100,
       fixed: "right",
       render: () => (
-        <Row justify="center">
+        <Row justify="start">
           <Col span={4}>
-            <Button
+            {/* <Button
               type="primary"
               icon={<DeleteOutlined />}
               size="default"
               danger
+            /> */}
+            <DeleteOutlined
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
           <Col span={4} offset={7}>
@@ -212,7 +223,7 @@ const ManagementBodySizeContent = () => {
               style={{
                 backgroundColor: "blue",
                 color: "white",
-                padding: 9,
+                padding: 6,
                 borderRadius: "5px",
                 fontSize: 15,
                 cursor: "pointer",

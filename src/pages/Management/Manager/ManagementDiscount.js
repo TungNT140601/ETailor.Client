@@ -174,23 +174,27 @@ const ManagementDiscountContent = () => {
       width: 100,
       fixed: "right",
       render: () => (
-        <Row justify="center">
-          <Col>
-            <Button
-              type="primary"
-              icon={<DeleteOutlined />}
-              size="default"
-              danger
+        <Row justify="start">
+          <Col span={4}>
+            <DeleteOutlined
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
-          <Col offset={2}>
+          <Col span={4} offset={5}>
             <EditOutlined
               style={{
                 backgroundColor: "blue",
                 color: "white",
-                padding: 9,
+                padding: 6,
                 borderRadius: "5px",
-                fontSize: 14,
+                fontSize: 15,
                 cursor: "pointer",
               }}
             />
