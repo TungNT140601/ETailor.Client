@@ -9,10 +9,10 @@ import {
   DeleteOutlined,
   RollbackOutlined,
   PlusOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel, Table, Checkbox } from "antd";
 import "./index.css";
-import DiscountIcon from "@mui/icons-material/Discount";
 
 import { Input } from "antd";
 import { Button, Flex, Divider } from "antd";
@@ -43,8 +43,9 @@ const { Meta } = Card;
 const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
+console.log("manager", manager);
 
-const ManagementDiscountHeader = () => {
+const ManagementCategoryHeader = () => {
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -62,14 +63,20 @@ const ManagementDiscountHeader = () => {
               title: <HomeOutlined />,
             },
             {
-              href: "/manager/discount",
+              href: "/manager/body-size",
               title: (
                 <>
-                  <Link to="/manager/discount">
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <DiscountIcon fontSize="small" style={{ fontSize: 15 }} />
+                  <Link to="/manager/body-size">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#9F78FF",
+                      }}
+                    >
+                      <UserOutlined fontSize="small" />
                       &nbsp;
-                      <span>Mã giảm giá</span>
+                      <span>Số đo cơ thể</span>
                     </div>
                   </Link>
                 </>
@@ -77,7 +84,7 @@ const ManagementDiscountHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Mã giảm giá</Title>
+        <Title level={4}>Số đo cơ thể</Title>
       </div>
       <div
         style={{
@@ -109,10 +116,10 @@ const ManagementDiscountHeader = () => {
   );
 };
 
-const ManagementDiscountContent = () => {
-  const getUrl = "https://etailorapi.azurewebsites.net/api/discount";
+const ManagementCategoryContent = () => {
+  const getUrl = "https://etailorapi.azurewebsites.net/api/category-management";
 
-  const { data: discount, isLoading: loading } = useQuery("get-discount", () =>
+  const { data: category, isLoading: loading } = useQuery("get-category", () =>
     fetch(getUrl, {
       headers: {
         "Content-Type": "application/json",
@@ -124,68 +131,22 @@ const ManagementDiscountContent = () => {
   const columns = [
     {
       title: "STT",
-      width: 50,
+      width: "10%",
       dataIndex: "stt",
       key: "index",
       fixed: "left",
     },
-
     {
-      title: "Tên mã",
+      title: "Tên loại đồ",
       dataIndex: "name",
-      key: "1",
-      width: 150,
-      ellipsis: {
-        showTitle: false,
-      },
-    },
-    {
-      title: "Code",
-      dataIndex: "code",
       key: "2",
-      width: 150,
-    },
-    {
-      title: "Ngày bắt đầu",
-      dataIndex: "startdate",
-      key: "3",
-      width: 150,
-    },
-    {
-      title: "Ngày kết thúc",
-      dataIndex: "enđate",
-      key: "4",
-      width: 150,
-    },
-    {
-      title: "Giám giá theo %",
-      dataIndex: "discountpercent",
-      key: "5",
-      width: 150,
-    },
-    {
-      title: "Số tiền giảm",
-      dataIndex: "discountprice",
-      key: "6",
-      width: 150,
-    },
-    {
-      title: "Điều kiện giảm giá tối thiểu",
-      dataIndex: "conditionPriceMin",
-      key: "7",
-      width: 200,
-    },
-    {
-      title: "Điều kiện giảm giá tối đa",
-      dataIndex: "conditionPriceMax",
-      key: "8",
-      width: 200,
+      width: "70%",
     },
     {
       title: "Action",
       dataIndex: "Action",
-      key: "9",
-      width: 100,
+      key: "6",
+      width: "20%",
       fixed: "right",
       render: () => (
         <Row justify="start">
@@ -201,7 +162,7 @@ const ManagementDiscountContent = () => {
               }}
             />
           </Col>
-          <Col span={4} offset={8}>
+          <Col span={2}>
             <EditOutlined
               style={{
                 backgroundColor: "blue",
@@ -218,30 +179,20 @@ const ManagementDiscountContent = () => {
     },
   ];
 
-  const getApi = discount?.map((item, index) => ({
+  const getApi = category?.map((item, index) => ({
     stt: index + 1,
     name: item.name,
-    code: item.code,
-    startdate: new Date(item.startDate).toLocaleDateString(),
-    enđate: new Date(item.endDate).toLocaleDateString(),
-    discountpercent: item.discountPercent,
-    discountprice: item.discountPrice,
-    conditionPriceMin: item.conditionPriceMin,
-    conditionPriceMax: item.conditionPriceMax,
   }));
-
-  console.log(getApi);
 
   // const data = [];
   // for (let i = 0; i < 100; i++) {
   //   data.push({
   //     stt: i,
-  //     name: `Tudeptrai${i}`,
-  //     code: `21050${i}`,
-  //     startdate: `29/1/2024`,
-  //     enđate: `30/1/2024`,
-  //     discountpercent: `100`,
-  //     discountprice: `2.000.000`,
+  //     name: `Edward ${i}`,
+  //     BodyPart: `${i}`,
+  //     address: `London Park no. ${i}`,
+  //     MinValidValue: `${i}`,
+  //     MaxValidValue: `${i}`,
   //   });
   // }
 
@@ -277,8 +228,10 @@ const ManagementDiscountContent = () => {
           <Col span={4}>
             <Button>Tổng cộng ({manager?.totalData})</Button>
           </Col>
-          <Col span={4} offset={12}>
-            <Button type="primary">Thêm mới</Button>
+          <Col span={4} offset={10}>
+            <Button>
+              Thêm mới <PlusOutlined />
+            </Button>
           </Col>
         </Row>
       </div>
@@ -292,15 +245,12 @@ const ManagementDiscountContent = () => {
         style={{
           marginTop: 24,
         }}
-        scroll={{
-          x: 1500,
-        }}
       />
     </div>
   );
 };
 
-function ManagementDiscount() {
+function ManagementCategory() {
   return (
     <div>
       <div
@@ -311,7 +261,7 @@ function ManagementDiscount() {
         }}
         className="manager-header"
       >
-        <ManagementDiscountHeader />
+        <ManagementCategoryHeader />
       </div>
       <div
         className="manager-content"
@@ -321,10 +271,10 @@ function ManagementDiscount() {
           border: "1px solid #9F78FF",
         }}
       >
-        <ManagementDiscountContent />
+        <ManagementCategoryContent />
       </div>
     </div>
   );
 }
 
-export default ManagementDiscount;
+export default ManagementCategory;

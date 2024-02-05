@@ -389,8 +389,12 @@ export const ManagerSidebar = () => {
               icon: <CheckroomIcon />,
             },
             {
-              key: "/manager/product-category",
-              label: <Link to="/manager/product-category">Loại bản mẫu</Link>,
+              key: "/manager/product-template/category",
+              label: (
+                <Link to="/manager/product-template/category">
+                  Loại bản mẫu
+                </Link>
+              ),
               icon: <CategoryIcon />,
             },
           ],
