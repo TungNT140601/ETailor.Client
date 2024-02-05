@@ -12,7 +12,7 @@ import {
   CloseOutlined,
   EyeOutlined,
 } from "@ant-design/icons";
-import { Typography, Carousel, Table, Checkbox } from "antd";
+import { Typography, Carousel, Table, Checkbox, Modal } from "antd";
 import "./index.css";
 
 import { Input } from "antd";
@@ -44,7 +44,6 @@ const { Meta } = Card;
 const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
-console.log("manager", manager);
 
 const ManagementCustomerHeader = () => {
   const onSearch = (value, _e, info) => console.log(info?.source, value);
@@ -118,16 +117,27 @@ const ManagementCustomerHeader = () => {
 };
 
 const ManagementCustomerContent = () => {
-  //   const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  //   const manager = JSON.parse(localStorage.getItem("manager"));
-  //   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-  //     fetch(getStaffUrl, {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${manager?.token}`,
-  //       },
-  //     }).then((response) => response.json())
-  //   );
+  // const getUrl = "https://etailorapi.azurewebsites.net/api/body-size";
+
+  // const { data: bodySize, isLoading: loading } = useQuery("get-body-size", () =>
+  //   fetch(getUrl, {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${manager?.token}`,
+  //     },
+  //   }).then((response) => response.json())
+  // );
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
 
   const columns = [
     {
@@ -181,21 +191,24 @@ const ManagementCustomerContent = () => {
       width: 100,
       fixed: "right",
       render: () => (
-        <Row justify="start">
-          <Col span={4}>
-            <EyeOutlined
-              title="Xem chi tiết"
-              style={{
-                backgroundColor: "rgb(140, 173, 245)",
-                color: "white",
-                padding: 6,
-                borderRadius: "5px",
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-            />
-          </Col>
-        </Row>
+        <>
+          <Row justify="start">
+            <Col span={4}>
+              <EyeOutlined
+                title="Xem chi tiết"
+                style={{
+                  backgroundColor: "rgb(140, 173, 245)",
+                  color: "white",
+                  padding: 6,
+                  borderRadius: "5px",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={showModal}
+              />
+            </Col>
+          </Row>
+        </>
       ),
     },
   ];
@@ -230,6 +243,44 @@ const ManagementCustomerContent = () => {
     ...item,
     hidden: !checkedList.includes(item.key),
   }));
+
+  //---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  const columns1 = [
+    {
+      title: "Name",
+      dataIndex: "name",
+    },
+    {
+      title: "Age",
+      dataIndex: "age",
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+    },
+  ];
+  const data1 = [
+    {
+      key: "1",
+      name: "John Brown",
+      age: 32,
+      address: "New York No. 1 Lake Park",
+    },
+    {
+      key: "2",
+      name: "Jim Green",
+      age: 42,
+      address: "London No. 1 Lake Park",
+    },
+    {
+      key: "3",
+      name: "Joe Black",
+      age: 32,
+      address: "Sydney No. 1 Lake Park",
+    },
+  ];
+
   return (
     <div>
       <div
@@ -270,6 +321,15 @@ const ManagementCustomerContent = () => {
           marginTop: 24,
         }}
       />
+
+      <Modal
+        title="Hồ sơ số đo"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <Table columns={columns1} dataSource={data1} size="small" />
+      </Modal>
     </div>
   );
 };

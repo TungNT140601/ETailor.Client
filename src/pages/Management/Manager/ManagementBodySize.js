@@ -117,16 +117,16 @@ const ManagementBodySizeHeader = () => {
 };
 
 const ManagementBodySizeContent = () => {
-  //   const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  //   const manager = JSON.parse(localStorage.getItem("manager"));
-  //   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-  //     fetch(getStaffUrl, {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${manager?.token}`,
-  //       },
-  //     }).then((response) => response.json())
-  //   );
+  const getUrl = "https://etailorapi.azurewebsites.net/api/body-size";
+
+  const { data: bodySize, isLoading: loading } = useQuery("get-body-size", () =>
+    fetch(getUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${manager?.token}`,
+      },
+    }).then((response) => response.json())
+  );
 
   const columns = [
     {
@@ -141,21 +141,14 @@ const ManagementBodySizeContent = () => {
       width: 150,
       dataIndex: "image",
       key: "image",
-      render: () => (
+      render: (_, record) => (
         <Image
           width={40}
           height={30}
-          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+          style={{ objectFit: "contain" }}
+          src={record.image}
         />
       ),
-      //   render: (_, record) => (
-      //     <Image
-      //       width={100}
-      //       height={90}
-      //       style={{ objectFit: "contain" }}
-      //       src={record.avatar}
-      //     />
-      //   ),
     },
     {
       title: "Số đo từng bộ phận",
@@ -201,12 +194,6 @@ const ManagementBodySizeContent = () => {
       render: () => (
         <Row justify="start">
           <Col span={4}>
-            {/* <Button
-              type="primary"
-              icon={<DeleteOutlined />}
-              size="default"
-              danger
-            /> */}
             <DeleteOutlined
               style={{
                 backgroundColor: "red",
@@ -235,26 +222,26 @@ const ManagementBodySizeContent = () => {
     },
   ];
 
-  //   const getApi = staffs?.data?.map((item) => ({
-  //     stt: item.stt,
-  //     avatar: item.avatar,
-  //     username: item.username,
-  //     fullname: item.fullname,
-  //     address: item.address,
-  //     phone: item.phone,
-  //   }));
+  const getApi = bodySize?.map((item, index) => ({
+    stt: index + 1,
+    name: item.name,
+    BodyPart: item.bodyPart,
+    GuideVideoLink: item.guideVideoLink,
+    MinValidValue: item.minValidValue,
+    MaxValidValue: item.maxValidValue,
+  }));
 
-  const data = [];
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      stt: i,
-      name: `Edward ${i}`,
-      BodyPart: `${i}`,
-      address: `London Park no. ${i}`,
-      MinValidValue: `${i}`,
-      MaxValidValue: `${i}`,
-    });
-  }
+  // const data = [];
+  // for (let i = 0; i < 100; i++) {
+  //   data.push({
+  //     stt: i,
+  //     name: `Edward ${i}`,
+  //     BodyPart: `${i}`,
+  //     address: `London Park no. ${i}`,
+  //     MinValidValue: `${i}`,
+  //     MaxValidValue: `${i}`,
+  //   });
+  // }
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -298,7 +285,7 @@ const ManagementBodySizeContent = () => {
 
       <Table
         columns={newColumns}
-        dataSource={data}
+        dataSource={getApi}
         pagination={{
           position: ["bottomCenter"],
         }}
