@@ -37,6 +37,7 @@ import ManagementBlog from "../pages/Management/Manager/ManagementBlog";
 import ManagementDashboard from "../pages/Management/Manager/ManagementDashboard";
 import ManagementCustomer from "../pages/Management/Manager/ManagementCustomer";
 import ManagementCategory from "../pages/Management/Manager/ManagementCategory";
+import ManagementOrder from "../pages/Management/Manager/ManagementOrder";
 
 export const customerRouters = [
   {
@@ -205,6 +206,12 @@ export const managerRouters = [
     path: "/manager/product-template/category",
     name: "management-category",
     component: ManagementCategory,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/orders",
+    name: "management-category",
+    component: ManagementOrder,
     layout: DefaultLayoutManager,
   },
 ];
