@@ -3,44 +3,25 @@ import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
-  PushpinOutlined,
-  PlusCircleOutlined,
   EditOutlined,
   DeleteOutlined,
-  RollbackOutlined,
   PlusOutlined,
-  CloseOutlined,
 } from "@ant-design/icons";
-import { Typography, Carousel, Table, Checkbox } from "antd";
+import { Typography, Table, Checkbox } from "antd";
 import "./index.css";
 
 import { Input } from "antd";
-import { Button, Flex, Divider } from "antd";
+import { Button } from "antd";
 import { Image } from "antd";
-import {
-  Avatar,
-  Card,
-  Col,
-  Row,
-  message,
-  Steps,
-  theme,
-  Form,
-  Space,
-  Select,
-  Upload,
-  Radio,
-} from "antd";
+import { Avatar, Col, Row } from "antd";
+import CircularProgress from "@mui/material/CircularProgress";
 
-import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 
-const { Search, TextArea } = Input;
+const { Search } = Input;
 const { Title, Text } = Typography;
-const { Meta } = Card;
-const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
 console.log("manager", manager);
@@ -167,10 +148,12 @@ const ManagementBodySizeContent = () => {
       dataIndex: "GuideVideoLink",
       key: "3",
       width: 150,
-      render: () => (
-        <Button type="link">
-          <a href="#">Nhấn vào để xem</a>
-        </Button>
+      render: (_, record) => (
+        <>
+          <Button type="link" title="Video hướng dẫn">
+            <a href={record.GuideVideoLink}>Nhấn vào để xem</a>
+          </Button>
+        </>
       ),
     },
     {
@@ -273,7 +256,7 @@ const ManagementBodySizeContent = () => {
         </div>
         <Row justify="start" style={{ paddingRight: "24px" }}>
           <Col span={4}>
-            <Button>Tổng cộng ({manager?.totalData})</Button>
+            <Button>Tổng cộng ({bodySize?.length})</Button>
           </Col>
           <Col span={4} offset={10}>
             <Button>
@@ -282,17 +265,29 @@ const ManagementBodySizeContent = () => {
           </Col>
         </Row>
       </div>
-
-      <Table
-        columns={newColumns}
-        dataSource={getApi}
-        pagination={{
-          position: ["bottomCenter"],
-        }}
-        style={{
-          marginTop: 24,
-        }}
-      />
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "550px",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
+        <Table
+          columns={newColumns}
+          dataSource={getApi}
+          pagination={{
+            position: ["bottomCenter"],
+          }}
+          style={{
+            marginTop: 24,
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -13,6 +13,7 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel, Table, Checkbox } from "antd";
+import CircularProgress from "@mui/material/CircularProgress";
 import "./index.css";
 
 import { Input } from "antd";
@@ -117,16 +118,16 @@ const ManagementBlogHeader = () => {
 };
 
 const ManagementBlogContent = () => {
-  //   const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  //   const manager = JSON.parse(localStorage.getItem("manager"));
-  //   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-  //     fetch(getStaffUrl, {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${manager?.token}`,
-  //       },
-  //     }).then((response) => response.json())
-  //   );
+  const getUrl = "https://etailorapi.azurewebsites.net/api/blog";
+
+  const { data: blog, isLoading: loading } = useQuery("get-blog", () =>
+    fetch(getUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${manager?.token}`,
+      },
+    }).then((response) => response.json())
+  );
 
   const columns = [
     {
@@ -142,14 +143,11 @@ const ManagementBlogContent = () => {
       dataIndex: "title",
       key: "title",
     },
-
     {
       title: "Action",
       width: "20%",
-
       dataIndex: "Action",
       key: "Action",
-
       fixed: "right",
       render: () => (
         <Row justify="start">
@@ -182,63 +180,61 @@ const ManagementBlogContent = () => {
     },
   ];
 
-  //   const getApi = staffs?.data?.map((item) => ({
-  //     stt: item.stt,
-  //     avatar: item.avatar,
-  //     username: item.username,
-  //     fullname: item.fullname,
-  //     address: item.address,
-  //     phone: item.phone,
-  //   }));
+  const getApi = blog?.map((item, index) => ({
+    key: index + 1,
+    stt: index + 1,
+    title: item.title,
+    description: item.content,
+  }));
 
-  const data = [];
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      key: i,
-      stt: i,
-      title: `Những nội dung thời trang được sử dụng với mục đích tiếp thị, quảng cáo thì nội dung phải lôi cuốn, hấp dẫn người đọc mới giữ chân người mua, từ đó tỷ suất mua hàng càng tăng và ngược lại.  ${i}`,
-      description: (
-        <Typography>
-          <Title>Introduction</Title>
-          <p>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum.
-          </p>
-          <Title>Introduction</Title>
-          <p>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum.
-          </p>
-          <Title>Introduction</Title>
-          <p>
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book. It has survived not
-            only five centuries, but also the leap into electronic typesetting,
-            remaining essentially unchanged. It was popularised in the 1960s
-            with the release of Letraset sheets containing Lorem Ipsum passages,
-            and more recently with desktop publishing software like Aldus
-            PageMaker including versions of Lorem Ipsum.
-          </p>
-        </Typography>
-      ),
-    });
-  }
+  // const data = [];
+  // for (let i = 0; i < 100; i++) {
+  //   data.push({
+  //     key: i,
+  //     stt: i,
+  //     title: `Những nội dung thời trang được sử dụng với mục đích tiếp thị, quảng cáo thì nội dung phải lôi cuốn, hấp dẫn người đọc mới giữ chân người mua, từ đó tỷ suất mua hàng càng tăng và ngược lại.  ${i}`,
+  //     description: (
+  //       <Typography>
+  //         <Title>Introduction</Title>
+  //         <p>
+  //           Lorem Ipsum is simply dummy text of the printing and typesetting
+  //           industry. Lorem Ipsum has been the industry's standard dummy text
+  //           ever since the 1500s, when an unknown printer took a galley of type
+  //           and scrambled it to make a type specimen book. It has survived not
+  //           only five centuries, but also the leap into electronic typesetting,
+  //           remaining essentially unchanged. It was popularised in the 1960s
+  //           with the release of Letraset sheets containing Lorem Ipsum passages,
+  //           and more recently with desktop publishing software like Aldus
+  //           PageMaker including versions of Lorem Ipsum.
+  //         </p>
+  //         <Title>Introduction</Title>
+  //         <p>
+  //           Lorem Ipsum is simply dummy text of the printing and typesetting
+  //           industry. Lorem Ipsum has been the industry's standard dummy text
+  //           ever since the 1500s, when an unknown printer took a galley of type
+  //           and scrambled it to make a type specimen book. It has survived not
+  //           only five centuries, but also the leap into electronic typesetting,
+  //           remaining essentially unchanged. It was popularised in the 1960s
+  //           with the release of Letraset sheets containing Lorem Ipsum passages,
+  //           and more recently with desktop publishing software like Aldus
+  //           PageMaker including versions of Lorem Ipsum.
+  //         </p>
+  //         <Title>Introduction</Title>
+  //         <p>
+  //           Lorem Ipsum is simply dummy text of the printing and typesetting
+  //           industry. Lorem Ipsum has been the industry's standard dummy text
+  //           ever since the 1500s, when an unknown printer took a galley of type
+  //           and scrambled it to make a type specimen book. It has survived not
+  //           only five centuries, but also the leap into electronic typesetting,
+  //           remaining essentially unchanged. It was popularised in the 1960s
+  //           with the release of Letraset sheets containing Lorem Ipsum passages,
+  //           and more recently with desktop publishing software like Aldus
+  //           PageMaker including versions of Lorem Ipsum.
+  //         </p>
+  //       </Typography>
+  //     ),
+  //   });
+  // }
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -270,7 +266,7 @@ const ManagementBlogContent = () => {
         </div>
         <Row justify="start" style={{ paddingRight: "24px" }}>
           <Col span={4}>
-            <Button>Tổng cộng ({manager?.totalData})</Button>
+            <Button>Tổng cộng ({blog?.length})</Button>
           </Col>
           <Col span={4} offset={10}>
             <Button>
@@ -279,27 +275,39 @@ const ManagementBlogContent = () => {
           </Col>
         </Row>
       </div>
-
-      <Table
-        columns={newColumns}
-        style={{ marginTop: 24 }}
-        expandable={{
-          expandedRowRender: (record) => (
-            <p
-              style={{
-                margin: 0,
-              }}
-            >
-              {record.description}
-            </p>
-          ),
-          rowExpandable: (record) => record.stt !== "Not Expandable",
-        }}
-        pagination={{
-          position: ["bottomCenter"],
-        }}
-        dataSource={data}
-      />
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "550px",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
+        <Table
+          columns={newColumns}
+          style={{ marginTop: 24 }}
+          expandable={{
+            expandedRowRender: (record) => (
+              <p
+                style={{
+                  margin: 0,
+                }}
+              >
+                {record?.description}
+              </p>
+            ),
+            rowExpandable: (record) => record?.stt !== "Not Expandable",
+          }}
+          pagination={{
+            position: ["bottomCenter"],
+          }}
+          dataSource={getApi}
+        />
+      )}
     </div>
   );
 };

@@ -287,7 +287,8 @@
 
 // export default ManagerSidebar;
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   FileOutlined,
   UserOutlined,
@@ -326,7 +327,11 @@ export const ManagerSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const manager = JSON.parse(localStorage.getItem("manager"));
-  const active = useRef(localStorage.getItem("activeKey") || "/manager");
+  const location = useLocation();
+  // const active = useRef(localStorage.getItem("activeKey") || "/manager");
+  const [active, setActive] = useState(
+    localStorage.getItem("activeKey") || "/manager"
+  );
   console.log("active", active);
   const logoutAdminUrl =
     "https://etailorapi.azurewebsites.net/api/auth/staff/logout";
@@ -466,11 +471,26 @@ export const ManagerSidebar = () => {
         handleLogout();
       } else {
         navigate(key);
-        active.current = key;
+        setActive(key);
         localStorage.setItem("activeKey", key);
       }
     }
   };
+
+  useEffect(() => {
+    if (location.pathname !== active) {
+      setActive(location.pathname);
+      localStorage.setItem("activeKey", location.pathname);
+    }
+  }, [location.pathname]);
+
+  // useEffect(() => {
+  //   const path = window.location.pathname;
+  //   if (path !== active) {
+  //     setActive(path);
+  //     localStorage.setItem("activeKey", path);
+  //   }
+  // });
 
   return (
     <Sider
@@ -495,7 +515,7 @@ export const ManagerSidebar = () => {
 
       <Menu
         theme="light"
-        defaultSelectedKeys={[active?.current]}
+        selectedKeys={[active]}
         mode="inline"
         items={items}
         style={{

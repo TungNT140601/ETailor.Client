@@ -124,7 +124,7 @@ const ManagementDiscountContent = () => {
   const columns = [
     {
       title: "STT",
-      width: 50,
+      width: 70,
       dataIndex: "stt",
       key: "index",
       fixed: "left",
