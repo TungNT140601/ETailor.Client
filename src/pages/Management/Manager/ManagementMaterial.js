@@ -10,14 +10,10 @@ import {
   RollbackOutlined,
   PlusOutlined,
   CloseOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
-import { Typography, Carousel, Table, Checkbox } from "antd";
 import "./index.css";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
-
-import { Input } from "antd";
-import { Button, Flex, Divider } from "antd";
-import { Image } from "antd";
 import {
   Avatar,
   Card,
@@ -31,6 +27,17 @@ import {
   Select,
   Upload,
   Radio,
+  Typography,
+  Carousel,
+  Table,
+  Checkbox,
+  Modal,
+  Input,
+  Button,
+  Flex,
+  Divider,
+  Image,
+  InputNumber,
 } from "antd";
 
 import Paragraph from "antd/es/skeleton/Paragraph";
@@ -162,50 +169,19 @@ const ManagementMaterialContent = () => {
           src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
         />
       ),
-      //   render: (_, record) => (
-      //     <Image
-      //       width={100}
-      //       height={90}
-      //       style={{ objectFit: "contain" }}
-      //       src={record.avatar}
-      //     />
-      //   ),
     },
     {
       title: "Tên nguyên liệu",
-      dataIndex: "BodyPart",
+      dataIndex: "name",
       key: "1",
       width: "7%",
     },
     {
       title: "Số lượng",
-      dataIndex: "name",
+      dataIndex: "quantity",
       key: "2",
       width: "7%",
     },
-    // {
-    //   title: "Clip hướng dẫn",
-    //   dataIndex: "GuideVideoLink",
-    //   key: "3",
-    //   width: 150,
-    //   render: () => (
-    //     <Button type="link">
-    //       <a href="#">Nhấn vào để xem</a>
-    //     </Button>
-    //   ),
-    // },
-    // {
-    //   title: "Giá trị tối thiểu",
-    //   dataIndex: "MinValidValue",
-    //   key: "4",
-    //   width: 150,
-    // },
-    // {
-    //   title: "Giá trị tối đa",
-    //   dataIndex: "MaxValidValue",
-    //   key: "5",
-    //   width: 150,
-    // },
     {
       title: "Action",
       dataIndex: "Action",
@@ -247,13 +223,17 @@ const ManagementMaterialContent = () => {
   for (let i = 0; i < 100; i++) {
     data.push({
       stt: i,
-      name: `Edward ${i}`,
-      BodyPart: `${i}`,
-      address: `London Park no. ${i}`,
-      MinValidValue: `${i}`,
-      MaxValidValue: `${i}`,
+      name: `Nguyên liệu ${i}`,
+      quantity: `${i}`,
     });
   }
+
+  //------------------------------------------------------------Modal create-------------------------------------------------------
+  const [open, setOpen] = useState(false);
+  const onCreate = (values) => {
+    console.log("Received values of form: ", values);
+    setOpen(false);
+  };
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -265,12 +245,6 @@ const ManagementMaterialContent = () => {
     ...item,
     hidden: !checkedList.includes(item.key),
   }));
-
-  //--------------------------------------------------------------------data table Material Category-------------------------------------------------
-
-  //--------------------------------------------------------------------data table Material type-------------------------------------------------
-
-  //---------------------------------------------------------------Select table----------------------------------------------------
 
   return (
     <div>
@@ -296,7 +270,21 @@ const ManagementMaterialContent = () => {
               <Button>Tổng cộng ({manager?.totalData})</Button>
             </Col>
             <Col span={4} offset={12}>
-              <Button type="primary">Thêm mới</Button>
+              <Button
+                type="primary"
+                onClick={() => {
+                  setOpen(true);
+                }}
+              >
+                Thêm mới
+              </Button>
+              <CreateMaterial
+                open={open}
+                onCreate={onCreate}
+                onCancel={() => {
+                  setOpen(false);
+                }}
+              />
             </Col>
           </Row>
         </div>
@@ -313,6 +301,170 @@ const ManagementMaterialContent = () => {
         />
       </>
     </div>
+  );
+};
+
+const CreateMaterial = ({ open, onCreate, onCancel }) => {
+  const [form] = Form.useForm();
+  const [imageUrl, setImageUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const getFile = (e) => {
+    console.log(e);
+    const file = e.fileList[0];
+    if (file && file.originFileObj) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      reader.onload = () => {
+        setImageUrl(reader.result);
+      };
+    }
+    return e && e.fileList;
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 155 }}
+      title="Thêm mới nguyên liệu"
+      okText="Tạo mới"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        form.resetFields();
+        setImageUrl(null);
+        onCancel();
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then((values) => {
+            form.resetFields();
+            onCreate(values);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+    >
+      <Form
+        style={{
+          height: 200,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+          marginTop: 24,
+        }}
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+        }}
+      >
+        <Row>
+          <Col span={12}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "25px",
+                marginRight: "15px",
+              }}
+            >
+              <Form.Item
+                name="image"
+                getValueFromEvent={getFile}
+                style={{ width: "130px" }}
+                rules={[
+                  {
+                    required: true,
+                    message: "Ảnh đại diện không được để trống",
+                  },
+                ]}
+              >
+                <Upload
+                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                  listType="picture-card"
+                  maxCount={1}
+                  showUploadList={false}
+                >
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt="imageMaterial"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
+              </Form.Item>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div>
+              <Form.Item
+                name="name"
+                label="Tên nguyên liệu"
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: "Tên nguyên liệu không được để trống",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                name="quantity"
+                label="Số lượng"
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: "Số lượng phải là số và không được để trống",
+                  },
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Số lượng ít nhất là 1",
+                  },
+                ]}
+              >
+                <InputNumber
+                  style={{
+                    width: "100%",
+                  }}
+                />
+              </Form.Item>
+            </div>
+          </Col>
+        </Row>
+      </Form>
+    </Modal>
   );
 };
 
@@ -384,6 +536,13 @@ function ManagementMaterialTypeContent() {
     });
   }
 
+  //------------------------------------------------------------Modal create-------------------------------------------------------
+  const [open, setOpen] = useState(false);
+  const onCreate = (values) => {
+    console.log("Received values of form: ", values);
+    setOpen(false);
+  };
+
   const defaultCheckedList2 = columns2.map((item) => item.key);
   const [checkedList2, setCheckedList2] = useState(defaultCheckedList2);
   const options2 = columns2.map(({ key, title }) => ({
@@ -418,7 +577,21 @@ function ManagementMaterialTypeContent() {
             <Button>Tổng cộng ({manager?.totalData})</Button>
           </Col>
           <Col span={4} offset={12}>
-            <Button type="primary">Thêm mới</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              Thêm mới
+            </Button>
+            <CreateMaterialType
+              open={open}
+              onCreate={onCreate}
+              onCancel={() => {
+                setOpen(false);
+              }}
+            />
           </Col>
         </Row>
       </div>
@@ -437,6 +610,120 @@ function ManagementMaterialTypeContent() {
   );
 }
 
+const CreateMaterialType = ({ open, onCreate, onCancel }) => {
+  const [form] = Form.useForm();
+  const [imageUrl, setImageUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const getFile = (e) => {
+    console.log(e);
+    const file = e.fileList[0];
+    if (file && file.originFileObj) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      reader.onload = () => {
+        setImageUrl(reader.result);
+      };
+    }
+    return e && e.fileList;
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 155 }}
+      title="Thêm mới loại nguyên liệu"
+      okText="Tạo mới"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        form.resetFields();
+        setImageUrl(null);
+        onCancel();
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then((values) => {
+            form.resetFields();
+            onCreate(values);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+    >
+      <Form
+        style={{
+          height: 200,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+          marginTop: 24,
+        }}
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+        }}
+      >
+        <div>
+          <Form.Item
+            name="name"
+            label="Tên nguyên liệu"
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Tên nguyên liệu không được để trống",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Select"
+            name="Đơn vị đo"
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Đơn vị đo không được để trống",
+              },
+            ]}
+          >
+            <Select>
+              <Select.Option value="m">Met</Select.Option>
+              <Select.Option value="cái">Cái</Select.Option>
+              <Select.Option value="hộp">Hộp</Select.Option>
+              <Select.Option value="Bịch">Bịch</Select.Option>
+            </Select>
+          </Form.Item>
+        </div>
+      </Form>
+    </Modal>
+  );
+};
+
 function ManagementMaterialCategoryContent() {
   const columns1 = [
     {
@@ -451,7 +738,13 @@ function ManagementMaterialCategoryContent() {
       title: "Số lượng",
       dataIndex: "name",
       key: "1",
-      width: "70%",
+      width: "35%",
+    },
+    {
+      title: "Giá tiền theo đơn vị",
+      dataIndex: "pricePerUnit",
+      key: "1",
+      width: "35%",
     },
     {
       title: "Action",
@@ -495,8 +788,16 @@ function ManagementMaterialCategoryContent() {
     data1.push({
       stt: i,
       name: `Edward ${i}`,
+      pricePerUnit: `${i}`,
     });
   }
+
+  //------------------------------------------------------------Modal create-------------------------------------------------------
+  const [open, setOpen] = useState(false);
+  const onCreate = (values) => {
+    console.log("Received values of form: ", values);
+    setOpen(false);
+  };
 
   const defaultCheckedList1 = columns1.map((item) => item.key);
   const [checkedList1, setCheckedList1] = useState(defaultCheckedList1);
@@ -532,7 +833,21 @@ function ManagementMaterialCategoryContent() {
             <Button>Tổng cộng ({manager?.totalData})</Button>
           </Col>
           <Col span={4} offset={12}>
-            <Button type="primary">Thêm mới</Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              Thêm mới
+            </Button>
+            <CreateMaterialCategory
+              open={open}
+              onCreate={onCreate}
+              onCancel={() => {
+                setOpen(false);
+              }}
+            />
           </Col>
         </Row>
       </div>
@@ -550,6 +865,129 @@ function ManagementMaterialCategoryContent() {
     </>
   );
 }
+
+const CreateMaterialCategory = ({ open, onCreate, onCancel }) => {
+  const [form] = Form.useForm();
+  const [imageUrl, setImageUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const getFile = (e) => {
+    console.log(e);
+    const file = e.fileList[0];
+    if (file && file.originFileObj) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      reader.onload = () => {
+        setImageUrl(reader.result);
+      };
+    }
+    return e && e.fileList;
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 155 }}
+      title="Thêm mới danh mục"
+      okText="Tạo mới"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        form.resetFields();
+        setImageUrl(null);
+        onCancel();
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then((values) => {
+            form.resetFields();
+            onCreate(values);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+    >
+      <Form
+        style={{
+          height: 200,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+          marginTop: 24,
+        }}
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+        }}
+      >
+        <div>
+          <Form.Item
+            name="quantity"
+            label="Số lượng"
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Số lượng phải là số và không được để trống",
+              },
+              {
+                type: "number",
+                min: 1,
+                message: "Số lượng ít nhất là 1",
+              },
+            ]}
+          >
+            <InputNumber
+              style={{
+                width: "100%",
+              }}
+            />
+          </Form.Item>
+          <Form.Item
+            name="pricePerUnit "
+            label="Giá tiền theo đơn vị"
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Giá tiền theo đơn vị không được để trống",
+              },
+              {
+                type: "number",
+                min: 1,
+                message: "Giá tiền theo đơn vị phải là số và ít nhất là 1",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+        </div>
+      </Form>
+    </Modal>
+  );
+};
 
 export function ManagementMaterialCategory() {
   return (

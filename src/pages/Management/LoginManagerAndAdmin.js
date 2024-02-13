@@ -12,13 +12,14 @@ import { useState } from "react";
 import { InputAdornment } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import CircularProgress from "@mui/material/CircularProgress";
+import PersonIcon from "@mui/icons-material/Person";
 
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Swal from "sweetalert2";
 
 import logo from "../../assets/logo.png";
-import image from "../../assets/1.png";
+import image from "../../assets/bg-image.jpg";
 
 const defaultTheme = createTheme();
 
@@ -33,36 +34,58 @@ export default function LoginManagerAndAdmin() {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     try {
-      setLoading(true);
-      const response = await fetch(loginAdminUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: data.get("userName"),
-          password: data.get("password"),
-        }),
-      });
-      setLoading(false);
-      if (response.status === 200) {
-        const data = await response.json();
-        console.log(data);
-        if (data.role === "Admin") {
-          localStorage.setItem("admin", JSON.stringify(data));
-          navigate("/admin");
-        } else if (data.role === "Manager") {
-          localStorage.setItem("manager", JSON.stringify(data));
-          navigate("/manager");
-        }
-      } else if (response.status === 400) {
-        const dataError = await response.text();
+      if (data.get("userName") === "") {
         Swal.fire({
           icon: "error",
           title: "Oops...",
-          text: `${dataError}`,
+          text: `Tên đăng nhập không được rỗng!`,
           timer: 4000,
         });
+      } else if (data.get("password") === "") {
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: `Mật khẩu không được rỗng!`,
+          timer: 4000,
+        });
+      } else {
+        setLoading(true);
+        const response = await fetch(loginAdminUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: data.get("userName"),
+            password: data.get("password"),
+          }),
+        });
+        setLoading(false);
+        if (response.status === 200) {
+          const data = await response.json();
+          console.log(data);
+          await Swal.fire({
+            icon: "success",
+            title: "Thành công",
+            text: `Đăng nhập thành công!`,
+            timer: 4000,
+          });
+          if (data.role === "Admin") {
+            localStorage.setItem("admin", JSON.stringify(data));
+            navigate("/admin");
+          } else if (data.role === "Manager") {
+            localStorage.setItem("manager", JSON.stringify(data));
+            navigate("/manager");
+          }
+        } else if (response.status === 400) {
+          const dataError = await response.text();
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: `${dataError}`,
+            timer: 4000,
+          });
+        }
       }
     } catch (error) {
       console.error("Error:", error);
@@ -95,14 +118,15 @@ export default function LoginManagerAndAdmin() {
             backgroundPosition: "center",
           }}
         />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+        <Grid item xs={10} sm={8} md={5}>
           <Box
             sx={{
-              my: 8,
-              mx: 4,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
+              width: 500,
+              margin: "0 auto",
+              paddingTop: 15,
             }}
           >
             <figure className="image is-128x128">
@@ -126,6 +150,22 @@ export default function LoginManagerAndAdmin() {
                 name="userName"
                 autoComplete="userName"
                 autoFocus
+                sx={{
+                  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                    {
+                      borderColor: "#9F78FF",
+                    },
+                  "& label.Mui-focused": {
+                    color: "#9F78FF",
+                  },
+                }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <PersonIcon style={{ cursor: "pointer" }} />
+                    </InputAdornment>
+                  ),
+                }}
               />
               <TextField
                 margin="normal"
@@ -136,17 +176,27 @@ export default function LoginManagerAndAdmin() {
                 type={showPass ? "text" : "password"}
                 id="password"
                 autoComplete="current-password"
+                sx={{
+                  "& .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline":
+                    {
+                      borderColor: "#9F78FF",
+                    },
+                  "& label.Mui-focused": {
+                    color: "#9F78FF",
+                  },
+                }}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <RemoveRedEyeIcon onClick={showPassword} />
+                      <RemoveRedEyeIcon
+                        onClick={showPassword}
+                        style={{
+                          cursor: "pointer",
+                        }}
+                      />
                     </InputAdornment>
                   ),
                 }}
-              />
-              <FormControlLabel
-                control={<Checkbox value="remember" color="primary" />}
-                label="Ghi nhớ đăng nhập"
               />
               <div style={{ textAlign: "center" }}>
                 {loading ? (
@@ -154,7 +204,14 @@ export default function LoginManagerAndAdmin() {
                     type="submit"
                     fullWidth
                     variant="contained"
-                    sx={{ mt: 3, mb: 2, backgroundColor: "#172039" }}
+                    sx={{
+                      mt: 3,
+                      mb: 2,
+                      backgroundColor: "#9F78FF",
+                      "&:hover": {
+                        backgroundColor: "#5c429e",
+                      },
+                    }}
                   >
                     Đăng nhập &nbsp; &nbsp;
                     <CircularProgress size={20} sx={{ color: "#FFFFFF" }} />
@@ -164,7 +221,14 @@ export default function LoginManagerAndAdmin() {
                     type="submit"
                     fullWidth
                     variant="contained"
-                    sx={{ mt: 3, mb: 2, backgroundColor: "#172039" }}
+                    sx={{
+                      mt: 3,
+                      mb: 2,
+                      backgroundColor: "#9F78FF",
+                      "&:hover": {
+                        backgroundColor: "#5c429e",
+                      },
+                    }}
                   >
                     Đăng nhập
                   </Button>

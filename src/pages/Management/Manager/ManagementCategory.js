@@ -11,10 +11,18 @@ import {
   PlusOutlined,
   CloseOutlined,
 } from "@ant-design/icons";
-import { Typography, Carousel, Table, Checkbox } from "antd";
+import {
+  Typography,
+  Carousel,
+  Table,
+  Checkbox,
+  Input,
+  Modal,
+  InputNumber,
+} from "antd";
 import "./index.css";
+import CircularProgress from "@mui/material/CircularProgress";
 
-import { Input } from "antd";
 import { Button, Flex, Divider } from "antd";
 import { Image } from "antd";
 import {
@@ -196,6 +204,13 @@ const ManagementCategoryContent = () => {
   //   });
   // }
 
+  //------------------------------------------------------------Modal create-------------------------------------------------------
+  const [open, setOpen] = useState(false);
+  const onCreate = (values) => {
+    console.log("Received values of form: ", values);
+    setOpen(false);
+  };
+
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
   const options = columns.map(({ key, title }) => ({
@@ -226,27 +241,107 @@ const ManagementCategoryContent = () => {
         </div>
         <Row justify="start" style={{ paddingRight: "24px" }}>
           <Col span={4}>
-            <Button>Tổng cộng ({manager?.totalData})</Button>
+            <Button>Tổng cộng ({category?.length})</Button>
           </Col>
           <Col span={4} offset={10}>
-            <Button>
+            <Button
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
               Thêm mới <PlusOutlined />
             </Button>
+            <CollectionCreateForm
+              open={open}
+              onCreate={onCreate}
+              onCancel={() => {
+                setOpen(false);
+              }}
+            />
           </Col>
         </Row>
       </div>
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "550px",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
+        <Table
+          columns={newColumns}
+          dataSource={getApi}
+          pagination={{
+            position: ["bottomCenter"],
+          }}
+          style={{
+            marginTop: 24,
+          }}
+        />
+      )}
+    </div>
+  );
+};
 
-      <Table
-        columns={newColumns}
-        dataSource={getApi}
-        pagination={{
-          position: ["bottomCenter"],
-        }}
+const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
+  const [form] = Form.useForm();
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 220 }}
+      title="Thêm mới loại bản mẫu"
+      okText="Tạo mới"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        form.resetFields();
+
+        onCancel();
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then((values) => {
+            form.resetFields();
+            onCreate(values);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+    >
+      <Form
         style={{
           marginTop: 24,
         }}
-      />
-    </div>
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+        }}
+      >
+        <Form.Item
+          className="mt-2"
+          hasFeedback
+          name="name"
+          label="Tên số đo"
+          rules={[
+            {
+              required: true,
+              message: "Tên loại bản mẫu không được để trống!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

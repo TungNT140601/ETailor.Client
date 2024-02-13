@@ -6,6 +6,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   PlusOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { Typography, Table, Checkbox } from "antd";
 import "./index.css";
@@ -13,7 +14,7 @@ import "./index.css";
 import { Input } from "antd";
 import { Button } from "antd";
 import { Image } from "antd";
-import { Avatar, Col, Row } from "antd";
+import { Avatar, Col, Row, Modal, Form, Upload, InputNumber } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { Link } from "react-router-dom";
@@ -157,13 +158,13 @@ const ManagementBodySizeContent = () => {
       ),
     },
     {
-      title: "Giá trị tối thiểu",
+      title: "Giá trị tối thiểu (cm)",
       dataIndex: "MinValidValue",
       key: "4",
       width: 150,
     },
     {
-      title: "Giá trị tối đa",
+      title: "Giá trị tối đa (cm)",
       dataIndex: "MaxValidValue",
       key: "5",
       width: 150,
@@ -226,6 +227,13 @@ const ManagementBodySizeContent = () => {
   //   });
   // }
 
+  //------------------------------------------------------------Modal create-------------------------------------------------------
+  const [open, setOpen] = useState(false);
+  const onCreate = (values) => {
+    console.log("Received values of form: ", values);
+    setOpen(false);
+  };
+
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
   const options = columns.map(({ key, title }) => ({
@@ -237,58 +245,295 @@ const ManagementBodySizeContent = () => {
     hidden: !checkedList.includes(item.key),
   }));
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <Checkbox.Group
-            value={checkedList}
-            options={options}
-            onChange={(value) => {
-              setCheckedList(value);
-            }}
-          />
-        </div>
-        <Row justify="start" style={{ paddingRight: "24px" }}>
-          <Col span={4}>
-            <Button>Tổng cộng ({bodySize?.length})</Button>
-          </Col>
-          <Col span={4} offset={10}>
-            <Button>
-              Thêm mới <PlusOutlined />
-            </Button>
-          </Col>
-        </Row>
-      </div>
-      {loading ? (
+    <>
+      <div>
         <div
           style={{
             display: "flex",
-            justifyContent: "center",
+            justifyContent: "space-between",
             alignItems: "center",
-            height: "550px",
           }}
         >
-          <CircularProgress />
+          <div>
+            <Checkbox.Group
+              value={checkedList}
+              options={options}
+              onChange={(value) => {
+                setCheckedList(value);
+              }}
+            />
+          </div>
+          <Row justify="start" style={{ paddingRight: "24px" }}>
+            <Col span={4}>
+              <Button>Tổng cộng ({bodySize?.length})</Button>
+            </Col>
+            <Col span={4} offset={10}>
+              <Button
+                onClick={() => {
+                  setOpen(true);
+                }}
+              >
+                Thêm mới <PlusOutlined />
+              </Button>
+              <CollectionCreateForm
+                open={open}
+                onCreate={onCreate}
+                onCancel={() => {
+                  setOpen(false);
+                }}
+              />
+            </Col>
+          </Row>
         </div>
-      ) : (
-        <Table
-          columns={newColumns}
-          dataSource={getApi}
-          pagination={{
-            position: ["bottomCenter"],
-          }}
-          style={{
-            marginTop: 24,
-          }}
-        />
-      )}
-    </div>
+        {loading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "550px",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        ) : (
+          <Table
+            columns={newColumns}
+            dataSource={getApi}
+            pagination={{
+              position: ["bottomCenter"],
+            }}
+            style={{
+              marginTop: 24,
+            }}
+          />
+        )}
+      </div>
+    </>
+  );
+};
+
+const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
+  const [form] = Form.useForm();
+  const [imageUrl, setImageUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const getFile = (e) => {
+    console.log(e);
+    const file = e.fileList[0];
+    if (file && file.originFileObj) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      reader.onload = () => {
+        setImageUrl(reader.result);
+      };
+    }
+    return e && e.fileList;
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 65 }}
+      title="Thêm mới số đo cơ thể"
+      okText="Tạo mới"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        form.resetFields();
+        setImageUrl(null);
+        onCancel();
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then((values) => {
+            form.resetFields();
+            onCreate(values);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+    >
+      <Form
+        style={{
+          height: 500,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+          marginTop: 24,
+        }}
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+        }}
+      >
+        <Row>
+          <Col span={12}>
+            <div>
+              <Form.Item
+                name="bodyPart"
+                label="Số đo từng bộ phận"
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: "Số đo từng bộ phận không được để trống",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                hasFeedback
+                name="bodyIndex"
+                label="Chỉ số cơ thể"
+                rules={[
+                  {
+                    required: true,
+                    message: "Chỉ số cơ thể không được để trống",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "25px",
+              }}
+            >
+              <Form.Item
+                name="image"
+                getValueFromEvent={getFile}
+                style={{ width: "130px" }}
+                rules={[
+                  {
+                    required: true,
+                    message: "Ảnh không được để trống",
+                  },
+                ]}
+              >
+                <Upload
+                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                  listType="picture-card"
+                  maxCount={1}
+                  showUploadList={false}
+                >
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt="avatar"
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
+              </Form.Item>
+            </div>
+          </Col>
+        </Row>
+        <Form.Item
+          className="mt-2"
+          hasFeedback
+          name="name"
+          label="Tên số đo"
+          rules={[
+            {
+              required: true,
+              message: "Tên không được để trống",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          className="mt-2"
+          name="guideVideoLink"
+          label="Video hướng dẫn"
+          hasFeedback
+          rules={[
+            { required: true, message: "Video hướng dẫn không được để trống" },
+            { type: "url", warningOnly: true },
+            { type: "string", min: 6 },
+          ]}
+        >
+          <Input placeholder="Nhập đường dẫn" />
+        </Form.Item>
+        <Row>
+          <Col span={12}>
+            <Form.Item
+              hasFeedback
+              className="mt-2"
+              label="Giá trị tối thiểu (cm)"
+              name="minValidValue"
+              rules={[
+                {
+                  required: true,
+                  message: "Giá trị tối thiểu (cm) không được để trống",
+                },
+                {
+                  type: "number",
+                  min: 1,
+                  message: "Phải là một số lớn hơn hoặc bằng 1",
+                },
+              ]}
+            >
+              <InputNumber style={{ width: 220 }} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              hasFeedback
+              className="mt-2 ml-4"
+              label="Giá trị tối đa (cm)"
+              name="maxValidValue"
+              rules={[
+                {
+                  required: true,
+                  message: "Giá trị tối đa (cm) không được để trống",
+                },
+                {
+                  type: "number",
+                  min: 1,
+                  message: "Phải là một số lớn hơn hoặc bằng 1",
+                },
+              ]}
+            >
+              <InputNumber style={{ width: 220 }} />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+    </Modal>
   );
 };
 
