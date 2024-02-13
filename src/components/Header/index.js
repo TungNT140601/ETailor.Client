@@ -17,6 +17,7 @@ const Header = () => {
     const [clickedSection, setClickedSection] = useState("Trang Chu")
     const [open, setOpen] = React.useState(false);
     const customer = localStorage.getItem("customer")
+    const token = JSON.parse(customer)?.token
     const handleOpen = () => {
         setOpen(true);
     }
@@ -26,8 +27,6 @@ const Header = () => {
     const navigate = useNavigate();
     const handleLogout = async () => {
         const LOG_OUT_API = `https://etailorapi.azurewebsites.net/api/auth/customer/logout`;
-        const customer = localStorage.getItem("customer")
-        const token = JSON.parse(customer).token
         try {
             const response = await fetch(LOG_OUT_API, {
                 method: "POST",
