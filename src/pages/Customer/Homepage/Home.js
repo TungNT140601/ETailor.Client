@@ -64,8 +64,7 @@ const HomePage = () => {
             <div className='homepage-container'>
                 <div className='wrapper-main' >
                     <div className='banner-swiper'>
-
-                        <button className='btn-main' style={{ zIndex: "10", position: "absolute", bottom: "80px", left: "43.5%" }}>ĐẶT MAY NGAY</button>
+                    
                         <Swiper
                             spaceBetween={30}
                             centeredSlides={true}
@@ -140,7 +139,7 @@ const HomePage = () => {
 
 
                         <div className='catalog-wrapper-btn'>
-                            <button className='btn-main'>ĐẶT MAY</button>
+                            <button className='btn-main'>CHI TIẾT</button>
                         </div>
                         <div className='details'>
                             <span className='title'>Áo sơ mi</span>
@@ -152,7 +151,7 @@ const HomePage = () => {
 
 
                         <div className='catalog-wrapper-btn'>
-                            <button className='btn-main'>ĐẶT MAY</button>
+                            <button className='btn-main'>CHI TIẾT</button>
                         </div>
                         <div className='details'>
                             <span className='title'>Áo dài</span>
@@ -163,7 +162,7 @@ const HomePage = () => {
 
 
                         <div className='catalog-wrapper-btn'>
-                            <button className='btn-main'>ĐẶT MAY</button>
+                            <button className='btn-main'>CHI TIẾT</button>
                         </div>
                         <div className='details'>
                             <span className='title'>Quần tây</span>
@@ -174,7 +173,7 @@ const HomePage = () => {
 
 
                         <div className='catalog-wrapper-btn'>
-                            <button className='btn-main'>ĐẶT MAY</button>
+                            <button className='btn-main'>CHI TIẾT</button>
                         </div>
                         <div className='details'>
                             <span className='title'>Áo vest</span>
