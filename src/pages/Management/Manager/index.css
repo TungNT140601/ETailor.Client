@@ -117,3 +117,9 @@
 .ant-select-selector:hover {
     border: 1px solid #9F78FF !important;
 }
+
+.ant-upload-wrapper.ant-upload-picture-card-wrapper .ant-upload.ant-upload-select {
+    width: 130px !important;
+    height: 130px !important;
+    margin: 0;
+}

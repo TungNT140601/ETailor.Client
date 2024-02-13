@@ -6,14 +6,24 @@ import {
   EditOutlined,
   DeleteOutlined,
   PlusOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { Typography, Table, Checkbox } from "antd";
 import "./index.css";
 
-import { Input } from "antd";
-import { Button } from "antd";
-import { Image } from "antd";
-import { Avatar, Col, Row } from "antd";
+import {
+  Avatar,
+  Col,
+  Row,
+  InputNumber,
+  Image,
+  Button,
+  Input,
+  Modal,
+  Form,
+  Upload,
+  Select,
+} from "antd";
 
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -22,6 +32,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
 
@@ -201,6 +212,13 @@ const ManagementStaffContent = () => {
     phone: item.phone,
   }));
 
+  //------------------------------------------------------------Modal create-------------------------------------------------------
+  const [open, setOpen] = useState(false);
+  const onCreate = (values) => {
+    console.log("Received values of form: ", values);
+    setOpen(false);
+  };
+
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
   const options = columns.map(({ key, title }) => ({
@@ -235,9 +253,20 @@ const ManagementStaffContent = () => {
             <Button>Tổng cộng ({staffs?.totalData})</Button>
           </Col>
           <Col span={4} offset={10}>
-            <Button>
+            <Button
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
               Thêm mới <PlusOutlined />
             </Button>
+            <CollectionCreateForm
+              open={open}
+              onCreate={onCreate}
+              onCancel={() => {
+                setOpen(false);
+              }}
+            />
           </Col>
         </Row>
       </div>
@@ -265,6 +294,199 @@ const ManagementStaffContent = () => {
         />
       )}
     </div>
+  );
+};
+
+const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
+  const [form] = Form.useForm();
+  const [imageUrl, setImageUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const getFile = (e) => {
+    console.log(e);
+    const file = e.fileList[0];
+    if (file && file.originFileObj) {
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      reader.onload = () => {
+        setImageUrl(reader.result);
+      };
+    }
+    return e && e.fileList;
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 75 }}
+      title="Thêm mới nhân viên"
+      okText="Tạo mới"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        form.resetFields();
+        setImageUrl(null);
+        onCancel();
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then((values) => {
+            form.resetFields();
+            onCreate(values);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+    >
+      <Form
+        style={{
+          height: 400,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+          marginTop: 24,
+        }}
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+        }}
+      >
+        <Row>
+          <Col span={12}>
+            <div>
+              <Form.Item
+                name="fullname"
+                label="Họ và tên"
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: "Họ và tên không được để trống",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+              <Form.Item
+                hasFeedback
+                name="username"
+                label="Tên người dùng"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tên người dùng không được để trống",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "25px",
+              }}
+            >
+              <Form.Item
+                name="avatar"
+                getValueFromEvent={getFile}
+                style={{ width: "130px" }}
+                rules={[
+                  {
+                    required: true,
+                    message: "Ảnh đại diện không được để trống",
+                  },
+                ]}
+              >
+                <Upload
+                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                  listType="picture-card"
+                  maxCount={1}
+                  showUploadList={false}
+                >
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt="avatar"
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
+              </Form.Item>
+            </div>
+          </Col>
+        </Row>
+        <Form.Item
+          className="mt-2"
+          hasFeedback
+          name="address"
+          label="Địa chỉ"
+          rules={[
+            {
+              required: true,
+              message: "Địa chỉ không được để trống",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          name="phone"
+          label="Số điện thoại"
+          hasFeedback
+          rules={[
+            {
+              required: true,
+              message: "Số điện thoại không được để trống",
+            },
+            {
+              type: "number",
+              min: 10,
+              max: 11,
+              message:
+                "Số điện thoại phải là số và ít nhất là 10 và tối đa là 11 số",
+            },
+          ]}
+        >
+          <Input
+            style={{
+              width: "100%",
+            }}
+          />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

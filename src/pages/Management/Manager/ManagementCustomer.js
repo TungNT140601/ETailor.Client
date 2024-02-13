@@ -299,14 +299,9 @@ const ManagementCustomerContent = () => {
             }}
           />
         </div>
-        <Row justify="start" style={{ paddingRight: "24px" }}>
+        <Row justify="start">
           <Col span={4}>
-            <Button>Tổng cộng ({manager?.totalData})</Button>
-          </Col>
-          <Col span={4} offset={10}>
-            <Button>
-              Thêm mới <PlusOutlined />
-            </Button>
+            <Button>Tổng cộng ({data?.length})</Button>
           </Col>
         </Row>
       </div>

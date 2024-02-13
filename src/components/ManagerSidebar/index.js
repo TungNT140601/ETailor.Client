@@ -494,9 +494,9 @@ export const ManagerSidebar = () => {
 
   return (
     <Sider
-      collapsible
-      collapsed={collapsed}
-      onCollapse={(value) => setCollapsed(value)}
+      // collapsible
+      // collapsed={collapsed}
+      // onCollapse={(value) => setCollapsed(value)}
       style={{
         minHeight: "100vh",
         borderRight: "1px solid #9F78FF",
