@@ -5,9 +5,9 @@ import { HomeOutlined, UserOutlined } from "@ant-design/icons";
 import { Typography } from "antd";
 
 import { Input } from "antd";
-import { Divider } from "antd";
-import { Table, Checkbox } from "antd";
+import { Table, Checkbox, Button, Row, Col } from "antd";
 import { Image } from "antd";
+import { Link } from "react-router-dom";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
@@ -34,8 +34,19 @@ const AccountCusHeader = () => {
               href: "/admin",
               title: (
                 <>
-                  <UserOutlined />
-                  <span>Khách hàng</span>
+                  <Link to="/admin">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#9F78FF",
+                      }}
+                    >
+                      <UserOutlined />
+                      &nbsp;
+                      <span>Khách hàng</span>
+                    </div>
+                  </Link>
                 </>
               ),
             },
@@ -151,22 +162,41 @@ const AccountCusContent = ({ itemsPerPage }) => {
   }));
   return (
     <>
-      <Checkbox.Group
-        value={checkedList}
-        options={options}
-        onChange={(value) => {
-          setCheckedList(value);
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
         }}
-      />
+      >
+        <div>
+          <Checkbox.Group
+            value={checkedList}
+            options={options}
+            onChange={(value) => {
+              setCheckedList(value);
+            }}
+            style={{ backgroundColor: "" }}
+          />
+        </div>
+        <Row justify="start">
+          <Col span={4}>
+            <Button>Tổng cộng ()</Button>
+          </Col>
+        </Row>
+      </div>
+
       <Table
         columns={newColumns}
         dataSource={data}
+        pagination={{
+          position: ["bottomCenter"],
+        }}
         style={{
           marginTop: 24,
         }}
         scroll={{
-          x: 1500,
-          y: "84vh",
+          y: 435,
         }}
       />
     </>
@@ -176,9 +206,24 @@ const AccountCusContent = ({ itemsPerPage }) => {
 export const AccountCus = () => {
   return (
     <>
-      <div>
+      <div
+        style={{
+          padding: "20px 20px",
+          backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
+        }}
+        className="admin-cus-header"
+      >
         <AccountCusHeader />
-        <Divider />
+      </div>
+      <div
+        className="admin-cus-content"
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
+      >
         <AccountCusContent />
       </div>
     </>

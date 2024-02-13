@@ -3,8 +3,8 @@ import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
-  EditOutlined,
-  DeleteOutlined,
+  CheckOutlined,
+  CloseOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import { Typography, Table, Checkbox } from "antd";
@@ -14,18 +14,18 @@ import { Input } from "antd";
 import { Button } from "antd";
 import { Image } from "antd";
 import { Avatar, Col, Row } from "antd";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
-import CircularProgress from "@mui/material/CircularProgress";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
 
-const ManagementStaffHeader = () => {
+const ManagementOrderHeader = () => {
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -39,14 +39,19 @@ const ManagementStaffHeader = () => {
         <Breadcrumb
           items={[
             {
-              href: "#",
-              title: <HomeOutlined />,
+              title: (
+                <Link to="/manager">
+                  <div>
+                    <HomeOutlined />
+                  </div>
+                </Link>
+              ),
             },
             {
-              href: "/manager/account/staffs",
+              href: "/manager/orders",
               title: (
                 <>
-                  <Link to="/manager/account/staffs">
+                  <Link to="/manager/orders">
                     <div
                       style={{
                         display: "flex",
@@ -56,7 +61,7 @@ const ManagementStaffHeader = () => {
                     >
                       <UserOutlined fontSize="small" />
                       &nbsp;
-                      <span>Nhân viên</span>
+                      <span>Đơn hàng</span>
                     </div>
                   </Link>
                 </>
@@ -64,7 +69,7 @@ const ManagementStaffHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Nhân viên</Title>
+        <Title level={4}>Đơn hàng</Title>
       </div>
       <div
         style={{
@@ -96,75 +101,112 @@ const ManagementStaffHeader = () => {
   );
 };
 
-const ManagementStaffContent = () => {
-  const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-    fetch(getStaffUrl, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${manager?.token}`,
-      },
-    }).then((response) => response.json())
-  );
-  console.log("staffs", staffs);
+const ManagementOrderContent = () => {
+  // const getUrl = "https://etailorapi.azurewebsites.net/api/body-size";
+
+  // const { data: bodySize, isLoading: loading } = useQuery("get-body-size", () =>
+  //   fetch(getUrl, {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${manager?.token}`,
+  //     },
+  //   }).then((response) => response.json())
+  // );
+
   const columns = [
     {
       title: "STT",
-      width: 50,
+      width: 70,
       dataIndex: "stt",
       key: "index",
       fixed: "left",
     },
     {
-      title: "Hình đại diện",
+      title: "Tổng sản phẩm",
       width: 150,
-
-      dataIndex: "avatar",
-      key: "avatar",
-      render: (_, record) => (
-        <Image
-          width={60}
-          height={30}
-          style={{ objectFit: "contain" }}
-          src={record.avatar}
-        />
-      ),
-    },
-    {
-      title: "Tên người dùng",
-      dataIndex: "username",
+      dataIndex: "totalProduct",
       key: "1",
-      width: 150,
+      fixed: "left",
     },
     {
-      title: "Họ và tên",
-      dataIndex: "fullname",
+      title: "Tổng giá tiền",
+      dataIndex: "totalPrice",
       key: "2",
       width: 150,
     },
     {
-      title: "Địa chỉ",
-      dataIndex: "address",
+      title: "Số tiền giảm",
+      dataIndex: "discountPrice",
       key: "3",
       width: 150,
     },
     {
-      title: "Số điện thoại",
-      dataIndex: "phone",
+      title: "Mã giảm",
+      dataIndex: "discountCode",
       key: "4",
       width: 150,
     },
     {
+      title: "Số tiền sau khi giảm",
+      dataIndex: "afterDiscountPrice",
+      key: "5",
+      width: 200,
+    },
+    {
+      title: "Tiền đặt cọc phải trả",
+      dataIndex: "payDeposit",
+      key: "6",
+      width: 200,
+    },
+    {
+      title: "Tiền trả trước",
+      dataIndex: "deposit",
+      key: "7",
+      width: 150,
+    },
+    {
+      title: "Tiền đã gửi",
+      dataIndex: "paidMoney",
+      key: "8",
+      width: 150,
+    },
+    {
+      title: "Tiền chưa gửi",
+      dataIndex: "unPaidMoney",
+      key: "9",
+      width: 150,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "10",
+      width: 200,
+      render: () => (
+        <>
+          <Text
+            style={{
+              backgroundColor: "#FFBF00",
+              padding: "5px 10px",
+              color: "white",
+              fontWeight: "600",
+              borderRadius: "10px",
+            }}
+          >
+            Chờ xác nhận
+          </Text>
+        </>
+      ),
+    },
+    {
       title: "Action",
       dataIndex: "Action",
-      key: "5",
-      width: 150,
+      key: "11",
+      width: 100,
       fixed: "right",
       render: () => (
         <Row justify="start">
           <Col span={4}>
-            <DeleteOutlined
+            <CloseOutlined
               style={{
                 backgroundColor: "red",
                 color: "white",
@@ -175,10 +217,10 @@ const ManagementStaffContent = () => {
               }}
             />
           </Col>
-          <Col span={4} offset={2}>
-            <EditOutlined
+          <Col span={4} offset={10}>
+            <CheckOutlined
               style={{
-                backgroundColor: "blue",
+                backgroundColor: "#50C878",
                 color: "white",
                 padding: 6,
                 borderRadius: "5px",
@@ -192,14 +234,26 @@ const ManagementStaffContent = () => {
     },
   ];
 
-  const getApi = staffs?.data?.map((item) => ({
-    stt: item.stt,
-    avatar: item.avatar,
-    username: item.username,
-    fullname: item.fullname,
-    address: item.address,
-    phone: item.phone,
-  }));
+  // const getApi = bodySize?.map((item, index) => ({
+  //   stt: index + 1,
+  //   name: item.name,
+  //   BodyPart: item.bodyPart,
+  //   GuideVideoLink: item.guideVideoLink,
+  //   MinValidValue: item.minValidValue,
+  //   MaxValidValue: item.maxValidValue,
+  // }));
+
+  const data = [];
+  for (let i = 0; i < 100; i++) {
+    data.push({
+      stt: i,
+      name: `Edward ${i}`,
+      BodyPart: `${i}`,
+      address: `London Park no. ${i}`,
+      MinValidValue: `${i}`,
+      MaxValidValue: `${i}`,
+    });
+  }
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -220,19 +274,18 @@ const ManagementStaffContent = () => {
           alignItems: "center",
         }}
       >
-        <div>
+        <div style={{ maxWidth: "900px" }}>
           <Checkbox.Group
             value={checkedList}
             options={options}
             onChange={(value) => {
               setCheckedList(value);
             }}
-            style={{ backgroundColor: "" }}
           />
         </div>
         <Row justify="start" style={{ paddingRight: "24px" }}>
           <Col span={4}>
-            <Button>Tổng cộng ({staffs?.totalData})</Button>
+            <Button>Tổng cộng ({data?.length})</Button>
           </Col>
           <Col span={4} offset={10}>
             <Button>
@@ -241,7 +294,7 @@ const ManagementStaffContent = () => {
           </Col>
         </Row>
       </div>
-      {loading ? (
+      {/* {loading ? (
         <div
           style={{
             display: "flex",
@@ -255,7 +308,7 @@ const ManagementStaffContent = () => {
       ) : (
         <Table
           columns={newColumns}
-          dataSource={getApi}
+          dataSource={data}
           pagination={{
             position: ["bottomCenter"],
           }}
@@ -263,12 +316,23 @@ const ManagementStaffContent = () => {
             marginTop: 24,
           }}
         />
-      )}
+      )} */}
+      <Table
+        columns={newColumns}
+        dataSource={data}
+        pagination={{
+          position: ["bottomCenter"],
+        }}
+        style={{
+          marginTop: 24,
+        }}
+        scroll={{ x: 1500, y: 445 }}
+      />
     </div>
   );
 };
 
-function ManagementStaff() {
+function ManagementOrder() {
   return (
     <div>
       <div
@@ -279,7 +343,7 @@ function ManagementStaff() {
         }}
         className="manager-header"
       >
-        <ManagementStaffHeader />
+        <ManagementOrderHeader />
       </div>
       <div
         className="manager-content"
@@ -289,10 +353,10 @@ function ManagementStaff() {
           border: "1px solid #9F78FF",
         }}
       >
-        <ManagementStaffContent />
+        <ManagementOrderContent />
       </div>
     </div>
   );
 }
 
-export default ManagementStaff;
+export default ManagementOrder;

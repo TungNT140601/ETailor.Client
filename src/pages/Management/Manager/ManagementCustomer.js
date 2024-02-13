@@ -3,29 +3,49 @@ import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
+  PushpinOutlined,
+  PlusCircleOutlined,
   EditOutlined,
   DeleteOutlined,
+  RollbackOutlined,
   PlusOutlined,
+  CloseOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
-import { Typography, Table, Checkbox } from "antd";
+import { Typography, Carousel, Table, Checkbox, Modal } from "antd";
 import "./index.css";
 
 import { Input } from "antd";
-import { Button } from "antd";
+import { Button, Flex, Divider } from "antd";
 import { Image } from "antd";
-import { Avatar, Col, Row } from "antd";
+import {
+  Avatar,
+  Card,
+  Col,
+  Row,
+  message,
+  Steps,
+  theme,
+  Form,
+  Space,
+  Select,
+  Upload,
+  Radio,
+} from "antd";
 
+import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
-import CircularProgress from "@mui/material/CircularProgress";
 
-const { Search } = Input;
+const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
+const { Meta } = Card;
+const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
 
-const ManagementStaffHeader = () => {
+const ManagementCustomerHeader = () => {
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -43,10 +63,10 @@ const ManagementStaffHeader = () => {
               title: <HomeOutlined />,
             },
             {
-              href: "/manager/account/staffs",
+              href: "/manager/body-size",
               title: (
                 <>
-                  <Link to="/manager/account/staffs">
+                  <Link to="/manager/body-size">
                     <div
                       style={{
                         display: "flex",
@@ -56,7 +76,7 @@ const ManagementStaffHeader = () => {
                     >
                       <UserOutlined fontSize="small" />
                       &nbsp;
-                      <span>Nhân viên</span>
+                      <span>Số đo cơ thể</span>
                     </div>
                   </Link>
                 </>
@@ -64,7 +84,7 @@ const ManagementStaffHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Nhân viên</Title>
+        <Title level={4}>Số đo cơ thể</Title>
       </div>
       <div
         style={{
@@ -96,18 +116,29 @@ const ManagementStaffHeader = () => {
   );
 };
 
-const ManagementStaffContent = () => {
-  const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-    fetch(getStaffUrl, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${manager?.token}`,
-      },
-    }).then((response) => response.json())
-  );
-  console.log("staffs", staffs);
+const ManagementCustomerContent = () => {
+  // const getUrl = "https://etailorapi.azurewebsites.net/api/body-size";
+
+  // const { data: bodySize, isLoading: loading } = useQuery("get-body-size", () =>
+  //   fetch(getUrl, {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: `Bearer ${manager?.token}`,
+  //     },
+  //   }).then((response) => response.json())
+  // );
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
   const columns = [
     {
       title: "STT",
@@ -117,17 +148,15 @@ const ManagementStaffContent = () => {
       fixed: "left",
     },
     {
-      title: "Hình đại diện",
+      title: "Hình ảnh",
       width: 150,
-
-      dataIndex: "avatar",
-      key: "avatar",
-      render: (_, record) => (
+      dataIndex: "image",
+      key: "image",
+      render: () => (
         <Image
-          width={60}
+          width={40}
           height={30}
-          style={{ objectFit: "contain" }}
-          src={record.avatar}
+          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
         />
       ),
     },
@@ -159,47 +188,50 @@ const ManagementStaffContent = () => {
       title: "Action",
       dataIndex: "Action",
       key: "5",
-      width: 150,
+      width: 100,
       fixed: "right",
       render: () => (
-        <Row justify="start">
-          <Col span={4}>
-            <DeleteOutlined
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                padding: 6,
-                borderRadius: "5px",
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-            />
-          </Col>
-          <Col span={4} offset={2}>
-            <EditOutlined
-              style={{
-                backgroundColor: "blue",
-                color: "white",
-                padding: 6,
-                borderRadius: "5px",
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-            />
-          </Col>
-        </Row>
+        <>
+          <Row justify="start">
+            <Col span={4}>
+              <EyeOutlined
+                title="Xem chi tiết"
+                style={{
+                  backgroundColor: "rgb(140, 173, 245)",
+                  color: "white",
+                  padding: 6,
+                  borderRadius: "5px",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={showModal}
+              />
+            </Col>
+          </Row>
+        </>
       ),
     },
   ];
 
-  const getApi = staffs?.data?.map((item) => ({
-    stt: item.stt,
-    avatar: item.avatar,
-    username: item.username,
-    fullname: item.fullname,
-    address: item.address,
-    phone: item.phone,
-  }));
+  //   const getApi = staffs?.data?.map((item) => ({
+  //     stt: item.stt,
+  //     avatar: item.avatar,
+  //     username: item.username,
+  //     fullname: item.fullname,
+  //     address: item.address,
+  //     phone: item.phone,
+  //   }));
+
+  const data = [];
+  for (let i = 0; i < 100; i++) {
+    data.push({
+      stt: i,
+      username: `Edward ${i}`,
+      fullname: `Edward ${i}`,
+      address: `London Park no. ${i}`,
+      phone: `1234567890 ${i}`,
+    });
+  }
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -211,6 +243,44 @@ const ManagementStaffContent = () => {
     ...item,
     hidden: !checkedList.includes(item.key),
   }));
+
+  //---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  const columns1 = [
+    {
+      title: "Name",
+      dataIndex: "name",
+    },
+    {
+      title: "Age",
+      dataIndex: "age",
+    },
+    {
+      title: "Address",
+      dataIndex: "address",
+    },
+  ];
+  const data1 = [
+    {
+      key: "1",
+      name: "John Brown",
+      age: 32,
+      address: "New York No. 1 Lake Park",
+    },
+    {
+      key: "2",
+      name: "Jim Green",
+      age: 42,
+      address: "London No. 1 Lake Park",
+    },
+    {
+      key: "3",
+      name: "Joe Black",
+      age: 32,
+      address: "Sydney No. 1 Lake Park",
+    },
+  ];
+
   return (
     <div>
       <div
@@ -227,12 +297,11 @@ const ManagementStaffContent = () => {
             onChange={(value) => {
               setCheckedList(value);
             }}
-            style={{ backgroundColor: "" }}
           />
         </div>
         <Row justify="start" style={{ paddingRight: "24px" }}>
           <Col span={4}>
-            <Button>Tổng cộng ({staffs?.totalData})</Button>
+            <Button>Tổng cộng ({manager?.totalData})</Button>
           </Col>
           <Col span={4} offset={10}>
             <Button>
@@ -241,34 +310,31 @@ const ManagementStaffContent = () => {
           </Col>
         </Row>
       </div>
-      {loading ? (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "550px",
-          }}
-        >
-          <CircularProgress />
-        </div>
-      ) : (
-        <Table
-          columns={newColumns}
-          dataSource={getApi}
-          pagination={{
-            position: ["bottomCenter"],
-          }}
-          style={{
-            marginTop: 24,
-          }}
-        />
-      )}
+
+      <Table
+        columns={newColumns}
+        dataSource={data}
+        pagination={{
+          position: ["bottomCenter"],
+        }}
+        style={{
+          marginTop: 24,
+        }}
+      />
+
+      <Modal
+        title="Hồ sơ số đo"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+      >
+        <Table columns={columns1} dataSource={data1} size="small" />
+      </Modal>
     </div>
   );
 };
 
-function ManagementStaff() {
+function ManagementCustomer() {
   return (
     <div>
       <div
@@ -279,7 +345,7 @@ function ManagementStaff() {
         }}
         className="manager-header"
       >
-        <ManagementStaffHeader />
+        <ManagementCustomerHeader />
       </div>
       <div
         className="manager-content"
@@ -289,10 +355,10 @@ function ManagementStaff() {
           border: "1px solid #9F78FF",
         }}
       >
-        <ManagementStaffContent />
+        <ManagementCustomerContent />
       </div>
     </div>
   );
 }
 
-export default ManagementStaff;
+export default ManagementCustomer;

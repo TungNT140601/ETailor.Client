@@ -1,24 +1,36 @@
-.sidebar-logo {
-    width: 200px;
-    height: 200px;
-    margin-top: -30px;
+.ant-menu-item-selected {
+    background-color: #9F78FF !important;
+    color: white !important;
 }
 
-.logo-content {
-    display: flex;
-    justify-content: center;
+.ant-menu-item-active {
+    background-color: white !important;
+    color: #9F78FF !important;
 }
 
-.manager-sidebar-title {
-    text-align: center;
-    margin-top: -30px;
+.ant-menu-submenu-title {
+    color: #9F78FF !important;
 }
 
-.manager-logout {
-    text-align: center;
-    margin-top: 350px;
+.ant-menu-submenu-title {
+    color: black !important;
 }
 
-.manager-vertical-menu {
-    height: 150px;
+
+
+.ant-menu-submenu-open .ant-menu-submenu-title {
+    color: #9F78FF !important;
+}
+
+.ant-layout-sider-children {
+    max-height: 700px;
+    overflow-y: scroll;
+}
+
+.ant-layout-sider-children::-webkit-scrollbar {
+    display: none;
+}
+
+.ant-layout-sider-trigger {
+    border-right: 1px solid #9F78FF;
 }

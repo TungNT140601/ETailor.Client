@@ -9,23 +9,23 @@ const DefaultLayoutManager = ({ children }) => {
     <Layout
       style={{
         height: "100%",
-        width: "100%",
-        position: "relative",
-        background: "rgba(217, 217,217, 0.7)",
+        maxWidth: "100%",
+        background: "rgba(217, 217,217, 0.2)",
       }}
     >
       <ManagerSidebar />
       <Layout
         style={{
-          background: "rgba(217, 217,217, 0.7)",
+          background: "rgba(217, 217,217, 0.2)",
         }}
       >
         <Content>
           <div
             style={{
               padding: 10,
+              paddingRight: 0,
               maxHeight: "100vh",
-              background: "rgba(217, 217,217, 0.7)",
+              background: "rgba(217, 217,217, 0.2)",
             }}
           >
             {children}

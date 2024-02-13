@@ -1,31 +1,52 @@
 import React, { useState } from "react";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
+  PushpinOutlined,
+  PlusCircleOutlined,
   EditOutlined,
   DeleteOutlined,
+  RollbackOutlined,
   PlusOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
-import { Typography, Table, Checkbox } from "antd";
+import { Typography, Carousel, Table, Checkbox } from "antd";
+import CircularProgress from "@mui/material/CircularProgress";
 import "./index.css";
 
 import { Input } from "antd";
-import { Button } from "antd";
+import { Button, Flex, Divider } from "antd";
 import { Image } from "antd";
-import { Avatar, Col, Row } from "antd";
+import {
+  Avatar,
+  Card,
+  Col,
+  Row,
+  message,
+  Steps,
+  theme,
+  Form,
+  Space,
+  Select,
+  Upload,
+  Radio,
+} from "antd";
 
+import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
-import CircularProgress from "@mui/material/CircularProgress";
 
-const { Search } = Input;
+const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
+const { Meta } = Card;
+const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
 
-const ManagementStaffHeader = () => {
+const ManagementBlogHeader = () => {
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -54,9 +75,9 @@ const ManagementStaffHeader = () => {
                         color: "#9F78FF",
                       }}
                     >
-                      <UserOutlined fontSize="small" />
+                      <MenuBookIcon fontSize="small" />
                       &nbsp;
-                      <span>Nhân viên</span>
+                      <span>Bài viết</span>
                     </div>
                   </Link>
                 </>
@@ -64,7 +85,7 @@ const ManagementStaffHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Nhân viên</Title>
+        <Title level={4}>Bài viết</Title>
       </div>
       <div
         style={{
@@ -96,70 +117,37 @@ const ManagementStaffHeader = () => {
   );
 };
 
-const ManagementStaffContent = () => {
-  const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-    fetch(getStaffUrl, {
+const ManagementBlogContent = () => {
+  const getUrl = "https://etailorapi.azurewebsites.net/api/blog";
+
+  const { data: blog, isLoading: loading } = useQuery("get-blog", () =>
+    fetch(getUrl, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${manager?.token}`,
       },
     }).then((response) => response.json())
   );
-  console.log("staffs", staffs);
+
   const columns = [
     {
       title: "STT",
-      width: 50,
+      width: "10%",
       dataIndex: "stt",
-      key: "index",
+      key: "stt",
       fixed: "left",
     },
     {
-      title: "Hình đại diện",
-      width: 150,
-
-      dataIndex: "avatar",
-      key: "avatar",
-      render: (_, record) => (
-        <Image
-          width={60}
-          height={30}
-          style={{ objectFit: "contain" }}
-          src={record.avatar}
-        />
-      ),
-    },
-    {
-      title: "Tên người dùng",
-      dataIndex: "username",
-      key: "1",
-      width: 150,
-    },
-    {
-      title: "Họ và tên",
-      dataIndex: "fullname",
-      key: "2",
-      width: 150,
-    },
-    {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      key: "3",
-      width: 150,
-    },
-    {
-      title: "Số điện thoại",
-      dataIndex: "phone",
-      key: "4",
-      width: 150,
+      title: "Tựa đề",
+      width: "70%",
+      dataIndex: "title",
+      key: "title",
     },
     {
       title: "Action",
+      width: "20%",
       dataIndex: "Action",
-      key: "5",
-      width: 150,
+      key: "Action",
       fixed: "right",
       render: () => (
         <Row justify="start">
@@ -175,7 +163,7 @@ const ManagementStaffContent = () => {
               }}
             />
           </Col>
-          <Col span={4} offset={2}>
+          <Col span={4}>
             <EditOutlined
               style={{
                 backgroundColor: "blue",
@@ -192,14 +180,61 @@ const ManagementStaffContent = () => {
     },
   ];
 
-  const getApi = staffs?.data?.map((item) => ({
-    stt: item.stt,
-    avatar: item.avatar,
-    username: item.username,
-    fullname: item.fullname,
-    address: item.address,
-    phone: item.phone,
+  const getApi = blog?.map((item, index) => ({
+    key: index + 1,
+    stt: index + 1,
+    title: item.title,
+    description: item.content,
   }));
+
+  // const data = [];
+  // for (let i = 0; i < 100; i++) {
+  //   data.push({
+  //     key: i,
+  //     stt: i,
+  //     title: `Những nội dung thời trang được sử dụng với mục đích tiếp thị, quảng cáo thì nội dung phải lôi cuốn, hấp dẫn người đọc mới giữ chân người mua, từ đó tỷ suất mua hàng càng tăng và ngược lại.  ${i}`,
+  //     description: (
+  //       <Typography>
+  //         <Title>Introduction</Title>
+  //         <p>
+  //           Lorem Ipsum is simply dummy text of the printing and typesetting
+  //           industry. Lorem Ipsum has been the industry's standard dummy text
+  //           ever since the 1500s, when an unknown printer took a galley of type
+  //           and scrambled it to make a type specimen book. It has survived not
+  //           only five centuries, but also the leap into electronic typesetting,
+  //           remaining essentially unchanged. It was popularised in the 1960s
+  //           with the release of Letraset sheets containing Lorem Ipsum passages,
+  //           and more recently with desktop publishing software like Aldus
+  //           PageMaker including versions of Lorem Ipsum.
+  //         </p>
+  //         <Title>Introduction</Title>
+  //         <p>
+  //           Lorem Ipsum is simply dummy text of the printing and typesetting
+  //           industry. Lorem Ipsum has been the industry's standard dummy text
+  //           ever since the 1500s, when an unknown printer took a galley of type
+  //           and scrambled it to make a type specimen book. It has survived not
+  //           only five centuries, but also the leap into electronic typesetting,
+  //           remaining essentially unchanged. It was popularised in the 1960s
+  //           with the release of Letraset sheets containing Lorem Ipsum passages,
+  //           and more recently with desktop publishing software like Aldus
+  //           PageMaker including versions of Lorem Ipsum.
+  //         </p>
+  //         <Title>Introduction</Title>
+  //         <p>
+  //           Lorem Ipsum is simply dummy text of the printing and typesetting
+  //           industry. Lorem Ipsum has been the industry's standard dummy text
+  //           ever since the 1500s, when an unknown printer took a galley of type
+  //           and scrambled it to make a type specimen book. It has survived not
+  //           only five centuries, but also the leap into electronic typesetting,
+  //           remaining essentially unchanged. It was popularised in the 1960s
+  //           with the release of Letraset sheets containing Lorem Ipsum passages,
+  //           and more recently with desktop publishing software like Aldus
+  //           PageMaker including versions of Lorem Ipsum.
+  //         </p>
+  //       </Typography>
+  //     ),
+  //   });
+  // }
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -227,12 +262,11 @@ const ManagementStaffContent = () => {
             onChange={(value) => {
               setCheckedList(value);
             }}
-            style={{ backgroundColor: "" }}
           />
         </div>
         <Row justify="start" style={{ paddingRight: "24px" }}>
           <Col span={4}>
-            <Button>Tổng cộng ({staffs?.totalData})</Button>
+            <Button>Tổng cộng ({blog?.length})</Button>
           </Col>
           <Col span={4} offset={10}>
             <Button>
@@ -255,20 +289,30 @@ const ManagementStaffContent = () => {
       ) : (
         <Table
           columns={newColumns}
-          dataSource={getApi}
+          style={{ marginTop: 24 }}
+          expandable={{
+            expandedRowRender: (record) => (
+              <p
+                style={{
+                  margin: 0,
+                }}
+              >
+                {record?.description}
+              </p>
+            ),
+            rowExpandable: (record) => record?.stt !== "Not Expandable",
+          }}
           pagination={{
             position: ["bottomCenter"],
           }}
-          style={{
-            marginTop: 24,
-          }}
+          dataSource={getApi}
         />
       )}
     </div>
   );
 };
 
-function ManagementStaff() {
+function ManagementBlog() {
   return (
     <div>
       <div
@@ -279,7 +323,7 @@ function ManagementStaff() {
         }}
         className="manager-header"
       >
-        <ManagementStaffHeader />
+        <ManagementBlogHeader />
       </div>
       <div
         className="manager-content"
@@ -289,10 +333,10 @@ function ManagementStaff() {
           border: "1px solid #9F78FF",
         }}
       >
-        <ManagementStaffContent />
+        <ManagementBlogContent />
       </div>
     </div>
   );
 }
 
-export default ManagementStaff;
+export default ManagementBlog;

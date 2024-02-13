@@ -67,8 +67,17 @@ const ManagementMaterialHeader = () => {
               title: (
                 <>
                   <Link to="/manager/material">
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <FactCheckIcon fontSize="small" />
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#9F78FF",
+                      }}
+                    >
+                      <FactCheckIcon
+                        fontSize="small"
+                        style={{ fontSize: "18px" }}
+                      />
                       &nbsp;
                       <span>Nguyên liệu</span>
                     </div>
@@ -97,21 +106,17 @@ const ManagementMaterialHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          <UserOutlined
-            style={{
-              fontSize: "24px",
-            }}
-          />
+          {manager?.avatar ? (
+            <Avatar src={manager?.avatar} />
+          ) : (
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+          )}
           &nbsp; &nbsp;
           <Text>{manager?.name}</Text>
         </div>
       </div>
     </div>
   );
-};
-
-const ManagementMaterialCategory = () => {
-  return <div>Hello material category</div>;
 };
 
 const ManagementMaterialContent = () => {
@@ -125,8 +130,6 @@ const ManagementMaterialContent = () => {
   //       },
   //     }).then((response) => response.json())
   //   );
-
-  const [changeTable, setChangeTable] = useState("1");
 
   //   const getApi = staffs?.data?.map((item) => ({
   //     stt: item.stt,
@@ -154,7 +157,8 @@ const ManagementMaterialContent = () => {
       key: "image",
       render: () => (
         <Image
-          width={150}
+          width={40}
+          height={40}
           src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
         />
       ),
@@ -209,21 +213,29 @@ const ManagementMaterialContent = () => {
       width: "5%",
       fixed: "right",
       render: () => (
-        <Row justify="center">
+        <Row justify="start">
           <Col span={4}>
-            <Button
-              type="primary"
-              icon={<DeleteOutlined />}
-              size="default"
-              danger
+            <DeleteOutlined
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
-          <Col span={4} offset={2}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              size="default"
-              warning
+          <Col span={4} offset={1}>
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
         </Row>
@@ -256,75 +268,59 @@ const ManagementMaterialContent = () => {
 
   //--------------------------------------------------------------------data table Material Category-------------------------------------------------
 
-  const columns1 = [
-    {
-      title: "STT",
-      width: 10,
-      dataIndex: "stt",
-      key: "index",
-      fixed: "left",
-    },
+  //--------------------------------------------------------------------data table Material type-------------------------------------------------
 
-    {
-      title: "Số lượng",
-      dataIndex: "name",
-      key: "1",
-      width: 40,
-    },
-    {
-      title: "Action",
-      dataIndex: "Action",
-      key: "2",
-      width: 10,
-      fixed: "right",
-      render: () => (
-        <Row justify="center">
-          <Col span={4}>
-            <Button
-              type="primary"
-              icon={<DeleteOutlined />}
-              size="default"
-              danger
+  //---------------------------------------------------------------Select table----------------------------------------------------
+
+  return (
+    <div>
+      <>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <div>
+            <Checkbox.Group
+              value={checkedList}
+              options={options}
+              onChange={(value) => {
+                setCheckedList(value);
+              }}
             />
-          </Col>
-          <Col span={4} offset={1}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              size="default"
-              warning
-            />
-          </Col>
-        </Row>
-      ),
-    },
-  ];
+          </div>
+          <Row justify="start" style={{ paddingRight: "24px" }}>
+            <Col span={4}>
+              <Button>Tổng cộng ({manager?.totalData})</Button>
+            </Col>
+            <Col span={4} offset={12}>
+              <Button type="primary">Thêm mới</Button>
+            </Col>
+          </Row>
+        </div>
 
-  const data1 = [];
-  for (let i = 0; i < 100; i++) {
-    data1.push({
-      stt: i,
-      name: `Edward ${i}`,
-    });
-  }
+        <Table
+          columns={newColumns}
+          dataSource={data}
+          pagination={{
+            position: ["bottomCenter"],
+          }}
+          style={{
+            marginTop: 24,
+          }}
+        />
+      </>
+    </div>
+  );
+};
 
-  const defaultCheckedList1 = columns1.map((item) => item.key);
-  const [checkedList1, setCheckedList1] = useState(defaultCheckedList1);
-  const options1 = columns1.map(({ key, title }) => ({
-    label: title,
-    value: key,
-  }));
-  const newColumns1 = columns1.map((item) => ({
-    ...item,
-    hidden: !checkedList1.includes(item.key),
-  }));
-
-  //--------------------------------------------------------------------data table Material Category-------------------------------------------------
-
+function ManagementMaterialTypeContent() {
   const columns2 = [
     {
       title: "STT",
-      width: 10,
+      width: "10%",
       dataIndex: "stt",
       key: "index",
       fixed: "left",
@@ -334,36 +330,44 @@ const ManagementMaterialContent = () => {
       title: "Tên loại nguyên liệu",
       dataIndex: "name",
       key: "1",
-      width: 40,
+      width: "35%",
     },
     {
       title: "Đơn vị đo",
       dataIndex: "unit",
       key: "2",
-      width: 40,
+      width: "35%",
     },
     {
       title: "Action",
       dataIndex: "Action",
       key: "3",
-      width: 15,
+      width: "20%",
       fixed: "right",
       render: () => (
-        <Row justify="center">
+        <Row justify="start">
           <Col span={4}>
-            <Button
-              type="primary"
-              icon={<DeleteOutlined />}
-              size="default"
-              danger
+            <DeleteOutlined
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
-          <Col span={4} offset={3}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              size="default"
-              warning
+          <Col span={4}>
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
         </Row>
@@ -391,220 +395,215 @@ const ManagementMaterialContent = () => {
     hidden: !checkedList2.includes(item.key),
   }));
 
-  //---------------------------------------------------------------Select table----------------------------------------------------
-  const onChange = (value) => {
-    setChangeTable(value);
-  };
-  const onSearch = (value) => {
-    console.log("search:", value);
-  };
+  return (
+    <>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <Checkbox.Group
+            value={checkedList2}
+            options={options2}
+            onChange={(value) => {
+              setCheckedList2(value);
+            }}
+          />
+        </div>
+        <Row justify="start" style={{ paddingRight: "24px" }}>
+          <Col span={4}>
+            <Button>Tổng cộng ({manager?.totalData})</Button>
+          </Col>
+          <Col span={4} offset={12}>
+            <Button type="primary">Thêm mới</Button>
+          </Col>
+        </Row>
+      </div>
 
-  // Filter `option.label` match the user type `input`
-  const filterOption = (input, option) =>
-    (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
+      <Table
+        columns={newColumns2}
+        dataSource={data2}
+        pagination={{
+          position: ["bottomCenter"],
+        }}
+        style={{
+          marginTop: 24,
+        }}
+      />
+    </>
+  );
+}
+
+function ManagementMaterialCategoryContent() {
+  const columns1 = [
+    {
+      title: "STT",
+      width: "10%",
+      dataIndex: "stt",
+      key: "index",
+      fixed: "left",
+    },
+
+    {
+      title: "Số lượng",
+      dataIndex: "name",
+      key: "1",
+      width: "70%",
+    },
+    {
+      title: "Action",
+      dataIndex: "Action",
+      key: "2",
+      width: "20%",
+      fixed: "right",
+      render: () => (
+        <Row justify="start">
+          <Col span={4}>
+            <DeleteOutlined
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
+            />
+          </Col>
+          <Col span={4}>
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
+            />
+          </Col>
+        </Row>
+      ),
+    },
+  ];
+
+  const data1 = [];
+  for (let i = 0; i < 100; i++) {
+    data1.push({
+      stt: i,
+      name: `Edward ${i}`,
+    });
+  }
+
+  const defaultCheckedList1 = columns1.map((item) => item.key);
+  const [checkedList1, setCheckedList1] = useState(defaultCheckedList1);
+  const options1 = columns1.map(({ key, title }) => ({
+    label: title,
+    value: key,
+  }));
+  const newColumns1 = columns1.map((item) => ({
+    ...item,
+    hidden: !checkedList1.includes(item.key),
+  }));
 
   return (
+    <>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div>
+          <Checkbox.Group
+            value={checkedList1}
+            options={options1}
+            onChange={(value) => {
+              setCheckedList1(value);
+            }}
+          />
+        </div>
+        <Row justify="start" style={{ paddingRight: "24px" }}>
+          <Col span={4}>
+            <Button>Tổng cộng ({manager?.totalData})</Button>
+          </Col>
+          <Col span={4} offset={12}>
+            <Button type="primary">Thêm mới</Button>
+          </Col>
+        </Row>
+      </div>
+
+      <Table
+        columns={newColumns1}
+        dataSource={data1}
+        pagination={{
+          position: ["bottomCenter"],
+        }}
+        style={{
+          marginTop: 24,
+        }}
+      />
+    </>
+  );
+}
+
+export function ManagementMaterialCategory() {
+  return (
     <div>
-      {changeTable === "1" ? (
-        <>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div>
-              <Checkbox.Group
-                value={checkedList}
-                options={options}
-                onChange={(value) => {
-                  setCheckedList(value);
-                }}
-              />
-              &nbsp; &nbsp; &nbsp;
-              <Select
-                showSearch
-                placeholder="Quản lý nguyên liệu"
-                optionFilterProp="children"
-                onChange={onChange}
-                onSearch={onSearch}
-                filterOption={filterOption}
-                defaultValue={"1"}
-                options={[
-                  {
-                    value: "1",
-                    label: "Material",
-                  },
-                  {
-                    value: "2",
-                    label: "Material Category",
-                  },
-                  {
-                    value: "3",
-                    label: "Material Type",
-                  },
-                ]}
-              />
-            </div>
-            <Row justify="start" style={{ paddingRight: "24px" }}>
-              <Col span={4}>
-                <Button>Tổng cộng ({manager?.totalData})</Button>
-              </Col>
-              <Col span={4} offset={12}>
-                <Button type="primary">Thêm mới</Button>
-              </Col>
-            </Row>
-          </div>
-
-          <Table
-            columns={newColumns}
-            dataSource={data}
-            pagination={{
-              position: ["bottomCenter"],
-            }}
-            style={{
-              marginTop: 24,
-            }}
-            scroll={{
-              y: 435,
-            }}
-          />
-        </>
-      ) : changeTable === "2" ? (
-        <>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div>
-              <Checkbox.Group
-                value={checkedList1}
-                options={options1}
-                onChange={(value) => {
-                  setCheckedList1(value);
-                }}
-              />
-              &nbsp; &nbsp; &nbsp;
-              <Select
-                showSearch
-                placeholder="Quản lý nguyên liệu"
-                optionFilterProp="children"
-                onChange={onChange}
-                onSearch={onSearch}
-                filterOption={filterOption}
-                options={[
-                  {
-                    value: "1",
-                    label: "Material",
-                  },
-                  {
-                    value: "2",
-                    label: "Material Category",
-                  },
-                  {
-                    value: "3",
-                    label: "Material Type",
-                  },
-                ]}
-              />
-            </div>
-            <Row justify="start" style={{ paddingRight: "24px" }}>
-              <Col span={4}>
-                <Button>Tổng cộng ({manager?.totalData})</Button>
-              </Col>
-              <Col span={4} offset={12}>
-                <Button type="primary">Thêm mới</Button>
-              </Col>
-            </Row>
-          </div>
-
-          <Table
-            columns={newColumns1}
-            dataSource={data1}
-            pagination={{
-              position: ["bottomCenter"],
-            }}
-            style={{
-              marginTop: 24,
-            }}
-            scroll={{
-              y: 435,
-            }}
-          />
-        </>
-      ) : (
-        <>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div>
-              <Checkbox.Group
-                value={checkedList2}
-                options={options2}
-                onChange={(value) => {
-                  setCheckedList2(value);
-                }}
-              />
-              &nbsp; &nbsp; &nbsp;
-              <Select
-                showSearch
-                placeholder="Quản lý nguyên liệu"
-                optionFilterProp="children"
-                onChange={onChange}
-                onSearch={onSearch}
-                filterOption={filterOption}
-                options={[
-                  {
-                    value: "1",
-                    label: "Material",
-                  },
-                  {
-                    value: "2",
-                    label: "Material Category",
-                  },
-                  {
-                    value: "3",
-                    label: "Material Type",
-                  },
-                ]}
-              />
-            </div>
-            <Row justify="start" style={{ paddingRight: "24px" }}>
-              <Col span={4}>
-                <Button>Tổng cộng ({manager?.totalData})</Button>
-              </Col>
-              <Col span={4} offset={12}>
-                <Button type="primary">Thêm mới</Button>
-              </Col>
-            </Row>
-          </div>
-
-          <Table
-            columns={newColumns2}
-            dataSource={data2}
-            pagination={{
-              position: ["bottomCenter"],
-            }}
-            style={{
-              marginTop: 24,
-            }}
-            scroll={{
-              y: 435,
-            }}
-          />
-        </>
-      )}
+      <div
+        style={{
+          padding: "20px 20px",
+          backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
+        }}
+        className="manager-header"
+      >
+        <ManagementMaterialHeader />
+      </div>
+      <div
+        className="manager-content"
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
+      >
+        <ManagementMaterialCategoryContent />
+      </div>
     </div>
   );
-};
+}
+
+export function ManagementMaterialType() {
+  return (
+    <div>
+      <div
+        style={{
+          padding: "20px 20px",
+          backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
+        }}
+        className="manager-header"
+      >
+        <ManagementMaterialHeader />
+      </div>
+      <div
+        className="manager-content"
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
+      >
+        <ManagementMaterialTypeContent />
+      </div>
+    </div>
+  );
+}
 
 function ManagementMaterial() {
   return (
@@ -613,6 +612,7 @@ function ManagementMaterial() {
         style={{
           padding: "20px 20px",
           backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
         }}
         className="manager-header"
       >
@@ -620,7 +620,11 @@ function ManagementMaterial() {
       </div>
       <div
         className="manager-content"
-        style={{ height: "84vh", overflowY: "scroll" }}
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
       >
         <ManagementMaterialContent />
       </div>

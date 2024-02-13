@@ -287,14 +287,18 @@
 
 // export default ManagerSidebar;
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
   FileOutlined,
   UserOutlined,
   HomeOutlined,
   LogoutOutlined,
+  AppstoreAddOutlined,
+  FileTextOutlined,
+  OrderedListOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, ConfigProvider, Image, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import StraightenIcon from "@mui/icons-material/Straighten";
@@ -304,6 +308,10 @@ import CategoryIcon from "@mui/icons-material/Category";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import DiscountIcon from "@mui/icons-material/Discount";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+import logo from "../../assets/logo.png";
+import "./index.css";
+
+const { Title, Text } = Typography;
 
 const { Sider } = Layout;
 function getItem(label, key, icon, children) {
@@ -319,64 +327,117 @@ export const ManagerSidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const manager = JSON.parse(localStorage.getItem("manager"));
-  const active = useRef(localStorage.getItem("activeKey") || "/manager");
+  const location = useLocation();
+  // const active = useRef(localStorage.getItem("activeKey") || "/manager");
+  const [active, setActive] = useState(
+    localStorage.getItem("activeKey") || "/manager"
+  );
   console.log("active", active);
   const logoutAdminUrl =
     "https://etailorapi.azurewebsites.net/api/auth/staff/logout";
 
   const items = [
     {
-      key: "/manager/dashboard",
-      label: <Link to="/manager/dashboard">Trang chủ</Link>,
+      key: "/manager",
+      label: <Link to="/manager">Dashboard</Link>,
       icon: <HomeOutlined />,
     },
+    { type: "divider" },
     {
-      key: "/manager/account/staffs",
-      label: <Link to="/manager/account/staffs">Nhân viên</Link>,
-      icon: <UserOutlined />,
-    },
-    {
-      key: "/manager/body-size",
-      label: <Link to="/manager/body-size">Số đo cơ thể</Link>,
-      icon: <StraightenIcon />,
-    },
-    {
-      key: "/manager/orders",
-      label: <Link to="/manager/orders">Đơn hàng</Link>,
-      icon: <ShoppingCartIcon />,
-    },
-    {
-      key: "/manager",
-      label: "Quản lý bản mẫu",
-      icon: <CheckroomIcon />,
+      type: "group",
+      label: (
+        <Title level={5} style={{ margin: 0 }}>
+          Khách hàng
+        </Title>
+      ),
       children: [
         {
-          key: "/manager",
-          label: <Link to="/manager">Bản mẫu</Link>,
-          icon: <CheckroomIcon />,
+          key: "/manager/account/customer",
+          label: <Link to="/manager/account/customer">Thông tin</Link>,
+          icon: <UserOutlined />,
         },
         {
-          key: "/manager/product-category",
-          label: <Link to="/manager/product-category">Loại bản mẫu</Link>,
-          icon: <CategoryIcon />,
+          key: "/manager/orders",
+          label: <Link to="/manager/orders">Đơn hàng</Link>,
+          icon: <ShoppingCartIcon />,
         },
       ],
     },
+    { type: "divider" },
     {
-      key: "/manager/material",
-      label: <Link to="/manager/material">Nguyên liệu</Link>,
-      icon: <FactCheckIcon />,
+      type: "group",
+      label: (
+        <Title level={5} style={{ margin: 0 }}>
+          Quản lý
+        </Title>
+      ),
+      children: [
+        {
+          key: "/manager/account/staffs",
+          label: <Link to="/manager/account/staffs">Nhân viên</Link>,
+          icon: <UserOutlined />,
+        },
+        {
+          key: "/manager/body-size",
+          label: <Link to="/manager/body-size">Số đo cơ thể</Link>,
+          icon: <StraightenIcon />,
+        },
+
+        {
+          key: "/manager/product-template",
+          label: "Quản lý bản mẫu",
+          icon: <CheckroomIcon />,
+          children: [
+            {
+              key: "/manager/product-template",
+              label: <Link to="/manager/product-template">Bản mẫu</Link>,
+              icon: <CheckroomIcon />,
+            },
+            {
+              key: "/manager/product-template/category",
+              label: (
+                <Link to="/manager/product-template/category">
+                  Loại bản mẫu
+                </Link>
+              ),
+              icon: <CategoryIcon />,
+            },
+          ],
+        },
+        {
+          label: "Nguyên liệu",
+          icon: <FactCheckIcon />,
+          children: [
+            {
+              key: "/manager/material",
+              label: <Link to="/manager/product-template">Thông tin</Link>,
+              icon: <FileTextOutlined />,
+            },
+            {
+              key: "/manager/material-category",
+              label: <Link to="/manager/product-template">Danh mục</Link>,
+              icon: <AppstoreAddOutlined />,
+            },
+            {
+              key: "/manager/material-type",
+              label: <Link to="/manager/product-category">Các loại</Link>,
+              icon: <OrderedListOutlined />,
+            },
+          ],
+        },
+        {
+          key: "/manager/discount",
+          label: <Link to="/manager/discount">Mã giảm giá</Link>,
+          icon: <DiscountIcon />,
+        },
+        {
+          key: "/manager/blog",
+          label: <Link to="/manager/blog">Bài viết</Link>,
+          icon: <MenuBookIcon />,
+        },
+      ],
     },
-    {
-      key: "/manager/discount",
-      label: <Link to="/manager/discount">Mã giảm giá</Link>,
-      icon: <DiscountIcon />,
-    },
-    {
-      key: "/manager/blog",
-      label: <Link to="/manager/blog">Bài viết</Link>,
-      icon: <MenuBookIcon />,
-    },
+
     {
       key: "/management/login",
       label: <Link to="/management/login">Đăng xuất</Link>,
@@ -410,11 +471,26 @@ export const ManagerSidebar = () => {
         handleLogout();
       } else {
         navigate(key);
-        active.current = key;
+        setActive(key);
         localStorage.setItem("activeKey", key);
       }
     }
   };
+
+  useEffect(() => {
+    if (location.pathname !== active) {
+      setActive(location.pathname);
+      localStorage.setItem("activeKey", location.pathname);
+    }
+  }, [location.pathname]);
+
+  // useEffect(() => {
+  //   const path = window.location.pathname;
+  //   if (path !== active) {
+  //     setActive(path);
+  //     localStorage.setItem("activeKey", path);
+  //   }
+  // });
 
   return (
     <Sider
@@ -423,12 +499,23 @@ export const ManagerSidebar = () => {
       onCollapse={(value) => setCollapsed(value)}
       style={{
         minHeight: "100vh",
+        borderRight: "1px solid #9F78FF",
       }}
+      theme="light"
     >
       <div className="demo-logo-vertical" />
+      <div
+        style={{
+          width: 120,
+          marginLeft: "35px",
+        }}
+      >
+        <img src={logo} alt="logo" />
+      </div>
+
       <Menu
-        theme="dark"
-        defaultSelectedKeys={[active.current]}
+        theme="light"
+        selectedKeys={[active]}
         mode="inline"
         items={items}
         style={{

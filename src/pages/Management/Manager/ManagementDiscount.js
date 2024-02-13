@@ -43,7 +43,6 @@ const { Meta } = Card;
 const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
-console.log("manager", manager);
 
 const ManagementDiscountHeader = () => {
   const onSearch = (value, _e, info) => console.log(info?.source, value);
@@ -97,11 +96,11 @@ const ManagementDiscountHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          <UserOutlined
-            style={{
-              fontSize: "24px",
-            }}
-          />
+          {manager?.avatar ? (
+            <Avatar src={manager?.avatar} />
+          ) : (
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+          )}
           &nbsp; &nbsp;
           <Text>{manager?.name}</Text>
         </div>
@@ -111,21 +110,21 @@ const ManagementDiscountHeader = () => {
 };
 
 const ManagementDiscountContent = () => {
-  //   const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  //   const manager = JSON.parse(localStorage.getItem("manager"));
-  //   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-  //     fetch(getStaffUrl, {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${manager?.token}`,
-  //       },
-  //     }).then((response) => response.json())
-  //   );
+  const getUrl = "https://etailorapi.azurewebsites.net/api/discount";
+
+  const { data: discount, isLoading: loading } = useQuery("get-discount", () =>
+    fetch(getUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${manager?.token}`,
+      },
+    }).then((response) => response.json())
+  );
 
   const columns = [
     {
       title: "STT",
-      width: 50,
+      width: 70,
       dataIndex: "stt",
       key: "index",
       fixed: "left",
@@ -136,6 +135,9 @@ const ManagementDiscountContent = () => {
       dataIndex: "name",
       key: "1",
       width: 150,
+      ellipsis: {
+        showTitle: false,
+      },
     },
     {
       title: "Code",
@@ -168,27 +170,47 @@ const ManagementDiscountContent = () => {
       width: 150,
     },
     {
+      title: "Điều kiện giảm giá tối thiểu",
+      dataIndex: "conditionPriceMin",
+      key: "7",
+      width: 200,
+    },
+    {
+      title: "Điều kiện giảm giá tối đa",
+      dataIndex: "conditionPriceMax",
+      key: "8",
+      width: 200,
+    },
+    {
       title: "Action",
       dataIndex: "Action",
-      key: "7",
+      key: "9",
       width: 100,
       fixed: "right",
       render: () => (
-        <Row justify="center">
-          <Col>
-            <Button
-              type="primary"
-              icon={<DeleteOutlined />}
-              size="default"
-              danger
+        <Row justify="start">
+          <Col span={4}>
+            <DeleteOutlined
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
-          <Col offset={2}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              size="default"
-              warning
+          <Col span={4} offset={8}>
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
         </Row>
@@ -196,27 +218,32 @@ const ManagementDiscountContent = () => {
     },
   ];
 
-  //   const getApi = staffs?.data?.map((item) => ({
-  //     stt: item.stt,
-  //     avatar: item.avatar,
-  //     username: item.username,
-  //     fullname: item.fullname,
-  //     address: item.address,
-  //     phone: item.phone,
-  //   }));
+  const getApi = discount?.map((item, index) => ({
+    stt: index + 1,
+    name: item.name,
+    code: item.code,
+    startdate: new Date(item.startDate).toLocaleDateString(),
+    enđate: new Date(item.endDate).toLocaleDateString(),
+    discountpercent: item.discountPercent,
+    discountprice: item.discountPrice,
+    conditionPriceMin: item.conditionPriceMin,
+    conditionPriceMax: item.conditionPriceMax,
+  }));
 
-  const data = [];
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      stt: i,
-      name: `Tudeptrai${i}`,
-      code: `21050${i}`,
-      startdate: `29/1/2024`,
-      enđate: `30/1/2024`,
-      discountpercent: `100`,
-      discountprice: `2.000.000`,
-    });
-  }
+  console.log(getApi);
+
+  // const data = [];
+  // for (let i = 0; i < 100; i++) {
+  //   data.push({
+  //     stt: i,
+  //     name: `Tudeptrai${i}`,
+  //     code: `21050${i}`,
+  //     startdate: `29/1/2024`,
+  //     enđate: `30/1/2024`,
+  //     discountpercent: `100`,
+  //     discountprice: `2.000.000`,
+  //   });
+  // }
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -258,7 +285,7 @@ const ManagementDiscountContent = () => {
 
       <Table
         columns={newColumns}
-        dataSource={data}
+        dataSource={getApi}
         pagination={{
           position: ["bottomCenter"],
         }}
@@ -266,7 +293,7 @@ const ManagementDiscountContent = () => {
           marginTop: 24,
         }}
         scroll={{
-          y: 435,
+          x: 1500,
         }}
       />
     </div>
@@ -280,6 +307,7 @@ function ManagementDiscount() {
         style={{
           padding: "20px 20px",
           backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
         }}
         className="manager-header"
       >
@@ -287,7 +315,11 @@ function ManagementDiscount() {
       </div>
       <div
         className="manager-content"
-        style={{ height: "84vh", overflowY: "scroll" }}
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
       >
         <ManagementDiscountContent />
       </div>

@@ -3,44 +3,25 @@ import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
-  PushpinOutlined,
-  PlusCircleOutlined,
   EditOutlined,
   DeleteOutlined,
-  RollbackOutlined,
   PlusOutlined,
-  CloseOutlined,
 } from "@ant-design/icons";
-import { Typography, Carousel, Table, Checkbox } from "antd";
+import { Typography, Table, Checkbox } from "antd";
 import "./index.css";
 
 import { Input } from "antd";
-import { Button, Flex, Divider } from "antd";
+import { Button } from "antd";
 import { Image } from "antd";
-import {
-  Avatar,
-  Card,
-  Col,
-  Row,
-  message,
-  Steps,
-  theme,
-  Form,
-  Space,
-  Select,
-  Upload,
-  Radio,
-} from "antd";
+import { Avatar, Col, Row } from "antd";
+import CircularProgress from "@mui/material/CircularProgress";
 
-import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 
-const { Search, TextArea } = Input;
+const { Search } = Input;
 const { Title, Text } = Typography;
-const { Meta } = Card;
-const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
 console.log("manager", manager);
@@ -63,14 +44,20 @@ const ManagementBodySizeHeader = () => {
               title: <HomeOutlined />,
             },
             {
-              href: "/manager/account/staffs",
+              href: "/manager/body-size",
               title: (
                 <>
-                  <Link to="/manager/account/staffs">
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                  <Link to="/manager/body-size">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#9F78FF",
+                      }}
+                    >
                       <UserOutlined fontSize="small" />
                       &nbsp;
-                      <span>Nhân viên</span>
+                      <span>Số đo cơ thể</span>
                     </div>
                   </Link>
                 </>
@@ -78,7 +65,7 @@ const ManagementBodySizeHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Nhân viên</Title>
+        <Title level={4}>Số đo cơ thể</Title>
       </div>
       <div
         style={{
@@ -97,11 +84,11 @@ const ManagementBodySizeHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          <UserOutlined
-            style={{
-              fontSize: "24px",
-            }}
-          />
+          {manager?.avatar ? (
+            <Avatar src={manager?.avatar} />
+          ) : (
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+          )}
           &nbsp; &nbsp;
           <Text>{manager?.name}</Text>
         </div>
@@ -111,16 +98,16 @@ const ManagementBodySizeHeader = () => {
 };
 
 const ManagementBodySizeContent = () => {
-  //   const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  //   const manager = JSON.parse(localStorage.getItem("manager"));
-  //   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-  //     fetch(getStaffUrl, {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${manager?.token}`,
-  //       },
-  //     }).then((response) => response.json())
-  //   );
+  const getUrl = "https://etailorapi.azurewebsites.net/api/body-size";
+
+  const { data: bodySize, isLoading: loading } = useQuery("get-body-size", () =>
+    fetch(getUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${manager?.token}`,
+      },
+    }).then((response) => response.json())
+  );
 
   const columns = [
     {
@@ -135,20 +122,14 @@ const ManagementBodySizeContent = () => {
       width: 150,
       dataIndex: "image",
       key: "image",
-      render: () => (
+      render: (_, record) => (
         <Image
-          width={150}
-          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+          width={40}
+          height={30}
+          style={{ objectFit: "contain" }}
+          src={record.image}
         />
       ),
-      //   render: (_, record) => (
-      //     <Image
-      //       width={100}
-      //       height={90}
-      //       style={{ objectFit: "contain" }}
-      //       src={record.avatar}
-      //     />
-      //   ),
     },
     {
       title: "Số đo từng bộ phận",
@@ -167,10 +148,12 @@ const ManagementBodySizeContent = () => {
       dataIndex: "GuideVideoLink",
       key: "3",
       width: 150,
-      render: () => (
-        <Button type="link">
-          <a href="#">Nhấn vào để xem</a>
-        </Button>
+      render: (_, record) => (
+        <>
+          <Button type="link" title="Video hướng dẫn">
+            <a href={record.GuideVideoLink}>Nhấn vào để xem</a>
+          </Button>
+        </>
       ),
     },
     {
@@ -192,21 +175,29 @@ const ManagementBodySizeContent = () => {
       width: 100,
       fixed: "right",
       render: () => (
-        <Row justify="center">
+        <Row justify="start">
           <Col span={4}>
-            <Button
-              type="primary"
-              icon={<DeleteOutlined />}
-              size="default"
-              danger
+            <DeleteOutlined
+              style={{
+                backgroundColor: "red",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
-          <Col span={4} offset={5}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              size="default"
-              warning
+          <Col span={4} offset={7}>
+            <EditOutlined
+              style={{
+                backgroundColor: "blue",
+                color: "white",
+                padding: 6,
+                borderRadius: "5px",
+                fontSize: 15,
+                cursor: "pointer",
+              }}
             />
           </Col>
         </Row>
@@ -214,26 +205,26 @@ const ManagementBodySizeContent = () => {
     },
   ];
 
-  //   const getApi = staffs?.data?.map((item) => ({
-  //     stt: item.stt,
-  //     avatar: item.avatar,
-  //     username: item.username,
-  //     fullname: item.fullname,
-  //     address: item.address,
-  //     phone: item.phone,
-  //   }));
+  const getApi = bodySize?.map((item, index) => ({
+    stt: index + 1,
+    name: item.name,
+    BodyPart: item.bodyPart,
+    GuideVideoLink: item.guideVideoLink,
+    MinValidValue: item.minValidValue,
+    MaxValidValue: item.maxValidValue,
+  }));
 
-  const data = [];
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      stt: i,
-      name: `Edward ${i}`,
-      BodyPart: `${i}`,
-      address: `London Park no. ${i}`,
-      MinValidValue: `${i}`,
-      MaxValidValue: `${i}`,
-    });
-  }
+  // const data = [];
+  // for (let i = 0; i < 100; i++) {
+  //   data.push({
+  //     stt: i,
+  //     name: `Edward ${i}`,
+  //     BodyPart: `${i}`,
+  //     address: `London Park no. ${i}`,
+  //     MinValidValue: `${i}`,
+  //     MaxValidValue: `${i}`,
+  //   });
+  // }
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -265,28 +256,38 @@ const ManagementBodySizeContent = () => {
         </div>
         <Row justify="start" style={{ paddingRight: "24px" }}>
           <Col span={4}>
-            <Button>Tổng cộng ({manager?.totalData})</Button>
+            <Button>Tổng cộng ({bodySize?.length})</Button>
           </Col>
-          <Col span={4} offset={12}>
-            <Button type="primary">Thêm mới</Button>
+          <Col span={4} offset={10}>
+            <Button>
+              Thêm mới <PlusOutlined />
+            </Button>
           </Col>
         </Row>
       </div>
-
-      <Table
-        columns={newColumns}
-        dataSource={data}
-        pagination={{
-          position: ["bottomCenter"],
-        }}
-        style={{
-          marginTop: 24,
-        }}
-        scroll={{
-          x: 1500,
-          y: 435,
-        }}
-      />
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "550px",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
+        <Table
+          columns={newColumns}
+          dataSource={getApi}
+          pagination={{
+            position: ["bottomCenter"],
+          }}
+          style={{
+            marginTop: 24,
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -298,6 +299,7 @@ function ManagementBodySize() {
         style={{
           padding: "20px 20px",
           backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
         }}
         className="manager-header"
       >
@@ -305,7 +307,11 @@ function ManagementBodySize() {
       </div>
       <div
         className="manager-content"
-        style={{ height: "84vh", overflowY: "scroll" }}
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
       >
         <ManagementBodySizeContent />
       </div>

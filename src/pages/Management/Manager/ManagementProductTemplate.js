@@ -67,7 +67,13 @@ const ManagementProductTemplateHeader = () => {
               href: "/manager",
               title: (
                 <>
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      color: "#9F78FF",
+                    }}
+                  >
                     <CheckroomIcon fontSize="small" />
                     &nbsp;
                     <span>Quản lý bản mẫu</span>
@@ -79,7 +85,13 @@ const ManagementProductTemplateHeader = () => {
               href: "/manager",
               title: (
                 <>
-                  <div style={{ display: "flex", alignItems: "center" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      color: "#9F78FF",
+                    }}
+                  >
                     <CheckroomIcon fontSize="small" />
                     &nbsp;
                     <span>Bản mẫu</span>
@@ -108,11 +120,11 @@ const ManagementProductTemplateHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          <UserOutlined
-            style={{
-              fontSize: "24px",
-            }}
-          />
+          {manager?.avatar ? (
+            <Avatar src={manager?.avatar} />
+          ) : (
+            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
+          )}
           &nbsp; &nbsp;
           <Text>{manager?.name}</Text>
         </div>
@@ -426,50 +438,67 @@ export const ManagementCreateProductTemplate = () => {
                       </Button>
                     </div>
                     <div>
-                      {cards
-                        .filter((card) => card.section === data.id)
-                        .map((card, cardIndex) => (
-                          <>
-                            <Row
-                              justify="start"
-                              className="gutter-row"
-                              style={{
-                                backgroundColor: "#D4D4D4",
-                                borderRadius: "10px",
-                                width: 550,
-                                height: 350,
-                                overflowY: "scroll",
-                              }}
-                            >
-                              <Col offset={2}>
-                                <Card
-                                  style={{
-                                    width: 200,
-                                    marginTop: 10,
-                                    border: "1px solid #D4D4D4",
-                                  }}
-                                  cover={
-                                    <Image
-                                      width={200}
-                                      height={200}
-                                      src={card.image}
-                                      style={{
-                                        border: "1px solid #D4D4D4",
-                                      }}
-                                    />
-                                  }
-                                  actions={[<DeleteOutlined key="delete" />]}
-                                >
-                                  <Meta title={card.title} />
-                                </Card>
-                              </Col>
-                            </Row>
-
-                            {/* <Card key={cardIndex} title={card.title}>
-                            <Image src={card.image} />
-                          </Card> */}
-                          </>
-                        ))}
+                      <Row
+                        justify="start"
+                        className="gutter-row"
+                        style={{
+                          backgroundColor: "white",
+                          border: "1px solid #9F78FF",
+                          borderRadius: "10px",
+                          width: 550,
+                          height: 350,
+                          overflowY: "scroll",
+                        }}
+                      >
+                        {(() => {
+                          const filteredCards = cards.filter(
+                            (card) => card.section === data.id
+                          );
+                          if (filteredCards.length > 0) {
+                            return filteredCards.map((card, cardIndex) => (
+                              <>
+                                <Col offset={2}>
+                                  <Card
+                                    style={{
+                                      width: 200,
+                                      marginTop: 10,
+                                      border: "1px solid #D4D4D4",
+                                    }}
+                                    cover={
+                                      <Image
+                                        width={200}
+                                        height={200}
+                                        src={card.image}
+                                        style={{
+                                          border: "1px solid #D4D4D4",
+                                        }}
+                                      />
+                                    }
+                                    actions={[<DeleteOutlined key="delete" />]}
+                                  >
+                                    <Meta title={card.title} />
+                                  </Card>
+                                </Col>
+                              </>
+                            ));
+                          } else {
+                            return (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  alignItems: "center",
+                                  paddingLeft: 125,
+                                }}
+                              >
+                                <Title level={4}>
+                                  Chưa có kiểu nào. Hãy thêm vào
+                                </Title>
+                              </div>
+                            );
+                          }
+                        })()}
+                      </Row>
                     </div>
                   </Col>
                 </>
@@ -670,6 +699,7 @@ export const ManagementCreateProductTemplate = () => {
         style={{
           padding: "20px 20px",
           backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
         }}
         className="manager-header"
       >
@@ -677,7 +707,11 @@ export const ManagementCreateProductTemplate = () => {
       </div>
       <div
         className="manager-content"
-        style={{ height: "84vh", overflowY: "scroll" }}
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
       >
         <div>
           <Link to="/manager">
@@ -1216,7 +1250,7 @@ const ManagementProductTemplateContent = () => {
         </div>
         <div>
           <Divider plain icon={<PushpinOutlined />}>
-            Bản mẫu sản phẩm hiện có
+            <Title level={4}> Bản mẫu sản phẩm hiện có</Title>
           </Divider>
           <div>
             <br />
@@ -1273,6 +1307,7 @@ function ManagementProductTemplate() {
         style={{
           padding: "20px 20px",
           backgroundColor: "#FFFFFF",
+          border: "1px solid #9F78FF",
         }}
         className="manager-header"
       >
@@ -1280,9 +1315,15 @@ function ManagementProductTemplate() {
       </div>
       <div
         className="manager-content"
-        style={{ height: "84vh", overflowY: "scroll" }}
+        style={{
+          height: "83vh",
+          overflowY: "scroll",
+          border: "1px solid #9F78FF",
+        }}
       >
-        <ManagementProductTemplateContent />
+        <div>
+          <ManagementProductTemplateContent />
+        </div>
       </div>
     </div>
   );

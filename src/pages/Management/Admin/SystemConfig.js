@@ -1,15 +1,14 @@
-import React, { useState } from "react";
+import React from "react";
 import "./index.css";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+
 import { Breadcrumb } from "antd";
-import { HomeOutlined, UserOutlined } from "@ant-design/icons";
+import { HomeOutlined, SettingOutlined } from "@ant-design/icons";
 import { Typography } from "antd";
 
 import { Input } from "antd";
 import { Divider } from "antd";
-import { Table, Checkbox, Button } from "antd";
-import { Image } from "antd";
-import { useQuery } from "react-query";
+import { Avatar } from "antd";
+import { Link } from "react-router-dom";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
@@ -29,21 +28,32 @@ const AccountSysHeader = () => {
         <Breadcrumb
           items={[
             {
-              href: "/admin",
+              href: "#",
               title: <HomeOutlined />,
             },
             {
-              href: "/admin",
+              href: "/admin/system-config",
               title: (
                 <>
-                  <UserOutlined />
-                  <span>Khách hàng</span>
+                  <Link to="/admin/system-config">
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#9F78FF",
+                      }}
+                    >
+                      <SettingOutlined />
+                      &nbsp;
+                      <span>Quản lý hệ thống</span>
+                    </div>
+                  </Link>
                 </>
               ),
             },
           ]}
         />
-        <Title level={4}>Khách hàng</Title>
+        <Title level={4}>Quản lý hệ thống</Title>
       </div>
       <div
         style={{
@@ -62,13 +72,9 @@ const AccountSysHeader = () => {
         </div>
         &nbsp; &nbsp; &nbsp;
         <div>
-          <UserOutlined
-            style={{
-              fontSize: "24px",
-            }}
-          />
+          <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
           &nbsp; &nbsp;
-          <Text>{admin.role}</Text>
+          <Text>{admin?.name}</Text>
         </div>
       </div>
     </div>
@@ -143,10 +149,27 @@ const AccountSysContent = () => {
 export const SystemConfig = () => {
   return (
     <>
-      <AccountSysHeader />
-      <Divider />
-      <div className="admin-account-system-content">
-        <AccountSysContent />
+      <div>
+        <div
+          style={{
+            padding: "20px 20px",
+            backgroundColor: "#FFFFFF",
+            border: "1px solid #9F78FF",
+          }}
+          className="system-config-header"
+        >
+          <AccountSysHeader />
+        </div>
+        <div
+          className="system-config-content"
+          style={{
+            height: "83vh",
+            overflowY: "scroll",
+            border: "1px solid #9F78FF",
+          }}
+        >
+          <AccountSysContent />
+        </div>
       </div>
     </>
   );
