@@ -1,0 +1,32 @@
+.table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table th,
+.table td {
+    text-align: left;
+    vertical-align: top; 
+    max-height: 40px;
+}
+
+.table tbody tr {
+    height: max-content;
+}
+
+.table tbody tr:nth-child(even) {
+    background-color: #c5c3c3;
+    color: #fff;
+}
+
+.table tbody tr:hover {
+    background-color: #ddd;
+}
+
+.action-icons {
+    display: flex;
+}
+
+.action-icons > div {
+    margin-right: 5px;
+}

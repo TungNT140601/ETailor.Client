@@ -4,7 +4,19 @@
     height: 400px;
     border-radius: 10px;
     position: relative;
+    cursor: pointer;
+
 }
+
+.blog-banner-wrapper img {
+    transition: transform 1.5s ease;
+    width: 100%;
+}
+
+.blog-banner-wrapper:hover>img {
+    scale: 1.2 translateX(-2.1rem);
+}
+
 
 .flex {
     display: flex;
@@ -16,18 +28,21 @@
     position: absolute;
     bottom: 20px;
     right: 50px;
+    z-index: 2;
 }
 
 .blog-banner-title {
     position: absolute;
     bottom: 20%;
     left: 28%;
+    z-index: 2;
 }
 
 .blog-readmore-btn {
     position: absolute;
     bottom: 25px;
     left: 25px;
+    z-index: 2;
 }
 
 .blog-container {
@@ -92,7 +107,7 @@
 
 .content-blog>img {
     max-width: 800px;
-    
+
 }
 
 .title-blog>p {
@@ -103,6 +118,6 @@
     padding-bottom: 20px;
 }
 
-.content-blog{
+.content-blog {
     width: 80%;
 }
