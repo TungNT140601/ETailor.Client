@@ -74,19 +74,13 @@ const Header = () => {
                                 </h1>
                             </Link>
                         </div>
-                        <div className='navbar-item'>
-                            <Link to="/#" onClick={() => setClickedSection("Lien He")} >
-                                <h1 className="subtitle is-5 " style={{ color: clickedSection === "Lien He" ? "#9F78FF" : "#1D2547" }}>
-                                    LIÊN HỆ
-                                </h1>
-                            </Link>
-                        </div>
+
                         <div className="navbar-item has-dropdown is-hoverable">
                             <div className='navbar-item' >
                                 <div style={{ height: "auto" }}>
                                     <Link className='nav-link' to="/catalogue" onClick={() => setClickedSection("Dat May")}>
                                         <h1 className="subtitle is-5 " style={{ color: clickedSection === "Dat May" ? "#9F78FF" : "#1D2547" }}>
-                                            ĐẶT MAY <img width={15} height={15} src={MenuDropIcon}></img>
+                                            SẢN PHẨM MẪU <img width={15} height={15} src={MenuDropIcon}></img>
                                         </h1>
                                     </Link>
                                 </div>
@@ -105,6 +99,16 @@ const Header = () => {
                                 </a>
                             </div>
                         </div>
+                        {token && (
+                            <div className='navbar-item'>
+                                <Link to="/orders" onClick={() => setClickedSection("Don hang")} >
+                                    <h1 className="subtitle is-5 " style={{ color: clickedSection === "Don hang" ? "#9F78FF" : "#1D2547" }}>
+                                        ĐƠN HÀNG
+                                    </h1>
+                                </Link>
+                            </div>
+                        )}
+
                     </div>
                 </div>
 
@@ -119,11 +123,6 @@ const Header = () => {
                                 <Menu sx={{ zIndex: 100000000 }}>
                                     <Link to="/profile">
                                         <MenuItem>Thông tin cá nhân</MenuItem>
-                                    </Link>
-                                    <Link to="/profile">
-                                        <MenuItem>
-                                            My account
-                                        </MenuItem>
                                     </Link>
                                     <MenuItem onClick={handleLogout}>Logout</MenuItem>
                                 </Menu>

@@ -30,6 +30,7 @@ import ManagementProductTemplate, {
 } from "../pages/Management/Manager/ManagementProductTemplate";
 import Blog from "../pages/Customer/Blogs/Blog";
 import BlogDetail from "../pages/Customer/Blogs/BlogDetail";
+import Order from "../pages/Customer/Orders/Order";
 
 export const customerRouters = [
   {
@@ -37,6 +38,18 @@ export const customerRouters = [
     name: "user-body-profile",
     component: BodyProfile,
     layout: UserProfileLayout,
+  },
+  {
+    path: "/profile",
+    name: "customer-profile",
+    component: CustomerProfile,
+    layout: UserProfileLayout,
+  },
+  {
+    path: "/orders",
+    name: "customer-orders",
+    component: Order,
+    layout: DefaultLayout,
   },
 ];
 
@@ -65,12 +78,7 @@ export const publicRouters = [
     component: NotFound,
     layout: null,
   },
-  {
-    path: "/profile",
-    name: "customer-profile",
-    component: CustomerProfile,
-    layout: UserProfileLayout,
-  },
+
   {
     path: "/management/login",
     name: "admin-login",
@@ -105,6 +113,7 @@ export const privateRouters = [
   //     component: Profile,
   //     layout: LayoutWithoutFilter,
   // },
+
 ];
 
 export const adminRouters = [

@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useEffect} from 'react'
 import Banner10 from "../../../assets/images/banner-blog/surprised-curly-woman-beret-looks-left-charming-lady-pink-sweater-sunglasses-green-skirt-holds-grey-handbag.jpg"
 import './blog.css'
 import ViewBtn from "../../../assets/images/banner-blog/top-right.png"
@@ -8,8 +8,30 @@ import Blog1 from "../../../assets/images/banner-blog/female-fashion-designer-wo
 import Blog2 from "../../../assets/images/banner-blog/three-young-beautiful-smiling-girls-trendy-summer-casual-jeans-clothes-sexy-carefree-women-posing-positive-models-sunglasses.jpg"
 import Blog3 from "../../../assets/images/banner-blog/portrait-handsome-smiling-stylish-young-man-model-dressed-jeans-clothes-fashion-man.jpg"
 import { Link } from 'react-router-dom';
+import ScrollReveal from 'scrollreveal';
 
 export default function Blog() {
+    useEffect(() => {
+        ScrollReveal().reveal('.blog-container', {
+            duration: 2500,
+            distance: '60px',
+            scale: 0.85,
+            easing: 'cubic-bezier(0.5, 0, 0, 1)',
+            mobile: true,
+        });
+
+        // ScrollReveal().reveal('.wrapper-container-content', {
+        //     duration: 1500,
+        //     distance: '60px',
+        //     scale: 0.85,
+        //     easing: 'ease-in',
+        //     mobile: true,
+        //     rotate: {
+        //         x: 20,
+        //         z: 20
+        //     }
+        // });
+    }, []);
     return (
         <div style={{ paddingTop: "140px" }}>
             <div className='flex'>
