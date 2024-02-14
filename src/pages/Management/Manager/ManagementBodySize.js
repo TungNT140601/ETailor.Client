@@ -14,11 +14,20 @@ import "./index.css";
 import { Input } from "antd";
 import { Button } from "antd";
 import { Image } from "antd";
-import { Avatar, Col, Row, Modal, Form, Upload, InputNumber } from "antd";
+import {
+  Avatar,
+  Col,
+  Row,
+  Modal,
+  Form,
+  Upload,
+  InputNumber,
+  Select,
+} from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
+// import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 
 const { Search } = Input;
@@ -316,7 +325,21 @@ const ManagementBodySizeContent = () => {
 const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
+  const [check, setCheck] = useState("");
+
+  const handleCheck = (value) => {
+    console.log("value ne`", typeof value);
+    if (value === "1") {
+      setCheck("Đầu");
+    } else if (value === "2") {
+      setCheck("Thân");
+    } else if (value === "3") {
+      setCheck("Chân");
+    }
+  };
+
+  console.log("check ne`", check);
 
   const getFile = (e) => {
     console.log(e);
@@ -353,7 +376,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
   return (
     <Modal
       open={open}
-      style={{ top: 65 }}
+      style={{ top: 95 }}
       title="Thêm mới số đo cơ thể"
       okText="Tạo mới"
       cancelText="Hủy bỏ"
@@ -376,7 +399,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
     >
       <Form
         style={{
-          height: 500,
+          height: 420,
           overflowY: "scroll",
           scrollbarWidth: "none",
           WebkitScrollbar: "none",
@@ -393,8 +416,8 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
           <Col span={12}>
             <div>
               <Form.Item
-                name="bodyPart"
                 label="Số đo từng bộ phận"
+                name="bodyPart"
                 hasFeedback
                 rules={[
                   {
@@ -403,16 +426,21 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
                   },
                 ]}
               >
-                <Input />
+                <Select onChange={(value) => handleCheck(value)}>
+                  <Select.Option value="1">Đầu</Select.Option>
+                  <Select.Option value="2">Thân</Select.Option>
+                  <Select.Option value="3">Chân</Select.Option>
+                </Select>
               </Form.Item>
               <Form.Item
+                className="mt-2"
                 hasFeedback
-                name="bodyIndex"
-                label="Chỉ số cơ thể"
+                name="name"
+                label="Tên số đo"
                 rules={[
                   {
                     required: true,
-                    message: "Chỉ số cơ thể không được để trống",
+                    message: "Tên không được để trống",
                   },
                 ]}
               >
@@ -461,20 +489,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
             </div>
           </Col>
         </Row>
-        <Form.Item
-          className="mt-2"
-          hasFeedback
-          name="name"
-          label="Tên số đo"
-          rules={[
-            {
-              required: true,
-              message: "Tên không được để trống",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
+
         <Form.Item
           className="mt-2"
           name="guideVideoLink"
