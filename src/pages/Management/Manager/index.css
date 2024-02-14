@@ -123,3 +123,14 @@
     height: 130px !important;
     margin: 0;
 }
+
+
+#carousel-management-cus .slick-dots li button {
+
+    background-color: #9F78FF;
+}
+
+
+#carousel-management-cus .slick-dots li.slick-active button {
+    background-color: #5c429e;
+}

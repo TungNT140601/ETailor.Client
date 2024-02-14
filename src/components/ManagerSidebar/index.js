@@ -342,6 +342,11 @@ export const ManagerSidebar = () => {
       label: <Link to="/manager">Dashboard</Link>,
       icon: <HomeOutlined />,
     },
+    {
+      key: "/management/login",
+      label: <Link to="/management/login">Đăng xuất</Link>,
+      icon: <LogoutOutlined />,
+    },
     { type: "divider" },
     {
       type: "group",
@@ -353,7 +358,7 @@ export const ManagerSidebar = () => {
       children: [
         {
           key: "/manager/account/customer",
-          label: <Link to="/manager/account/customer">Thông tin</Link>,
+          label: <Link to="/manager/account/customer">Khách hàng</Link>,
           icon: <UserOutlined />,
         },
         {
@@ -437,12 +442,6 @@ export const ManagerSidebar = () => {
         },
       ],
     },
-
-    {
-      key: "/management/login",
-      label: <Link to="/management/login">Đăng xuất</Link>,
-      icon: <LogoutOutlined />,
-    },
   ];
 
   const handleLogout = async () => {
@@ -503,28 +502,31 @@ export const ManagerSidebar = () => {
       }}
       theme="light"
     >
-      <div className="demo-logo-vertical" />
-      <div
-        style={{
-          width: 120,
-          marginLeft: "35px",
-        }}
-      >
-        <img src={logo} alt="logo" />
-      </div>
+      <div className="menu-content">
+        <div className="demo-logo-vertical" />
+        <div
+          style={{
+            width: 120,
+            marginLeft: "35px",
+          }}
+        >
+          <img src={logo} alt="logo" />
+        </div>
 
-      <Menu
-        theme="light"
-        selectedKeys={[active]}
-        mode="inline"
-        items={items}
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 1000,
-        }}
-        onSelect={handleNavigate}
-      />
+        <Menu
+          theme="light"
+          selectedKeys={[active]}
+          mode="inline"
+          items={items}
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 1000,
+            height: "100%",
+          }}
+          onSelect={handleNavigate}
+        />
+      </div>
     </Sider>
   );
 };

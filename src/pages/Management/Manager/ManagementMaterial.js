@@ -164,8 +164,8 @@ const ManagementMaterialContent = () => {
       key: "image",
       render: () => (
         <Image
-          width={40}
-          height={40}
+          width={30}
+          height={30}
           src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
         />
       ),
@@ -701,13 +701,13 @@ const CreateMaterialType = ({ open, onCreate, onCancel }) => {
             <Input />
           </Form.Item>
           <Form.Item
-            label="Select"
-            name="Đơn vị đo"
+            label="Đơn vị tính"
+            name="unit"
             hasFeedback
             rules={[
               {
                 required: true,
-                message: "Đơn vị đo không được để trống",
+                message: "Đơn vị tính không được để trống",
               },
             ]}
           >

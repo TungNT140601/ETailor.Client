@@ -6,6 +6,7 @@ import {
   CheckOutlined,
   CloseOutlined,
   PlusOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import { Typography, Table, Checkbox } from "antd";
 import "./index.css";
@@ -13,7 +14,7 @@ import "./index.css";
 import { Input } from "antd";
 import { Button } from "antd";
 import { Image } from "antd";
-import { Avatar, Col, Row } from "antd";
+import { Avatar, Col, Row, Card, Modal, Divider, Carousel } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import { Link } from "react-router-dom";
@@ -113,6 +114,17 @@ const ManagementOrderContent = () => {
   //   }).then((response) => response.json())
   // );
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
   const columns = [
     {
       title: "STT",
@@ -122,72 +134,18 @@ const ManagementOrderContent = () => {
       fixed: "left",
     },
     {
-      title: "Tổng sản phẩm",
-      width: 150,
-      dataIndex: "totalProduct",
-      key: "1",
-      fixed: "left",
-    },
-    {
-      title: "Tổng giá tiền",
-      dataIndex: "totalPrice",
-      key: "2",
-      width: 150,
-    },
-    {
-      title: "Số tiền giảm",
-      dataIndex: "discountPrice",
-      key: "3",
-      width: 150,
-    },
-    {
-      title: "Mã giảm",
-      dataIndex: "discountCode",
-      key: "4",
-      width: 150,
-    },
-    {
-      title: "Số tiền sau khi giảm",
-      dataIndex: "afterDiscountPrice",
-      key: "5",
-      width: 200,
-    },
-    {
-      title: "Tiền đặt cọc phải trả",
-      dataIndex: "payDeposit",
-      key: "6",
-      width: 200,
-    },
-    {
-      title: "Tiền trả trước",
-      dataIndex: "deposit",
-      key: "7",
-      width: 150,
-    },
-    {
-      title: "Tiền đã gửi",
-      dataIndex: "paidMoney",
-      key: "8",
-      width: 150,
-    },
-    {
-      title: "Tiền chưa gửi",
-      dataIndex: "unPaidMoney",
-      key: "9",
-      width: 150,
-    },
-    {
       title: "Trạng thái",
       dataIndex: "status",
-      key: "10",
-      width: 200,
+      key: "1",
+      width: 160,
+      fixed: "left",
       render: () => (
         <>
           <Text
             style={{
-              backgroundColor: "#FFBF00",
+              backgroundColor: "rgba(255, 191, 0, 0.2)",
               padding: "5px 10px",
-              color: "white",
+              color: "rgb(235, 177, 7)",
               fontWeight: "600",
               borderRadius: "10px",
             }}
@@ -198,38 +156,84 @@ const ManagementOrderContent = () => {
       ),
     },
     {
+      title: "Tổng sản phẩm",
+      width: 150,
+      dataIndex: "totalProduct",
+      key: "2",
+    },
+    {
+      title: "Tổng giá tiền",
+      dataIndex: "totalPrice",
+      key: "3",
+      width: 150,
+    },
+    {
+      title: "Số tiền giảm",
+      dataIndex: "discountPrice",
+      key: "4",
+      width: 150,
+    },
+    {
+      title: "Mã giảm",
+      dataIndex: "discountCode",
+      key: "5",
+      width: 150,
+    },
+    {
+      title: "Số tiền sau khi giảm",
+      dataIndex: "afterDiscountPrice",
+      key: "6",
+      width: 200,
+    },
+    {
+      title: "Tiền đặt cọc đã trả",
+      dataIndex: "payDeposit",
+      key: "7",
+      width: 200,
+    },
+    {
+      title: "Tiền trả trước",
+      dataIndex: "deposit",
+      key: "8",
+      width: 150,
+    },
+    {
+      title: "Tiền đã trả",
+      dataIndex: "paidMoney",
+      key: "9",
+      width: 150,
+    },
+    {
+      title: "Tiền còn lại",
+      dataIndex: "unPaidMoney",
+      key: "10",
+      width: 150,
+    },
+    {
       title: "Action",
       dataIndex: "Action",
-      key: "11",
+      key: "5",
       width: 100,
       fixed: "right",
       render: () => (
-        <Row justify="start">
-          <Col span={4}>
-            <CloseOutlined
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                padding: 6,
-                borderRadius: "5px",
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-            />
-          </Col>
-          <Col span={4} offset={10}>
-            <CheckOutlined
-              style={{
-                backgroundColor: "#50C878",
-                color: "white",
-                padding: 6,
-                borderRadius: "5px",
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-            />
-          </Col>
-        </Row>
+        <>
+          <Row justify="start">
+            <Col span={4}>
+              <EyeOutlined
+                title="Xem chi tiết"
+                style={{
+                  backgroundColor: "rgb(140, 173, 245)",
+                  color: "white",
+                  padding: 6,
+                  borderRadius: "5px",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={showModal}
+              />
+            </Col>
+          </Row>
+        </>
       ),
     },
   ];
@@ -247,11 +251,15 @@ const ManagementOrderContent = () => {
   for (let i = 0; i < 100; i++) {
     data.push({
       stt: i,
-      name: `Edward ${i}`,
-      BodyPart: `${i}`,
-      address: `London Park no. ${i}`,
-      MinValidValue: `${i}`,
-      MaxValidValue: `${i}`,
+      totalProduct: `${i}`,
+      totalPrice: `10000000`,
+      discountPrice: `1000000`,
+      discountCode: `tudeptrai`,
+      afterDiscountPrice: `200000`,
+      payDeposit: "20000",
+      deposit: "20000",
+      paidMoney: "200000",
+      unPaidMoney: "20000",
     });
   }
 
@@ -265,6 +273,13 @@ const ManagementOrderContent = () => {
     ...item,
     hidden: !checkedList.includes(item.key),
   }));
+
+  //---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+  const onChange = (currentSlide) => {
+    console.log(currentSlide);
+  };
+
   return (
     <div>
       <div
@@ -283,14 +298,9 @@ const ManagementOrderContent = () => {
             }}
           />
         </div>
-        <Row justify="start" style={{ paddingRight: "24px" }}>
+        <Row justify="start">
           <Col span={4}>
             <Button>Tổng cộng ({data?.length})</Button>
-          </Col>
-          <Col span={4} offset={10}>
-            <Button>
-              Thêm mới <PlusOutlined />
-            </Button>
           </Col>
         </Row>
       </div>
@@ -326,8 +336,106 @@ const ManagementOrderContent = () => {
         style={{
           marginTop: 24,
         }}
-        scroll={{ x: 1500, y: 445 }}
+        scroll={{ x: 1500, y: 416 }}
       />
+      <Modal
+        title="Chi tiết đơn hàng"
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        width={800}
+        style={{ top: 70 }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: 24,
+          }}
+        >
+          <div>
+            <Divider orientation="left">Thông tin đơn hàng</Divider>
+            <div
+              style={{
+                border: "1px solid #9F78FF",
+                width: 750,
+                height: 200,
+                padding: "0px 10px",
+                borderRadius: "5px",
+                overflowY: "scroll",
+                scrollbarWidth: "none",
+                WebkitScrollbar: "none",
+              }}
+            >
+              <Row gutter={[16, 12]} style={{ padding: "12px 12px" }}>
+                <Col className="gutter-row" span={12}>
+                  <Text level={5}>
+                    <b>Tổng sản phẩm:</b> 4
+                  </Text>
+                </Col>
+                <Col className="gutter-row" span={12}>
+                  <Text level={5}>
+                    <b>Tổng giá tiền:</b> 120.000 VNĐ
+                  </Text>
+                </Col>
+                <Col className="gutter-row" span={12}>
+                  <Text level={5}>
+                    <b>Số tiền giảm:</b> 20.000 VNĐ
+                  </Text>
+                </Col>
+                <Col className="gutter-row" span={12}>
+                  <Text level={5}>
+                    <b>Mã giảm:</b> MungXuan2024
+                  </Text>
+                </Col>
+                <Col className="gutter-row" span={12}>
+                  <Text level={5}>
+                    <b>Số tiền sau khi giảm:</b> 20.000 VNĐ
+                  </Text>
+                </Col>
+                <Col className="gutter-row" span={12}>
+                  <Text level={5}>
+                    <b>Tiền đặt cọc đã trả:</b> 20.000 VNĐ
+                  </Text>
+                </Col>
+                <Col className="gutter-row" span={12}>
+                  <Text level={5}>
+                    <b>Tiền trả trước:</b> 20.000 VNĐ
+                  </Text>
+                </Col>
+                <Col className="gutter-row" span={12}>
+                  <Text level={5}>
+                    <b>Tiền đã trả:</b> 20.000 VNĐ
+                  </Text>
+                </Col>
+                <Col className="gutter-row" span={12}>
+                  <Text level={5}>
+                    <b>Tiền còn lại:</b> 20.000 VNĐ
+                  </Text>
+                </Col>
+              </Row>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            marginTop: 24,
+          }}
+        >
+          <Divider orientation="left">Thông tin sản phẩm</Divider>
+          <div
+            style={{
+              border: "1px solid #9F78FF",
+              width: 750,
+              height: 200,
+              padding: "0px 10px",
+              borderRadius: "5px",
+            }}
+          ></div>
+        </div>
+      </Modal>
     </div>
   );
 };
