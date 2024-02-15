@@ -118,49 +118,68 @@ export default function Blog() {
                     </div>
 
                     <div className='blog-items'>
-                        <div className='blog-items-img'>
-                            <img src={Blog2}></img>
-                        </div>
-                        <div className='blog-items-des'>
-                            <p className='title is-4'>Làm chủ phong cách của bạnLàm chủ phong cách của bạnLàm chủ phong cách của bạnLàm chủ phong cách của bạn</p>
-                        </div>
+                        <Link to="/blog/blog-id">
+                            <div className='blog-items-img'>
+                                <img src={Blog2}></img>
+                            </div>
+                            <div className='blog-items-des'>
+                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
+                                <p className='blog-description'>10/1/2024</p>
+                            </div>
+                        </Link>
 
-                    </div>
-
-                    <div className='blog-items'>
-                        <div className='blog-items-img'>
-                            <img src={Blog3}></img>
-                        </div>
-                        <div className='blog-items-des'>
-                            <p className='title is-4'>Làm chủ phong cách của bạnLàm chủ phong cách của bạnLàm chủ phong cách của bạnLàm chủ phong cách của bạn</p>
-                        </div>
 
                     </div>
                     <div className='blog-items'>
-                        <div className='blog-items-img'>
-                            <img src={Blog1}></img>
-                        </div>
-                        <div className='blog-items-des'>
-                            <p className='title is-4'>Làm chủ phong cách của bạnLàm chủ phong cách của bạnLàm chủ phong cách của bạnLàm chủ phong cách của bạn</p>
-                        </div>
+                        <Link to="/blog/blog-id">
+                            <div className='blog-items-img'>
+                                <img src={Blog3}></img>
+                            </div>
+                            <div className='blog-items-des'>
+                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
+                                <p className='blog-description'>10/1/2024</p>
+                            </div>
+                        </Link>
+
 
                     </div>
                     <div className='blog-items'>
-                        <div className='blog-items-img'>
-                            <img src={Blog2}></img>
-                        </div>
-                        <div className='blog-items-des'>
-                            <p className='title is-4'>Làm chủ phong cách của bạnLàm chủ phong cách của bạnLàm chủ phong cách của bạnLàm chủ phong cách của bạn</p>
-                        </div>
+                        <Link to="/blog/blog-id">
+                            <div className='blog-items-img'>
+                                <img src={Blog1}></img>
+                            </div>
+                            <div className='blog-items-des'>
+                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
+                                <p className='blog-description'>10/1/2024</p>
+                            </div>
+                        </Link>
+
 
                     </div>
                     <div className='blog-items'>
-                        <div className='blog-items-img'>
-                            <img src={Blog3}></img>
-                        </div>
-                        <div className='blog-items-des'>
-                            <p className='title is-4'>Làm chủ phong cách của bạnLàm chủ phong cách của bạnLàm chủ phong cách của bạnLàm chủ phong cách của bạn</p>
-                        </div>
+                        <Link to="/blog/blog-id">
+                            <div className='blog-items-img'>
+                                <img src={Blog2}></img>
+                            </div>
+                            <div className='blog-items-des'>
+                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
+                                <p className='blog-description'>10/1/2024</p>
+                            </div>
+                        </Link>
+
+
+                    </div>
+                    <div className='blog-items'>
+                        <Link to="/blog/blog-id">
+                            <div className='blog-items-img'>
+                                <img src={Blog3}></img>
+                            </div>
+                            <div className='blog-items-des'>
+                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
+                                <p className='blog-description'>10/1/2024</p>
+                            </div>
+                        </Link>
+
 
                     </div>
                 </div>
