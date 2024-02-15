@@ -191,9 +191,15 @@ const ManagementDiscountContent = () => {
       width: 200,
     },
     {
+      title: "Sản phẩm tối thiểu",
+      dataIndex: "conditionProductMin",
+      key: "9",
+      width: 200,
+    },
+    {
       title: "Action",
       dataIndex: "Action",
-      key: "9",
+      key: "10",
       width: 100,
       fixed: "right",
       render: () => (
@@ -237,6 +243,7 @@ const ManagementDiscountContent = () => {
     discountprice: item.discountPrice,
     conditionPriceMin: item.conditionPriceMin,
     conditionPriceMax: item.conditionPriceMax,
+    conditionProductMin: item.conditionProductMin,
   }));
 
   console.log(getApi);
@@ -259,6 +266,7 @@ const ManagementDiscountContent = () => {
   const [error, setError] = useState("");
   const onCreate = (values) => {
     const { startDate, endDate } = values;
+    console.log("success");
     if (startDate.isAfter(endDate)) {
       setError("Ngày bắt đầu không được lớn hơn ngày kết thúc");
       return;
@@ -288,7 +296,7 @@ const ManagementDiscountContent = () => {
           alignItems: "center",
         }}
       >
-        <div>
+        <div style={{ maxWidth: "900px" }}>
           <Checkbox.Group
             value={checkedList}
             options={options}
@@ -353,6 +361,25 @@ const ManagementDiscountContent = () => {
 
 const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
   const [form] = Form.useForm();
+  const [componentDisabled, setComponentDisabled] = useState(0);
+  console.log(componentDisabled);
+
+  const handleDisable = (value) => {
+    console.log(value);
+    if (value !== "") {
+      setComponentDisabled(1);
+    } else {
+      setComponentDisabled(0);
+    }
+  };
+  const handleDisable1 = (value) => {
+    console.log(value);
+    if (value !== "") {
+      setComponentDisabled(2);
+    } else {
+      setComponentDisabled(0);
+    }
+  };
 
   return (
     <Modal
@@ -363,7 +390,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
       cancelText="Hủy bỏ"
       onCancel={() => {
         form.resetFields();
-
+        setComponentDisabled(0);
         onCancel();
       }}
       onOk={() => {
@@ -421,6 +448,25 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
         >
           <Input />
         </Form.Item>
+        <Form.Item
+          className="mt-2"
+          hasFeedback
+          label="Sản phẩm tối thiểu"
+          name="conditionProductMin"
+          rules={[
+            {
+              required: true,
+              message: "Sản phẩm tối thiểu không được để trống",
+            },
+            {
+              type: "number",
+              min: 1,
+              message: "Phải là một số lớn hơn hoặc bằng 1",
+            },
+          ]}
+        >
+          <InputNumber style={{ width: 472 }} />
+        </Form.Item>
         <Row>
           <Col span={12}>
             <Form.Item
@@ -428,11 +474,12 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
               label="Ngày bắt đầu"
               name="startDate"
               rules={[
+                {
+                  required: true,
+                  message: "Ngày bắt đầu không được để trống",
+                },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
-                    if (!value) {
-                      return Promise.reject("Ngày bắt đầu không được để trống");
-                    }
                     const endDate = getFieldValue("endDate");
                     if (!endDate || value.isBefore(endDate)) {
                       return Promise.resolve();
@@ -453,13 +500,12 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
               label="Ngày kết thúc"
               name="endDate"
               rules={[
+                {
+                  required: true,
+                  message: "Ngày kết thúc không được để trống",
+                },
                 ({ getFieldValue }) => ({
                   validator(_, value) {
-                    if (!value) {
-                      return Promise.reject(
-                        "Ngày kết thúc không được để trống"
-                      );
-                    }
                     const startDate = getFieldValue("startDate");
                     if (startDate && value.isBefore(startDate)) {
                       return Promise.reject(
@@ -483,48 +529,70 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
 
         <Row>
           <Col span={12}>
-            <Form.Item
-              hasFeedback
-              className="mt-2"
-              label="Giảm giá theo %"
-              name="discountPercent"
-              rules={[
-                {
-                  required: true,
-                  message: "Giảm giá theo % không được để trống",
-                },
-                {
-                  type: "number",
-                  min: 1,
-                  max: 100,
-                  message: "Phải là một số lớn hơn hoặc bằng 1 và bé hơn 100",
-                },
-              ]}
-            >
-              <InputNumber style={{ width: 220 }} />
-            </Form.Item>
+            {componentDisabled === 2 ? (
+              <Form.Item
+                hasFeedback
+                className="mt-2"
+                label="Giảm giá theo % (10-50)"
+              >
+                <InputNumber style={{ width: 220 }} disabled={true} />
+              </Form.Item>
+            ) : (
+              <Form.Item
+                hasFeedback
+                className="mt-2"
+                label="Giảm giá theo % (10-50)"
+                name="discountPercent"
+                onChange={(e) => handleDisable(e.target.value)}
+                rules={[
+                  {
+                    required: true,
+                    message: "Giảm giá theo % không được để trống",
+                  },
+                  {
+                    type: "number",
+                    min: 10,
+                    max: 50,
+                    step: 0.5,
+                    message:
+                      "Giảm giá phải là số nguyên và trong khoảng từ 10 - 50%",
+                  },
+                ]}
+              >
+                <InputNumber style={{ width: 220 }} />
+              </Form.Item>
+            )}
           </Col>
-          <Col span={12}>
-            <Form.Item
-              className="mt-2 ml-4"
-              hasFeedback
-              label="Số tiền giảm"
-              name="discountPrice"
-              rules={[
-                {
-                  required: true,
-                  message: "Số tiền giảm không được để trống",
-                },
-                {
-                  type: "number",
-                  min: 1,
-                  message: "Phải là một số lớn hơn hoặc bằng 1",
-                },
-              ]}
-            >
-              <InputNumber style={{ width: 220 }} />
-            </Form.Item>
-          </Col>
+          {componentDisabled === 1 ? (
+            <Col span={12}>
+              <Form.Item className="mt-2 ml-4" hasFeedback label="Số tiền giảm">
+                <InputNumber style={{ width: 220 }} disabled={true} />
+              </Form.Item>
+            </Col>
+          ) : (
+            <Col span={12}>
+              <Form.Item
+                className="mt-2 ml-4"
+                hasFeedback
+                label="Số tiền giảm"
+                name="discountPrice"
+                onChange={(e) => handleDisable1(e.target.value)}
+                rules={[
+                  {
+                    required: true,
+                    message: "Số tiền giảm không được để trống",
+                  },
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Phải là một số lớn hơn hoặc bằng 1",
+                  },
+                ]}
+              >
+                <InputNumber style={{ width: 220 }} />
+              </Form.Item>
+            </Col>
+          )}
         </Row>
         <Row>
           <Col span={12}>
@@ -555,10 +623,6 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
               label="Điều kiện giảm giá tối đa"
               name="conditionPriceMax"
               rules={[
-                {
-                  required: true,
-                  message: "Điều kiện giảm giá tối đa không được để trống",
-                },
                 {
                   type: "number",
                   min: 1,

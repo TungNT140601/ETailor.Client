@@ -22,12 +22,12 @@
     color: #9F78FF !important;
 }
 
-.ant-layout-sider-children {
-    max-height: 700px;
+.menu-content {
+    max-height: 100vh;
     overflow-y: scroll;
 }
 
-.ant-layout-sider-children::-webkit-scrollbar {
+.menu-content::-webkit-scrollbar {
     display: none;
 }
 

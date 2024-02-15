@@ -187,55 +187,6 @@ const ManagementBlogContent = () => {
     description: item.content,
   }));
 
-  // const data = [];
-  // for (let i = 0; i < 100; i++) {
-  //   data.push({
-  //     key: i,
-  //     stt: i,
-  //     title: `Những nội dung thời trang được sử dụng với mục đích tiếp thị, quảng cáo thì nội dung phải lôi cuốn, hấp dẫn người đọc mới giữ chân người mua, từ đó tỷ suất mua hàng càng tăng và ngược lại.  ${i}`,
-  //     description: (
-  //       <Typography>
-  //         <Title>Introduction</Title>
-  //         <p>
-  //           Lorem Ipsum is simply dummy text of the printing and typesetting
-  //           industry. Lorem Ipsum has been the industry's standard dummy text
-  //           ever since the 1500s, when an unknown printer took a galley of type
-  //           and scrambled it to make a type specimen book. It has survived not
-  //           only five centuries, but also the leap into electronic typesetting,
-  //           remaining essentially unchanged. It was popularised in the 1960s
-  //           with the release of Letraset sheets containing Lorem Ipsum passages,
-  //           and more recently with desktop publishing software like Aldus
-  //           PageMaker including versions of Lorem Ipsum.
-  //         </p>
-  //         <Title>Introduction</Title>
-  //         <p>
-  //           Lorem Ipsum is simply dummy text of the printing and typesetting
-  //           industry. Lorem Ipsum has been the industry's standard dummy text
-  //           ever since the 1500s, when an unknown printer took a galley of type
-  //           and scrambled it to make a type specimen book. It has survived not
-  //           only five centuries, but also the leap into electronic typesetting,
-  //           remaining essentially unchanged. It was popularised in the 1960s
-  //           with the release of Letraset sheets containing Lorem Ipsum passages,
-  //           and more recently with desktop publishing software like Aldus
-  //           PageMaker including versions of Lorem Ipsum.
-  //         </p>
-  //         <Title>Introduction</Title>
-  //         <p>
-  //           Lorem Ipsum is simply dummy text of the printing and typesetting
-  //           industry. Lorem Ipsum has been the industry's standard dummy text
-  //           ever since the 1500s, when an unknown printer took a galley of type
-  //           and scrambled it to make a type specimen book. It has survived not
-  //           only five centuries, but also the leap into electronic typesetting,
-  //           remaining essentially unchanged. It was popularised in the 1960s
-  //           with the release of Letraset sheets containing Lorem Ipsum passages,
-  //           and more recently with desktop publishing software like Aldus
-  //           PageMaker including versions of Lorem Ipsum.
-  //         </p>
-  //       </Typography>
-  //     ),
-  //   });
-  // }
-
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
   const options = columns.map(({ key, title }) => ({

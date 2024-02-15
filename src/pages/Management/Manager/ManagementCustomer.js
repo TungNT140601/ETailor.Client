@@ -76,7 +76,7 @@ const ManagementCustomerHeader = () => {
                     >
                       <UserOutlined fontSize="small" />
                       &nbsp;
-                      <span>Số đo cơ thể</span>
+                      <span>Thông tin khách hàng</span>
                     </div>
                   </Link>
                 </>
@@ -84,7 +84,7 @@ const ManagementCustomerHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Số đo cơ thể</Title>
+        <Title level={4}>Thông tin khách hàng</Title>
       </div>
       <div
         style={{
@@ -246,40 +246,9 @@ const ManagementCustomerContent = () => {
 
   //---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  const columns1 = [
-    {
-      title: "Name",
-      dataIndex: "name",
-    },
-    {
-      title: "Age",
-      dataIndex: "age",
-    },
-    {
-      title: "Address",
-      dataIndex: "address",
-    },
-  ];
-  const data1 = [
-    {
-      key: "1",
-      name: "John Brown",
-      age: 32,
-      address: "New York No. 1 Lake Park",
-    },
-    {
-      key: "2",
-      name: "Jim Green",
-      age: 42,
-      address: "London No. 1 Lake Park",
-    },
-    {
-      key: "3",
-      name: "Joe Black",
-      age: 32,
-      address: "Sydney No. 1 Lake Park",
-    },
-  ];
+  const onChange = (currentSlide) => {
+    console.log(currentSlide);
+  };
 
   return (
     <div>
@@ -322,8 +291,185 @@ const ManagementCustomerContent = () => {
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
+        width={800}
       >
-        <Table columns={columns1} dataSource={data1} size="small" />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginTop: 24,
+          }}
+        >
+          <div>
+            <Avatar
+              src="https://api.dicebear.com/7.x/miniavs/svg?seed=1"
+              style={{ width: 100, height: 100 }}
+            />
+            <Title
+              level={4}
+              style={{
+                marginTop: 10,
+              }}
+            >
+              Đào Anh Tú
+            </Title>
+          </div>
+        </div>
+        <Divider />
+        <div
+          style={{
+            marginTop: 24,
+          }}
+        >
+          <Row justify="center">
+            <Col span={12}>
+              <Title level={5}>Thông tin người dùng</Title>
+              <div
+                style={{
+                  border: "1px solid #9F78FF",
+                  width: 360,
+                  height: 200,
+                  padding: "0px 10px",
+                  borderRadius: "10px",
+                }}
+              >
+                <div
+                  style={{
+                    marginTop: 10,
+                  }}
+                >
+                  <Text level={5}>
+                    <b>Tên người dùng:</b> anhtu21
+                  </Text>
+                </div>
+                <div
+                  style={{
+                    marginTop: 10,
+                  }}
+                >
+                  <Text level={5}>
+                    <b>Họ và tên:</b> Đào Anh Tú
+                  </Text>
+                </div>
+                <div
+                  style={{
+                    marginTop: 10,
+                  }}
+                >
+                  <Text level={5}>
+                    <b>Địa chỉ:</b> 117/18 Phan văn hân phường 17 quận bình
+                    thạnh
+                  </Text>
+                </div>
+                <div
+                  style={{
+                    marginTop: 10,
+                  }}
+                >
+                  <Text level={5}>
+                    <b>Số điện thoại:</b> 0937550256
+                  </Text>
+                </div>
+              </div>
+            </Col>
+            <Col span={12}>
+              <Title level={5}>Profile số đo cơ thể</Title>
+              <Carousel afterChange={onChange} id="carousel-management-cus">
+                <div>
+                  <Card
+                    size="small"
+                    title="Tên profile"
+                    style={{
+                      width: 370,
+                      height: 200,
+                      border: "1px solid #9F78FF",
+                    }}
+                  >
+                    <Row gutter={[16, 12]}>
+                      <Col className="gutter-row" span={12}>
+                        <div>
+                          <p>Số đo ngực: 1 cm</p>
+                        </div>
+                      </Col>
+
+                      <Col className="gutter-row" span={12}>
+                        <div>
+                          <p>Số đo eo: 1 cm</p>
+                        </div>
+                      </Col>
+                      <Col className="gutter-row" span={12}>
+                        <div>
+                          <p>Số đo tay: 1 cm</p>
+                        </div>
+                      </Col>
+                    </Row>
+                  </Card>
+                </div>
+                <div>
+                  <Card
+                    size="small"
+                    title="Tên profile"
+                    style={{
+                      width: 370,
+                      height: 200,
+                      border: "1px solid #9F78FF",
+                    }}
+                  >
+                    <Row gutter={[16, 12]}>
+                      <Col className="gutter-row" span={12}>
+                        <div>
+                          <p>Số đo ngực: 1 cm</p>
+                        </div>
+                      </Col>
+
+                      <Col className="gutter-row" span={12}>
+                        <div>
+                          <p>Số đo eo: 1 cm</p>
+                        </div>
+                      </Col>
+                      <Col className="gutter-row" span={12}>
+                        <div>
+                          <p>Số đo tay: 1 cm</p>
+                        </div>
+                      </Col>
+                    </Row>
+                  </Card>
+                </div>
+                <div>
+                  <Card
+                    size="small"
+                    title="Tên profile"
+                    style={{
+                      width: 370,
+                      height: 200,
+                      border: "1px solid #9F78FF",
+                    }}
+                  >
+                    <Row gutter={[16, 12]}>
+                      <Col className="gutter-row" span={12}>
+                        <div>
+                          <p>Số đo ngực: 1 cm</p>
+                        </div>
+                      </Col>
+
+                      <Col className="gutter-row" span={12}>
+                        <div>
+                          <p>Số đo eo: 1 cm</p>
+                        </div>
+                      </Col>
+                      <Col className="gutter-row" span={12}>
+                        <div>
+                          <p>Số đo tay: 1 cm</p>
+                        </div>
+                      </Col>
+                    </Row>
+                  </Card>
+                </div>
+              </Carousel>
+            </Col>
+          </Row>
+        </div>
       </Modal>
     </div>
   );

@@ -471,11 +471,8 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
               message: "Số điện thoại không được để trống",
             },
             {
-              type: "number",
-              min: 10,
-              max: 11,
-              message:
-                "Số điện thoại phải là số và ít nhất là 10 và tối đa là 11 số",
+              pattern: /^[0-9]{10}$/,
+              message: "Số điện thoại phải là 10 số",
             },
           ]}
         >
