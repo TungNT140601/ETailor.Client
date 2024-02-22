@@ -548,6 +548,7 @@ export const ManagementCreateProductTemplate = () => {
                 height: "100px",
               }}
               options={options}
+              id="product_template_step_3"
             />
           </Space>
 
@@ -714,7 +715,7 @@ export const ManagementCreateProductTemplate = () => {
         }}
       >
         <div>
-          <Link to="/manager">
+          <Link to="/manager/product-template">
             <Button icon={<RollbackOutlined />}>Thoát</Button>
           </Link>
           <Divider orientation="left">
