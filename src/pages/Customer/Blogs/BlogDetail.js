@@ -6,6 +6,7 @@ import './blog.css'
 
 
 export default function BlogDetail() {
+    
     return (
         <div style={{ paddingTop: "140px" }}>
             <div style={{ height: "60px", paddingLeft: "60px" }}>

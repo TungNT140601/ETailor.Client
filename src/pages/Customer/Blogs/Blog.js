@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react'
+import React, { useEffect, useState } from 'react'
 import Banner10 from "../../../assets/images/banner-blog/surprised-curly-woman-beret-looks-left-charming-lady-pink-sweater-sunglasses-green-skirt-holds-grey-handbag.jpg"
 import './blog.css'
 import ViewBtn from "../../../assets/images/banner-blog/top-right.png"
@@ -32,6 +32,37 @@ export default function Blog() {
         //     }
         // });
     }, []);
+    const [blogsData, setBlogsData] = useState('')
+    useEffect(() => {
+        const fetchBlogs = async () => {
+            try {
+                const response = await fetch("https://etailorapi.azurewebsites.net/api/blog", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("blogs:", data)
+                    setBlogsData(data);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        };
+        fetchBlogs();
+    }, []);
+
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = date.getDate();
+        const month = date.toLocaleString('vi-VI', { month: 'long' });
+        const year = date.getFullYear();
+        return `${day} ${month} ${year}`;
+    };
+
     return (
         <div style={{ paddingTop: "140px" }}>
             <div className='flex'>
@@ -103,85 +134,24 @@ export default function Blog() {
                     Bài viết gần đây
                 </p>
                 <div className='blog-container'>
-                    <div className='blog-items'>
-                        <Link to="/blog/blog-id">
-                            <div className='blog-items-img'>
-                                <img src={Blog1}></img>
+                    {blogsData && blogsData.map((blog, index) => {
+                        return (
+                            <div className='blog-items' key={index}>
+                                <Link to={`/blog/${blog.id}`}>
+                                    <div className='blog-items-img'>
+                                        <img src={blog.thumbnail} alt={`Blog ${index + 1}`} />
+                                    </div>
+                                    <div className='blog-items-des'>
+                                        <p className='title is-4'>{blog.title}</p>
+                                        <p className='blog-description'>Ngày đăng: {formatDate(blog.createdTime)}</p>
+                                    </div>
+                                </Link>
                             </div>
-                            <div className='blog-items-des'>
-                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
-                                <p className='blog-description'>10/1/2024</p>
-                            </div>
-                        </Link>
+                        )
+                    })}
 
 
-                    </div>
 
-                    <div className='blog-items'>
-                        <Link to="/blog/blog-id">
-                            <div className='blog-items-img'>
-                                <img src={Blog2}></img>
-                            </div>
-                            <div className='blog-items-des'>
-                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
-                                <p className='blog-description'>10/1/2024</p>
-                            </div>
-                        </Link>
-
-
-                    </div>
-                    <div className='blog-items'>
-                        <Link to="/blog/blog-id">
-                            <div className='blog-items-img'>
-                                <img src={Blog3}></img>
-                            </div>
-                            <div className='blog-items-des'>
-                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
-                                <p className='blog-description'>10/1/2024</p>
-                            </div>
-                        </Link>
-
-
-                    </div>
-                    <div className='blog-items'>
-                        <Link to="/blog/blog-id">
-                            <div className='blog-items-img'>
-                                <img src={Blog1}></img>
-                            </div>
-                            <div className='blog-items-des'>
-                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
-                                <p className='blog-description'>10/1/2024</p>
-                            </div>
-                        </Link>
-
-
-                    </div>
-                    <div className='blog-items'>
-                        <Link to="/blog/blog-id">
-                            <div className='blog-items-img'>
-                                <img src={Blog2}></img>
-                            </div>
-                            <div className='blog-items-des'>
-                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
-                                <p className='blog-description'>10/1/2024</p>
-                            </div>
-                        </Link>
-
-
-                    </div>
-                    <div className='blog-items'>
-                        <Link to="/blog/blog-id">
-                            <div className='blog-items-img'>
-                                <img src={Blog3}></img>
-                            </div>
-                            <div className='blog-items-des'>
-                                <p className='title is-4'>Làm chủ phong cách của bạn</p>
-                                <p className='blog-description'>10/1/2024</p>
-                            </div>
-                        </Link>
-
-
-                    </div>
                 </div>
             </div>
         </div>

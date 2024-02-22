@@ -60,7 +60,7 @@ const Header = () => {
                     <div className='header-menu'>
                         <div className='navbar-item'>
                             <Link to="/" onClick={() => setClickedSection("Trang Chu")} >
-                                <h1 className="subtitle is-5 " style={{ color: clickedSection === "Trang Chu" ? "#9F78FF" : "#1D2547" }}>
+                                <h1 className="subtitle is-5 " style={{ color: window.location.pathname === "/" ? "#9F78FF" : "#1D2547" }}>
                                     TRANG CHỦ
                                 </h1>
                             </Link>
@@ -68,7 +68,7 @@ const Header = () => {
 
                         <div className='navbar-item'>
                             <Link to="/blog" onClick={() => setClickedSection("Bai Viet")} >
-                                <h1 className="subtitle is-5" style={{ color: clickedSection === "Bai Viet" ? "#9F78FF" : "#1D2547" }}>
+                                <h1 className="subtitle is-5" style={{ color:  window.location.pathname.startsWith("/blog") ? "#9F78FF" : "#1D2547" }}>
                                     BÀI VIẾT
                                 </h1>
                             </Link>
@@ -78,7 +78,7 @@ const Header = () => {
                             <div className='navbar-item' >
                                 <div style={{ height: "auto" }}>
                                     <Link className='nav-link' to="/catalogue" onClick={() => setClickedSection("Dat May")}>
-                                        <h1 className="subtitle is-5 " style={{ color: clickedSection === "Dat May" ? "#9F78FF" : "#1D2547" }}>
+                                        <h1 className="subtitle is-5 " style={{ color: window.location.pathname.startsWith("/catalogue") ? "#9F78FF" : "#1D2547" }}>
                                             SẢN PHẨM MẪU <img width={15} height={15} src={MenuDropIcon}></img>
                                         </h1>
                                     </Link>
@@ -101,7 +101,7 @@ const Header = () => {
                         {token && (
                             <div className='navbar-item'>
                                 <Link to="/orders" onClick={() => setClickedSection("Don hang")} >
-                                    <h1 className="subtitle is-5 " style={{ color: clickedSection === "Don hang" ? "#9F78FF" : "#1D2547" }}>
+                                    <h1 className="subtitle is-5 " style={{ color:  window.location.pathname.startsWith("/orders") ? "#9F78FF" : "#1D2547" }}>
                                         ĐƠN HÀNG
                                     </h1>
                                 </Link>

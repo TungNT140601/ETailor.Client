@@ -10,13 +10,13 @@ export default function BodyProfile() {
       </div>
       <div style={{ width: "100%", paddingTop: "20px" }}>
         <table class="table" style={{ width: "100%" }}>
-          <thead>
-            <tr>
-              <th>Mã số đo</th>
-              <th>Tên số đo</th>
-              <th>Người đo</th>
-              <th>Ngày đo</th>
-              <th>Thao tác</th>
+          <thead >
+            <tr >
+              <th style={{color:"#9F78FF"}}>Mã số đo</th>
+              <th style={{color:"#9F78FF"}}>Tên số đo</th>
+              <th style={{color:"#9F78FF"}}>Người đo</th>
+              <th style={{color:"#9F78FF"}}>Ngày đo</th>
+              <th style={{color:"#9F78FF"}}>Thao tác</th>
             </tr>
           </thead>
 
