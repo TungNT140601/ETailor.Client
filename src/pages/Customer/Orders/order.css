@@ -15,8 +15,8 @@
 }
 
 .table tbody tr:nth-child(even) {
-    background-color: #c5c3c3;
-    color: #fff;
+    background-color: #e7e5e5b2;
+    color: #334147;
 }
 
 .table tbody tr:hover {

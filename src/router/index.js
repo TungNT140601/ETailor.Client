@@ -101,13 +101,13 @@ export const publicRouters = [
     layout: DefaultLayout,
   },
   {
-    path: "/catalogue/product",
+    path: "/catalogue/:id",
     name: "product-detail",
     component: ProductDetail,
     layout: DefaultLayout,
   },
   {
-    path: "/blog/blog-id",
+    path: "/blog/:id",
     name: "blog-detail",
     component: BlogDetail,
     layout: DefaultLayout,

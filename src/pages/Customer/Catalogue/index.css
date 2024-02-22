@@ -50,6 +50,14 @@
     z-index: 3;
 }
 
+.catalog-title {
+    width: fit-content !important;
+    border-bottom: "2px #140c40";
+    height: 40px;
+    min-width: 20px;
+    margin-left: 40px;
+}
+
 .header-catalog-title {
     display: flex;
     position: relative;
@@ -57,7 +65,7 @@
     height: 80px;
     margin: 20px 40px 0 40px;
     align-items: center;
-    padding: 40px 0;
+    padding: 50px 0;
 }
 
 .view-more-btn {
@@ -106,9 +114,19 @@
 .media-content {
     display: flex;
     justify-content: flex-start;
+
 }
 
 .content {
     text-align: start;
     margin-bottom: 2em;
+    max-height: 1.8em;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card .media {
+    margin: 0 !important;
 }
