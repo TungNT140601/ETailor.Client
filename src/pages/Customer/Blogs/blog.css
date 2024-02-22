@@ -47,9 +47,9 @@
 
 .blog-container {
     display: grid;
-    grid-template-columns: auto auto auto;
-    column-gap: 60px;
-    padding: 20px 80px;
+    grid-template-columns: 30% 30% 30%;
+    column-gap: 40px;
+    margin: 20px 80px;
 }
 
 .blog-items-img {
@@ -57,6 +57,7 @@
     overflow: hidden;
     border-radius: 5px;
     box-shadow: 5px 10px 18px #88888858;
+    max-width: 350px;
 }
 
 .blog-items-des {
@@ -83,6 +84,9 @@
 
 .blog-items-img img {
     transition: transform 0.3s ease;
+    width: 600px;
+    height: 300px;
+    object-fit: cover;
 }
 
 .blog-items:hover .blog-items-img img {
@@ -90,7 +94,7 @@
 }
 
 .blog-items {
-    padding-bottom: 20px;
+    padding-bottom: 50px;
 }
 
 .blog-description {

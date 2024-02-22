@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import './index.css'
 import AoThun from '../../../assets/images/catalogues/ao-thun.jpg'
 import AoDai from '../../../assets/images/catalogues/ao-dai.jpg'
@@ -17,11 +17,33 @@ export default function Catalogue() {
     const [swiperRef, setSwiperRef] = useState(null);
     const appendNumber = useRef(500);
     const prependNumber = useRef(1);
-    // Create array with 500 slides
-    const [slides, setSlides] = useState(
-        Array.from({ length: 5}).map((_, index) => `Slide ${index + 1}`)
-    );
+    const [templatesData, setTemplatesData] = useState('')
+    const [loading, setLoading] = useState(true)
+    useEffect(() => {
+        const fetchTemplates = async () => {
+            try {
+                const response = await fetch("https://etailorapi.azurewebsites.net/api/template-management/get-all-template", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setTemplatesData(data);
+                    setLoading(false)
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        };
+        fetchTemplates();
+    }, []);
 
+    const [slides, setSlides] = useState(
+        Array.from({ length: 5 }).map((_, index) => `Slide ${index + 1}`)
+    );
+    console.log("Silede:", slides)
     const prepend = () => {
         setSlides([
             `Slide ${prependNumber.current - 2}`,
@@ -42,131 +64,88 @@ export default function Catalogue() {
 
     return (
         <>
-            <div className='catalog-container'>
-                <div style={{ height: '100px', display: 'flex', color: "#140c40", justifyContent: "center", padding: "140px 0 40px 0" }} className='title is-1'>
-                    <p>Sản phẩm mẫu</p>
-                </div>
-                <div style={{ paddingBottom: "20px" }}>
-                    <div className='header-catalog-title' >
-                        <div style={{ width: "150px", borderBottom: "2px solid #140c40", height: "40px", textAlign: "center", display: "flex" }}>
-                            <h1 className='title is-3' style={{ position: "absolute", left: 0, color: "#140c40" }}>ÁO SƠ MI</h1>
-                        </div>
 
-                        <div className='view-more-btn'>
-                            <p className='title is-4' >Tất cả</p>
-                        </div>
-
-
+            {
+                loading ? (
+                    < div className='catalog-container' style={{ paddingBottom: "400px" }}>
+                        <div style={{ height: '100px', display: 'flex', color: "#140c40", justifyContent: "center", padding: "240px 0 40px 0" }} className='title is-1'>
+                            Loading...
+                        </div >
                     </div>
-                    <div className='catalog-section-1'>
-                        <Swiper
-                            modules={[Virtual, Navigation, Pagination]}
-                            onSwiper={setSwiperRef}
-                            slidesPerView={4}
-                            centeredSlides={true}
-                            pagination={{
-                                type: 'fraction',
-                            }}
-                            spaceBetween={40}
-                            navigation={true}
-                            virtual
-                            initialSlide={2}
+                ) : (
 
-                        >
-                            {slides.map((slideContent, index) => (
-                                <SwiperSlide key={slideContent} virtualIndex={index}>
-                                    <div >
-                                        <Link to="/catalogue/product">
-                                            <div className="card">
-                                                <div className="card-image" style={{ height: "232px", overflow: "hidden" }}>
-                                                    <figure className="image is-4by3">
-                                                        <img src={AoDai} alt="Placeholder image"></img>
-                                                    </figure>
-                                                </div>
-                                                <div className="card-content">
-                                                    <div className="media">
-                                                        <div className="media-content">
-                                                            <p className="title is-4">Áo sơ mi</p>
+                    < div className='catalog-container'>
+                        <div style={{ height: '100px', display: 'flex', color: "#140c40", justifyContent: "center", padding: "140px 0 40px 0" }} className='title is-1'>
+                            <p>Sản phẩm mẫu</p>
+                        </div>
+                        {templatesData &&
+                            templatesData.map((template, index) => {
+                                return (
+                                    <div style={{ paddingBottom: "80px" }}>
+                                        <div className='header-catalog-title' >
+                                            <div className='catalog-title'>
+                                                <h1 className='title is-3' style={{  left: 0, color: "#140c40", borderBottom: "2px solid #140c40", paddingBottom: "5px" }}>{template.name}</h1>
+                                            </div>
+
+                                            <div className='view-more-btn'>
+                                                <p className='title is-4' >Tất cả</p>
+                                            </div>
+
+
+                                        </div>
+                                        <div className='catalog-section-1'>
+                                            <Swiper
+                                                modules={[Virtual, Navigation, Pagination]}
+                                                onSwiper={setSwiperRef}
+                                                slidesPerView={4}
+                                                centeredSlides={true}
+                                                pagination={{
+                                                    type: 'fraction',
+                                                }}
+                                                spaceBetween={40}
+                                                navigation={true}
+                                                virtual
+                                                initialSlide={1}
+                                                style={{overflow:"unset"}}
+                                            >
+                                                {template?.productTemplates && template.productTemplates.map((slideContent, index) => (
+                                                    <SwiperSlide key={slideContent} virtualIndex={index}>
+                                                        <div >
+                                                            <Link to={`/catalogue/${slideContent.urlPath}`}>
+                                                                <div className="card">
+                                                                    <div className="card-image" style={{ height: "262px", width: "350px", overflow: "hidden" }}>
+                                                                        <figure className="image is-4by3">
+                                                                            <img src={AoDai} alt="temp"></img>
+                                                                        </figure>
+                                                                    </div>
+                                                                    <div className="card-content" style={{ padding: "10px 24px 10px 24px" }}>
+                                                                        <div className="media">
+                                                                            <div className="media-content">
+                                                                                <p className="title is-4">{slideContent.name}</p>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div className="content">
+                                                                            {slideContent.description}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </Link>
 
                                                         </div>
-                                                    </div>
+                                                    </SwiperSlide>
+                                                ))}
+                                            </Swiper>
 
-                                                    <div className="content">
-                                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </Link>
-
-                                    </div>
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
-
-                    </div>
-                </div>
-
-
-                <div className='header-catalog-title' >
-                    <div style={{ width: "15    0px", borderBottom: "2px solid #140c40", height: "40px", textAlign: "center", display: "flex" }}>
-                        <h1 className='title is-3' style={{ position: "absolute", left: 0, color: "#140c40" }}>ÁO SƠ MI</h1>
-                    </div>
-
-                    <div className='view-more-btn'>
-                        <p className='title is-4' >Tất cả</p>
-                    </div>
-
-
-                </div>
-                <div className='catalog-section-1'>
-                    <Swiper
-                        modules={[Virtual, Navigation, Pagination]}
-                        onSwiper={setSwiperRef}
-                        slidesPerView={4}
-                        centeredSlides={true}
-                        pagination={{
-                            type: 'fraction',
-                        }}
-                        spaceBetween={40}
-                        navigation={true}
-                        virtual
-                        initialSlide={4}
-                    >
-                        {slides.map((slideContent, index) => (
-                            <SwiperSlide key={slideContent} virtualIndex={index}>
-                                <div >
-                                    <Link to="">
-                                        <div className="card">
-                                            <div className="card-image" style={{ height: "232px", overflow: "hidden" }}>
-                                                <figure className="image is-4by3">
-                                                    <img src={AoDai} alt="Placeholder image"></img>
-                                                </figure>
-                                            </div>
-                                            <div className="card-content">
-                                                <div className="media">
-                                                    <div className="media-content">
-                                                        <p className="title is-4">Áo sơ mi</p>
-
-                                                    </div>
-                                                </div>
-
-                                                <div className="content">
-                                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-
-                                                </div>
-                                            </div>
                                         </div>
-                                    </Link>
+                                    </div>
+                                )
+                            })
+                        }
+                    </div >
 
-                                </div>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-
-                </div>
-            </div>
+                )
+            }
         </>
-
     )
 }
