@@ -68,28 +68,26 @@ export default function Catalogue() {
             {
                 loading ? (
                     < div className='catalog-container' style={{ paddingBottom: "400px" }}>
-                        <div style={{ height: '100px', display: 'flex', color: "#140c40", justifyContent: "center", padding: "240px 0 40px 0" }} className='title is-1'>
+                        <div style={{ height: '100px', display: 'flex', color: "#140c40", justifyContent: "center", padding: "240px 0 40px 0" }} className='title is-6'>
                             Loading...
                         </div >
                     </div>
                 ) : (
 
-                    < div className='catalog-container'>
-                        <div style={{ height: '100px', display: 'flex', color: "#140c40", justifyContent: "center", padding: "140px 0 40px 0" }} className='title is-1'>
-                            <p>Sản phẩm mẫu</p>
-                        </div>
+                    < div className='catalog-container'style={{paddingTop: "100px" }} >
+                      
                         {templatesData &&
                             templatesData.map((template, index) => {
                                 return (
-                                    <div style={{ paddingBottom: "80px" }}>
+                                    <div>
                                         <div className='header-catalog-title' >
                                             <div className='catalog-title'>
-                                                <h1 className='title is-3' style={{  left: 0, color: "#140c40", borderBottom: "2px solid #140c40", paddingBottom: "5px" }}>{template.name}</h1>
+                                                <h1 className='title is-3' style={{ left: 0, color: "#140c40", borderBottom: "2px solid #140c40", paddingBottom: "5px" }}>{template.name}</h1>
                                             </div>
 
-                                            <div className='view-more-btn'>
+                                            {/* <div className='view-more-btn'>
                                                 <p className='title is-4' >Tất cả</p>
-                                            </div>
+                                            </div> */}
 
 
                                         </div>
@@ -105,8 +103,8 @@ export default function Catalogue() {
                                                 spaceBetween={40}
                                                 navigation={true}
                                                 virtual
-                                                initialSlide={1}
-                                                style={{overflow:"unset"}}
+                                                initialSlide={4}
+                                                style={{ overflow: "unset" }}
                                             >
                                                 {template?.productTemplates && template.productTemplates.map((slideContent, index) => (
                                                     <SwiperSlide key={slideContent} virtualIndex={index}>
@@ -115,7 +113,7 @@ export default function Catalogue() {
                                                                 <div className="card">
                                                                     <div className="card-image" style={{ height: "262px", width: "350px", overflow: "hidden" }}>
                                                                         <figure className="image is-4by3">
-                                                                            <img src={AoDai} alt="temp"></img>
+                                                                            <img src={slideContent.thumbnailImage} alt="temp"></img>
                                                                         </figure>
                                                                     </div>
                                                                     <div className="card-content" style={{ padding: "10px 24px 10px 24px" }}>

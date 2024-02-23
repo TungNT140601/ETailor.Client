@@ -19,18 +19,6 @@ export default function Blog() {
             easing: 'cubic-bezier(0.5, 0, 0, 1)',
             mobile: true,
         });
-
-        // ScrollReveal().reveal('.wrapper-container-content', {
-        //     duration: 1500,
-        //     distance: '60px',
-        //     scale: 0.85,
-        //     easing: 'ease-in',
-        //     mobile: true,
-        //     rotate: {
-        //         x: 20,
-        //         z: 20
-        //     }
-        // });
     }, []);
     const [blogsData, setBlogsData] = useState('')
     useEffect(() => {
