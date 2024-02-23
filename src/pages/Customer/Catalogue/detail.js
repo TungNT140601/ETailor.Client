@@ -56,13 +56,13 @@ export default function ProductDetail() {
                     </div>
                     <div className='product-detail-wrapper'>
                         <div className='product-detail-items'>
-                            <div className='product-detail-preview' style={{marginLeft:"10px"}}>
+                            <div className='product-detail-preview' style={{ marginLeft: "10px" }}>
                                 {imgData && imgData.map((img, index) => {
                                     return (
                                         <figure className="image is-96x96" style={{ marginBottom: "10px" }} onMouseEnter={() => { handleSelectedImg(img) }}>
                                             <img src={img} style={{
                                                 boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.25)"
-                                            }}></img>
+                                            }} alt=""></img>
                                         </figure>
                                     )
                                 })}
