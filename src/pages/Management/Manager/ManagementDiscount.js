@@ -398,6 +398,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
           .validateFields()
           .then((values) => {
             form.resetFields();
+            setComponentDisabled(0);
             onCreate(values);
           })
           .catch((info) => {

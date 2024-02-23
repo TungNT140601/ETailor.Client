@@ -297,6 +297,7 @@ import {
   AppstoreAddOutlined,
   FileTextOutlined,
   OrderedListOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import { Layout, Menu, ConfigProvider, Image, Typography } from "antd";
 import { useNavigate } from "react-router-dom";
@@ -308,6 +309,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import DiscountIcon from "@mui/icons-material/Discount";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
+
 import logo from "../../assets/logo.png";
 import "./index.css";
 
@@ -341,6 +343,11 @@ export const ManagerSidebar = () => {
       key: "/manager",
       label: <Link to="/manager">Dashboard</Link>,
       icon: <HomeOutlined />,
+    },
+    {
+      key: "/manager/order-for-customer",
+      label: <Link to="/manager/order-for-customer">Lên đơn hàng</Link>,
+      icon: <ShoppingCartOutlined />,
     },
     {
       key: "/management/login",

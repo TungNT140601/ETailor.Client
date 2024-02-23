@@ -212,7 +212,7 @@ const ManagementOrderContent = () => {
     {
       title: "Action",
       dataIndex: "Action",
-      key: "5",
+      key: "11",
       width: 100,
       fixed: "right",
       render: () => (
@@ -280,6 +280,125 @@ const ManagementOrderContent = () => {
     console.log(currentSlide);
   };
 
+  const data1 = [
+    {
+      key: "1",
+      index: "1",
+      name: "Bản mâu 1",
+      productName: "Sản phẩm 1",
+      address: "Loại vải 1",
+    },
+    {
+      key: "2",
+      index: "2",
+      name: "Bản mẫu 2",
+      productName: "Sản phẩm 1",
+      address: "Loại vải 1",
+    },
+    {
+      key: "3",
+      index: "3",
+      name: "Bản mẫu 3",
+      productName: "Sản phẩm 1",
+      address: "Loại vải 1",
+    },
+    {
+      key: "4",
+      index: "4",
+      name: "Bản mẫu 4",
+      productName: "Sản phẩm 1",
+      address: "Loại vải 1",
+    },
+    {
+      key: "5",
+      index: "5",
+      name: "Bản mẫu 5",
+      productName: "Sản phẩm 1",
+      address: "Loại vải 1",
+    },
+  ];
+
+  const columns1 = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+      width: 60,
+      render: (text) => <a>{text}</a>,
+    },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "productName",
+      key: "productName",
+    },
+    {
+      title: "Bản mẫu",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Loại vải",
+      dataIndex: "address",
+      key: "address",
+      render: (text) => (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Image
+            width={35}
+            src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+          />
+          &nbsp; &nbsp;
+          <Title level={5}>{text}</Title>
+        </div>
+      ),
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "1",
+      width: 160,
+      fixed: "left",
+      render: () => (
+        <>
+          <Text
+            style={{
+              backgroundColor: "rgba(255, 191, 0, 0.2)",
+              padding: "5px 10px",
+              color: "rgb(235, 177, 7)",
+              fontWeight: "600",
+              borderRadius: "10px",
+            }}
+          >
+            Chờ xác nhận
+          </Text>
+        </>
+      ),
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <>
+          <Row justify="start">
+            <Col span={4}>
+              <EyeOutlined
+                title="Xem chi tiết"
+                style={{
+                  backgroundColor: "rgb(140, 173, 245)",
+                  color: "white",
+                  padding: 6,
+                  borderRadius: "5px",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={showModal}
+              />
+            </Col>
+          </Row>
+        </>
+      ),
+    },
+  ];
+
   return (
     <div>
       <div
@@ -343,8 +462,8 @@ const ManagementOrderContent = () => {
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
-        width={800}
-        style={{ top: 70 }}
+        width={900}
+        style={{ top: 20 }}
       >
         <div
           style={{
@@ -359,8 +478,8 @@ const ManagementOrderContent = () => {
             <div
               style={{
                 border: "1px solid #9F78FF",
-                width: 750,
-                height: 200,
+                width: 850,
+                height: 150,
                 padding: "0px 10px",
                 borderRadius: "5px",
                 overflowY: "scroll",
@@ -369,49 +488,49 @@ const ManagementOrderContent = () => {
               }}
             >
               <Row gutter={[16, 12]} style={{ padding: "12px 12px" }}>
-                <Col className="gutter-row" span={12}>
+                <Col className="gutter-row" span={8}>
                   <Text level={5}>
                     <b>Tổng sản phẩm:</b> 4
                   </Text>
                 </Col>
-                <Col className="gutter-row" span={12}>
+                <Col className="gutter-row" span={8}>
                   <Text level={5}>
-                    <b>Tổng giá tiền:</b> 120.000 VNĐ
+                    <b>Tổng giá tiền:</b> 120.000đ
                   </Text>
                 </Col>
-                <Col className="gutter-row" span={12}>
+                <Col className="gutter-row" span={8}>
                   <Text level={5}>
-                    <b>Số tiền giảm:</b> 20.000 VNĐ
+                    <b>Số tiền giảm:</b> 20.000đ
                   </Text>
                 </Col>
-                <Col className="gutter-row" span={12}>
+                <Col className="gutter-row" span={8}>
                   <Text level={5}>
                     <b>Mã giảm:</b> MungXuan2024
                   </Text>
                 </Col>
-                <Col className="gutter-row" span={12}>
+                <Col className="gutter-row" span={8}>
                   <Text level={5}>
-                    <b>Số tiền sau khi giảm:</b> 20.000 VNĐ
+                    <b>Số tiền sau khi giảm:</b> 20.000đ
                   </Text>
                 </Col>
-                <Col className="gutter-row" span={12}>
+                <Col className="gutter-row" span={8}>
                   <Text level={5}>
-                    <b>Tiền đặt cọc đã trả:</b> 20.000 VNĐ
+                    <b>Tiền đặt cọc đã trả:</b> 20.000đ
                   </Text>
                 </Col>
-                <Col className="gutter-row" span={12}>
+                <Col className="gutter-row" span={8}>
                   <Text level={5}>
-                    <b>Tiền trả trước:</b> 20.000 VNĐ
+                    <b>Tiền trả trước:</b> 20.000đ
                   </Text>
                 </Col>
-                <Col className="gutter-row" span={12}>
+                <Col className="gutter-row" span={8}>
                   <Text level={5}>
-                    <b>Tiền đã trả:</b> 20.000 VNĐ
+                    <b>Tiền đã trả:</b> 20.000đ
                   </Text>
                 </Col>
-                <Col className="gutter-row" span={12}>
+                <Col className="gutter-row" span={8}>
                   <Text level={5}>
-                    <b>Tiền còn lại:</b> 20.000 VNĐ
+                    <b>Tiền còn lại:</b> 20.000đ
                   </Text>
                 </Col>
               </Row>
@@ -424,16 +543,25 @@ const ManagementOrderContent = () => {
             marginTop: 24,
           }}
         >
-          <Divider orientation="left">Thông tin sản phẩm</Divider>
+          <Divider orientation="left">Chi tiết đơn hàng</Divider>
           <div
             style={{
               border: "1px solid #9F78FF",
-              width: 750,
-              height: 200,
+              width: 850,
+              height: 260,
               padding: "0px 10px",
               borderRadius: "5px",
             }}
-          ></div>
+          >
+            <Table
+              columns={columns1}
+              dataSource={data1}
+              pagination={false}
+              scroll={{
+                y: 200,
+              }}
+            />
+          </div>
         </div>
       </Modal>
     </div>
