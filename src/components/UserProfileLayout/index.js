@@ -16,6 +16,7 @@ const UserProfileLayout = ({ children }) => {
                     <div className='wrapper-content'>
                         {children}
                     </div>
+
                 </div>
 
             </div>

@@ -1,15 +1,16 @@
 .user-info {
-
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
     padding-bottom: 10px;
     display: grid;
     grid-template-columns: 30% auto;
+    margin-left: 40px;
 }
 
 .input-title {
     display: flex;
-    justify-self: end;
+    justify-self: start;
     padding-right: 20px;
 }
 

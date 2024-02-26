@@ -7,8 +7,9 @@ import LeftBanner from '../../../assets/images/banner-blog/still-life-spring-war
 import RightBanner from '../../../assets/images/banner-blog/still-life-spring-wardrobe-switch.jpg';
 import NoOrder from '../../../assets/images/2011.i203.010..hobby cartoon set-06.jpg';
 import { DownOutlined } from '@ant-design/icons';
-import { Form, Radio, Space, Switch, Table, Tag } from 'antd';
+import { Form, Radio, Space, Switch, Table, Tag, Image } from 'antd';
 import { useQuery } from "react-query";
+import { render } from '@testing-library/react';
 
 const columns = [
     {
@@ -22,7 +23,28 @@ const columns = [
     },
     {
         title: 'Hình ảnh',
-        dataIndex: 'productImg'
+        dataIndex: 'productImg',
+        render: (imgSrc) => {
+            return (
+                <Image
+                    width={60}
+                    src={RightBanner}
+                    alt=''
+                    preview={{
+                        imageRender: () => (
+                            <div style={{ marginTop: "60px", height: "65%", overflowY: "hidden" }}>
+                                <Image
+                                    width="100%"
+                                    height="100%"
+                                    style={{ objectFit: "cover" }}
+                                    src={RightBanner}
+                                />
+                            </div>
+                        ),
+                    }}
+                />
+            );
+        }
     }
     ,
     {
@@ -35,29 +57,52 @@ const columns = [
         dataIndex: 'status',
         render: (status) => {
             let color;
+            let text;
             switch (status) {
+                case 0:
+                    color = 'red';
+                    text = 'Đã huỷ'
                 case 1:
-                    color = 'volcano';
+                    color = 'geekblue';
+                    text = 'Đang duyệt'
                     break;
                 case 2:
                     color = 'geekblue';
+                    text = 'Đã nhận đơn';
                     break;
                 case 3:
+                    color = 'volcano';
+                    text = 'Chưa bắt đầu';
+                    break;
+                case 4:
+                    color = 'volcano';
+                    text = 'Đang xử lý';
+                    break;
+                case 5:
                     color = 'green';
+                    text = 'Kiểm thử';
+                    break;
+                case 6:
+                    color = 'green';
+                    text = 'Hoàn thành';
                     break;
                 default:
-                    color = 'defaultColor'; // Set default color if status doesn't match any case
+                    color = 'defaultColor';
                     break;
             }
             return (
                 <span>
                     <Tag color={color} key={status}>
-                        {status === 2 ? "Hoàn thành" : ""}
+                        {status === 2 ? text : ""}
                     </Tag>
                 </span>
             );
 
         }
+    },
+    {
+        title: 'Giá',
+        dataIndex: 'price'
     }
     ,
     {
@@ -67,7 +112,7 @@ const columns = [
 ];
 
 const defaultExpandable = {
-    expandedRowRender: (record) => <p>{record.description}</p>,
+    expandedRowRender: (record) => <p>{record.status}</p>,
 };
 export default function Order() {
     const customer = localStorage.getItem("customer")
@@ -87,11 +132,13 @@ export default function Order() {
         productImg: order?.productImg ? order.productImg : "",
         quantity: order?.totalProduct,
         price: order?.totalPrice,
-        status: order?.status
+        status: order?.status,
+        date: order?.createdDate ? order.createdDate : "Date error",
     }))
-    console.log("orders:",getOrdersAPI)
+    console.log("orders:", getOrdersAPI)
     const [bordered, setBordered] = useState(true);
     const [loading, setLoading] = useState(false);
+
     const [expandable, setExpandable] = useState(defaultExpandable);
     const [showTitle, setShowTitle] = useState(false);
     const [showHeader, setShowHeader] = useState(true);
@@ -102,6 +149,9 @@ export default function Order() {
         ...item,
         ellipsis,
     }));
+    const handleExpandChange = (enable) => {
+        setExpandable(enable ? defaultExpandable : undefined);
+    };
     const tableProps = {
         bordered,
         loading,
@@ -111,19 +161,13 @@ export default function Order() {
     };
     return (
         <>
-            <div style={{ padding: "140px 20px 0 20px", display: "grid", gridTemplateColumns: "15% 70% 15%", columnGap: "20px" }}>
-                <div style={{ maxWidth: "200px", gridColumn: "1", height: "fit-content" }}>
+            <div style={{ padding: "140px 20px 0 20px", display: "flex", columnGap: "20px", position: "relative", alignContent: "center" }}>
+                <div style={{ maxWidth: "200px", left: "60px", top: "200px", height: "fit-content", position: "absolute" }}>
                     <img src={LeftBanner} alt="Left Banner" />
                 </div>
-                <div style={{ width: "100%", display: "flex", height: "600px", justifyContent: "center", position: "relative" }}>
-                    {/* <div style={{ paddingLeft: "20px" }}>
-                    <img src={NoOrder} style={{ height: "90%" }}></img>
-                </div>
-
-                <div style={{ position: "absolute", top: "40px" }}>
-                    <h1>Bạn chưa đặt may <Link to="#">sản phẩm.</Link></h1>
-                </div> */}
+                <div style={{ width: "100%", display: "flex", height: "600px", justifyContent: "center", position: "" }}>
                     <div style={{ marginTop: "40px" }}>
+
                         <Table
                             {...tableProps}
                             pagination={{
@@ -135,8 +179,8 @@ export default function Order() {
                         />
                     </div>
                 </div>
-                <div style={{ overflowX: "hidden", height: "fit-content", gridColumn: "3" }}>
-                    <img src={RightBanner} alt="Right Banner" />
+                <div style={{ overflowX: "hidden", height: "fit-content", position: "absolute", top: "200px", right: "60px" }}>
+                    <img src={RightBanner} alt="Right Banner" width={200} />
                 </div>
             </div >
         </>

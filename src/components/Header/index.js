@@ -68,7 +68,7 @@ const Header = () => {
 
                         <div className='navbar-item'>
                             <Link to="/blog" onClick={() => setClickedSection("Bai Viet")} >
-                                <h1 className="subtitle is-5" style={{ color:  window.location.pathname.startsWith("/blog") ? "#9F78FF" : "#1D2547" }}>
+                                <h1 className="subtitle is-5" style={{ color: window.location.pathname.startsWith("/blog") ? "#9F78FF" : "#1D2547" }}>
                                     BÀI VIẾT
                                 </h1>
                             </Link>
@@ -101,7 +101,7 @@ const Header = () => {
                         {token && (
                             <div className='navbar-item'>
                                 <Link to="/orders" onClick={() => setClickedSection("Don hang")} >
-                                    <h1 className="subtitle is-5 " style={{ color:  window.location.pathname.startsWith("/orders") ? "#9F78FF" : "#1D2547" }}>
+                                    <h1 className="subtitle is-5 " style={{ color: window.location.pathname.startsWith("/orders") ? "#9F78FF" : "#1D2547" }}>
                                         ĐƠN HÀNG
                                     </h1>
                                 </Link>
@@ -123,7 +123,7 @@ const Header = () => {
                                     <Link to="/profile">
                                         <MenuItem>Thông tin cá nhân</MenuItem>
                                     </Link>
-                                    <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                                    <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
                                 </Menu>
                             </Dropdown>
                         </div>

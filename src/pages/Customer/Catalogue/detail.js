@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import './detail.css'
 import { useParams } from 'react-router-dom'
+import NoData from '../../../assets/images/nodata.jpg'
 
-function formatCurrency(amount) {
-    console.log("Amount:", amount)
-    const parts = amount.toString().split(/\B(?=(\d{3})+(?!\d))/);
-    console.log("after join:", parts.join(".") + "đ")
-    return parts.join(".") + "đ";
-}
 export default function ProductDetail() {
     const [productData, setProductData] = useState('')
     const [imgData, setImgData] = useState('')
     const [selectedImg, setSelectedImg] = useState('')
     const { id } = useParams();
-
+    function formatCurrency(amount) {
+        console.log("Amount:", amount)
+        const parts = amount.toString().split(/\B(?=(\d{3})+(?!\d))/);
+        console.log("after join:", parts.join(".") + "đ")
+        return parts.join(".") + "đ";
+    }
     useEffect(() => {
         const fetchDetailProduct = async () => {
             try {
@@ -117,8 +117,15 @@ export default function ProductDetail() {
                     </div>
                 </div >
             ) : (
-                <div>
-                    Not Found
+                <div style={{ paddingTop: "70px", width: "100vw", display: "flex", justifyContent: "center" }}>
+                    <div style={{ width: "30%", textAlign: "center" }}>
+
+                        <img style={{ zIndex: '-1', objectFit: "cover" }} width={'100%'} height={'100%'} src={NoData} alt='no data'></img>
+                        <div>
+                            <p className='subtitle is-4'>Không tìm thấy sản phẩm</p>
+                        </div>
+                    </div>
+
                 </div>
             )
             }

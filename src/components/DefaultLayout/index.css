@@ -16,3 +16,17 @@
     bottom: 20px;
     z-index: 1000;
 }
+
+.scroll-to-top {
+    position: fixed;
+    right: 180px;
+    bottom: 20px;
+    transition: bottom 0.6s ease-in-out;
+}
+
+.back-to-top {
+    background-color: #9F78FF;
+}
+.scroll-to-top.visible {
+    bottom: 20px; 
+}

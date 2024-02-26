@@ -5,9 +5,9 @@ import UserAvatar from "../../../assets/images/user-avatar.jpg"
 export default function CustomerProfile() {
     return (
         <>
-            <h2 className='title is-3'> Thông tin tài khoản</h2>
+            <h2 className='title is-3' style={{ textAlign: "center" }}> Thông tin tài khoản</h2>
             <div style={{ display: "grid", gridTemplateColumns: "60% 40%" }}>
-                <div style={{ marginTop: "50px" }}>
+                <div style={{ marginTop: "24px" }}>
                     <div className='user-info'>
                         <div className='input-title'><h2 className='subtitle is-5'>Họ và tên:</h2></div>
                         <div className='input-area'><input value={'Nguyễn Công Vũ'} class="input" type="text"></input></div>
@@ -40,6 +40,12 @@ export default function CustomerProfile() {
                         </div>
 
                     </div >
+                    <div className='user-info'>
+                        <div className='input-title'><h2 className='subtitle is-5'>Email</h2></div>
+                        <div className='input-area'><input value={'vu12ace3@gmail.com'} class="input" type="text"></input></div>
+
+                    </div>
+                  
                 </div>
                 <div>
                     <figure class="image is-256x256">
