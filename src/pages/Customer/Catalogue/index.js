@@ -69,7 +69,7 @@ export default function Catalogue() {
 
             {
                 loading ? (
-                    < div style={{ paddingTop: "340px" }}>
+                    < div style={{ paddingTop: "300px" }}>
                         <Loading />
                     </div>
                 ) : (

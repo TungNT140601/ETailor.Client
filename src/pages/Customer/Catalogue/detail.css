@@ -20,6 +20,7 @@
 
 .product-component-style-items {
     padding-right: 10px;
+    height: fit-content;
 }
 
 .btn-contact {

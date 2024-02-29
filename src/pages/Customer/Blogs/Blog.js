@@ -62,7 +62,7 @@ export default function Blog() {
         <>
 
             {isLoading ? (
-                <div style={{ paddingTop: "340px" }}>
+                <div style={{ paddingTop: "300px" }}>
 
                     <Loading />
                 </div>
