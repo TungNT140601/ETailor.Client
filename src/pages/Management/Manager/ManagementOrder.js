@@ -103,16 +103,16 @@ const ManagementOrderHeader = () => {
 };
 
 const ManagementOrderContent = () => {
-  // const getUrl = "https://etailorapi.azurewebsites.net/api/body-size";
+  const getUrl = "https://etailorapi.azurewebsites.net/api/order";
 
-  // const { data: bodySize, isLoading: loading } = useQuery("get-body-size", () =>
-  //   fetch(getUrl, {
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Bearer ${manager?.token}`,
-  //     },
-  //   }).then((response) => response.json())
-  // );
+  const { data: order, isLoading: loading } = useQuery("get-order", () =>
+    fetch(getUrl, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${manager?.token}`,
+      },
+    }).then((response) => response.json())
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
@@ -238,30 +238,19 @@ const ManagementOrderContent = () => {
     },
   ];
 
-  // const getApi = bodySize?.map((item, index) => ({
-  //   stt: index + 1,
-  //   name: item.name,
-  //   BodyPart: item.bodyPart,
-  //   GuideVideoLink: item.guideVideoLink,
-  //   MinValidValue: item.minValidValue,
-  //   MaxValidValue: item.maxValidValue,
-  // }));
-
-  const data = [];
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      stt: i,
-      totalProduct: `${i}`,
-      totalPrice: `10000000`,
-      discountPrice: `1000000`,
-      discountCode: `tudeptrai`,
-      afterDiscountPrice: `200000`,
-      payDeposit: "20000",
-      deposit: "20000",
-      paidMoney: "200000",
-      unPaidMoney: "20000",
-    });
-  }
+  const getApi = order?.map((item, index) => ({
+    stt: index + 1,
+    status: item.name,
+    totalProduct: item.totalProduct,
+    totalPrice: item.totalPrice,
+    discountPrice: item.discountPrice,
+    discountCode: item.discountCode,
+    afterDiscountPrice: item.afterDiscountPrice,
+    payDeposit: item.payDeposit,
+    deposit: item.deposit,
+    paidMoney: item.paidMoney,
+    unPaidMoney: item.unPaidMoney,
+  }));
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -275,10 +264,6 @@ const ManagementOrderContent = () => {
   }));
 
   //---------------------------------------------------------------------------------------------------------------------------------------------------------
-
-  const onChange = (currentSlide) => {
-    console.log(currentSlide);
-  };
 
   const data1 = [
     {
@@ -368,7 +353,7 @@ const ManagementOrderContent = () => {
               borderRadius: "10px",
             }}
           >
-            Chờ xác nhận
+            Chưa bắt đầu
           </Text>
         </>
       ),
@@ -419,11 +404,11 @@ const ManagementOrderContent = () => {
         </div>
         <Row justify="start">
           <Col span={4}>
-            <Button>Tổng cộng ({data?.length})</Button>
+            <Button>Tổng cộng ({getApi?.length})</Button>
           </Col>
         </Row>
       </div>
-      {/* {loading ? (
+      {loading ? (
         <div
           style={{
             display: "flex",
@@ -437,26 +422,17 @@ const ManagementOrderContent = () => {
       ) : (
         <Table
           columns={newColumns}
-          dataSource={data}
+          dataSource={getApi}
           pagination={{
             position: ["bottomCenter"],
           }}
           style={{
             marginTop: 24,
           }}
+          scroll={{ x: 1500, y: 416 }}
         />
-      )} */}
-      <Table
-        columns={newColumns}
-        dataSource={data}
-        pagination={{
-          position: ["bottomCenter"],
-        }}
-        style={{
-          marginTop: 24,
-        }}
-        scroll={{ x: 1500, y: 416 }}
-      />
+      )}
+
       <Modal
         title="Chi tiết đơn hàng"
         open={isModalOpen}
