@@ -13,12 +13,17 @@
 
 }
 
-.active{
-    background-color: #D9D9D9;
+.active {
+    background-color: #9f9f9f;
+
+}
+
+.active p {
+    color: #D9D9D9;
 }
 
 .profile-detail:hover {
-    background-color: #D9D9D9;
+    background-color: #ffffff29;
 }
 
 .detail-icon {
@@ -40,5 +45,5 @@
 }
 
 .input {
-   width: 200px;
+    width: 200px;
 }

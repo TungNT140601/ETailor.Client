@@ -1,0 +1,9 @@
+.loading-content {
+    padding: 50px;
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.ant-spin-dot-item {
+    background-color: #9F78FF !important
+}

@@ -6,7 +6,7 @@
 .table th,
 .table td {
     text-align: left;
-    vertical-align: top; 
+    vertical-align: top;
     max-height: 40px;
 }
 
@@ -27,6 +27,14 @@
     display: flex;
 }
 
-.action-icons > div {
+.action-icons>div {
     margin-right: 5px;
+}
+
+.ant-image-img .order-img {
+    z-index: 100001;
+}
+
+.order-img.ant-image-preview-img {
+    margin-top: 80px;
 }

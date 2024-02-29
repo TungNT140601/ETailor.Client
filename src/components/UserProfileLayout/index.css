@@ -13,7 +13,7 @@
 .wrapper-profile {
     display: grid;
     grid-template-columns: 30% 70%;
-    padding-top: 130px;
+    padding-top: 150px;
 }
 
 .wrapper-content {
@@ -29,5 +29,5 @@
     margin-left: 60px;
     border-radius: 10px;
     box-shadow: inset;
-    height: 100vh;
+    height: 70vh;
 }

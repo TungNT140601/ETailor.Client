@@ -23,6 +23,6 @@ html {
 }
 
 @font-face {
-  font-family: 'Lexend Deca';
+  font-family: 'Lexend Deca' !important;
   src: url(./assets/fonts/Lexend/LexendDeca-VariableFont_wght.ttf);
 }

@@ -12,6 +12,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 // Import Swiper styles
 import 'swiper/css';
 import 'swiper/css/pagination';
+import Loading from '../LoadingComponent/loading'
 
 export default function Catalogue() {
     const [swiperRef, setSwiperRef] = useState(null);
@@ -35,6 +36,7 @@ export default function Catalogue() {
                 }
             } catch (error) {
                 console.error("Error:", error);
+                setLoading(false)
             }
         };
         fetchTemplates();
@@ -67,15 +69,12 @@ export default function Catalogue() {
 
             {
                 loading ? (
-                    < div className='catalog-container' style={{ paddingBottom: "400px" }}>
-                        <div style={{ height: '100px', display: 'flex', color: "#140c40", justifyContent: "center", padding: "240px 0 40px 0" }} className='title is-6'>
-                            Loading...
-                        </div >
+                    < div style={{ paddingTop: "300px" }}>
+                        <Loading />
                     </div>
                 ) : (
 
-                    < div className='catalog-container'style={{paddingTop: "100px" }} >
-                      
+                    < div className='catalog-container' style={{ paddingTop: "100px" }} >
                         {templatesData &&
                             templatesData.map((template, index) => {
                                 return (
@@ -103,7 +102,7 @@ export default function Catalogue() {
                                                 spaceBetween={40}
                                                 navigation={true}
                                                 virtual
-                                                initialSlide={4}
+                                                initialSlide={2}
                                                 style={{ overflow: "unset" }}
                                             >
                                                 {template?.productTemplates && template.productTemplates.map((slideContent, index) => (

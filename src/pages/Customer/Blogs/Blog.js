@@ -9,8 +9,11 @@ import Blog2 from "../../../assets/images/banner-blog/three-young-beautiful-smil
 import Blog3 from "../../../assets/images/banner-blog/portrait-handsome-smiling-stylish-young-man-model-dressed-jeans-clothes-fashion-man.jpg"
 import { Link } from 'react-router-dom';
 import ScrollReveal from 'scrollreveal';
+import Loading from '../LoadingComponent/loading';
 
 export default function Blog() {
+    const [isLoading, setIsLoading] = useState(false)
+    console.log("loadingL:", isLoading)
     useEffect(() => {
         ScrollReveal().reveal('.blog-container', {
             duration: 2500,
@@ -23,7 +26,9 @@ export default function Blog() {
     const [blogsData, setBlogsData] = useState('')
     useEffect(() => {
         const fetchBlogs = async () => {
+
             try {
+                setIsLoading(true)
                 const response = await fetch("https://etailorapi.azurewebsites.net/api/blog", {
                     method: "GET",
                     headers: {
@@ -34,9 +39,11 @@ export default function Blog() {
                     const data = await response.json();
                     console.log("blogs:", data)
                     setBlogsData(data);
+                    setIsLoading(false)
                 }
             } catch (error) {
                 console.error("Error:", error);
+                setIsLoading(false)
             }
         };
         fetchBlogs();
@@ -52,96 +59,107 @@ export default function Blog() {
     };
 
     return (
-        <div style={{ paddingTop: "140px" }}>
-            <div className='flex'>
-                <div className='blog-banner-wrapper'>
-                    <div className='view-blog-btn'>
-                        <Fab color="primary">
-                            <img src={ViewBtn} ></img>
-                        </Fab>
-                    </div>
-                    <div className='blog-banner-title'>
-                        <Typography
-                            sx={{
-                                fontSize: '65px',
-                                display: 'inline',
-                                fontStyle: 'italic',
-                                paddingLeft: '5px',
-                                color: '#fff',
-                                fontWeight: '600',
+        <>
 
-                            }}
-                        >
-                            <span style={{ color: "#eab676" }}>De</span>lovely.
+            {isLoading ? (
+                <div style={{ paddingTop: "300px" }}>
 
-                        </Typography>
-
-                        <br />
-                        <Typography
-                            sx={{
-                                fontSize: '55px',
-                                display: 'inline',
-                                fontStyle: 'italic',
-                                paddingLeft: '5px',
-                                color: '#fff',
-                                fontWeight: '600',
-
-                            }}
-                        >
-                            <span style={{ color: "#eab676" }}>De</span>licious.
-
-                        </Typography>
-                        <br />
-                        <Typography
-                            sx={{
-                                fontSize: '45px',
-                                display: 'inline',
-                                fontStyle: 'italic',
-                                paddingLeft: '5px',
-                                color: '#fff',
-                                fontWeight: '600',
-
-                            }}
-                        >
-                            <span style={{ color: "#eab676" }}>De</span>lightful.
-
-                        </Typography>
-                    </div>
-                    <div className='blog-readmore-btn'>
-                        <button className='button' style={{ backgroundColor: "#b19fca", color: "#fff", borderRadius: "20px" }}>
-                            Tìm hiểu thêm
-                        </button>
-                    </div>
-                    <img src={Banner10}></img>
-
+                    <Loading />
                 </div>
-            </div>
-
-            <div>
-                <p className='subtitle is-3' style={{ padding: "80px 0 20px 80px", margin: 0 }}>
-                    Bài viết gần đây
-                </p>
-                <div className='blog-container'>
-                    {blogsData && blogsData.map((blog, index) => {
-                        return (
-                            <div className='blog-items' key={index}>
-                                <Link to={`/blog/${blog.id}`}>
-                                    <div className='blog-items-img'>
-                                        <img src={blog.thumbnail} alt={`Blog ${index + 1}`} />
-                                    </div>
-                                    <div className='blog-items-des'>
-                                        <p className='title is-4'>{blog.title}</p>
-                                        <p className='blog-description'>Ngày đăng: {formatDate(blog.createdTime)}</p>
-                                    </div>
-                                </Link>
+            ) : (
+                <div style={{ paddingTop: "140px" }}>
+                    <div className='flex'>
+                        <div className='blog-banner-wrapper'>
+                            <div className='view-blog-btn'>
+                                <Fab color="primary">
+                                    <img src={ViewBtn} ></img>
+                                </Fab>
                             </div>
-                        )
-                    })}
+                            <div className='blog-banner-title'>
+                                <Typography
+                                    sx={{
+                                        fontSize: '65px',
+                                        display: 'inline',
+                                        fontStyle: 'italic',
+                                        paddingLeft: '5px',
+                                        color: '#fff',
+                                        fontWeight: '600',
+
+                                    }}
+                                >
+                                    <span style={{ color: "#eab676" }}>De</span>lovely.
+
+                                </Typography>
+
+                                <br />
+                                <Typography
+                                    sx={{
+                                        fontSize: '55px',
+                                        display: 'inline',
+                                        fontStyle: 'italic',
+                                        paddingLeft: '5px',
+                                        color: '#fff',
+                                        fontWeight: '600',
+
+                                    }}
+                                >
+                                    <span style={{ color: "#eab676" }}>De</span>licious.
+
+                                </Typography>
+                                <br />
+                                <Typography
+                                    sx={{
+                                        fontSize: '45px',
+                                        display: 'inline',
+                                        fontStyle: 'italic',
+                                        paddingLeft: '5px',
+                                        color: '#fff',
+                                        fontWeight: '600',
+
+                                    }}
+                                >
+                                    <span style={{ color: "#eab676" }}>De</span>lightful.
+
+                                </Typography>
+                            </div>
+                            <div className='blog-readmore-btn'>
+                                <button className='button' style={{ backgroundColor: "#b19fca", color: "#fff", borderRadius: "20px" }}>
+                                    Tìm hiểu thêm
+                                </button>
+                            </div>
+                            <img src={Banner10}></img>
+
+                        </div>
+                    </div>
+
+                    <div>
+                        <p className='subtitle is-3' style={{ padding: "80px 0 20px 80px", margin: 0 }}>
+                            Bài viết gần đây
+                        </p>
+                        <div className='blog-container'>
+                            {blogsData && blogsData.map((blog, index) => {
+                                return (
+                                    <div className='blog-items' key={index}>
+                                        <Link to={`/blog/${blog.id}`}>
+                                            <div className='blog-items-img'>
+                                                <img src={blog.thumbnail} alt={`Blog ${index + 1}`} />
+                                            </div>
+                                            <div className='blog-items-des'>
+                                                <p className='title is-4'>{blog.title}</p>
+                                                <p className='blog-description'>Ngày đăng: {formatDate(blog.createdTime)}</p>
+                                            </div>
+                                        </Link>
+                                    </div>
+                                )
+                            })}
 
 
 
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
+            )}
+
+        </>
     )
 }
