@@ -69,11 +69,7 @@ const columns = [
         title: 'Stt',
         dataIndex: 'index',
     },
-    {
-        title: 'Sản phẩm',
-        dataIndex: 'productName',
-        sorter: (a, b) => a.productName - b.productName,
-    },
+
     {
         title: 'Hình ảnh',
         dataIndex: 'productImg',
@@ -164,15 +160,15 @@ const OrderDetails = ({ id }) => {
 
     return (
         <div>
-            <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <p className='title is-5 is-family-code' style={{ margin: 0 }}>Mã đơn: {orderDetails.id}</p>
-                <p className='has-text-weight-semibold' style={{ padding: 5 }}>Trạng thái: <Tag color={parsedStatus.color}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <p className='title is-5' style={{ margin: 0 }}>Mã đơn: {orderDetails.id}</p>
+                <p className='has-text-weight-semibold' style={{ padding: 15 }}>Trạng thái: <Tag color={parsedStatus.color}>
                     {parsedStatus.text}
                 </Tag></p>
             </div>
             <Row>
                 <Col span={8}>
-                    <p className='has-text-weight-semibold' style={{ padding: 5, color: "red" }}>Chưa thanh toán: {formatCurrency(orderDetails.unPaidMoney)}</p>
+                    <p className='has-text-weight-semibold' style={{ padding: 5, color: "red" }}>Chưa thanh toán: {orderDetails?.unPaidMoney === 0 ? '0đ' : formatCurrency(orderDetails.unPaidMoney)}</p>
                 </Col>
 
                 <Col span={8}>
