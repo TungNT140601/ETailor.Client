@@ -1,64 +1,28 @@
-import React, { useEffect, useState } from "react";
-import { HubConnectionBuilder, HttpTransportType } from "@microsoft/signalr";
-
-const URL = "https://etailorapi.azurewebsites.net/etailor-hub"; // Replace with your SignalR hub URL
+import * as signalR from "@microsoft/signalr";
 
 const TestSignalR = () => {
-  const [connection, setConnection] = useState(null);
-  const [messages, setMessages] = useState([]);
+  const URL = "https://etailorapi.azurewebsites.net/chatHub"; // Replace with your SignalR hub URL
+
   const manager = JSON.parse(localStorage.getItem("manager"));
-
-  useEffect(() => {
-    const options = {
-      accessTokenFactory: () => manager?.token,
-    };
-
-    const transport = HttpTransportType.WebSockets;
-
-    const connection = new HubConnectionBuilder()
+  const connectionInit = async () => {
+    const connection = new signalR.HubConnectionBuilder()
       .withUrl(URL, {
-        transport,
-        accessTokenFactory: options.accessTokenFactory,
+        accessTokenFactory: () => manager?.token, // Function to retrieve JWT token
       })
-      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
       .build();
 
-    connection.on("messageReceived", (username, message) => {
-      setMessages((prevMessages) => [...prevMessages, { username, message }]);
+    connection.on("ReceiveMessage", (message) => {
+      console.log("Received message:", message);
+      // Handle the received message
     });
 
-    setConnection(connection);
-
-    return () => {
-      if (connection) {
-        connection.stop();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (connection) {
-      connection
-        .start()
-        .then(() => console.log("Connection established."))
-        .catch((err) =>
-          console.error("Error while establishing connection:", err)
-        );
-    }
-  }, [connection]);
-
-  return (
-    <div>
-      <h1>Messages:</h1>
-      <ul>
-        {messages.map((msg, index) => (
-          <li key={index}>
-            <strong>{msg.username}:</strong> {msg.message}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+    await connection
+      .start()
+      .then(() => console.log("Connected to SignalR hub"));
+    // await connection.invoke();
+  };
+  connectionInit();
 };
 
 export default TestSignalR;
