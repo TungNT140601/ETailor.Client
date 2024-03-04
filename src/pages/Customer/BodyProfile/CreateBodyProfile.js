@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 
 
 
-export const CreateBodyProfile = ({ isModalOpen, getAllBodyAttributes, isLoading, handleCancel }) => {
+const CreateBodyProfile = ({ isModalOpen, getAllBodyAttributes, isLoading, handleCancel }) => {
 
     const navigate = useNavigate()
     const [validationMessages, setValidationMessages] = useState({});
@@ -194,3 +194,4 @@ export const CreateBodyProfile = ({ isModalOpen, getAllBodyAttributes, isLoading
         </Modal >
     );
 };
+export default CreateBodyProfile;

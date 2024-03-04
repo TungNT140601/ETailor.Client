@@ -164,7 +164,6 @@ export default function Login({ openModal, closeModal }) {
                     clientToken: "",
                 }),
             });
-            console.log("hi", JSON.stringify(response))
             if (response.ok) {
                 setLoading(false);
 
@@ -217,11 +216,7 @@ export default function Login({ openModal, closeModal }) {
         formData.append('Email', values.regis_email);
         formData.append('Username', values.regis_username);
         formData.append('Password', values.regis_password);
-        console.log({
-            email: values.regis_email,
-            password: values.regis_password,
-            email: values.regis_email
-        });
+
         const LOGIN_URL = `https://etailorapi.azurewebsites.net/api/customer-management/regis`
         try {
             const response = await fetch(LOGIN_URL, {
