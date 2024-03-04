@@ -1,29 +1,28 @@
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPencil } from '@fortawesome/free-solid-svg-icons';
+import React, { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash, faPencil } from "@fortawesome/free-solid-svg-icons";
 import { Button, Form, Modal, InputNumber } from "antd";
-import { useQuery, useQueryClient, queryClient } from 'react-query';
-import Loading from '../LoadingComponent/loading';
-import BangSize from '../../../assets/images/bangsize.jpg'
+import { useQuery, useQueryClient, queryClient } from "react-query";
+import Loading from "../LoadingComponent/loading";
+import BangSize from "../../../assets/images/bangsize.jpg";
 import { useNavigate } from "react-router-dom";
-import './index.css'
+import "./index.css";
 import Swal from "sweetalert2";
-import { DeleteTwoTone, EditTwoTone, } from '@ant-design/icons';
-import { getTwoToneColor, setTwoToneColor } from '@ant-design/icons';
-import { CreateBodyProfile } from './CreateBodyProfile';
+import { DeleteTwoTone, EditTwoTone } from "@ant-design/icons";
+import { getTwoToneColor, setTwoToneColor } from "@ant-design/icons";
+import { CreateBodyProfile } from "./CreateBodyProfile";
 const formatDate = (date) => {
-
   const datetime = new Date(date);
   const day = datetime.getDate();
   const month = datetime.getMonth() + 1;
   const year = datetime.getFullYear();
   const formattedDate = `${day}/${month}/${year}`;
-  return formattedDate
-}
+  return formattedDate;
+};
 const CustomerBodyProfile = () => {
-  const navigate = useNavigate()
-  const customer = localStorage.getItem("customer")
-  const token = JSON.parse(customer)?.token
+  const navigate = useNavigate();
+  const customer = localStorage.getItem("customer");
+  const token = JSON.parse(customer)?.token;
   const { data: getBodyProfile } = useQuery("get-all-bodyProfile", () =>
     fetch(`https://etailorapi.azurewebsites.net/api/profile-body`, {
       headers: {
@@ -40,17 +39,17 @@ const CustomerBodyProfile = () => {
       showConfirmButton: false,
       showDenyButton: true,
       denyButtonText: "Xoá",
-      cancelButtonText: "Huỷ"
+      cancelButtonText: "Huỷ",
     }).then(async (result) => {
       if (result.isDenied) {
-        const DELETE_PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body/${id}`
-        const customer = localStorage.getItem("customer")
-        const token = JSON.parse(customer)?.token
+        const DELETE_PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body/${id}`;
+        const customer = localStorage.getItem("customer");
+        const token = JSON.parse(customer)?.token;
         try {
           const response = await fetch(DELETE_PROFILE_URL, {
             method: "DELETE",
             headers: {
-              Authorization: `Bearer ${token}`
+              Authorization: `Bearer ${token}`,
             },
           });
 
@@ -59,50 +58,44 @@ const CustomerBodyProfile = () => {
               icon: "success",
               title: "Xoá thành công",
               timer: 2000,
-            })
-            navigate('/body-profile')
-          }
-          else {
-            const errorText = await response.text()
-
+            });
+            navigate("/body-profile");
+          } else {
+            const errorText = await response.text();
           }
         } catch (error) {
           console.error("Error:", error);
         } finally {
         }
-
       }
     });
-  }
-  const [open, setOpen] = useState(false)
+  };
+  const [open, setOpen] = useState(false);
   const handleOpenModal = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
   const handleCloseModal = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
   const handleUpdateProfile = async (id) => {
-
-    const UPDATE_PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body/${id}`
-    const customer = localStorage.getItem("customer")
-    const token = JSON.parse(customer)?.token
+    const UPDATE_PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body/${id}`;
+    const customer = localStorage.getItem("customer");
+    const token = JSON.parse(customer)?.token;
     try {
       const response = await fetch(UPDATE_PROFILE_URL, {
         method: "GET",
         headers: {
           "Content-Type": " application/json",
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        const data = await response.json()
-        console.log("GET DETAIL:", data)
+        const data = await response.json();
+        console.log("GET DETAIL:", data);
       }
-    } catch {
-
-    }
-  }
+    } catch {}
+  };
   return (
     <table className="table" style={{ width: "100%" }}>
       <thead>
@@ -115,28 +108,51 @@ const CustomerBodyProfile = () => {
         </tr>
       </thead>
       <tbody>
-
-        {getBodyProfile && getBodyProfile.map((profile, index) => (
-          <>
-            <tr key={profile.id}>
-              <td>{index + 1}</td>
-              <td>{profile.name}</td>
-              <td>{profile?.staffName ? profile.staffName : profile.customerName}</td>
-              <td>{formatDate(profile?.createdTime)}</td>
-              <td style={{ display: "flex" }}>
-                <div onClick={() => { handleDeleteProfile(profile.id) }} style={{ paddingLeft: 10, paddingRight: 10, cursor: 'pointer', overflow: "hidden", textAlign: "center" }}>
-                  <DeleteTwoTone twoToneColor="#eb2f96" title='Xoá' />
-                </div>
-                <div onClick={() => { handleUpdateProfile(profile.id) }} style={{ paddingLeft: 10, paddingRight: 10, cursor: 'pointer', overflow: "hidden", textAlign: "center" }}>
-                  <EditTwoTone title='Chỉnh sửa' />
-                </div>
-              </td>
-            </tr >
-          </>
-
-        ))}
-
-
+        {getBodyProfile &&
+          getBodyProfile.map((profile, index) => (
+            <>
+              <tr key={profile.id}>
+                <td>{index + 1}</td>
+                <td>{profile.name}</td>
+                <td>
+                  {profile?.staffName
+                    ? profile.staffName
+                    : profile.customerName}
+                </td>
+                <td>{formatDate(profile?.createdTime)}</td>
+                <td style={{ display: "flex" }}>
+                  <div
+                    onClick={() => {
+                      handleDeleteProfile(profile.id);
+                    }}
+                    style={{
+                      paddingLeft: 10,
+                      paddingRight: 10,
+                      cursor: "pointer",
+                      overflow: "hidden",
+                      textAlign: "center",
+                    }}
+                  >
+                    <DeleteTwoTone twoToneColor="#eb2f96" title="Xoá" />
+                  </div>
+                  <div
+                    onClick={() => {
+                      handleUpdateProfile(profile.id);
+                    }}
+                    style={{
+                      paddingLeft: 10,
+                      paddingRight: 10,
+                      cursor: "pointer",
+                      overflow: "hidden",
+                      textAlign: "center",
+                    }}
+                  >
+                    <EditTwoTone title="Chỉnh sửa" />
+                  </div>
+                </td>
+              </tr>
+            </>
+          ))}
       </tbody>
     </table>
   );
@@ -302,7 +318,6 @@ const CustomerBodyProfile = () => {
 //                               onChange={(e) => handleInputChange(attribute.id, e.target.value)}
 //                               value={inputValues[attribute.id]}
 //                             />
-
 
 //                           </div>
 //                         );
@@ -488,7 +503,6 @@ const CustomerBodyProfile = () => {
 //                               value={inputValues[attribute.id]}
 //                             />
 
-
 //                           </div>
 //                         );
 //                       }
@@ -524,21 +538,30 @@ export default function BodyProfile() {
     setIsModalOpen(false);
   };
 
-  const { data: getAllBodyAttributes, isLoading } = useQuery("get-all-bodyAtrributes", () =>
-    fetch(`https://etailorapi.azurewebsites.net/api/body-size`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    }).then((response) => response.json())
+  const { data: getAllBodyAttributes, isLoading } = useQuery(
+    "get-all-bodyAtrributes",
+    () =>
+      fetch(`https://etailorapi.azurewebsites.net/api/body-size`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((response) => response.json())
   );
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "center" }}>
-        <p className=' title is-2'>Hồ sơ số đo</p>
+        <p className=" title is-2">Hồ sơ số đo</p>
       </div>
-      <Button type="primary" onClick={showModal}>Thêm mới</Button>
-      <CreateBodyProfile isModalOpen={isModalOpen} handleCancel={handleCancel} getAllBodyAttributes={getAllBodyAttributes} isLoading={isLoading} />
+      <Button type="primary" onClick={showModal}>
+        Thêm mới
+      </Button>
+      <CreateBodyProfile
+        isModalOpen={isModalOpen}
+        handleCancel={handleCancel}
+        getAllBodyAttributes={getAllBodyAttributes}
+        isLoading={isLoading}
+      />
       <div style={{ width: "100%", paddingTop: "20px" }}>
         <CustomerBodyProfile />
       </div>
