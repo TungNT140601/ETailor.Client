@@ -8,7 +8,7 @@ import {
   PhoneOutlined,
   GlobalOutlined,
   InfoCircleOutlined,
-  DeleteOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import {
   Typography,
@@ -141,6 +141,7 @@ const CreateNewProductModal = ({
   const [form] = Form.useForm();
   const [productComponent, setProductComponent] = useState(null);
   const [loadingApi, setLoadingApi] = useState(false);
+  const [loadingCreate, setLoadingCreate] = useState(false);
 
   const filterOptionForProductTemplate = (input, option) =>
     (option?.title ?? "")
@@ -162,6 +163,7 @@ const CreateNewProductModal = ({
       .includes(input.toLowerCase());
 
   const handleSelectProductTemplate = async (value) => {
+    setLoadingApi(true);
     const urlTemplateType = `https://etailorapi.azurewebsites.net/api/template/${value}/component-types`;
     try {
       const response = await fetch(`${urlTemplateType}`, {
@@ -174,6 +176,7 @@ const CreateNewProductModal = ({
 
       if (response.ok) {
         const responseData = await response.json();
+        setLoadingApi(false);
         setProductComponent(responseData);
       }
     } catch (error) {
@@ -197,6 +200,7 @@ const CreateNewProductModal = ({
         form
           .validateFields()
           .then(async (values) => {
+            setLoadingCreate(true);
             const backendData = {
               orderId: saveOrderId,
               name: values.name,
@@ -219,11 +223,13 @@ const CreateNewProductModal = ({
               form.resetFields();
               setProductComponent(null);
             }
+            setLoadingCreate(false);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
       }}
+      okButtonProps={{ loading: loadingCreate }}
     >
       <Form
         form={form}
@@ -295,8 +301,8 @@ const CreateNewProductModal = ({
             )}
           </Select>
         </Form.Item>
-        {productComponent &&
-          productComponent.map((component) => {
+        {!loadingApi ? (
+          productComponent?.map((component) => {
             return (
               <Form.Item
                 key={component.id}
@@ -332,7 +338,19 @@ const CreateNewProductModal = ({
                 </Select>
               </Form.Item>
             );
-          })}
+          })
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "150px",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        )}
         <Form.Item
           name="profile"
           label="Profile khách hàng"
@@ -432,6 +450,13 @@ const UpdateProductModal = ({
 }) => {
   const [form] = Form.useForm();
 
+  const componentInitialValues = {};
+  dataDetailForUpdate?.componentTypeOrders?.forEach((component) => {
+    componentInitialValues[`${component.component_Id}`] =
+      component.selected_Component_Id;
+  });
+  console.log(componentInitialValues);
+
   const filterOptionForProfile = (input, option) =>
     (option?.title ?? "")
       .toString()
@@ -453,6 +478,7 @@ const UpdateProductModal = ({
       okText="Cập nhật"
       cancelText="Hủy bỏ"
       onCancel={() => {
+        form.resetFields();
         onCancel();
       }}
       onOk={() => {
@@ -476,7 +502,6 @@ const UpdateProductModal = ({
               profileId: values.profile,
               note: values.note ? values.note : "",
             };
-            console.log("Du lieu updated gui backend: ", backendData);
             handleUpdateProduct(backendData);
           })
           .catch((info) => {
@@ -494,6 +519,7 @@ const UpdateProductModal = ({
           note: dataDetailForUpdate?.note,
           profile: dataDetailForUpdate?.profileId,
           materialId: dataDetailForUpdate?.materialId,
+          ...componentInitialValues,
         }}
         style={{
           height: 530,
@@ -541,16 +567,13 @@ const UpdateProductModal = ({
                 label={`Chọn ${component.name}`}
                 name={component.component_Id}
                 rules={[
-                  !component?.selected_Component_Id || {
+                  {
                     required: true,
-                    message: "Chọn bản mẫu không được để trống!",
+                    message: "Kiểu mẫu cho từng bộ phận không được để trống",
                   },
                 ]}
               >
-                <Select
-                  style={{ height: 45 }}
-                  defaultValue={component?.selected_Component_Id}
-                >
+                <Select style={{ height: 45 }}>
                   {component?.components?.map((item) => {
                     return (
                       <Select.Option value={item.id} key={item.id}>
@@ -1098,6 +1121,7 @@ const OrderToCustomerContent = () => {
 
   //------------------------------------------------------------Api xử lý bước 3--------------------------------------------
   const [orderPaymentDetail, setOrderPaymentDetail] = useState(null);
+  const [loadingDiscount, setLoadingDiscount] = useState(false);
 
   const handleDataOrderDetail = async () => {
     const urlOrderDetail = `https://etailorapi.azurewebsites.net/api/order/${saveOrderId}`;
@@ -1123,6 +1147,7 @@ const OrderToCustomerContent = () => {
   };
   const handleCheckDiscount = async (value) => {
     const urlOrderDetail = `https://etailorapi.azurewebsites.net/api/discount/order/${saveOrderId}/discount/${value}`;
+    setLoadingDiscount(true);
     try {
       const response = await fetch(`${urlOrderDetail}`, {
         method: "PATCH",
@@ -1141,6 +1166,7 @@ const OrderToCustomerContent = () => {
           timer: 1500,
           zIndex: 1000,
         });
+        setLoadingDiscount(false);
         handleDataOrderDetail();
       } else if (response.status === 400 || response.status === 500) {
         Swal.fire({
@@ -1151,6 +1177,7 @@ const OrderToCustomerContent = () => {
           timer: 1500,
           zIndex: 1000,
         });
+        setLoadingDiscount(false);
       } else if (response.status === 401) {
         localStorage.removeItem("manager");
         navigate("/management/login");
@@ -1593,7 +1620,7 @@ const OrderToCustomerContent = () => {
                               >
                                 <Meta title={item.name} />
                                 <Tag
-                                  icon={<DeleteOutlined />}
+                                  icon={<CloseOutlined />}
                                   color="error"
                                   onClick={() => handleDeleteProduct(item.id)}
                                   style={{
@@ -1859,6 +1886,7 @@ const OrderToCustomerContent = () => {
                         allowClear
                         enterButton="Kiểm tra"
                         onSearch={(value) => handleCheckDiscount(value)}
+                        loading={loadingDiscount}
                       />
                     </div>
                   </div>
