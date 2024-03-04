@@ -6,8 +6,8 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "react-query";
-import GlobalStyle from './GlobalStyle';
-import './index.css'
+import GlobalStyle from "./GlobalStyle";
+import "./index.css";
 function App() {
   const queryClient = new QueryClient();
   return (
@@ -15,13 +15,13 @@ function App() {
       <div
         className="test"
         style={{
-          fontFamily: 'Lexend Deca, sans- serif'
+          fontFamily: "Lexend Deca, sans- serif",
         }}
       >
         <GlobalStyle />
         <RouterComponents />
       </div>
-    </QueryClientProvider >
+    </QueryClientProvider>
   );
 }
 

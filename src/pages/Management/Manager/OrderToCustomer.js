@@ -39,7 +39,6 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
-
 const { Search } = Input;
 const { Title, Text } = Typography;
 const { Meta } = Card;
@@ -141,6 +140,8 @@ const CreateNewProductModal = ({
 }) => {
   const [form] = Form.useForm();
   const [productComponent, setProductComponent] = useState(null);
+  const [loadingApi, setLoadingApi] = useState(false);
+
   const filterOptionForProductTemplate = (input, option) =>
     (option?.title ?? "")
       .toString()
@@ -283,9 +284,11 @@ const CreateNewProductModal = ({
                       alignItems: "center",
                     }}
                   >
-                    <Image width={35} src={productTemplate.thumbnailImage} />
+                    <Image width={30} src={productTemplate.thumbnailImage} />
                     &nbsp; &nbsp;
-                    <Title level={5}>{productTemplate.name}</Title>
+                    <Title level={5} style={{ marginTop: 6 }}>
+                      {productTemplate.name}
+                    </Title>
                   </div>
                 </Select.Option>
               ))
@@ -319,7 +322,9 @@ const CreateNewProductModal = ({
                         >
                           <Image width={35} src={item.image} height={35} />
                           &nbsp; &nbsp;
-                          <Title level={5}>{item.name}</Title>
+                          <Title level={5} style={{ marginTop: 6 }}>
+                            {item.name}
+                          </Title>
                         </div>
                       </Select.Option>
                     );
@@ -359,7 +364,9 @@ const CreateNewProductModal = ({
                     alignItems: "center",
                   }}
                 >
-                  <Title level={5}>{profile.name}</Title>
+                  <Title level={5} style={{ marginTop: 6 }}>
+                    {profile.name}
+                  </Title>
                 </div>
               </Select.Option>
             ))}
@@ -397,7 +404,9 @@ const CreateNewProductModal = ({
                 >
                   <Image width={35} src={material.image} />
                   &nbsp; &nbsp;
-                  <Title level={5}>{material.name}</Title>
+                  <Title level={5} style={{ marginTop: 6 }}>
+                    {material.name}
+                  </Title>
                 </div>
               </Select.Option>
             ))}
@@ -1586,7 +1595,6 @@ const OrderToCustomerContent = () => {
                                 <Tag
                                   icon={<DeleteOutlined />}
                                   color="error"
-                                  hoverable
                                   onClick={() => handleDeleteProduct(item.id)}
                                   style={{
                                     cursor: "pointer",
@@ -1834,8 +1842,11 @@ const OrderToCustomerContent = () => {
                     </div>
                     <div style={{ marginTop: 5 }}>
                       <Text>
-                        <b>Tổng sản phẩm</b>
-                        &nbsp; {orderPaymentDetail?.totalProduct}
+                        <b>Tổng sản phẩm:</b>
+                        &nbsp;{" "}
+                        {orderPaymentDetail?.totalProduct !== 0
+                          ? orderPaymentDetail?.totalProduct
+                          : 0}
                       </Text>
                     </div>
                   </div>
@@ -1983,16 +1994,17 @@ const OrderToCustomerContent = () => {
   const [current, setCurrent] = useState(0);
   const next = async () => {
     if (current === 1) {
-      if (orderForProduct) {
-        handleDataOrderDetail();
+      if (orderForProduct.length > 0) {
+        await handleDataOrderDetail();
       } else {
-        Swal.fire({
+        await Swal.fire({
           position: "top-center",
           icon: "error",
           title: "Chưa có sản phẩm nào!!!",
           showConfirmButton: false,
-          timer: 1500,
+          timer: 2500,
         });
+        return;
       }
     } else if (current === 2) {
       const urlCreateNew = `https://etailorapi.azurewebsites.net/api/order/finish/${saveOrderId}`;
