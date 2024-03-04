@@ -3,48 +3,32 @@ import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
-  CloseOutlined,
-  SearchOutlined,
   FileSearchOutlined,
   IdcardOutlined,
   PhoneOutlined,
   GlobalOutlined,
-  CheckSquareOutlined,
-  CloseSquareOutlined,
-  UploadOutlined,
-  PayCircleOutlined,
-  ArrowDownOutlined,
-  DollarOutlined,
   InfoCircleOutlined,
-  ArrowRightOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import {
   Typography,
   Button,
-  message,
   Steps,
   Divider,
-  Flex,
   Card,
   Row,
   Col,
-  InputNumber,
   Form,
-  Space,
   Modal,
   Avatar,
   Input,
-  List,
   Select,
   Image,
-  Upload,
-  Statistic,
   Table,
-  Radio,
   Popover,
+  Tag,
 } from "antd";
 import "./index.css";
-import LocalAtmIcon from "@mui/icons-material/LocalAtm";
 import CircularProgress from "@mui/material/CircularProgress";
 import paymenVnpay from "../../../assets/payment-method-vnpay.png";
 import paymenMomo from "../../../assets/payment-method-momo.png";
@@ -60,9 +44,14 @@ const { Search } = Input;
 const { Title, Text } = Typography;
 const { Meta } = Card;
 
-const manager = JSON.parse(localStorage.getItem("manager"));
+let manager = JSON.parse(localStorage.getItem("manager"));
 
 const OrderToCustomerHeader = () => {
+  useEffect(() => {
+    if (!manager) {
+      manager = JSON.parse(localStorage.getItem("manager"));
+    }
+  }, []);
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -224,17 +213,11 @@ const CreateNewProductModal = ({
               profileId: values.profile,
               note: values.note ? values.note : "",
             };
-            console.log("backendData", backendData);
             const checkResult = await onCreateNewProduct(backendData);
-
             if (checkResult === 1) {
-              console.log("Chay vo day roi ne`");
               form.resetFields();
               setProductComponent(null);
             }
-            console.log("Chay toi day roi ne`:", open);
-
-            console.log("Chay toi day roi ne` 1");
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
@@ -428,9 +411,249 @@ const CreateNewProductModal = ({
   );
 };
 
+const UpdateProductModal = ({
+  open,
+  handleUpdateProduct,
+  onCancel,
+  dataDetailForUpdate,
+  productTemplateId,
+  profileCustomer,
+  saveOrderId,
+  materialId,
+}) => {
+  const [form] = Form.useForm();
+
+  const filterOptionForProfile = (input, option) =>
+    (option?.title ?? "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .includes(input.toLowerCase());
+  const filterOptionForMaterial = (input, option) =>
+    (option?.title ?? "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .includes(input.toLowerCase());
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 40 }}
+      title="Cập nhật sản phẩm"
+      okText="Cập nhật"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        onCancel();
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(async (values) => {
+            const backendData = {
+              orderId: saveOrderId,
+              name: values.name,
+              productTemplateId: dataDetailForUpdate.productTemplateId,
+              materialId: values.materialId,
+              productComponents: Object.keys(values)
+                .map((fieldName) => {
+                  if (fieldName.startsWith("component_")) {
+                    const componentId = values[fieldName];
+                    return { componentId: componentId };
+                  }
+                  return null;
+                })
+                .filter(Boolean),
+              profileId: values.profile,
+              note: values.note ? values.note : "",
+            };
+            console.log("Du lieu updated gui backend: ", backendData);
+            handleUpdateProduct(backendData);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+          name: dataDetailForUpdate?.name,
+          note: dataDetailForUpdate?.note,
+          profile: dataDetailForUpdate?.profileId,
+          materialId: dataDetailForUpdate?.materialId,
+        }}
+        style={{
+          height: 530,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+        }}
+      >
+        <Form.Item
+          label="Tên sản phẩm"
+          hasFeedback
+          name="name"
+          rules={[
+            {
+              required: true,
+              message: "Tên sản phẩm không được để trống!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item label="Chọn bản mẫu" hasFeedback name="productTemplateId">
+          {dataDetailForUpdate && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <Image
+                width={35}
+                src={dataDetailForUpdate.productTemplateImage}
+              />
+              &nbsp; &nbsp;
+              <Title level={5}>{dataDetailForUpdate.productTemplateName}</Title>
+            </div>
+          )}
+        </Form.Item>
+        {dataDetailForUpdate &&
+          dataDetailForUpdate?.componentTypeOrders?.map((component) => {
+            return (
+              <Form.Item
+                key={component.id}
+                hasFeedback
+                label={`Chọn ${component.name}`}
+                name={component.component_Id}
+                rules={[
+                  !component?.selected_Component_Id || {
+                    required: true,
+                    message: "Chọn bản mẫu không được để trống!",
+                  },
+                ]}
+              >
+                <Select
+                  style={{ height: 45 }}
+                  defaultValue={component?.selected_Component_Id}
+                >
+                  {component?.components?.map((item) => {
+                    return (
+                      <Select.Option value={item.id} key={item.id}>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Image width={35} src={item.image} height={35} />
+                          &nbsp; &nbsp;
+                          <Title level={5}>{item.name}</Title>
+                        </div>
+                      </Select.Option>
+                    );
+                  })}
+                </Select>
+              </Form.Item>
+            );
+          })}
+        <Form.Item
+          name="profile"
+          label="Profile khách hàng"
+          hasFeedback
+          rules={[
+            {
+              required: true,
+              message: "Tên sản phẩm không được để trống!",
+            },
+          ]}
+        >
+          <Select
+            style={{ height: 45 }}
+            showSearch
+            allowClear
+            placeholder="Chọn profile"
+            optionFilterProp="children"
+            filterOption={filterOptionForProfile}
+          >
+            {profileCustomer?.map((profile) => (
+              <Select.Option
+                key={profile.id}
+                value={profile.id}
+                title={profile.name}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Title level={5}>{profile.name}</Title>
+                </div>
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item
+          label="Chọn loại vải"
+          name="materialId"
+          hasFeedback
+          rules={[
+            {
+              required: true,
+              message: "Chọn loại vải không được để trống!",
+            },
+          ]}
+        >
+          <Select
+            style={{ height: 45 }}
+            showSearch
+            placeholder="Chọn loại vải"
+            optionFilterProp="children"
+            filterOption={filterOptionForMaterial}
+          >
+            {materialId?.map((material) => (
+              <Select.Option
+                key={material.id}
+                value={material.id}
+                title={material.name}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <Image width={35} src={material.image} />
+                  &nbsp; &nbsp;
+                  <Title level={5}>{material.name}</Title>
+                </div>
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+        <Form.Item label="Ghi chú" name="note" hasFeedback>
+          <Input.TextArea />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
 const OrderToCustomerContent = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (!manager) {
+      manager = JSON.parse(localStorage.getItem("manager"));
+    }
+  }, []);
 
   //-----------------------------------------Thử làm cách mới--------------------------------------------------
 
@@ -524,37 +747,51 @@ const OrderToCustomerContent = () => {
 
   //---------------------------------------------------Lưu orderId-----------------------------------------------------------------
   const [saveCustomer, setSaveCustomer] = useState(null);
-  useEffect(() => {
-    const handleSaveOrder = () => {
-      const urlCreateNew = `https://etailorapi.azurewebsites.net/api/order`;
-      try {
-        fetch(`${urlCreateNew}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${manager?.token}`,
-          },
-          body: JSON.stringify({
-            id: saveOrderId,
-            customerId: saveCustomer.id,
-          }),
-        }).then(async (response) => {
-          if (response.ok && response.status === 200) {
-            const responseData = await response.text();
-            setSaveOrderId(responseData);
-          }
-        });
-      } catch (error) {
-        console.error("Error calling API:", error);
-      }
-    };
-    if (saveCustomer) {
-      handleSaveOrder();
-    }
-  }, [saveCustomer]);
-  //---------------------------------------------------Xử lý logic bước 1----------------------------------------------------------
+  const [saveOrderId, setSaveOrderId] = useState(null);
   const [searchInfo, setSearchInfo] = useState("");
   const [searchResult, setSearchResult] = useState([]);
+  const handleSaveOrder = () => {
+    const urlCreateNew = `https://etailorapi.azurewebsites.net/api/order`;
+    try {
+      fetch(urlCreateNew, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: JSON.stringify({
+          id: saveOrderId,
+          customerId: saveCustomer.id,
+        }),
+      }).then(async (response) => {
+        if (response.ok && response.status === 200) {
+          const responseData = await response.text();
+          setSaveOrderId(responseData);
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      });
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  const handleDelayNext = () => {
+    setTimeout(() => {
+      setCurrent((prevCurrent) => prevCurrent + 1);
+    }, 2000);
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await handleSaveOrder();
+      await OrderForProduct();
+    };
+    fetchData();
+  }, [saveCustomer, saveOrderId]);
+  //---------------------------------------------------Xử lý logic bước 1----------------------------------------------------------
+
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSearchInfoCustomer = async (value) => {
@@ -576,10 +813,12 @@ const OrderToCustomerContent = () => {
           },
         });
 
-        if (response.ok) {
+        if (response.ok && response.status === 200) {
           const responseData = await response.json();
-          setSaveCustomer(null);
           setSearchResult(responseData);
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
         }
       } catch (error) {
         console.error("Error calling API:", error);
@@ -606,27 +845,24 @@ const OrderToCustomerContent = () => {
 
   //----------------------------------------------------------------Api xử lý bước 2-------------------------------------------------------------
   const [profileCustomer, setProfileCustomer] = useState(null);
-  const [componentTypes, setComponentTypes] = useState([]);
-  const [material, setMaterial] = useState([]);
   const [open, setOpen] = useState(false);
-  // const saveOrderId = useRef(null);
-  const [saveOrderId, setSaveOrderId] = useState(null);
+
   const urlProductTemplate =
     "https://etailorapi.azurewebsites.net/api/template-management/get-all-template";
   const urlGetAllMaterial = "https://etailorapi.azurewebsites.net/api/material";
-  const urlOrderDetail = saveOrderId
-    ? `https://etailorapi.azurewebsites.net/api/product/order/${saveOrderId}`
-    : "";
 
   const { data: orderForProduct, refetch: OrderForProduct } = useQuery(
     "get-order-for-customer",
     () =>
-      fetch(urlOrderDetail, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      }).then((response) => response.json())
+      fetch(
+        `https://etailorapi.azurewebsites.net/api/product/order/${saveOrderId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        }
+      ).then((response) => response.json())
   );
 
   const { data: productTemplateId, isLoading: loading } = useQuery(
@@ -661,7 +897,6 @@ const OrderToCustomerContent = () => {
 
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
-        console.log("Tao moi san pham: ", responseData);
         await Swal.fire({
           position: "top-center",
           icon: "success",
@@ -680,10 +915,58 @@ const OrderToCustomerContent = () => {
           icon: "error",
           title: responseData,
           showConfirmButton: false,
-          timer: 1500,
+          timer: 4500,
           zIndex: 1000,
         });
         return 0;
+      } else if (response.status === 401) {
+        localStorage.removeItem("manager");
+        navigate("/management/login");
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  const handleUpdateProduct = async (values) => {
+    const urlUpdate = `https://etailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
+    try {
+      const response = await fetch(`${urlUpdate}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: JSON.stringify(values),
+      });
+
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        await Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: "Cập nhật thành công",
+          showConfirmButton: false,
+          timer: 1500,
+          zIndex: 1000,
+        });
+        OrderForProduct();
+        setOpenUpdate(false);
+        return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 4500,
+          zIndex: 1000,
+        });
+        return 0;
+      } else if (response.status === 401) {
+        localStorage.removeItem("manager");
+        navigate("/management/login");
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -704,7 +987,6 @@ const OrderToCustomerContent = () => {
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
         handleDataOrderDetail();
-        console.log("Thanh toan thanh cong");
         return 1;
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
@@ -729,8 +1011,10 @@ const OrderToCustomerContent = () => {
 
         if (response.ok && response.status === 200) {
           const responseData = await response.json();
-          console.log("response", responseData);
           setProfileCustomer(responseData);
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
         }
       } catch (error) {
         console.error("Error calling API:", error);
@@ -741,36 +1025,71 @@ const OrderToCustomerContent = () => {
     }
   }, [saveCustomer]);
 
+  //------------------------------------------------------------Cập nhật sản phẩm--------------------------------------------
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
+  const [saveIdProduct, setSaveIdProduct] = useState(null);
+  const openUpdateAModal = async (id) => {
+    const urlProductDetail = `https://etailorapi.azurewebsites.net/api/product/order/${saveOrderId}/${id}`;
+    try {
+      const response = await fetch(`${urlProductDetail}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setDataDetailForUpdate(responseData);
+        setSaveIdProduct(id);
+        setOpenUpdate(true);
+      } else if (response.status === 401) {
+        localStorage.removeItem("manager");
+        navigate("/management/login");
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  //------------------------------------------------------------Xóa sản phẩm-------------------------------------------------
+  const handleDeleteProduct = (id) => {
+    Swal.fire({
+      title: "Bạn có muốn xóa sản phẩm này không?",
+      showCancelButton: true,
+      confirmButtonText: "Có",
+      cancelButtonText: "Hủy",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const urlDeleteProduct = `https://etailorapi.azurewebsites.net/api/product/${id}`;
+        try {
+          const response = await fetch(`${urlDeleteProduct}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${manager?.token}`,
+            },
+          });
+
+          if (response.ok && response.status === 200) {
+            Swal.fire("Đã xóa sản phẩm!", "", "success");
+            OrderForProduct();
+          } else if (response.status === 401) {
+            localStorage.removeItem("manager");
+            navigate("/management/login");
+          }
+        } catch (error) {
+          console.error("Error calling API:", error);
+        }
+      }
+    });
+  };
+
   //------------------------------------------------------------Api xử lý bước 3--------------------------------------------
-  const [orderDetail, setOrderDetail] = useState(null);
   const [orderPaymentDetail, setOrderPaymentDetail] = useState(null);
 
-  useEffect(() => {
-    console.log("orderDetail nay co khong?", orderDetail);
-    const fetchData = async () => {
-      const urlOrderDetail = `https://etailorapi.azurewebsites.net/api/product/order/${saveOrderId}/${saveCustomer.id}`;
-      try {
-        const response = await fetch(`${urlOrderDetail}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${manager?.token}`,
-          },
-        });
-
-        if (response.ok) {
-          const responseData = await response.json();
-          setOrderDetail(responseData);
-        }
-      } catch (error) {
-        console.error("Error calling API:", error);
-      }
-    };
-
-    if (saveOrderId !== null && saveCustomer) {
-      fetchData();
-    }
-  }, [saveOrderId]);
   const handleDataOrderDetail = async () => {
     const urlOrderDetail = `https://etailorapi.azurewebsites.net/api/order/${saveOrderId}`;
     try {
@@ -785,6 +1104,9 @@ const OrderToCustomerContent = () => {
       if (response.ok && response.status === 200) {
         const responseData = await response.json();
         setOrderPaymentDetail(responseData);
+      } else if (response.status === 401) {
+        localStorage.removeItem("manager");
+        navigate("/management/login");
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -820,6 +1142,9 @@ const OrderToCustomerContent = () => {
           timer: 1500,
           zIndex: 1000,
         });
+      } else if (response.status === 401) {
+        localStorage.removeItem("manager");
+        navigate("/management/login");
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -912,210 +1237,133 @@ const OrderToCustomerContent = () => {
                         style={{
                           height: 250,
                           overflowY:
-                            searchResult?.length > 1 && saveCustomer === null
-                              ? "scroll"
-                              : "hidden",
+                            searchResult?.length > 1 ? "scroll" : "hidden",
                         }}
                       >
-                        {saveCustomer ? (
-                          <Card
-                            style={{
-                              width: 300,
-                              marginTop: 70,
-                              border: "1px solid #9F78FF",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <Meta
-                              avatar={
-                                saveCustomer?.avatar !== "" ? (
-                                  <div>
-                                    <Avatar
-                                      src={saveCustomer?.avatar}
-                                      size={"large"}
-                                    />
-                                  </div>
-                                ) : (
-                                  <div>
-                                    <Avatar
-                                      src="https://api.dicebear.com/7.x/miniavs/svg?seed=3"
-                                      size={"large"}
-                                    />
-                                  </div>
-                                )
-                              }
-                              title={
-                                saveCustomer?.fullname === null
-                                  ? saveCustomer?.email
-                                  : saveCustomer?.fullname
-                              }
-                              description={
-                                <Popover
-                                  content={
-                                    <>
-                                      <div className="mt-2">
-                                        <Text>
-                                          <b>
-                                            <IdcardOutlined /> Họ và tên:
-                                          </b>
-                                          &nbsp; {saveCustomer?.fullname}
-                                        </Text>
-                                      </div>
-                                      <div className="mt-2">
-                                        <Text>
-                                          <b>
-                                            <UserOutlined /> Tên người dùng:
-                                          </b>
-                                          &nbsp; {saveCustomer?.username}
-                                        </Text>
-                                      </div>
-                                      <div className="mt-2">
-                                        <Text>
-                                          <b>
-                                            <PhoneOutlined /> Email:
-                                          </b>
-                                          &nbsp; {saveCustomer?.email}
-                                        </Text>
-                                      </div>
-                                      <div className="mt-2">
-                                        <Text>
-                                          <b>
-                                            <GlobalOutlined /> Địa chỉ:
-                                          </b>
-                                          &nbsp; {saveCustomer?.address}
-                                        </Text>
-                                      </div>
-                                    </>
-                                  }
-                                  title="Thông tin chi tiết"
-                                  trigger="hover"
-                                >
-                                  <Button>Xem thêm</Button>
-                                </Popover>
-                              }
-                            />
-                          </Card>
-                        ) : (
-                          searchResult?.map((item) => {
-                            return (
-                              <Card
-                                key={item.email}
-                                style={{
-                                  width: 300,
-                                  marginTop:
-                                    searchResult?.length === 1 ? 70 : 16,
-                                  border: "1px solid #9F78FF",
-                                  cursor: "pointer",
-                                }}
-                                onClick={async () => {
-                                  const urlGetDetail = `https://etailorapi.azurewebsites.net/api/customer-management/info/${item.id}`;
-                                  try {
-                                    const response = await fetch(
-                                      `${urlGetDetail}`,
-                                      {
-                                        method: "GET",
-                                        headers: {
-                                          "Content-Type": "application/json",
-                                          Authorization: `Bearer ${manager?.token}`,
-                                        },
-                                      }
-                                    );
-
-                                    if (
-                                      response.ok &&
-                                      response.status === 200
-                                    ) {
-                                      const responseData =
-                                        await response.json();
-                                      setSaveCustomer(responseData);
-                                      await Swal.fire({
-                                        position: "top-center",
-                                        icon: "success",
-                                        title: "Lưu thành công",
-                                        showConfirmButton: false,
-                                        timer: 1500,
-                                      });
-                                      setCurrent(current + 1);
+                        {searchResult?.map((item) => {
+                          return (
+                            <Card
+                              key={item.email}
+                              style={{
+                                width: 300,
+                                marginTop: searchResult?.length === 1 ? 70 : 16,
+                                border: "1px solid #9F78FF",
+                                cursor: "pointer",
+                              }}
+                              onClick={async () => {
+                                const urlGetDetail = `https://etailorapi.azurewebsites.net/api/customer-management/info/${item.id}`;
+                                try {
+                                  const response = await fetch(
+                                    `${urlGetDetail}`,
+                                    {
+                                      method: "GET",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                        Authorization: `Bearer ${manager?.token}`,
+                                      },
                                     }
-                                  } catch (error) {
-                                    console.error("Error calling API:", error);
-                                  }
-                                }}
-                              >
-                                <Meta
-                                  avatar={
-                                    item?.avatar !== "" ? (
-                                      <div>
-                                        <Avatar
-                                          src={item?.avatar}
-                                          size={"large"}
-                                        />
-                                      </div>
-                                    ) : (
-                                      <div>
-                                        <Avatar
-                                          src="https://api.dicebear.com/7.x/miniavs/svg?seed=3"
-                                          size={"large"}
-                                        />
-                                      </div>
-                                    )
-                                  }
-                                  title={
-                                    item?.fullname === null
-                                      ? item?.email
-                                      : item?.fullname
-                                  }
-                                  description={
-                                    <Popover
-                                      content={
-                                        <>
-                                          <div className="mt-2">
-                                            <Text>
-                                              <b>
-                                                <IdcardOutlined /> Họ và tên:
-                                              </b>
-                                              &nbsp; {item?.fullname}
-                                            </Text>
-                                          </div>
-                                          <div className="mt-2">
-                                            <Text>
-                                              <b>
-                                                <UserOutlined /> Tên người dùng:
-                                              </b>
-                                              &nbsp; {item?.username}
-                                            </Text>
-                                          </div>
-                                          <div className="mt-2">
-                                            <Text>
-                                              <b>
-                                                <PhoneOutlined /> Email:
-                                              </b>
-                                              &nbsp; {item?.email}
-                                            </Text>
-                                          </div>
-                                          <div className="mt-2">
-                                            <Text>
-                                              <b>
-                                                <GlobalOutlined /> Địa chỉ:
-                                              </b>
-                                              &nbsp; {item?.address}
-                                            </Text>
-                                          </div>
-                                        </>
+                                  );
+                                  if (response.ok && response.status === 200) {
+                                    const responseData = await response.json();
+
+                                    setSaveCustomer((prev) => {
+                                      if (prev && prev.id !== responseData.id) {
+                                        setSaveOrderId(null);
+                                        return responseData;
+                                      } else {
+                                        return responseData;
                                       }
-                                      title="Thông tin chi tiết"
-                                      trigger="hover"
-                                    >
-                                      <Button>
-                                        <InfoCircleOutlined /> Xem thêm
-                                      </Button>
-                                    </Popover>
+                                    });
+                                    await Swal.fire({
+                                      position: "top-center",
+                                      icon: "success",
+                                      title: "Lưu thành công",
+                                      showConfirmButton: false,
+                                      timer: 1500,
+                                    });
+                                    handleDelayNext();
+                                  } else if (response.status === 401) {
+                                    localStorage.removeItem("manager");
+                                    navigate("/management/login");
                                   }
-                                />
-                              </Card>
-                            );
-                          })
-                        )}
+                                } catch (error) {
+                                  console.error("Error calling API:", error);
+                                }
+                              }}
+                            >
+                              <Meta
+                                avatar={
+                                  item?.avatar !== "" ? (
+                                    <div>
+                                      <Avatar
+                                        src={item?.avatar}
+                                        size={"large"}
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div>
+                                      <Avatar
+                                        src="https://api.dicebear.com/7.x/miniavs/svg?seed=3"
+                                        size={"large"}
+                                      />
+                                    </div>
+                                  )
+                                }
+                                title={
+                                  item?.fullname === null
+                                    ? item?.email
+                                    : item?.fullname
+                                }
+                                description={
+                                  <Popover
+                                    content={
+                                      <>
+                                        <div className="mt-2">
+                                          <Text>
+                                            <b>
+                                              <IdcardOutlined /> Họ và tên:
+                                            </b>
+                                            &nbsp; {item?.fullname}
+                                          </Text>
+                                        </div>
+                                        <div className="mt-2">
+                                          <Text>
+                                            <b>
+                                              <UserOutlined /> Tên người dùng:
+                                            </b>
+                                            &nbsp; {item?.username}
+                                          </Text>
+                                        </div>
+                                        <div className="mt-2">
+                                          <Text>
+                                            <b>
+                                              <PhoneOutlined /> Email:
+                                            </b>
+                                            &nbsp; {item?.email}
+                                          </Text>
+                                        </div>
+                                        <div className="mt-2">
+                                          <Text>
+                                            <b>
+                                              <GlobalOutlined /> Địa chỉ:
+                                            </b>
+                                            &nbsp; {item?.address}
+                                          </Text>
+                                        </div>
+                                      </>
+                                    }
+                                    title="Thông tin chi tiết"
+                                    trigger="hover"
+                                  >
+                                    <Button>
+                                      <InfoCircleOutlined /> Xem thêm
+                                    </Button>
+                                  </Popover>
+                                }
+                              />
+                            </Card>
+                          );
+                        })}
                       </div>
                     </>
                   ) : (
@@ -1307,22 +1555,51 @@ const OrderToCustomerContent = () => {
                   <Row gutter={[16, 24]} style={{ marginTop: 10 }}>
                     {orderForProduct.map((item) => {
                       return (
-                        <Col className="gutter-row" span={6}>
-                          <Card
-                            hoverable
-                            style={{
-                              width: 240,
-                            }}
-                            cover={
-                              <img
-                                alt="thumbnail product"
-                                src={item.templateThumnailImage}
-                              />
-                            }
-                          >
-                            <Meta title={item.name} />
-                          </Card>
-                        </Col>
+                        <>
+                          <Col className="gutter-row" span={6} key={item.id}>
+                            <Card
+                              style={{
+                                width: 240,
+                                border: "1px solid #9F78FF",
+                                position: "relative",
+                              }}
+                              cover={
+                                <img
+                                  alt="thumbnail product"
+                                  src={item.templateThumnailImage}
+                                  style={{
+                                    border: "1px solid #9F78FF",
+                                    borderBottom: "none",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => openUpdateAModal(item.id)}
+                                />
+                              }
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                }}
+                              >
+                                <Meta title={item.name} />
+                                <Tag
+                                  icon={<DeleteOutlined />}
+                                  color="error"
+                                  hoverable
+                                  onClick={() => handleDeleteProduct(item.id)}
+                                  style={{
+                                    cursor: "pointer",
+                                    position: "absolute",
+                                    top: "5px",
+                                    borderRadius: "50px",
+                                    right: "5px",
+                                  }}
+                                ></Tag>
+                              </div>
+                            </Card>
+                          </Col>
+                        </>
                       );
                     })}
                   </Row>
@@ -1353,13 +1630,25 @@ const OrderToCustomerContent = () => {
             <CreateNewProductModal
               open={open}
               onCreateNewProduct={onCreateNewProduct}
-              productTemplateId={productTemplateId}
               onCancel={() => {
                 setOpen(false);
               }}
+              productTemplateId={productTemplateId}
               profileCustomer={profileCustomer}
               saveOrderId={saveOrderId}
               materialId={materialId}
+            />
+            <UpdateProductModal
+              open={openUpdate}
+              onCancel={() => {
+                setOpenUpdate(false);
+              }}
+              dataDetailForUpdate={dataDetailForUpdate}
+              productTemplateId={productTemplateId}
+              profileCustomer={profileCustomer}
+              saveOrderId={saveOrderId}
+              materialId={materialId}
+              handleUpdateProduct={handleUpdateProduct}
             />
           </div>
         </>
@@ -1694,7 +1983,17 @@ const OrderToCustomerContent = () => {
   const [current, setCurrent] = useState(0);
   const next = async () => {
     if (current === 1) {
-      handleDataOrderDetail();
+      if (orderForProduct) {
+        handleDataOrderDetail();
+      } else {
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: "Chưa có sản phẩm nào!!!",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
     } else if (current === 2) {
       const urlCreateNew = `https://etailorapi.azurewebsites.net/api/order/finish/${saveOrderId}`;
       try {
@@ -1721,9 +2020,8 @@ const OrderToCustomerContent = () => {
     setCurrent(current + 1);
   };
   const prev = () => {
-    console.log("prev", current);
     if (current === 1) {
-      setSaveCustomer(null);
+      console.log("prev", current);
     }
     setCurrent(current - 1);
   };
@@ -1770,6 +2068,7 @@ const OrderToCustomerContent = () => {
 };
 
 function OrderToCustomer() {
+  console.log("Da login vao chua: ", manager?.token);
   return (
     <div>
       <div

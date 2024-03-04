@@ -68,10 +68,10 @@ export default function LoginManagerAndAdmin() {
             timer: 4000,
           });
           if (data.role === "Admin") {
-            localStorage.setItem("admin", JSON.stringify(data));
+            await localStorage.setItem("admin", JSON.stringify(data));
             navigate("/admin");
           } else if (data.role === "Manager") {
-            localStorage.setItem("manager", JSON.stringify(data));
+            await localStorage.setItem("manager", JSON.stringify(data));
             navigate("/manager");
           }
         } else if (response.status === 400) {
