@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { VnPay } from "../../../components/RealTime/index.js";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
@@ -8,7 +9,7 @@ import {
   PhoneOutlined,
   GlobalOutlined,
   InfoCircleOutlined,
-  DeleteOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import {
   Typography,
@@ -27,6 +28,7 @@ import {
   Table,
   Popover,
   Tag,
+  Spin,
 } from "antd";
 import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -43,14 +45,9 @@ const { Search } = Input;
 const { Title, Text } = Typography;
 const { Meta } = Card;
 
-let manager = JSON.parse(localStorage.getItem("manager"));
-
 const OrderToCustomerHeader = () => {
-  useEffect(() => {
-    if (!manager) {
-      manager = JSON.parse(localStorage.getItem("manager"));
-    }
-  }, []);
+  const manager = JSON.parse(localStorage.getItem("manager"));
+
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -141,6 +138,8 @@ const CreateNewProductModal = ({
   const [form] = Form.useForm();
   const [productComponent, setProductComponent] = useState(null);
   const [loadingApi, setLoadingApi] = useState(false);
+  const [loadingCreate, setLoadingCreate] = useState(false);
+  const manager = JSON.parse(localStorage.getItem("manager"));
 
   const filterOptionForProductTemplate = (input, option) =>
     (option?.title ?? "")
@@ -162,6 +161,7 @@ const CreateNewProductModal = ({
       .includes(input.toLowerCase());
 
   const handleSelectProductTemplate = async (value) => {
+    setLoadingApi(true);
     const urlTemplateType = `https://etailorapi.azurewebsites.net/api/template/${value}/component-types`;
     try {
       const response = await fetch(`${urlTemplateType}`, {
@@ -174,6 +174,7 @@ const CreateNewProductModal = ({
 
       if (response.ok) {
         const responseData = await response.json();
+        setLoadingApi(false);
         setProductComponent(responseData);
       }
     } catch (error) {
@@ -197,6 +198,7 @@ const CreateNewProductModal = ({
         form
           .validateFields()
           .then(async (values) => {
+            setLoadingCreate(true);
             const backendData = {
               orderId: saveOrderId,
               name: values.name,
@@ -219,11 +221,13 @@ const CreateNewProductModal = ({
               form.resetFields();
               setProductComponent(null);
             }
+            setLoadingCreate(false);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
       }}
+      okButtonProps={{ loading: loadingCreate }}
     >
       <Form
         form={form}
@@ -295,8 +299,8 @@ const CreateNewProductModal = ({
             )}
           </Select>
         </Form.Item>
-        {productComponent &&
-          productComponent.map((component) => {
+        {!loadingApi ? (
+          productComponent?.map((component) => {
             return (
               <Form.Item
                 key={component.id}
@@ -332,7 +336,19 @@ const CreateNewProductModal = ({
                 </Select>
               </Form.Item>
             );
-          })}
+          })
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "150px",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        )}
         <Form.Item
           name="profile"
           label="Profile khách hàng"
@@ -430,7 +446,15 @@ const UpdateProductModal = ({
   saveOrderId,
   materialId,
 }) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const [form] = Form.useForm();
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
+  const componentInitialValues = {};
+  dataDetailForUpdate?.componentTypeOrders?.forEach((component) => {
+    componentInitialValues[`${component.component_Id}`] =
+      component.selected_Component_Id;
+  });
+  console.log(componentInitialValues);
 
   const filterOptionForProfile = (input, option) =>
     (option?.title ?? "")
@@ -453,12 +477,14 @@ const UpdateProductModal = ({
       okText="Cập nhật"
       cancelText="Hủy bỏ"
       onCancel={() => {
+        form.resetFields();
         onCancel();
       }}
       onOk={() => {
         form
           .validateFields()
           .then(async (values) => {
+            setLoadingUpdate(true);
             const backendData = {
               orderId: saveOrderId,
               name: values.name,
@@ -476,13 +502,14 @@ const UpdateProductModal = ({
               profileId: values.profile,
               note: values.note ? values.note : "",
             };
-            console.log("Du lieu updated gui backend: ", backendData);
-            handleUpdateProduct(backendData);
+            await handleUpdateProduct(backendData);
+            setLoadingUpdate(false);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
       }}
+      okButtonProps={{ loading: loadingUpdate }}
     >
       <Form
         form={form}
@@ -494,6 +521,7 @@ const UpdateProductModal = ({
           note: dataDetailForUpdate?.note,
           profile: dataDetailForUpdate?.profileId,
           materialId: dataDetailForUpdate?.materialId,
+          ...componentInitialValues,
         }}
         style={{
           height: 530,
@@ -541,16 +569,13 @@ const UpdateProductModal = ({
                 label={`Chọn ${component.name}`}
                 name={component.component_Id}
                 rules={[
-                  !component?.selected_Component_Id || {
+                  {
                     required: true,
-                    message: "Chọn bản mẫu không được để trống!",
+                    message: "Kiểu mẫu cho từng bộ phận không được để trống",
                   },
                 ]}
               >
-                <Select
-                  style={{ height: 45 }}
-                  defaultValue={component?.selected_Component_Id}
-                >
+                <Select style={{ height: 45 }}>
                   {component?.components?.map((item) => {
                     return (
                       <Select.Option value={item.id} key={item.id}>
@@ -655,14 +680,31 @@ const UpdateProductModal = ({
 };
 
 const OrderToCustomerContent = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const navigate = useNavigate();
+  const vnpayNotification = VnPay();
   const [form] = Form.useForm();
+  console.log("vnpayNotification", vnpayNotification);
 
   useEffect(() => {
     if (!manager) {
       manager = JSON.parse(localStorage.getItem("manager"));
     }
   }, []);
+  useEffect(() => {
+    if (
+      vnpayNotification !== null &&
+      vnpayNotification !== undefined &&
+      vnpayNotification !== ""
+    ) {
+      Swal.fire({
+        position: "top-center",
+        icon: "success",
+        title: vnpayNotification,
+        showConfirmButton: false,
+      });
+    }
+  }, [vnpayNotification]);
 
   //-----------------------------------------Thử làm cách mới--------------------------------------------------
 
@@ -995,7 +1037,12 @@ const OrderToCustomerContent = () => {
 
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
-        handleDataOrderDetail();
+        if (platform === "VN Pay") {
+          window.open(responseData);
+          handleDataOrderDetail();
+        } else {
+          handleDataOrderDetail();
+        }
         return 1;
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
@@ -1038,8 +1085,10 @@ const OrderToCustomerContent = () => {
   const [openUpdate, setOpenUpdate] = useState(false);
   const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
   const [saveIdProduct, setSaveIdProduct] = useState(null);
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
   const openUpdateAModal = async (id) => {
     const urlProductDetail = `https://etailorapi.azurewebsites.net/api/product/order/${saveOrderId}/${id}`;
+    setLoadingUpdate(true);
     try {
       const response = await fetch(`${urlProductDetail}`, {
         method: "GET",
@@ -1053,6 +1102,7 @@ const OrderToCustomerContent = () => {
         const responseData = await response.json();
         setDataDetailForUpdate(responseData);
         setSaveIdProduct(id);
+        setLoadingUpdate(false);
         setOpenUpdate(true);
       } else if (response.status === 401) {
         localStorage.removeItem("manager");
@@ -1098,6 +1148,7 @@ const OrderToCustomerContent = () => {
 
   //------------------------------------------------------------Api xử lý bước 3--------------------------------------------
   const [orderPaymentDetail, setOrderPaymentDetail] = useState(null);
+  const [loadingDiscount, setLoadingDiscount] = useState(false);
 
   const handleDataOrderDetail = async () => {
     const urlOrderDetail = `https://etailorapi.azurewebsites.net/api/order/${saveOrderId}`;
@@ -1123,6 +1174,7 @@ const OrderToCustomerContent = () => {
   };
   const handleCheckDiscount = async (value) => {
     const urlOrderDetail = `https://etailorapi.azurewebsites.net/api/discount/order/${saveOrderId}/discount/${value}`;
+    setLoadingDiscount(true);
     try {
       const response = await fetch(`${urlOrderDetail}`, {
         method: "PATCH",
@@ -1141,6 +1193,7 @@ const OrderToCustomerContent = () => {
           timer: 1500,
           zIndex: 1000,
         });
+        setLoadingDiscount(false);
         handleDataOrderDetail();
       } else if (response.status === 400 || response.status === 500) {
         Swal.fire({
@@ -1151,6 +1204,7 @@ const OrderToCustomerContent = () => {
           timer: 1500,
           zIndex: 1000,
         });
+        setLoadingDiscount(false);
       } else if (response.status === 401) {
         localStorage.removeItem("manager");
         navigate("/management/login");
@@ -1262,19 +1316,15 @@ const OrderToCustomerContent = () => {
                               onClick={async () => {
                                 const urlGetDetail = `https://etailorapi.azurewebsites.net/api/customer-management/info/${item.id}`;
                                 try {
-                                  const response = await fetch(
-                                    `${urlGetDetail}`,
-                                    {
-                                      method: "GET",
-                                      headers: {
-                                        "Content-Type": "application/json",
-                                        Authorization: `Bearer ${manager?.token}`,
-                                      },
-                                    }
-                                  );
+                                  const response = await fetch(urlGetDetail, {
+                                    method: "GET",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                      Authorization: `Bearer ${manager?.token}`,
+                                    },
+                                  });
                                   if (response.ok && response.status === 200) {
                                     const responseData = await response.json();
-
                                     setSaveCustomer((prev) => {
                                       if (prev && prev.id !== responseData.id) {
                                         setSaveOrderId(null);
@@ -1593,7 +1643,7 @@ const OrderToCustomerContent = () => {
                               >
                                 <Meta title={item.name} />
                                 <Tag
-                                  icon={<DeleteOutlined />}
+                                  icon={<CloseOutlined />}
                                   color="error"
                                   onClick={() => handleDeleteProduct(item.id)}
                                   style={{
@@ -1607,6 +1657,9 @@ const OrderToCustomerContent = () => {
                               </div>
                             </Card>
                           </Col>
+                          {loadingUpdate && (
+                            <Spin spinning={loadingUpdate} fullscreen />
+                          )}
                         </>
                       );
                     })}
@@ -1689,7 +1742,28 @@ const OrderToCustomerContent = () => {
                           textAlign: "center",
                         }}
                         bodyStyle={{ padding: 0, marginTop: 10 }}
-                        onClick={() => setActive(active === 1 ? null : 1)}
+                        onClick={() => {
+                          setActive(active === 1 ? null : 1);
+                          Swal.fire({
+                            title: `Xác nhận thanh toán vnpay với số tiền ${formatCurrency(
+                              orderPaymentDetail?.unPaidMoney
+                            )} ?`,
+                            showCancelButton: true,
+                            confirmButtonText: "Xác nhận",
+                            cancelButtonText: `Hủy`,
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              Swal.fire("Chờ xác nhận!", "", "warning");
+                              handleCreatePayCash(
+                                orderPaymentDetail?.unPaidMoney,
+                                0,
+                                "VN Pay"
+                              );
+                            } else if (result.isDenied) {
+                              Swal.fire("Changes are not saved", "", "info");
+                            }
+                          });
+                        }}
                       >
                         <img
                           src={paymenVnpay}
@@ -1859,6 +1933,7 @@ const OrderToCustomerContent = () => {
                         allowClear
                         enterButton="Kiểm tra"
                         onSearch={(value) => handleCheckDiscount(value)}
+                        loading={loadingDiscount}
                       />
                     </div>
                   </div>
@@ -2080,7 +2155,7 @@ const OrderToCustomerContent = () => {
 };
 
 function OrderToCustomer() {
-  console.log("Da login vao chua: ", manager?.token);
+  const manager = JSON.parse(localStorage.getItem("manager"));
   return (
     <div>
       <div

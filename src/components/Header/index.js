@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./index.css";
 import Logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
-import ShoppingBag from "../../assets/images/shopping-bag.png";
+import ShoppingBag from "../../assets/images/notification.png";
 import Login from "../../pages/Customer/Login/Login";
 import Menu from "@mui/joy/Menu";
 import MenuButton from "@mui/joy/MenuButton";
@@ -167,11 +167,11 @@ const Header = () => {
           <div className="navbar-items">
             <button className="button is-rounded is-medium wrapper-shopping">
               <img src={ShoppingBag} width={18} height={18}></img>
-              <p
+              {/* <p
                 style={{ paddingLeft: 10, color: "#FFFFFF", fontSize: "15px" }}
               >
-                0
-              </p>
+                
+              </p> */}
             </button>
           </div>
         </div>
