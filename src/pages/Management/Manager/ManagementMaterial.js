@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import CircularProgress from "@mui/material/CircularProgress";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
@@ -127,25 +128,25 @@ const ManagementMaterialHeader = () => {
 };
 
 const ManagementMaterialContent = () => {
-  //   const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
-  //   const manager = JSON.parse(localStorage.getItem("manager"));
-  //   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-  //     fetch(getStaffUrl, {
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         Authorization: `Bearer ${manager?.token}`,
-  //       },
-  //     }).then((response) => response.json())
-  //   );
+  const getMaterialUrl = "https://etailorapi.azurewebsites.net/api/material";
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const { data: material, isLoading: loadingMaterial } = useQuery(
+    "getMaterial",
+    () =>
+      fetch(getMaterialUrl, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      }).then((response) => response.json())
+  );
 
-  //   const getApi = staffs?.data?.map((item) => ({
-  //     stt: item.stt,
-  //     avatar: item.avatar,
-  //     username: item.username,
-  //     fullname: item.fullname,
-  //     address: item.address,
-  //     phone: item.phone,
-  //   }));
+  const getApi = material?.map((item, index) => ({
+    stt: index,
+    name: item.name,
+    image: item.image,
+    quantity: item.quantity,
+  }));
 
   //--------------------------------------------------------------------data table Material-------------------------------------------------
 
@@ -162,12 +163,8 @@ const ManagementMaterialContent = () => {
       width: "7%",
       dataIndex: "image",
       key: "image",
-      render: () => (
-        <Image
-          width={30}
-          height={30}
-          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-        />
+      render: (_, record) => (
+        <Image width={30} height={30} src={record.image} />
       ),
     },
     {
@@ -219,19 +216,10 @@ const ManagementMaterialContent = () => {
     },
   ];
 
-  const data = [];
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      stt: i,
-      name: `Nguyên liệu ${i}`,
-      quantity: `${i}`,
-    });
-  }
-
   //------------------------------------------------------------Modal create-------------------------------------------------------
   const [open, setOpen] = useState(false);
   const onCreate = (values) => {
-    console.log("Received values of form: ", values);
+    console.log("Tao nguyen lieu: ", values);
     setOpen(false);
   };
 
@@ -267,7 +255,7 @@ const ManagementMaterialContent = () => {
           </div>
           <Row justify="start" style={{ paddingRight: "24px" }}>
             <Col span={4}>
-              <Button>Tổng cộng ({manager?.totalData})</Button>
+              <Button>Tổng cộng ({getApi?.length})</Button>
             </Col>
             <Col span={4} offset={12}>
               <Button
@@ -288,17 +276,29 @@ const ManagementMaterialContent = () => {
             </Col>
           </Row>
         </div>
-
-        <Table
-          columns={newColumns}
-          dataSource={data}
-          pagination={{
-            position: ["bottomCenter"],
-          }}
-          style={{
-            marginTop: 24,
-          }}
-        />
+        {loadingMaterial ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "550px",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        ) : (
+          <Table
+            columns={newColumns}
+            dataSource={getApi}
+            pagination={{
+              position: ["bottomCenter"],
+            }}
+            style={{
+              marginTop: 24,
+            }}
+          />
+        )}
       </>
     </div>
   );
@@ -358,7 +358,12 @@ const CreateMaterial = ({ open, onCreate, onCancel }) => {
           .validateFields()
           .then((values) => {
             form.resetFields();
-            onCreate(values);
+            const dataChange = {
+              image: imageUrl,
+              name: values.name,
+              quantity: values.quantity,
+            };
+            onCreate(dataChange);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);

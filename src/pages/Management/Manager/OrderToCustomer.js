@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { VnPay } from "../../../components/RealTime/index.js";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
@@ -27,6 +28,7 @@ import {
   Table,
   Popover,
   Tag,
+  Spin,
 } from "antd";
 import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -43,14 +45,9 @@ const { Search } = Input;
 const { Title, Text } = Typography;
 const { Meta } = Card;
 
-let manager = JSON.parse(localStorage.getItem("manager"));
-
 const OrderToCustomerHeader = () => {
-  useEffect(() => {
-    if (!manager) {
-      manager = JSON.parse(localStorage.getItem("manager"));
-    }
-  }, []);
+  const manager = JSON.parse(localStorage.getItem("manager"));
+
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -142,6 +139,7 @@ const CreateNewProductModal = ({
   const [productComponent, setProductComponent] = useState(null);
   const [loadingApi, setLoadingApi] = useState(false);
   const [loadingCreate, setLoadingCreate] = useState(false);
+  const manager = JSON.parse(localStorage.getItem("manager"));
 
   const filterOptionForProductTemplate = (input, option) =>
     (option?.title ?? "")
@@ -448,8 +446,9 @@ const UpdateProductModal = ({
   saveOrderId,
   materialId,
 }) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const [form] = Form.useForm();
-
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
   const componentInitialValues = {};
   dataDetailForUpdate?.componentTypeOrders?.forEach((component) => {
     componentInitialValues[`${component.component_Id}`] =
@@ -485,6 +484,7 @@ const UpdateProductModal = ({
         form
           .validateFields()
           .then(async (values) => {
+            setLoadingUpdate(true);
             const backendData = {
               orderId: saveOrderId,
               name: values.name,
@@ -502,12 +502,14 @@ const UpdateProductModal = ({
               profileId: values.profile,
               note: values.note ? values.note : "",
             };
-            handleUpdateProduct(backendData);
+            await handleUpdateProduct(backendData);
+            setLoadingUpdate(false);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
       }}
+      okButtonProps={{ loading: loadingUpdate }}
     >
       <Form
         form={form}
@@ -678,14 +680,31 @@ const UpdateProductModal = ({
 };
 
 const OrderToCustomerContent = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const navigate = useNavigate();
+  const vnpayNotification = VnPay();
   const [form] = Form.useForm();
+  console.log("vnpayNotification", vnpayNotification);
 
   useEffect(() => {
     if (!manager) {
       manager = JSON.parse(localStorage.getItem("manager"));
     }
   }, []);
+  useEffect(() => {
+    if (
+      vnpayNotification !== null &&
+      vnpayNotification !== undefined &&
+      vnpayNotification !== ""
+    ) {
+      Swal.fire({
+        position: "top-center",
+        icon: "success",
+        title: vnpayNotification,
+        showConfirmButton: false,
+      });
+    }
+  }, [vnpayNotification]);
 
   //-----------------------------------------Thử làm cách mới--------------------------------------------------
 
@@ -1018,7 +1037,12 @@ const OrderToCustomerContent = () => {
 
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
-        handleDataOrderDetail();
+        if (platform === "VN Pay") {
+          window.open(responseData);
+          handleDataOrderDetail();
+        } else {
+          handleDataOrderDetail();
+        }
         return 1;
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
@@ -1061,8 +1085,10 @@ const OrderToCustomerContent = () => {
   const [openUpdate, setOpenUpdate] = useState(false);
   const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
   const [saveIdProduct, setSaveIdProduct] = useState(null);
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
   const openUpdateAModal = async (id) => {
     const urlProductDetail = `https://etailorapi.azurewebsites.net/api/product/order/${saveOrderId}/${id}`;
+    setLoadingUpdate(true);
     try {
       const response = await fetch(`${urlProductDetail}`, {
         method: "GET",
@@ -1076,6 +1102,7 @@ const OrderToCustomerContent = () => {
         const responseData = await response.json();
         setDataDetailForUpdate(responseData);
         setSaveIdProduct(id);
+        setLoadingUpdate(false);
         setOpenUpdate(true);
       } else if (response.status === 401) {
         localStorage.removeItem("manager");
@@ -1289,19 +1316,15 @@ const OrderToCustomerContent = () => {
                               onClick={async () => {
                                 const urlGetDetail = `https://etailorapi.azurewebsites.net/api/customer-management/info/${item.id}`;
                                 try {
-                                  const response = await fetch(
-                                    `${urlGetDetail}`,
-                                    {
-                                      method: "GET",
-                                      headers: {
-                                        "Content-Type": "application/json",
-                                        Authorization: `Bearer ${manager?.token}`,
-                                      },
-                                    }
-                                  );
+                                  const response = await fetch(urlGetDetail, {
+                                    method: "GET",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                      Authorization: `Bearer ${manager?.token}`,
+                                    },
+                                  });
                                   if (response.ok && response.status === 200) {
                                     const responseData = await response.json();
-
                                     setSaveCustomer((prev) => {
                                       if (prev && prev.id !== responseData.id) {
                                         setSaveOrderId(null);
@@ -1634,6 +1657,9 @@ const OrderToCustomerContent = () => {
                               </div>
                             </Card>
                           </Col>
+                          {loadingUpdate && (
+                            <Spin spinning={loadingUpdate} fullscreen />
+                          )}
                         </>
                       );
                     })}
@@ -1716,7 +1742,28 @@ const OrderToCustomerContent = () => {
                           textAlign: "center",
                         }}
                         bodyStyle={{ padding: 0, marginTop: 10 }}
-                        onClick={() => setActive(active === 1 ? null : 1)}
+                        onClick={() => {
+                          setActive(active === 1 ? null : 1);
+                          Swal.fire({
+                            title: `Xác nhận thanh toán vnpay với số tiền ${formatCurrency(
+                              orderPaymentDetail?.unPaidMoney
+                            )} ?`,
+                            showCancelButton: true,
+                            confirmButtonText: "Xác nhận",
+                            cancelButtonText: `Hủy`,
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              Swal.fire("Chờ xác nhận!", "", "warning");
+                              handleCreatePayCash(
+                                orderPaymentDetail?.unPaidMoney,
+                                0,
+                                "VN Pay"
+                              );
+                            } else if (result.isDenied) {
+                              Swal.fire("Changes are not saved", "", "info");
+                            }
+                          });
+                        }}
                       >
                         <img
                           src={paymenVnpay}
@@ -2108,7 +2155,7 @@ const OrderToCustomerContent = () => {
 };
 
 function OrderToCustomer() {
-  console.log("Da login vao chua: ", manager?.token);
+  const manager = JSON.parse(localStorage.getItem("manager"));
   return (
     <div>
       <div
