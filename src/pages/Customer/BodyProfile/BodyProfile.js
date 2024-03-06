@@ -86,7 +86,7 @@ export default function BodyProfile() {
           "Content-Type": " application/json",
           Authorization: `Bearer ${token}`,
         },
-
+        
         body: JSON.stringify({
           name: bodyProfileName,
           valueBodyAttribute: inputValues,
@@ -94,22 +94,23 @@ export default function BodyProfile() {
       });
 
       if (response.ok) {
+        handleCancel();
         await Swal.fire({
           icon: "success",
           title: "Tạo mới thành công",
           timer: 2000,
         });
         navigate("/body-profile");
-        handleCancel();
+
       } else {
         const errorText = await response.text();
       }
     } catch (error) {
       console.error("Error:", error);
     } finally {
-    }
+    } 
   };
-
+  
   const customer = localStorage.getItem("customer");
   const token = JSON.parse(customer)?.token;
 
@@ -218,8 +219,8 @@ export default function BodyProfile() {
                       {index === 1
                         ? "I. Phần đầu"
                         : index === 2
-                        ? "II. Phần thân trên"
-                        : "III. Phần thân dưới"}
+                          ? "II. Phần thân trên"
+                          : "III. Phần thân dưới"}
                     </p>
                     {getAllBodyAttributes &&
                       getAllBodyAttributes.map((attribute, attrIndex) => {

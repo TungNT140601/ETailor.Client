@@ -116,7 +116,12 @@
     justify-content: flex-start;
 
 }
-
+.media-content p {
+    max-width: 300px; 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+}
 .content {
     text-align: start;
     margin-bottom: 2em;
