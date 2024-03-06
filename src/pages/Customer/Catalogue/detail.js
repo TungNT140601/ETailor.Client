@@ -4,7 +4,10 @@ import { useParams } from "react-router-dom";
 import NoData from "../../../assets/images/nodata.jpg";
 import Loading from "../LoadingComponent/loading";
 import { Button, Popover, Space } from "antd";
-
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import { Navigation } from 'swiper/modules';
 export default function ProductDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [productData, setProductData] = useState("");
@@ -97,35 +100,7 @@ export default function ProductDetail() {
           </div>
           <div className="product-detail-wrapper">
             <div className="product-detail-items">
-              <div
-                className="product-detail-preview"
-                style={{ marginLeft: "10px" }}
-              >
-                {imgData &&
-                  imgData.map((img, index) => {
-                    return (
-                      <Space wrap key={index}>
-                        <Popover title={img.name} trigger="hover">
-                          <figure
-                            className="image is-96x96"
-                            style={{ marginBottom: "10px" }}
-                            onMouseEnter={() => {
-                              handleSelectedImg(img);
-                            }}
-                          >
-                            <img
-                              src={img}
-                              style={{
-                                boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.25)",
-                              }}
-                              alt=""
-                            ></img>
-                          </figure>
-                        </Popover>
-                      </Space>
-                    );
-                  })}
-              </div>
+
             </div>
             <div className="product-detail-items">
               <div>
@@ -134,11 +109,79 @@ export default function ProductDetail() {
                     style={{
                       borderRadius: "5px",
                       objectFit: "cover",
-                      boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.05)",
+                      boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.1)",
+                      maxHeight: 450,
+                      maxWidth: 450
                     }}
                     src={selectedImg}
                   ></img>
                 </figure>
+              </div>
+
+              <div
+                className="product-detail-preview"
+                style={{ marginLeft: "10px" }}
+              >
+                {imgData && imgData.length > 6 ? (
+                  <Swiper
+                    rewind={true}
+                    navigation={true}
+                    modules={[Navigation]}
+                    className="mySwiper1"
+                    slidesPerView={6}
+                  >
+                    {imgData.map((img, index) => (
+                      <Space wrap key={index}>
+                        <Popover title={img.name} trigger="hover">
+                          <SwiperSlide>
+                            <figure
+                              className="image is-64x64"
+                              style={{ marginBottom: "10px", objectFit: 'contain', marginLeft: 10, maxHeight: 64, maxWidth: 64, overflow: 'hidden', borderRadius: 10 }}
+                              onMouseEnter={() => {
+                                handleSelectedImg(img);
+                              }}
+                            >
+                              <img
+                                src={img}
+                                style={{
+                                  boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.25)",
+                                  width: "64px",
+                                  height: "64px"
+                                }}
+                                alt=""
+                              />
+                            </figure>
+                          </SwiperSlide>
+                        </Popover>
+                      </Space>
+                    ))}
+                  </Swiper>
+                ) : (
+                  imgData.map((img, index) => (
+                    <Space wrap key={index}>
+                      <Popover title={img.name} trigger="hover">
+                        <figure
+                          className="image is-64x64"
+                          style={{ marginBottom: "10px", objectFit: 'contain', marginLeft: 10, maxHeight: 64, maxWidth: 64, overflow: 'hidden', borderRadius: 10 }}
+                          onMouseEnter={() => {
+                            handleSelectedImg(img);
+                          }}
+                        >
+                          <img
+                            src={img}
+                            style={{
+                              boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.25)",
+                              width: "64px",
+                              height: "64px"
+                            }}
+                            alt=""
+                          />
+                        </figure>
+                      </Popover>
+                    </Space>
+                  ))
+                )}
+
               </div>
             </div>
             <div className="product-detail-items">
@@ -204,7 +247,7 @@ export default function ProductDetail() {
               </div>
             </div>
           </div>
-        </div>
+        </div >
         //         ) : (
         //             <div style={{ paddingTop: "70px", width: "100vw", display: "flex", justifyContent: "center" }}>
         //                 <div style={{ width: "30%", textAlign: "center" }}>
@@ -219,7 +262,8 @@ export default function ProductDetail() {
         //         )
         //     }
         // </>
-      )}
+      )
+      }
     </>
   );
 }
