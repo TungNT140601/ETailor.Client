@@ -82,12 +82,14 @@ export default function Catalogue() {
                   <div className="header-catalog-title">
                     <div className="catalog-title">
                       <h1
-                        className="title is-3"
                         style={{
                           left: 0,
                           color: "#140c40",
                           borderBottom: "2px solid #140c40",
                           paddingBottom: "5px",
+                          fontSize: '18px',  
+                          fontWeight: 600,
+                          lineHeight: 1.125,  
                         }}
                       >
                         {template.name}

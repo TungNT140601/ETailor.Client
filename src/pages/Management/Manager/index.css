@@ -13,6 +13,10 @@
     display: none;
 }
 
+.input-image {
+    display: none;
+}
+
 .gutter-row::-webkit-scrollbar {
     display: none;
 }
