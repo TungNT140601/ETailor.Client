@@ -44,7 +44,7 @@ import { useQuery } from "react-query";
 const { Search } = Input;
 const { Title, Text } = Typography;
 const { Meta } = Card;
-
+let openwindow;
 const OrderToCustomerHeader = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
 
