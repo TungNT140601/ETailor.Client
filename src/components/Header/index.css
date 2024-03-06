@@ -4,7 +4,7 @@
     height: 128px;
     position: fixed;
     display: grid;
-    grid-template-columns:  auto auto;
+    grid-template-columns: auto auto;
     padding: 0 50px;
     justify-content: space-between;
     z-index: 10000;
@@ -13,17 +13,19 @@
 
 .subtitle {
     font-weight: 600;
-   
+
 }
 
 .header-logo {
     width: 200px;
 }
-.header-menu-wrapper{
+
+.header-menu-wrapper {
     display: flex;
     justify-self: center;
     float: left;
 }
+
 .header-menu {
     display: flex;
     padding-left: 20px;
@@ -51,19 +53,22 @@
     background-color: #9F78FF;
     width: 70px;
     height: 40px;
+    text-align: center;
+    align-content: center;
 }
 
-.header-end .navbar-items{
+.header-end .navbar-items {
     padding: 0 20px;
 }
 
-.login{
+.login {
     cursor: pointer;
 }
-.user-logo:hover{
-    background-color: #fff!important;
+
+.user-logo:hover {
+    background-color: #fff !important;
 }
 
-.navbar-items h1{
+.navbar-items h1 {
     font-weight: 400;
 }
