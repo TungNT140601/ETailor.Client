@@ -87,9 +87,9 @@ export default function Catalogue() {
                           color: "#140c40",
                           borderBottom: "2px solid #140c40",
                           paddingBottom: "5px",
-                          fontSize: '18px',  
+                          fontSize: "18px",
                           fontWeight: 600,
-                          lineHeight: 1.125,  
+                          lineHeight: 1.125,
                         }}
                       >
                         {template.name}

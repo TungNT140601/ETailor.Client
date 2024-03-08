@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Breadcrumb } from "antd";
+import CircularProgress from "@mui/material/CircularProgress";
 import {
   HomeOutlined,
   UserOutlined,
@@ -43,9 +44,8 @@ const { Title, Text } = Typography;
 const { Meta } = Card;
 const { Option } = Select;
 
-const manager = JSON.parse(localStorage.getItem("manager"));
-
 const ManagementCustomerHeader = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -117,16 +117,20 @@ const ManagementCustomerHeader = () => {
 };
 
 const ManagementCustomerContent = () => {
-  // const getUrl = "https://etailorapi.azurewebsites.net/api/body-size";
+  const manager = JSON.parse(localStorage.getItem("manager"));
 
-  // const { data: bodySize, isLoading: loading } = useQuery("get-body-size", () =>
-  //   fetch(getUrl, {
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       Authorization: `Bearer ${manager?.token}`,
-  //     },
-  //   }).then((response) => response.json())
-  // );
+  const getUrl = "https://etailorapi.azurewebsites.net/api/customer-management";
+
+  const { data: getCustomer, isLoading: loading } = useQuery(
+    "get-customer",
+    () =>
+      fetch(getUrl, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      }).then((response) => response.json())
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
@@ -152,12 +156,8 @@ const ManagementCustomerContent = () => {
       width: 150,
       dataIndex: "image",
       key: "image",
-      render: () => (
-        <Image
-          width={40}
-          height={30}
-          src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-        />
+      render: (_, record) => (
+        <Image width={40} height={40} src={record.avatar} />
       ),
     },
     {
@@ -213,25 +213,15 @@ const ManagementCustomerContent = () => {
     },
   ];
 
-  //   const getApi = staffs?.data?.map((item) => ({
-  //     stt: item.stt,
-  //     avatar: item.avatar,
-  //     username: item.username,
-  //     fullname: item.fullname,
-  //     address: item.address,
-  //     phone: item.phone,
-  //   }));
-
-  const data = [];
-  for (let i = 0; i < 100; i++) {
-    data.push({
-      stt: i,
-      username: `Edward ${i}`,
-      fullname: `Edward ${i}`,
-      address: `London Park no. ${i}`,
-      phone: `1234567890 ${i}`,
-    });
-  }
+  const getApi = getCustomer?.map((item, index) => ({
+    id: item.id,
+    stt: index,
+    avatar: item.avatar,
+    username: item.username,
+    fullname: item.fullname,
+    address: item.address,
+    phone: item.phone,
+  }));
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -270,21 +260,34 @@ const ManagementCustomerContent = () => {
         </div>
         <Row justify="start">
           <Col span={4}>
-            <Button>Tổng cộng ({data?.length})</Button>
+            <Button>Tổng cộng ({getApi?.length})</Button>
           </Col>
         </Row>
       </div>
-
-      <Table
-        columns={newColumns}
-        dataSource={data}
-        pagination={{
-          position: ["bottomCenter"],
-        }}
-        style={{
-          marginTop: 24,
-        }}
-      />
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "550px",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
+        <Table
+          columns={newColumns}
+          dataSource={getApi}
+          pagination={{
+            position: ["bottomCenter"],
+          }}
+          style={{
+            marginTop: 24,
+          }}
+          scroll={{ y: 428 }}
+        />
+      )}
 
       <Modal
         title="Hồ sơ số đo"
@@ -476,6 +479,7 @@ const ManagementCustomerContent = () => {
 };
 
 function ManagementCustomer() {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   return (
     <div>
       <div

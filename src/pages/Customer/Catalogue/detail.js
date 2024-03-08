@@ -4,10 +4,10 @@ import { useParams } from "react-router-dom";
 import NoData from "../../../assets/images/nodata.jpg";
 import Loading from "../LoadingComponent/loading";
 import { Button, Popover, Space } from "antd";
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import { Navigation } from 'swiper/modules';
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
+import { Navigation } from "swiper/modules";
 export default function ProductDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [productData, setProductData] = useState("");
@@ -99,9 +99,7 @@ export default function ProductDetail() {
             </nav>
           </div>
           <div className="product-detail-wrapper">
-            <div className="product-detail-items">
-
-            </div>
+            <div className="product-detail-items"></div>
             <div className="product-detail-items">
               <div>
                 <figure className="image is-5by4">
@@ -111,7 +109,7 @@ export default function ProductDetail() {
                       objectFit: "cover",
                       boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.1)",
                       maxHeight: 450,
-                      maxWidth: 450
+                      maxWidth: 450,
                     }}
                     src={selectedImg}
                   ></img>
@@ -136,7 +134,15 @@ export default function ProductDetail() {
                           <SwiperSlide>
                             <figure
                               className="image is-64x64"
-                              style={{ marginBottom: "10px", objectFit: 'contain', marginLeft: 10, maxHeight: 64, maxWidth: 64, overflow: 'hidden', borderRadius: 10 }}
+                              style={{
+                                marginBottom: "10px",
+                                objectFit: "contain",
+                                marginLeft: 10,
+                                maxHeight: 64,
+                                maxWidth: 64,
+                                overflow: "hidden",
+                                borderRadius: 10,
+                              }}
                               onMouseEnter={() => {
                                 handleSelectedImg(img);
                               }}
@@ -146,7 +152,7 @@ export default function ProductDetail() {
                                 style={{
                                   boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.25)",
                                   width: "64px",
-                                  height: "64px"
+                                  height: "64px",
                                 }}
                                 alt=""
                               />
@@ -162,7 +168,15 @@ export default function ProductDetail() {
                       <Popover title={img.name} trigger="hover">
                         <figure
                           className="image is-64x64"
-                          style={{ marginBottom: "10px", objectFit: 'contain', marginLeft: 10, maxHeight: 64, maxWidth: 64, overflow: 'hidden', borderRadius: 10 }}
+                          style={{
+                            marginBottom: "10px",
+                            objectFit: "contain",
+                            marginLeft: 10,
+                            maxHeight: 64,
+                            maxWidth: 64,
+                            overflow: "hidden",
+                            borderRadius: 10,
+                          }}
                           onMouseEnter={() => {
                             handleSelectedImg(img);
                           }}
@@ -172,7 +186,7 @@ export default function ProductDetail() {
                             style={{
                               boxShadow: "0 0 20px 0 rgba(0, 0, 0, 0.25)",
                               width: "64px",
-                              height: "64px"
+                              height: "64px",
                             }}
                             alt=""
                           />
@@ -181,7 +195,6 @@ export default function ProductDetail() {
                     </Space>
                   ))
                 )}
-
               </div>
             </div>
             <div className="product-detail-items">
@@ -247,7 +260,7 @@ export default function ProductDetail() {
               </div>
             </div>
           </div>
-        </div >
+        </div>
         //         ) : (
         //             <div style={{ paddingTop: "70px", width: "100vw", display: "flex", justifyContent: "center" }}>
         //                 <div style={{ width: "30%", textAlign: "center" }}>
@@ -262,8 +275,7 @@ export default function ProductDetail() {
         //         )
         //     }
         // </>
-      )
-      }
+      )}
     </>
   );
 }
