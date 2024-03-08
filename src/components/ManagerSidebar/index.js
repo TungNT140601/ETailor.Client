@@ -138,12 +138,12 @@ export const ManagerSidebar = () => {
             },
             {
               key: "/manager/material-category",
-              label: <Link to="/manager/product-template">Danh mục</Link>,
+              label: <Link to="/manager/material-category">Danh mục</Link>,
               icon: <AppstoreAddOutlined />,
             },
             {
               key: "/manager/material-type",
-              label: <Link to="/manager/product-category">Các loại</Link>,
+              label: <Link to="/manager/material-type">Các loại</Link>,
               icon: <OrderedListOutlined />,
             },
           ],

@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+import Swal from "sweetalert2";
 import { Breadcrumb } from "antd";
+import { useQueryClient } from "react-query";
 import {
   HomeOutlined,
   UserOutlined,
@@ -33,10 +35,8 @@ import { useQuery } from "react-query";
 const { Search } = Input;
 const { Title, Text } = Typography;
 
-const manager = JSON.parse(localStorage.getItem("manager"));
-console.log("manager", manager);
-
 const ManagementBodySizeHeader = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -108,6 +108,8 @@ const ManagementBodySizeHeader = () => {
 };
 
 const ManagementBodySizeContent = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const queryClient = useQueryClient();
   const getUrl = "https://etailorapi.azurewebsites.net/api/body-size";
 
   const { data: bodySize, isLoading: loading } = useQuery("get-body-size", () =>
@@ -161,7 +163,9 @@ const ManagementBodySizeContent = () => {
       render: (_, record) => (
         <>
           <Button type="link" title="Video hướng dẫn">
-            <a href={record.GuideVideoLink}>Nhấn vào để xem</a>
+            <a href={record.GuideVideoLink} target="_blank" rel="noreferrer">
+              Nhấn vào để xem
+            </a>
           </Button>
         </>
       ),
@@ -222,6 +226,7 @@ const ManagementBodySizeContent = () => {
     GuideVideoLink: item.guideVideoLink,
     MinValidValue: item.minValidValue,
     MaxValidValue: item.maxValidValue,
+    image: item.image,
   }));
 
   // const data = [];
@@ -238,9 +243,31 @@ const ManagementBodySizeContent = () => {
 
   //------------------------------------------------------------Modal create-------------------------------------------------------
   const [open, setOpen] = useState(false);
-  const onCreate = (values) => {
-    console.log("Received values of form: ", values);
-    setOpen(false);
+  const onCreate = async (values) => {
+    const urlCreateMaterialType = `https://etailorapi.azurewebsites.net/api/body-size`;
+    try {
+      const response = await fetch(urlCreateMaterialType, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: values,
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        queryClient.invalidateQueries("get-body-size");
+        setOpen(false);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
   };
 
   const defaultCheckedList = columns.map((item) => item.key);
@@ -315,6 +342,7 @@ const ManagementBodySizeContent = () => {
             style={{
               marginTop: 24,
             }}
+            scroll={{ y: 428 }}
           />
         )}
       </div>
@@ -323,24 +351,10 @@ const ManagementBodySizeContent = () => {
 };
 
 const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
   const [loading] = useState(false);
-  const [check, setCheck] = useState("");
-
-  const handleCheck = (value) => {
-    console.log("value ne`", typeof value);
-    if (value === "1") {
-      setCheck("Đầu");
-    } else if (value === "2") {
-      setCheck("Thân");
-    } else if (value === "3") {
-      setCheck("Chân");
-    }
-  };
-
-  console.log("check ne`", check);
-
   const getFile = (e) => {
     console.log(e);
     const file = e.fileList[0];
@@ -388,9 +402,29 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
       onOk={() => {
         form
           .validateFields()
-          .then((values) => {
-            form.resetFields();
-            onCreate(values);
+          .then(async (values) => {
+            const bodyIndex = function CheckBodyIndex() {
+              if (values.bodyPart === "Đầu") {
+                return 1;
+              } else if (values.bodyPart === "Thân") {
+                return 2;
+              } else if (values.bodyPart === "Chân") {
+                return 3;
+              }
+            };
+            const formData = new FormData();
+            formData.append("BodyPart", values.bodyPart);
+            formData.append("BodyIndex", bodyIndex());
+            formData.append("Name", values.name);
+            formData.append("Image", imageUrl);
+            formData.append("GuideVideoLink", values.guideVideoLink);
+            formData.append("MinValidValue", values.minValidValue);
+            formData.append("MaxValidValue", values.maxValidValue);
+
+            const check = await onCreate(formData);
+            if (check === 1) {
+              form.resetFields();
+            }
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
@@ -426,10 +460,10 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
                   },
                 ]}
               >
-                <Select onChange={(value) => handleCheck(value)}>
-                  <Select.Option value="1">Đầu</Select.Option>
-                  <Select.Option value="2">Thân</Select.Option>
-                  <Select.Option value="3">Chân</Select.Option>
+                <Select>
+                  <Select.Option value="Đầu">Đầu</Select.Option>
+                  <Select.Option value="Thân">Thân</Select.Option>
+                  <Select.Option value="Chân">Chân</Select.Option>
                 </Select>
               </Form.Item>
               <Form.Item
@@ -553,6 +587,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
 };
 
 function ManagementBodySize() {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   return (
     <div>
       <div
