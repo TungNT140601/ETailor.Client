@@ -108,7 +108,7 @@ const ManagementBodySizeHeader = () => {
 };
 
 const ManagementBodySizeContent = () => {
-  const getUrl = "https://etailorapi.azurewebsites.net/api/body-size";
+  const getUrl = "https://localhost:7259/api/body-size";
 
   const { data: bodySize, isLoading: loading } = useQuery("get-body-size", () =>
     fetch(getUrl, {

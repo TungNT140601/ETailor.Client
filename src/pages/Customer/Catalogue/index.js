@@ -24,7 +24,7 @@ export default function Catalogue() {
     const fetchTemplates = async () => {
       try {
         const response = await fetch(
-          "https://etailorapi.azurewebsites.net/api/template-management/get-all-template",
+          "https://localhost:7259/api/template-management/get-all-template",
           {
             method: "GET",
             headers: {

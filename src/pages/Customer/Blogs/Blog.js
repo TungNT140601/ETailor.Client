@@ -29,7 +29,7 @@ export default function Blog() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          "https://etailorapi.azurewebsites.net/api/blog",
+          "https://localhost:7259/api/blog",
           {
             method: "GET",
             headers: {

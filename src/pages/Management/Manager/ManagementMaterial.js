@@ -128,7 +128,7 @@ const ManagementMaterialHeader = () => {
 };
 
 const ManagementMaterialContent = () => {
-  const getMaterialUrl = "https://etailorapi.azurewebsites.net/api/material";
+  const getMaterialUrl = "https://localhost:7259/api/material";
   const manager = JSON.parse(localStorage.getItem("manager"));
   const { data: material, isLoading: loadingMaterial } = useQuery(
     "getMaterial",

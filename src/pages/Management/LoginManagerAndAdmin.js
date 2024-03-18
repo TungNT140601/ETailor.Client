@@ -26,9 +26,9 @@ export default function LoginManagerAndAdmin() {
   const [loading, setLoading] = useState(false);
 
   // const loginAdminUrl =
-  //   "https://etailorapi.azurewebsites.net/api/auth/staff/login";
+  //   "https://localhost:7259/api/auth/staff/login";
   const loginAdminUrl =
-    "https://etailorapi.azurewebsites.net/api/auth/staff/login";
+    "https://localhost:7259/api/auth/staff/login";
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);

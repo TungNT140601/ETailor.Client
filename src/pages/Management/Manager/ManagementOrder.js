@@ -103,7 +103,7 @@ const ManagementOrderHeader = () => {
 };
 
 const ManagementOrderContent = () => {
-  const getUrl = "https://etailorapi.azurewebsites.net/api/order";
+  const getUrl = "https://localhost:7259/api/order";
 
   const { data: order, isLoading: loading } = useQuery("get-order", () =>
     fetch(getUrl, {

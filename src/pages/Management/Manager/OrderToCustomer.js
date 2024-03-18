@@ -899,8 +899,8 @@ const OrderToCustomerContent = () => {
   const [open, setOpen] = useState(false);
 
   const urlProductTemplate =
-    "https://etailorapi.azurewebsites.net/api/template-management/get-all-template";
-  const urlGetAllMaterial = "https://etailorapi.azurewebsites.net/api/material";
+    "https://localhost:7259/api/template-management/get-all-template";
+  const urlGetAllMaterial = "https://localhost:7259/api/material";
 
   const { data: orderForProduct, refetch: OrderForProduct } = useQuery(
     "get-order-for-customer",

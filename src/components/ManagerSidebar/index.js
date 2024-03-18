@@ -27,7 +27,7 @@
 //   const manager = JSON.parse(localStorage.getItem("manager"));
 
 //   const logoutManagerUrl =
-//     "https://etailorapi.azurewebsites.net/api/auth/staff/logout";
+//     "https://localhost:7259/api/auth/staff/logout";
 
 //   const handleClick = (value) => {
 //     if (value === isActive) {
@@ -336,7 +336,7 @@ export const ManagerSidebar = () => {
   );
   console.log("active", active);
   const logoutAdminUrl =
-    "https://etailorapi.azurewebsites.net/api/auth/staff/logout";
+    "https://localhost:7259/api/auth/staff/logout";
 
   const items = [
     {

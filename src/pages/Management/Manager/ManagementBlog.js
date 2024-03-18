@@ -420,6 +420,10 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
   );
 }
 const ManagementBlogHeader = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  if (!manager) {
+    manager = JSON.parse(localStorage.getItem("manager"));
+  }
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -491,7 +495,13 @@ const ManagementBlogHeader = () => {
 };
 
 const ManagementBlogContent = () => {
-  const getUrl = "https://etailorapi.azurewebsites.net/api/blog";
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  useEffect(() => {
+    if (!manager) {
+      manager = JSON.parse(localStorage.getItem("manager"));
+    }
+  }, []);
+  const getUrl = "https://localhost:7259/api/blog";
   const [formValues, setFormValues] = useState();
   const [open, setOpen] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
@@ -503,6 +513,7 @@ const ManagementBlogContent = () => {
     formData.append('Hastag', values.Hastag);
     formData.append('Thumbnail', values.image);
     formData.append('Content', values.description);
+
     try {
       const CREATE_BLOG_URL = `https://etailorapi.azurewebsites.net/api/blog`
       const response = await fetch(CREATE_BLOG_URL, {
@@ -536,7 +547,7 @@ const ManagementBlogContent = () => {
     } finally {
     }
   };
-  
+
   const handleUpdate = async (id, values) => {
     setFormValues(values);
     console.log("ID:", id)
@@ -546,7 +557,7 @@ const ManagementBlogContent = () => {
     formData.append('Thumbnail', values?.image);
     formData.append('Content', values.description);
     formData.append('Id', id);
-    console.log("VALUES UPDATE:", values)
+    console.log("Form update data:", formData)
     try {
       const UPDATE_BLOG_URL = `https://etailorapi.azurewebsites.net/api/blog/${id}`
       const response = await fetch(UPDATE_BLOG_URL, {
@@ -809,6 +820,7 @@ const ManagementBlogContent = () => {
 };
 
 function ManagementBlog() {
+
   return (
     <div>
       <div

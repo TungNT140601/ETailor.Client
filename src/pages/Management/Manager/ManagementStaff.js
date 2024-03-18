@@ -108,7 +108,7 @@ const ManagementStaffHeader = () => {
 };
 
 const ManagementStaffContent = () => {
-  const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
+  const getStaffUrl = "https://localhost:7259/api/staff";
   const manager = JSON.parse(localStorage.getItem("manager"));
   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
     fetch(getStaffUrl, {
