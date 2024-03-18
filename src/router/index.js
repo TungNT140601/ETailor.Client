@@ -40,6 +40,8 @@ import ManagementCustomer from "../pages/Management/Manager/ManagementCustomer";
 import ManagementCategory from "../pages/Management/Manager/ManagementCategory";
 import ManagementOrder from "../pages/Management/Manager/ManagementOrder";
 import OrderToCustomer from "../pages/Management/Manager/OrderToCustomer";
+import PaymentSuccess from "../components/PaymentSuccessOrNot/PaymentSuccess";
+import PaymentFailed from "../components/PaymentSuccessOrNot/PaymentFailed";
 
 export const customerRouters = [
   {
@@ -85,6 +87,18 @@ export const publicRouters = [
     path: "/error",
     name: "error",
     component: NotFound,
+    layout: null,
+  },
+  {
+    path: "/payment-success",
+    name: "success",
+    component: PaymentSuccess,
+    layout: null,
+  },
+  {
+    path: "/payment-fail",
+    name: "failed",
+    component: PaymentFailed,
     layout: null,
   },
 

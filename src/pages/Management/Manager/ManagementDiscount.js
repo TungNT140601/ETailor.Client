@@ -119,7 +119,7 @@ const ManagementDiscountHeader = () => {
 };
 
 const ManagementDiscountContent = () => {
-  const getUrl = "https://localhost:7259/api/discount";
+  const getUrl = "https://e-tailorapi.azurewebsites.net/api/discount";
 
   const { data: discount, isLoading: loading } = useQuery("get-discount", () =>
     fetch(getUrl, {

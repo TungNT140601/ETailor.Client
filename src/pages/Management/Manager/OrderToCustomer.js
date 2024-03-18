@@ -47,7 +47,6 @@ const { Meta } = Card;
 
 const OrderToCustomerHeader = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
-
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -162,7 +161,7 @@ const CreateNewProductModal = ({
 
   const handleSelectProductTemplate = async (value) => {
     setLoadingApi(true);
-    const urlTemplateType = `https://etailorapi.azurewebsites.net/api/template/${value}/component-types`;
+    const urlTemplateType = `https://e-tailorapi.azurewebsites.net/api/template/${value}/component-types`;
     try {
       const response = await fetch(`${urlTemplateType}`, {
         method: "GET",
@@ -440,20 +439,56 @@ const UpdateProductModal = ({
   open,
   handleUpdateProduct,
   onCancel,
-  dataDetailForUpdate,
   productTemplateId,
   profileCustomer,
   saveOrderId,
   materialId,
+  productId,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [form] = Form.useForm();
   const [loadingUpdate, setLoadingUpdate] = useState(false);
+  const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
   const componentInitialValues = {};
-  dataDetailForUpdate?.componentTypeOrders?.forEach((component) => {
-    componentInitialValues[`${component.component_Id}`] =
-      component.selected_Component_Id;
-  });
+  useEffect(() => {
+    const handleGetDetail = async () => {
+      const urlProductDetail = `https://e-tailorapi.azurewebsites.net/api/product/order/${saveOrderId}/${productId}`;
+      setLoadingUpdate(true);
+      try {
+        const response = await fetch(`${urlProductDetail}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setLoadingUpdate(false);
+          setDataDetailForUpdate(responseData);
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    };
+    handleGetDetail();
+  }, [productId]);
+  useEffect(() => {
+    dataDetailForUpdate?.componentTypeOrders?.forEach((component) => {
+      componentInitialValues[`${component.component_Id}`] =
+        component.selected_Component_Id;
+    });
+    form.setFieldsValue({
+      modifier: "public",
+      name: dataDetailForUpdate?.name,
+      note: dataDetailForUpdate?.note,
+      profile: dataDetailForUpdate?.profileId,
+      materialId: dataDetailForUpdate?.materialId,
+      ...componentInitialValues,
+    });
+  }, [dataDetailForUpdate]);
+
   console.log(componentInitialValues);
 
   const filterOptionForProfile = (input, option) =>
@@ -477,7 +512,7 @@ const UpdateProductModal = ({
       okText="Cập nhật"
       cancelText="Hủy bỏ"
       onCancel={() => {
-        form.resetFields();
+        setDataDetailForUpdate(null);
         onCancel();
       }}
       onOk={() => {
@@ -511,170 +546,177 @@ const UpdateProductModal = ({
       }}
       okButtonProps={{ loading: loadingUpdate }}
     >
-      <Form
-        form={form}
-        layout="vertical"
-        name="form_in_modal"
-        initialValues={{
-          modifier: "public",
-          name: dataDetailForUpdate?.name,
-          note: dataDetailForUpdate?.note,
-          profile: dataDetailForUpdate?.profileId,
-          materialId: dataDetailForUpdate?.materialId,
-          ...componentInitialValues,
-        }}
-        style={{
-          height: 530,
-          overflowY: "scroll",
-          scrollbarWidth: "none",
-          WebkitScrollbar: "none",
-        }}
-      >
-        <Form.Item
-          label="Tên sản phẩm"
-          hasFeedback
-          name="name"
-          rules={[
-            {
-              required: true,
-              message: "Tên sản phẩm không được để trống!",
-            },
-          ]}
+      {loadingUpdate ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "550px",
+          }}
         >
-          <Input />
-        </Form.Item>
-        <Form.Item label="Chọn bản mẫu" hasFeedback name="productTemplateId">
-          {dataDetailForUpdate && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-              }}
+          <CircularProgress />
+        </div>
+      ) : (
+        <Form
+          form={form}
+          layout="vertical"
+          name="form_in_modal"
+          style={{
+            height: 530,
+            overflowY: "scroll",
+            scrollbarWidth: "none",
+            WebkitScrollbar: "none",
+          }}
+        >
+          <Form.Item
+            label="Tên sản phẩm"
+            hasFeedback
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: "Tên sản phẩm không được để trống!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item label="Chọn bản mẫu" hasFeedback name="productTemplateId">
+            {dataDetailForUpdate && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  width={35}
+                  src={dataDetailForUpdate.productTemplateImage}
+                />
+                &nbsp; &nbsp;
+                <Title level={5}>
+                  {dataDetailForUpdate.productTemplateName}
+                </Title>
+              </div>
+            )}
+          </Form.Item>
+          {dataDetailForUpdate &&
+            dataDetailForUpdate?.componentTypeOrders?.map((component) => {
+              return (
+                <Form.Item
+                  key={component.id}
+                  hasFeedback
+                  label={`Chọn ${component.name}`}
+                  name={component.component_Id}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Kiểu mẫu cho từng bộ phận không được để trống",
+                    },
+                  ]}
+                >
+                  <Select style={{ height: 45 }}>
+                    {component?.components?.map((item) => {
+                      return (
+                        <Select.Option value={item.id} key={item.id}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Image width={35} src={item.image} height={35} />
+                            &nbsp; &nbsp;
+                            <Title level={5}>{item.name}</Title>
+                          </div>
+                        </Select.Option>
+                      );
+                    })}
+                  </Select>
+                </Form.Item>
+              );
+            })}
+          <Form.Item
+            name="profile"
+            label="Profile khách hàng"
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Tên sản phẩm không được để trống!",
+              },
+            ]}
+          >
+            <Select
+              style={{ height: 45 }}
+              showSearch
+              allowClear
+              placeholder="Chọn profile"
+              optionFilterProp="children"
+              filterOption={filterOptionForProfile}
             >
-              <Image
-                width={35}
-                src={dataDetailForUpdate.productTemplateImage}
-              />
-              &nbsp; &nbsp;
-              <Title level={5}>{dataDetailForUpdate.productTemplateName}</Title>
-            </div>
-          )}
-        </Form.Item>
-        {dataDetailForUpdate &&
-          dataDetailForUpdate?.componentTypeOrders?.map((component) => {
-            return (
-              <Form.Item
-                key={component.id}
-                hasFeedback
-                label={`Chọn ${component.name}`}
-                name={component.component_Id}
-                rules={[
-                  {
-                    required: true,
-                    message: "Kiểu mẫu cho từng bộ phận không được để trống",
-                  },
-                ]}
-              >
-                <Select style={{ height: 45 }}>
-                  {component?.components?.map((item) => {
-                    return (
-                      <Select.Option value={item.id} key={item.id}>
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Image width={35} src={item.image} height={35} />
-                          &nbsp; &nbsp;
-                          <Title level={5}>{item.name}</Title>
-                        </div>
-                      </Select.Option>
-                    );
-                  })}
-                </Select>
-              </Form.Item>
-            );
-          })}
-        <Form.Item
-          name="profile"
-          label="Profile khách hàng"
-          hasFeedback
-          rules={[
-            {
-              required: true,
-              message: "Tên sản phẩm không được để trống!",
-            },
-          ]}
-        >
-          <Select
-            style={{ height: 45 }}
-            showSearch
-            allowClear
-            placeholder="Chọn profile"
-            optionFilterProp="children"
-            filterOption={filterOptionForProfile}
-          >
-            {profileCustomer?.map((profile) => (
-              <Select.Option
-                key={profile.id}
-                value={profile.id}
-                title={profile.name}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
+              {profileCustomer?.map((profile) => (
+                <Select.Option
+                  key={profile.id}
+                  value={profile.id}
+                  title={profile.name}
                 >
-                  <Title level={5}>{profile.name}</Title>
-                </div>
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item
-          label="Chọn loại vải"
-          name="materialId"
-          hasFeedback
-          rules={[
-            {
-              required: true,
-              message: "Chọn loại vải không được để trống!",
-            },
-          ]}
-        >
-          <Select
-            style={{ height: 45 }}
-            showSearch
-            placeholder="Chọn loại vải"
-            optionFilterProp="children"
-            filterOption={filterOptionForMaterial}
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Title level={5}>{profile.name}</Title>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item
+            label="Chọn loại vải"
+            name="materialId"
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Chọn loại vải không được để trống!",
+              },
+            ]}
           >
-            {materialId?.map((material) => (
-              <Select.Option
-                key={material.id}
-                value={material.id}
-                title={material.name}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
+            <Select
+              style={{ height: 45 }}
+              showSearch
+              placeholder="Chọn loại vải"
+              optionFilterProp="children"
+              filterOption={filterOptionForMaterial}
+            >
+              {materialId?.map((material) => (
+                <Select.Option
+                  key={material.id}
+                  value={material.id}
+                  title={material.name}
                 >
-                  <Image width={35} src={material.image} />
-                  &nbsp; &nbsp;
-                  <Title level={5}>{material.name}</Title>
-                </div>
-              </Select.Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item label="Ghi chú" name="note" hasFeedback>
-          <Input.TextArea />
-        </Form.Item>
-      </Form>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Image width={35} src={material.image} />
+                    &nbsp; &nbsp;
+                    <Title level={5}>{material.name}</Title>
+                  </div>
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
+          <Form.Item label="Ghi chú" name="note" hasFeedback>
+            <Input.TextArea />
+          </Form.Item>
+        </Form>
+      )}
     </Modal>
   );
 };
@@ -699,7 +741,7 @@ const OrderToCustomerContent = () => {
     ) {
       Swal.fire({
         position: "top-center",
-        icon: "success",
+        icon: "error",
         title: vnpayNotification,
         showConfirmButton: false,
       });
@@ -717,7 +759,7 @@ const OrderToCustomerContent = () => {
   };
 
   const onCreate = async (values) => {
-    const urlCreateNew = `https://etailorapi.azurewebsites.net/api/customer-management`;
+    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/customer-management`;
     try {
       const response = await fetch(`${urlCreateNew}`, {
         method: "POST",
@@ -802,7 +844,7 @@ const OrderToCustomerContent = () => {
   const [searchInfo, setSearchInfo] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const handleSaveOrder = () => {
-    const urlCreateNew = `https://etailorapi.azurewebsites.net/api/order`;
+    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/order`;
     try {
       fetch(urlCreateNew, {
         method: "POST",
@@ -853,7 +895,7 @@ const OrderToCustomerContent = () => {
     let timer;
 
     const fetchData = async () => {
-      const urlSearchIfo = `https://etailorapi.azurewebsites.net/api/customer-management`;
+      const urlSearchIfo = `https://e-tailorapi.azurewebsites.net/api/customer-management`;
       try {
         setIsLoading(true);
         const response = await fetch(`${urlSearchIfo}?search=${searchInfo}`, {
@@ -899,14 +941,15 @@ const OrderToCustomerContent = () => {
   const [open, setOpen] = useState(false);
 
   const urlProductTemplate =
-    "https://localhost:7259/api/template-management/get-all-template";
-  const urlGetAllMaterial = "https://localhost:7259/api/material";
+    "https://e-tailorapi.azurewebsites.net/api/template-management/get-all-template";
+  const urlGetAllMaterial =
+    "https://e-tailorapi.azurewebsites.net/api/material";
 
   const { data: orderForProduct, refetch: OrderForProduct } = useQuery(
     "get-order-for-customer",
     () =>
       fetch(
-        `https://etailorapi.azurewebsites.net/api/product/order/${saveOrderId}`,
+        `https://e-tailorapi.azurewebsites.net/api/product/order/${saveOrderId}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -935,7 +978,7 @@ const OrderToCustomerContent = () => {
     }).then((response) => response.json())
   );
   const onCreateNewProduct = async (values) => {
-    const urlCreateNew = `https://etailorapi.azurewebsites.net/api/product/${saveOrderId}`;
+    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}`;
     try {
       const response = await fetch(`${urlCreateNew}`, {
         method: "POST",
@@ -980,7 +1023,7 @@ const OrderToCustomerContent = () => {
   };
 
   const handleUpdateProduct = async (values) => {
-    const urlUpdate = `https://etailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
+    const urlUpdate = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
     try {
       const response = await fetch(`${urlUpdate}`, {
         method: "PUT",
@@ -1025,7 +1068,7 @@ const OrderToCustomerContent = () => {
   };
 
   const handleCreatePayCash = async (amount, payType, platform) => {
-    const urlCreateNew = `https://etailorapi.azurewebsites.net/api/payment/${saveOrderId}?amount=${amount}&payType=${payType}&platform=${platform}`;
+    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/payment/${saveOrderId}?amount=${amount}&payType=${payType}&platform=${platform}`;
     try {
       const response = await fetch(`${urlCreateNew}`, {
         method: "POST",
@@ -1055,7 +1098,7 @@ const OrderToCustomerContent = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const urlProfile = `https://etailorapi.azurewebsites.net/api/profile-body/staff/customer/${saveCustomer.id}`;
+      const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/staff/customer/${saveCustomer.id}`;
       try {
         const response = await fetch(`${urlProfile}`, {
           method: "GET",
@@ -1083,34 +1126,12 @@ const OrderToCustomerContent = () => {
 
   //------------------------------------------------------------Cập nhật sản phẩm--------------------------------------------
   const [openUpdate, setOpenUpdate] = useState(false);
-  const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
-  const [saveIdProduct, setSaveIdProduct] = useState(null);
-  const [loadingUpdate, setLoadingUpdate] = useState(false);
-  const openUpdateAModal = async (id) => {
-    const urlProductDetail = `https://etailorapi.azurewebsites.net/api/product/order/${saveOrderId}/${id}`;
-    setLoadingUpdate(true);
-    try {
-      const response = await fetch(`${urlProductDetail}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
 
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setDataDetailForUpdate(responseData);
-        setSaveIdProduct(id);
-        setLoadingUpdate(false);
-        setOpenUpdate(true);
-      } else if (response.status === 401) {
-        localStorage.removeItem("manager");
-        navigate("/management/login");
-      }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
+  const [saveIdProduct, setSaveIdProduct] = useState(null);
+
+  const openUpdateAModal = async (id) => {
+    await setSaveIdProduct(id);
+    setOpenUpdate(true);
   };
 
   //------------------------------------------------------------Xóa sản phẩm-------------------------------------------------
@@ -1122,7 +1143,7 @@ const OrderToCustomerContent = () => {
       cancelButtonText: "Hủy",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const urlDeleteProduct = `https://etailorapi.azurewebsites.net/api/product/${id}`;
+        const urlDeleteProduct = `https://e-tailorapi.azurewebsites.net/api/product/${id}`;
         try {
           const response = await fetch(`${urlDeleteProduct}`, {
             method: "DELETE",
@@ -1151,7 +1172,7 @@ const OrderToCustomerContent = () => {
   const [loadingDiscount, setLoadingDiscount] = useState(false);
 
   const handleDataOrderDetail = async () => {
-    const urlOrderDetail = `https://etailorapi.azurewebsites.net/api/order/${saveOrderId}`;
+    const urlOrderDetail = `https://e-tailorapi.azurewebsites.net/api/order/${saveOrderId}`;
     try {
       const response = await fetch(`${urlOrderDetail}`, {
         method: "GET",
@@ -1173,7 +1194,7 @@ const OrderToCustomerContent = () => {
     }
   };
   const handleCheckDiscount = async (value) => {
-    const urlOrderDetail = `https://etailorapi.azurewebsites.net/api/discount/order/${saveOrderId}/discount/${value}`;
+    const urlOrderDetail = `https://e-tailorapi.azurewebsites.net/api/discount/order/${saveOrderId}/discount/${value}`;
     setLoadingDiscount(true);
     try {
       const response = await fetch(`${urlOrderDetail}`, {
@@ -1314,7 +1335,7 @@ const OrderToCustomerContent = () => {
                                 cursor: "pointer",
                               }}
                               onClick={async () => {
-                                const urlGetDetail = `https://etailorapi.azurewebsites.net/api/customer-management/info/${item.id}`;
+                                const urlGetDetail = `https://e-tailorapi.azurewebsites.net/api/customer-management/info/${item.id}`;
                                 try {
                                   const response = await fetch(urlGetDetail, {
                                     method: "GET",
@@ -1657,9 +1678,6 @@ const OrderToCustomerContent = () => {
                               </div>
                             </Card>
                           </Col>
-                          {loadingUpdate && (
-                            <Spin spinning={loadingUpdate} fullscreen />
-                          )}
                         </>
                       );
                     })}
@@ -1704,7 +1722,7 @@ const OrderToCustomerContent = () => {
               onCancel={() => {
                 setOpenUpdate(false);
               }}
-              dataDetailForUpdate={dataDetailForUpdate}
+              productId={saveIdProduct}
               productTemplateId={productTemplateId}
               profileCustomer={profileCustomer}
               saveOrderId={saveOrderId}
@@ -1753,7 +1771,13 @@ const OrderToCustomerContent = () => {
                             cancelButtonText: `Hủy`,
                           }).then((result) => {
                             if (result.isConfirmed) {
-                              Swal.fire("Chờ xác nhận!", "", "warning");
+                              Swal.fire({
+                                position: "top-center",
+                                icon: "warning",
+                                title: "Chờ xác nhận",
+                                showConfirmButton: false,
+                                timer: 1500,
+                              });
                               handleCreatePayCash(
                                 orderPaymentDetail?.unPaidMoney,
                                 0,
@@ -2082,7 +2106,7 @@ const OrderToCustomerContent = () => {
         return;
       }
     } else if (current === 2) {
-      const urlCreateNew = `https://etailorapi.azurewebsites.net/api/order/finish/${saveOrderId}`;
+      const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/order/finish/${saveOrderId}`;
       try {
         const response = await fetch(`${urlCreateNew}`, {
           method: "PATCH",

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-import { UploadOutlined } from '@ant-design/icons'
+import { UploadOutlined } from "@ant-design/icons";
 import {
   HomeOutlined,
   UserOutlined,
@@ -13,12 +13,33 @@ import {
   CloseOutlined,
 } from "@ant-design/icons";
 import {
-  Typography, Button, Flex, Divider, Carousel, Input, Table, Checkbox, Modal, Breadcrumb, theme, Form, Space, Select, Radio, Upload, Steps, Row, Col, Card, Avatar, message
+  Typography,
+  Button,
+  Flex,
+  Divider,
+  Carousel,
+  Input,
+  Table,
+  Checkbox,
+  Modal,
+  Breadcrumb,
+  theme,
+  Form,
+  Space,
+  Select,
+  Radio,
+  Upload,
+  Steps,
+  Row,
+  Col,
+  Card,
+  Avatar,
+  message,
 } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 import "./index.css";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -47,7 +68,13 @@ const formItemLayout = {
   },
 };
 const manager = JSON.parse(localStorage.getItem("manager"));
-const BlogUpdateFormModal = ({ openUpdateModal, handleUpdate, onCancel, initialUpdateValues, data }) => {
+const BlogUpdateFormModal = ({
+  openUpdateModal,
+  handleUpdate,
+  onCancel,
+  initialUpdateValues,
+  data,
+}) => {
   const [contentUpdateValue, setContentUpdateValue] = useState(data?.content);
   useEffect(() => {
     if (data) {
@@ -58,7 +85,7 @@ const BlogUpdateFormModal = ({ openUpdateModal, handleUpdate, onCancel, initialU
   const reactQuillRef = useRef(null);
   const onChange = (content, _delta, _source, editor) => {
     setContentUpdateValue(content);
-  }
+  };
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(data?.thumbnail);
   const [uploadedImageUrl, setUploadedImageUrl] = useState(null);
@@ -111,26 +138,30 @@ const BlogUpdateFormModal = ({ openUpdateModal, handleUpdate, onCancel, initialU
           .validateFields()
           .then((values) => {
             const success = handleUpdate(data.id, values);
-            console.log("UPDATE:", values)
+            console.log("UPDATE:", values);
             if (success === 1) {
               form.resetFields();
-              setImageUrl('')
+              setImageUrl("");
             }
-
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
       }}
     >
-      <Form layout="vertical" form={form} name="form_in_modal" initialValues={data} >
+      <Form
+        layout="vertical"
+        form={form}
+        name="form_in_modal"
+        initialValues={data}
+      >
         <Form.Item
           name="Title"
           label="Tiêu đề"
           rules={[
             {
               required: true,
-              message: 'Vui lòng nhập tiêu đề',
+              message: "Vui lòng nhập tiêu đề",
             },
           ]}
           initialValue={data?.title}
@@ -144,7 +175,7 @@ const BlogUpdateFormModal = ({ openUpdateModal, handleUpdate, onCancel, initialU
           rules={[
             {
               required: true,
-              message: 'Vui lòng nhập hastag',
+              message: "Vui lòng nhập hastag",
             },
           ]}
           initialValue={data?.hastag}
@@ -156,7 +187,6 @@ const BlogUpdateFormModal = ({ openUpdateModal, handleUpdate, onCancel, initialU
           label="Ảnh Thumbnail"
           getValueFromEvent={getFile}
           style={{ width: "130px" }}
-
         >
           <Upload
             action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
@@ -164,13 +194,11 @@ const BlogUpdateFormModal = ({ openUpdateModal, handleUpdate, onCancel, initialU
             maxCount={1}
             showUploadList={false}
           >
-
             <img
               src={data?.thumbnail}
               alt="avatar"
               style={{ width: "100%", maxHeight: 120, objectFit: "cover" }}
             />
-
           </Upload>
         </Form.Item>
 
@@ -180,7 +208,7 @@ const BlogUpdateFormModal = ({ openUpdateModal, handleUpdate, onCancel, initialU
           rules={[
             {
               required: true,
-              message: 'Please input the title of collection!',
+              message: "Please input the title of collection!",
             },
           ]}
           initialValue={data?.content}
@@ -231,18 +259,17 @@ const BlogUpdateFormModal = ({ openUpdateModal, handleUpdate, onCancel, initialU
             onChange={onChange}
           />
         </Form.Item>
-
       </Form>
     </Modal>
   );
-}
+};
 const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
-  const [contentCreateValue, setContentCreateValue] = useState('');
+  const [contentCreateValue, setContentCreateValue] = useState("");
   const reactQuillRef = useRef(null);
 
   const onChange = (content, _delta, _source, editor) => {
     setContentCreateValue(content);
-  }
+  };
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
   const getFile = (e) => {
@@ -296,24 +323,29 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
             const success = onCreate(values, imageUrl, contentCreateValue);
             if (success === 1) {
               form.resetFields();
-              setImageUrl('')
+              setImageUrl("");
             }
 
-            console.log("VALUE:", values)
+            console.log("VALUE:", values);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
       }}
     >
-      <Form layout="vertical" form={form} name="form_in_modal" initialValues={initialValues} >
+      <Form
+        layout="vertical"
+        form={form}
+        name="form_in_modal"
+        initialValues={initialValues}
+      >
         <Form.Item
           name="Title"
           label="Tiêu đề"
           rules={[
             {
               required: true,
-              message: 'Vui lòng nhập tiêu đề',
+              message: "Vui lòng nhập tiêu đề",
             },
           ]}
         >
@@ -326,7 +358,7 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
           rules={[
             {
               required: true,
-              message: 'Vui lòng nhập hastag',
+              message: "Vui lòng nhập hastag",
             },
           ]}
         >
@@ -337,7 +369,6 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
           label="Ảnh Thumbnail"
           getValueFromEvent={getFile}
           style={{ width: "130px" }}
-
         >
           <Upload
             action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
@@ -365,9 +396,10 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
           rules={[
             {
               required: true,
-              message: 'Please input the title of collection!',
+              message: "Please input the title of collection!",
             },
-          ]}>
+          ]}
+        >
           <ReactQuill
             ref={reactQuillRef}
             theme="snow"
@@ -414,11 +446,10 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
             onChange={onChange}
           />
         </Form.Item>
-
       </Form>
     </Modal>
   );
-}
+};
 const ManagementBlogHeader = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   if (!manager) {
@@ -501,21 +532,20 @@ const ManagementBlogContent = () => {
       manager = JSON.parse(localStorage.getItem("manager"));
     }
   }, []);
-  const getUrl = "https://localhost:7259/api/blog";
+  const getUrl = "https://e-tailorapi.azurewebsites.net/api/blog";
   const [formValues, setFormValues] = useState();
   const [open, setOpen] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const onCreate = async (values) => {
     setFormValues(values);
     const formData = new FormData();
-    formData.append('Title', values.Title);
-    formData.append('Hastag', values.Hastag);
-    formData.append('Thumbnail', values.image);
-    formData.append('Content', values.description);
-
+    formData.append("Title", values.Title);
+    formData.append("Hastag", values.Hastag);
+    formData.append("Thumbnail", values.image);
+    formData.append("Content", values.description);
     try {
-      const CREATE_BLOG_URL = `https://etailorapi.azurewebsites.net/api/blog`
+      const CREATE_BLOG_URL = `https://e-tailorapi.azurewebsites.net/api/blog`;
       const response = await fetch(CREATE_BLOG_URL, {
         method: "POST",
         headers: {
@@ -526,14 +556,14 @@ const ManagementBlogContent = () => {
       });
 
       if (response.ok) {
-        setOpen(false)
+        setOpen(false);
         await Swal.fire({
           icon: "success",
           title: "Tạo mới thành công",
           timer: 2000,
         });
-        LoadBlog()
-        return 1
+        LoadBlog();
+        return 1;
       } else {
         Swal.fire({
           icon: "error",
@@ -543,23 +573,23 @@ const ManagementBlogContent = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-      return -1
+      return -1;
     } finally {
     }
   };
 
   const handleUpdate = async (id, values) => {
     setFormValues(values);
-    console.log("ID:", id)
+    console.log("ID:", id);
     const formData = new FormData();
-    formData.append('Title', values.Title);
-    formData.append('Hastag', values.Hastag);
-    formData.append('Thumbnail', values?.image);
-    formData.append('Content', values.description);
-    formData.append('Id', id);
-    console.log("Form update data:", formData)
+    formData.append("Title", values.Title);
+    formData.append("Hastag", values.Hastag);
+    formData.append("Thumbnail", values?.image);
+    formData.append("Content", values.description);
+    formData.append("Id", id);
+    console.log("VALUES UPDATE:", values);
     try {
-      const UPDATE_BLOG_URL = `https://etailorapi.azurewebsites.net/api/blog/${id}`
+      const UPDATE_BLOG_URL = `https://e-tailorapi.azurewebsites.net/api/blog/${id}`;
       const response = await fetch(UPDATE_BLOG_URL, {
         method: "PUT",
         headers: {
@@ -570,14 +600,14 @@ const ManagementBlogContent = () => {
       });
 
       if (response.ok) {
-        setOpenUpdateModal(false)
+        setOpenUpdateModal(false);
         await Swal.fire({
           icon: "success",
           title: "Update thành công",
           timer: 2000,
         });
-        LoadBlog()
-        return 1
+        LoadBlog();
+        return 1;
       } else {
         Swal.fire({
           icon: "error",
@@ -587,11 +617,15 @@ const ManagementBlogContent = () => {
       }
     } catch (error) {
       console.error("Error:", error);
-      return -1
+      return -1;
     } finally {
     }
-  }
-  const { data: blog, isLoading: loading, refetch: LoadBlog } = useQuery("get-blog", () =>
+  };
+  const {
+    data: blog,
+    isLoading: loading,
+    refetch: LoadBlog,
+  } = useQuery("get-blog", () =>
     fetch(getUrl, {
       headers: {
         "Content-Type": "application/json",
@@ -678,10 +712,10 @@ const ManagementBlogContent = () => {
       showCancelButton: true,
       showConfirmButton: false,
       denyButtonText: `Xoá`,
-      cancelButtonText: `Huỷ`
+      cancelButtonText: `Huỷ`,
     }).then(async (result) => {
       if (result.isDenied) {
-        const DELETE_URL = `https://etailorapi.azurewebsites.net/api/blog/${id}`
+        const DELETE_URL = `https://e-tailorapi.azurewebsites.net/api/blog/${id}`;
         try {
           const response = await fetch(DELETE_URL, {
             method: "DELETE",
@@ -691,7 +725,7 @@ const ManagementBlogContent = () => {
           });
 
           if (response.ok) {
-            LoadBlog()
+            LoadBlog();
             await Swal.fire({
               icon: "success",
               title: "Đã xoá",
@@ -709,16 +743,14 @@ const ManagementBlogContent = () => {
         } finally {
         }
       }
-    }
-    );
-
-  }
+    });
+  };
   const [blogDetail, setBlogDetail] = useState(null);
 
   const handleEdit = (record) => {
-    console.log('Edit clicked for:', record);
+    console.log("Edit clicked for:", record);
     if (record) {
-      const GET_DETAIL_BLOG_URL = `https://etailorapi.azurewebsites.net/api/blog/${record.id}`;
+      const GET_DETAIL_BLOG_URL = `https://e-tailorapi.azurewebsites.net/api/blog/${record.id}`;
       fetch(GET_DETAIL_BLOG_URL, {
         headers: {
           "Content-Type": "application/json",
@@ -733,7 +765,7 @@ const ManagementBlogContent = () => {
           console.error("Error fetching blog detail:", error);
         });
     }
-  }
+  };
   return (
     <div>
       <div
@@ -754,7 +786,7 @@ const ManagementBlogContent = () => {
         </div>
         <Row justify="start" style={{ paddingRight: "24px" }}>
           <Col span={4}>
-            <Button >Tổng cộng ({blog?.length})</Button>
+            <Button>Tổng cộng ({blog?.length})</Button>
           </Col>
           <Col span={4} offset={10}>
             <Button type="primary" onClick={() => setOpen(true)}>
@@ -765,7 +797,7 @@ const ManagementBlogContent = () => {
               onCreate={onCreate}
               onCancel={() => setOpen(false)}
               initialValues={{
-                modifier: 'public',
+                modifier: "public",
               }}
             />
             <BlogUpdateFormModal
@@ -774,48 +806,46 @@ const ManagementBlogContent = () => {
               openUpdateModal={openUpdateModal}
               data={blogDetail}
               initialUpdateValues={{
-                modifier: 'public',
+                modifier: "public",
               }}
             />
           </Col>
         </Row>
       </div>
-      {
-        loading ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "550px",
-            }}
-          >
-            <CircularProgress />
-          </div>
-        ) : (
-          <Table
-            columns={newColumns}
-            style={{ marginTop: 24 }}
-            expandable={{
-              expandedRowRender: (record) => (
-                <p
-                  style={{
-                    margin: 0,
-                  }}
-                >
-                  {record?.description}
-                </p>
-              ),
-              rowExpandable: (record) => record?.stt !== "Not Expandable",
-            }}
-            pagination={{
-              position: ["bottomCenter"],
-            }}
-            dataSource={getApi}
-          />
-        )
-      }
-    </div >
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "550px",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
+        <Table
+          columns={newColumns}
+          style={{ marginTop: 24 }}
+          expandable={{
+            expandedRowRender: (record) => (
+              <p
+                style={{
+                  margin: 0,
+                }}
+              >
+                {record?.description}
+              </p>
+            ),
+            rowExpandable: (record) => record?.stt !== "Not Expandable",
+          }}
+          pagination={{
+            position: ["bottomCenter"],
+          }}
+          dataSource={getApi}
+        />
+      )}
+    </div>
   );
 };
 

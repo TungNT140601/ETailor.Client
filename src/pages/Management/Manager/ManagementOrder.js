@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
@@ -103,16 +103,33 @@ const ManagementOrderHeader = () => {
 };
 
 const ManagementOrderContent = () => {
-  const getUrl = "https://localhost:7259/api/order";
+  const [dataOrder, setDataOrder] = useState([]);
+  const [loading, setLoading] = useState([]);
+  const getUrl = "https://e-tailorapi.azurewebsites.net/api/order";
 
-  const { data: order, isLoading: loading } = useQuery("get-order", () =>
-    fetch(getUrl, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${manager?.token}`,
-      },
-    }).then((response) => response.json())
-  );
+  const handleDataMaterial = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(getUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setLoading(false);
+        setDataOrder(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  useEffect(() => {
+    handleDataMaterial();
+  }, []);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
@@ -238,7 +255,7 @@ const ManagementOrderContent = () => {
     },
   ];
 
-  const getApi = order?.map((item, index) => ({
+  const getApi = dataOrder?.map((item, index) => ({
     stt: index + 1,
     status: item.name,
     totalProduct: item.totalProduct,

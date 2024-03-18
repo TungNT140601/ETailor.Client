@@ -89,7 +89,7 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
   console.log("DATA TRUYEFNAF VÀO:", detailData)
   const [profileID, setProfileID] = useState(id)
   const handleUpdateProfile = async (id) => {
-    const UPDATE_PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body/${id}`;
+    const UPDATE_PROFILE_URL = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
     const customer = localStorage.getItem("customer");
     const token = JSON.parse(customer)?.token;
     try {
@@ -312,7 +312,7 @@ const CustomerBodyProfile = ({ loadProfile, allBodySize, getBodyProfile, getAllP
   const handleEdit = async (id) => {
     setOpenUpdateModal(true);
     if (id) {
-      const GET_DETAIL_PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body/${id}`;
+      const GET_DETAIL_PROFILE_URL = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
       fetch(GET_DETAIL_PROFILE_URL, {
         headers: {
           "Content-Type": "application/json",
@@ -348,7 +348,7 @@ const CustomerBodyProfile = ({ loadProfile, allBodySize, getBodyProfile, getAllP
       cancelButtonText: "Huỷ",
     }).then(async (result) => {
       if (result.isDenied) {
-        const DELETE_PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body/${id}`;
+        const DELETE_PROFILE_URL = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
         const customer = localStorage.getItem("customer");
         const token = JSON.parse(customer)?.token;
         try {
@@ -523,7 +523,7 @@ export default function BodyProfile() {
     setGuideImg(attribute[0]?.image);
   };
   const handleCreateBodySize = async () => {
-    const PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body`;
+    const PROFILE_URL = `https://e-tailorapi.azurewebsites.net/api/profile-body`;
     const customer = localStorage.getItem("customer");
     const token = JSON.parse(customer)?.token;
     try {
@@ -547,10 +547,7 @@ export default function BodyProfile() {
           title: "Tạo mới thành công",
           timer: 2000,
         });
-        fetchProfileData()
-        setBodyProfileName('')
-        inputValues([])
-
+        navigate("/body-profile");
       } else {
         const errorText = await response.text();
       }
@@ -562,7 +559,6 @@ export default function BodyProfile() {
 
   const customer = localStorage.getItem("customer");
   const token = JSON.parse(customer)?.token;
-
   const [hasFetchedData, setHasFetchedData] = useState(false);
   useEffect(() => {
     if (!hasFetchedData) {
@@ -593,7 +589,6 @@ export default function BodyProfile() {
       console.error("Error fetching profile data:", error);
     }
   };
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
     setIsModalOpen(true);
@@ -605,7 +600,7 @@ export default function BodyProfile() {
   const { data: getAllBodyAttributes, isLoading } = useQuery(
     "get-all-bodyAtrributes",
     () =>
-      fetch(`https://etailorapi.azurewebsites.net/api/body-size`, {
+      fetch(`https://e-tailorapi.azurewebsites.net/api/body-size`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -801,4 +796,5 @@ export default function BodyProfile() {
       </div>
     </div>
   );
+
 }

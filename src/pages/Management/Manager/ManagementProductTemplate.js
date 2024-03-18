@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
@@ -11,6 +11,7 @@ import {
   PlusOutlined,
   CloseOutlined,
   UploadOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel } from "antd";
 import "./index.css";
@@ -31,6 +32,7 @@ import {
   Select,
   Upload,
   Radio,
+  Alert,
 } from "antd";
 
 import CheckroomIcon from "@mui/icons-material/Checkroom";
@@ -43,10 +45,8 @@ const { Title, Text } = Typography;
 const { Meta } = Card;
 const { Option } = Select;
 
-const manager = JSON.parse(localStorage.getItem("manager"));
-console.log("manager", manager);
-
 const ManagementProductTemplateHeader = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -134,29 +134,141 @@ const ManagementProductTemplateHeader = () => {
 };
 
 export const ManagementCreateProductTemplate = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const loading = false;
+  const [form] = Form.useForm();
+  //-----------------------------------------------Hinh anh buoc 1
+  const [imageUrl, setImageUrl] = useState(null);
+  const [postImage, setPostImage] = useState(null);
+  const [uploadKey, setUploadKey] = useState(0);
+
+  console.log("postImage", postImage);
+  console.log("imageUrl", imageUrl);
+  //-----------------------------------------------thumbnail buoc 1
+  const [thumbnailUrl, setThumbnailUrl] = useState(null);
+  const [postThumbnailImage, setPostThumbnailImage] = useState(null);
+
   const { token } = theme.useToken();
   const [current, setCurrent] = useState(0);
-  const next = () => {
-    setCurrent(current + 1);
+  const getFile = async (e) => {
+    const files = e.fileList.map((file) => file.originFileObj);
+    setPostImage(files);
+
+    const readers = e.fileList.map((file) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      return reader;
+    });
+
+    // Đợi tất cả các FileReader hoàn thành
+    const newResults = [];
+    for (const reader of readers) {
+      const result = await new Promise((resolve) => {
+        reader.onload = () => {
+          resolve(reader.result);
+        };
+      });
+      newResults.push(result);
+    }
+
+    setImageUrl((prevResults) => {
+      if (prevResults === null) {
+        return newResults;
+      } else {
+        // Loại bỏ các URL ảnh đã tồn tại trong mảng trước khi thêm vào
+        const filteredResults = newResults.filter(
+          (newResult) => !prevResults.includes(newResult)
+        );
+        return [...prevResults, ...filteredResults];
+      }
+    });
   };
+
+  useEffect(() => {
+    // Mỗi khi danh sách ảnh thay đổi, cập nhật key của Upload component
+    setUploadKey(uploadKey + 1);
+  }, [imageUrl]);
+
+  const getFileThumbnail = (e) => {
+    console.log(e);
+    const file = e.fileList[0];
+    if (file && file.originFileObj) {
+      setPostThumbnailImage(file.originFileObj);
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      reader.onload = () => {
+        setThumbnailUrl(reader.result);
+      };
+    }
+    return e && e.fileList;
+  };
+  const next = () => {
+    if (current === 0) {
+      console.log("CURRRENT 0");
+      setCurrent(current + 1);
+    } else if (current === 1) {
+      setCurrent(current + 1);
+    } else if (current === 2) {
+      setCurrent(current + 1);
+    } else if (current === 3) {
+      setCurrent(current + 1);
+    }
+  };
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
   const prev = () => {
     setCurrent(current - 1);
   };
 
-  const normFile = (e) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    console.log(e?.fileList);
-    return e?.fileList;
+  const clearAllImages = () => {
+    setImageUrl(null);
+    setPostImage(null);
   };
-  const normFile1 = (e) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    console.log(e?.fileList);
-    return e?.fileList;
+  const handleClearAllImages = async () => {
+    clearAllImages();
   };
+  //-------------------------------------------------------------step 1----------------------------------------------
+  const [getCategory, setCategory] = useState([]);
+  const getUrl =
+    "https://e-tailorapi.azurewebsites.net/api/category-management";
+
+  const handleGetCategory = async () => {
+    try {
+      const response = await fetch(getUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+
+        setCategory(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  useEffect(() => {
+    handleGetCategory();
+  }, []);
   const onFinish = (values) => {
     console.log("Success:", values);
     next();
@@ -208,20 +320,11 @@ export const ManagementCreateProductTemplate = () => {
   const [cards, setCards] = useState([]);
 
   const [open, setOpen] = useState(false);
-  const saveStep = useRef("");
 
   const handleOpen = (value) => {
-    saveStep.current = value;
     setOpen(true);
   };
   const onCreate = (values) => {
-    console.log("Received values of form: ", values);
-    const newCard = {
-      title: values.title,
-      image: values.image,
-      section: saveStep.current.id,
-    };
-    setCards([...cards, newCard]);
     setOpen(false);
   };
 
@@ -238,7 +341,6 @@ export const ManagementCreateProductTemplate = () => {
   };
 
   //--------------------------------------------------------------step 4---------------------------------------------
-  const [form] = Form.useForm();
   const steps = [
     {
       title: "Khởi tạo bản mẫu",
@@ -259,10 +361,11 @@ export const ManagementCreateProductTemplate = () => {
               initialValues={{
                 remember: true,
               }}
-              onFinish={onFinish}
-              onFinishFailed={onFinishFailed}
               autoComplete="off"
             >
+              {form.getFieldError("name").map((error) => (
+                <Alert message={error} type="error" />
+              ))}
               <Form.Item
                 label="Tên bản mẫu"
                 name="name"
@@ -286,9 +389,14 @@ export const ManagementCreateProductTemplate = () => {
                 ]}
               >
                 <Select>
-                  <Select.Option value="1">Áo</Select.Option>
-                  <Select.Option value="2">Quần</Select.Option>
-                  <Select.Option value="3">Áo dài</Select.Option>
+                  {getCategory &&
+                    getCategory?.map((category) => {
+                      return (
+                        <Select.Option value={category?.id} key={category?.id}>
+                          {category?.name}
+                        </Select.Option>
+                      );
+                    })}
                 </Select>
               </Form.Item>
               <Form.Item
@@ -305,8 +413,6 @@ export const ManagementCreateProductTemplate = () => {
               </Form.Item>
               <Form.Item
                 label="Hình ảnh bản mẫu"
-                valuePropName="fileList"
-                getValueFromEvent={normFile}
                 name="image"
                 rules={[
                   {
@@ -315,74 +421,82 @@ export const ManagementCreateProductTemplate = () => {
                   },
                 ]}
               >
-                <Upload
-                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                  listType="picture-card"
-                  multiple
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
                 >
-                  <button
-                    style={{
-                      border: 0,
-                      background: "none",
-                    }}
-                    type="button"
+                  <Upload
+                    key={uploadKey}
+                    action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                    onChange={getFile}
+                    multiple={true}
+                    showUploadList={false}
                   >
-                    <PlusOutlined />
-                    <div
-                      style={{
-                        marginTop: 8,
-                      }}
+                    <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
+                  </Upload>
+                  {imageUrl && (
+                    <Button
+                      icon={<UploadOutlined />}
+                      onClick={handleClearAllImages}
                     >
-                      Upload
-                    </div>
-                  </button>
-                </Upload>
+                      Clear tất cả
+                    </Button>
+                  )}
+                </div>
+                <Row gutter={[16, 24]}>
+                  {imageUrl &&
+                    imageUrl.map((url, index) => (
+                      <Col
+                        className="gutter-row"
+                        span={6}
+                        key={`image_${index}`}
+                      >
+                        <img
+                          src={url}
+                          alt={`image_${index}`}
+                          style={{
+                            width: 129,
+                            height: 129,
+                            borderRadius: 10,
+                            border: "1px solid #9F78FF",
+                            marginTop: 10,
+                          }}
+                        />
+                      </Col>
+                    ))}
+                </Row>
               </Form.Item>
               <Form.Item
                 label="Thumbnail"
                 valuePropName="fileList"
-                getValueFromEvent={normFile1}
+                getValueFromEvent={getFileThumbnail}
                 name="thumbnail"
                 rules={[
                   {
                     required: true,
-                    message: "Thumbnail",
+                    message: "Thumbnail không được để trống",
                   },
                 ]}
               >
                 <Upload
                   action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
                   listType="picture-card"
-                  multiple
                   maxCount={1}
+                  showUploadList={false}
                 >
-                  <button
-                    style={{
-                      border: 0,
-                      background: "none",
-                    }}
-                    type="button"
-                  >
-                    <PlusOutlined />
-                    <div
+                  {thumbnailUrl ? (
+                    <img
+                      src={thumbnailUrl}
+                      alt="thumbnail"
                       style={{
-                        marginTop: 8,
+                        width: "131px",
+                        height: "131px",
+                        borderRadius: "10px",
                       }}
-                    >
-                      Upload
-                    </div>
-                  </button>
+                    />
+                  ) : (
+                    uploadButton
+                  )}
                 </Upload>
-              </Form.Item>
-              <Form.Item
-                wrapperCol={{
-                  offset: 8,
-                  span: 16,
-                }}
-              >
-                <Button type="primary" htmlType="submit">
-                  Tiếp theo
-                </Button>
               </Form.Item>
             </Form>
           </Col>
@@ -393,24 +507,7 @@ export const ManagementCreateProductTemplate = () => {
       title: "Thông tin cơ bản",
       content: (
         <>
-          <Row justify="center" style={{ marginTop: 30 }}>
-            <Col span={2}>
-              <Button
-                style={{
-                  margin: "0 8px",
-                }}
-                onClick={() => prev()}
-              >
-                Previous
-              </Button>
-            </Col>
-            <Col span={2}>
-              <Button type="primary" onClick={() => next()}>
-                Tiếp theo
-              </Button>
-            </Col>
-          </Row>
-          <Row gutter={[16, 24]} style={{ marginTop: 20 }}>
+          <Row gutter={[16, 24]} justify="start">
             {dataStep2.map((data, index) => {
               return (
                 <>
@@ -511,7 +608,6 @@ export const ManagementCreateProductTemplate = () => {
               onCancel={() => {
                 setOpen(false);
               }}
-              currentStepData={saveStep.current}
             />
           </Row>
         </>
@@ -524,17 +620,14 @@ export const ManagementCreateProductTemplate = () => {
           <Divider>
             <Title level={4}>Số đo cần thiết của áo</Title>
           </Divider>
-          {/* <Radio.Group value={size} onChange={handleSizeChange}>
-            <Radio.Button value="large">Large</Radio.Button>
-            <Radio.Button value="middle">Default</Radio.Button>
-            <Radio.Button value="small">Small</Radio.Button>
-          </Radio.Group> */}
+
           <br />
           <br />
           <Space
             direction="vertical"
             style={{
               width: "100%",
+              height: 340,
               textAlign: "center",
             }}
           >
@@ -551,24 +644,6 @@ export const ManagementCreateProductTemplate = () => {
               id="product_template_step_3"
             />
           </Space>
-
-          <Row justify="center" style={{ marginTop: 200 }}>
-            <Col span={2}>
-              <Button
-                style={{
-                  margin: "0 8px",
-                }}
-                onClick={() => prev()}
-              >
-                Previous
-              </Button>
-            </Col>
-            <Col span={2}>
-              <Button type="primary" onClick={() => next()}>
-                Tiếp theo
-              </Button>
-            </Col>
-          </Row>
         </>
       ),
     },
@@ -579,7 +654,7 @@ export const ManagementCreateProductTemplate = () => {
           <Divider>
             <Title level={4}>Quy trình xử lý</Title>
           </Divider>
-          <Row justify="center">
+          <Row justify="center" style={{ marginBottom: 100 }}>
             <Col span={12}>
               <Form
                 labelCol={{
@@ -666,22 +741,6 @@ export const ManagementCreateProductTemplate = () => {
                     </div>
                   )}
                 </Form.List>
-                <div style={{ textAlign: "center", marginTop: 100 }}>
-                  <Button
-                    style={{
-                      margin: "0 8px",
-                    }}
-                    onClick={() => prev()}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    type="primary"
-                    onClick={() => message.success("Processing complete!")}
-                  >
-                    Hoàn thành
-                  </Button>
-                </div>
               </Form>
             </Col>
           </Row>
@@ -693,6 +752,19 @@ export const ManagementCreateProductTemplate = () => {
     key: item.title,
     title: item.title,
   }));
+
+  const handleNext = async () => {
+    try {
+      const valid = await form.validateFields();
+      if (valid) {
+        onFinish();
+      } else {
+        onFinishFailed();
+      }
+    } catch (error) {
+      message.error("Vui lòng điền đầy đủ thông tin trước khi chuyển bước.");
+    }
+  };
 
   return (
     <div>
@@ -714,46 +786,60 @@ export const ManagementCreateProductTemplate = () => {
           border: "1px solid #9F78FF",
         }}
       >
+        <Divider orientation="center" style={{ marginTop: 0 }}>
+          <Title level={3}>Tạo mới bản mẫu</Title>
+        </Divider>
         <div>
-          <Link to="/manager/product-template">
-            <Button icon={<RollbackOutlined />}>Thoát</Button>
-          </Link>
-          <Divider orientation="left">
-            <Title level={3}>Tạo mới bản mẫu</Title>
-          </Divider>
           <div>
             <Steps current={current} items={items} />
 
             <div>{steps[current].content}</div>
-
             <div
               style={{
                 marginTop: 24,
+                display: "flex",
+                justifyContent: "space-around",
               }}
             >
-              {/* {current < steps.length - 1 && (
-                <Button type="primary" onClick={() => next()}>
-                  Next
-                </Button>
-              )} */}
-              {/* {current === steps.length - 1 && (
-                <Button
-                  type="primary"
-                  onClick={() => message.success("Processing complete!")}
-                >
-                  Done
-                </Button>
-              )} */}
-              {/* {current > 0 && (
-                <Button
-                  style={{
-                    margin: "0 8px",
-                  }}
-                  onClick={() => prev()}
-                >
-                  Previous
-                </Button>
-              )} */}
+              <div>
+                <Link to="/manager/product-template">
+                  <Button icon={<RollbackOutlined />}>Thoát</Button>
+                </Link>
+              </div>
+              <div>
+                {current < steps.length - 1 && (
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      if (current === 0) {
+                        handleNext();
+                      } else {
+                        next();
+                      }
+                    }}
+                  >
+                    Tiếp theo
+                  </Button>
+                )}
+                {current === steps.length - 1 && (
+                  <Button
+                    type="primary"
+                    onClick={() => message.success("Processing complete!")}
+                  >
+                    Hoàn Thành
+                  </Button>
+                )}
+                {current > 0 && (
+                  <Button
+                    style={{
+                      margin: "0 8px",
+                    }}
+                    onClick={() => prev()}
+                  >
+                    Quay lại
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -762,13 +848,9 @@ export const ManagementCreateProductTemplate = () => {
   );
 };
 
-const CollectionCreateForm = ({
-  open,
-  onCreate,
-  onCancel,
-  currentStepData,
-}) => {
+const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
   const [form] = Form.useForm();
+  const manager = JSON.parse(localStorage.getItem("manager"));
 
   const getBase64 = (img, callback) => {
     const reader = new FileReader();
@@ -799,7 +881,7 @@ const CollectionCreateForm = ({
   return (
     <Modal
       open={open}
-      title={`Create a new collection for ${currentStepData.name}`}
+      title={`Create a new collection`}
       okText="Create"
       cancelText="Cancel"
       onCancel={onCancel}
@@ -841,402 +923,34 @@ const CollectionCreateForm = ({
 };
 
 const ManagementProductTemplateContent = () => {
-  const data = [
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-    {
-      stt: 1,
-      name: "Áo sơ mi",
-      image: [
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-        {
-          iname:
-            "https://firebasestorage.googleapis.com/v0/b/etailor-21a50.appspot.com/o/Uploads%2FStaffAvatar%2F9cbfe8c2-5681-4f7d-9122-e0eb11.jpg?alt=media&token=8209eb82-bc92-428d-ba04-22716ce474e2",
-        },
-      ],
-    },
-  ];
-  const contentStyle = {
-    height: "160px",
-    lineHeight: "160px",
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const [loading, setLoading] = useState(false);
+  const [getProductTemplate, setGetProductTemplate] = useState([]);
+  const getUrl =
+    "https://e-tailorapi.azurewebsites.net/api/template-management/get-all-template";
+
+  const handleGetProductTemplate = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(getUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setLoading(false);
+        setGetProductTemplate(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
   };
+  useEffect(() => {
+    handleGetProductTemplate();
+  }, []);
 
   return (
     <div>
@@ -1256,43 +970,35 @@ const ManagementProductTemplateContent = () => {
           <div>
             <br />
             <Row gutter={[16, 24]}>
-              {data.map((item) => {
-                return (
-                  <Col
-                    className="gutter-row"
-                    span={6}
-                    style={{ display: "flex", justifyContent: "center" }}
-                  >
-                    <Card
-                      style={{
-                        width: 200,
-                      }}
-                      cover={
-                        <Carousel autoplay>
-                          {item?.image?.map((img) => {
-                            return (
-                              <div>
-                                <h3 style={contentStyle}>
-                                  <img src={img.iname} alt="#" />
-                                </h3>
-                              </div>
-                            );
-                          })}
-                        </Carousel>
-                      }
-                      actions={[
-                        <EditOutlined key="edit" />,
-                        <DeleteOutlined key="delete" />,
-                      ]}
+              {getProductTemplate.map((item) =>
+                item?.productTemplates?.map((productTemplate) => {
+                  return (
+                    <Col
+                      className="gutter-row"
+                      span={6}
+                      style={{ display: "flex", justifyContent: "center" }}
                     >
-                      <Meta
-                        title="Card title"
-                        description="This is the description"
-                      />
-                    </Card>
-                  </Col>
-                );
-              })}
+                      <Card
+                        style={{
+                          width: 200,
+                        }}
+                        cover={
+                          <Image
+                            width={200}
+                            src={productTemplate.thumbnailImage}
+                          />
+                        }
+                        actions={[
+                          <EditOutlined key="edit" />,
+                          <DeleteOutlined key="delete" />,
+                        ]}
+                      >
+                        <Meta title={productTemplate.name} />
+                      </Card>
+                    </Col>
+                  );
+                })
+              )}
             </Row>
           </div>
         </div>
@@ -1302,6 +1008,7 @@ const ManagementProductTemplateContent = () => {
 };
 
 function ManagementProductTemplate() {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   return (
     <div>
       <div

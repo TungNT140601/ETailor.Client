@@ -29,7 +29,7 @@ export default function Blog() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          "https://localhost:7259/api/blog",
+          "https://e-tailorapi.azurewebsites.net/api/blog",
           {
             method: "GET",
             headers: {
@@ -56,7 +56,7 @@ export default function Blog() {
     const day = date.getDate();
     const month = date.toLocaleString("vi-VI", { month: "long" });
     const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    return `${day} ${month} ${year}`
   };
 
   return (

@@ -77,7 +77,7 @@ const CustomerBodyProfile = ({ loadProfile }) => {
   const customer = localStorage.getItem("customer");
   const token = JSON.parse(customer)?.token;
   const { data: getBodyProfile } = useQuery("get-all-bodyProfile", () =>
-    fetch(`https://etailorapi.azurewebsites.net/api/profile-body`, {
+    fetch(`https://e-tailorapi.azurewebsites.net/api/profile-body`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -125,7 +125,7 @@ const CustomerBodyProfile = ({ loadProfile }) => {
       cancelButtonText: "Huỷ",
     }).then(async (result) => {
       if (result.isDenied) {
-        const DELETE_PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body/${id}`;
+        const DELETE_PROFILE_URL = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
         const customer = localStorage.getItem("customer");
         const token = JSON.parse(customer)?.token;
         try {
@@ -161,7 +161,7 @@ const CustomerBodyProfile = ({ loadProfile }) => {
     setOpen(false);
   };
   const handleUpdateProfile = async (id) => {
-    const UPDATE_PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body/${id}`;
+    const UPDATE_PROFILE_URL = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
     const customer = localStorage.getItem("customer");
     const token = JSON.parse(customer)?.token;
     try {

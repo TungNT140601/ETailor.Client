@@ -26,7 +26,7 @@ const Header = () => {
   };
   const navigate = useNavigate();
   const handleLogout = async () => {
-    const LOG_OUT_API = `https://etailorapi.azurewebsites.net/api/auth/customer/logout`;
+    const LOG_OUT_API = `https://e-tailorapi.azurewebsites.net/api/auth/customer/logout`;
     try {
       const response = await fetch(LOG_OUT_API, {
         method: "POST",

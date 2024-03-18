@@ -24,7 +24,7 @@ export default function Catalogue() {
     const fetchTemplates = async () => {
       try {
         const response = await fetch(
-          "https://localhost:7259/api/template-management/get-all-template",
+          "https://e-tailorapi.azurewebsites.net/api/template-management/get-all-template",
           {
             method: "GET",
             headers: {
@@ -87,9 +87,9 @@ export default function Catalogue() {
                           color: "#140c40",
                           borderBottom: "2px solid #140c40",
                           paddingBottom: "5px",
-                          fontSize: '18px',  
+                          fontSize: "18px",
                           fontWeight: 600,
-                          lineHeight: 1.125,  
+                          lineHeight: 1.125,
                         }}
                       >
                         {template.name}

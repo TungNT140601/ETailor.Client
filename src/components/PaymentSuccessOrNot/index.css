@@ -1,0 +1,113 @@
+.plink-box-failed-payment-container {
+    background: rgba(255, 49, 49, 0.8);
+    -webkit-box-shadow: 0px 0px 40px -6px rgba(0, 0, 0, 0.93);
+    -moz-box-shadow: 0px 0px 40px -6px rgba(0, 0, 0, 0.93);
+    box-shadow: 0px 0px 40px -6px rgba(0, 0, 0, 0.93);
+    width: 30rem;
+    height: 30rem;
+    border-radius: 4vh;
+}
+
+.plink-box-failed-payment-container-content {
+    box-sizing: border-box;
+    padding: 30px;
+}
+
+.plink-box-failed-payment-container-content h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.plink-box-failed-payment-container-content .plink-payment-status-failed-icon {
+    margin-top: 2rem;
+    font-size: 10rem;
+    color: white;
+}
+
+.plink-box-failed-payment-container-content button {
+    background: none;
+    outline: none;
+    border: none;
+    border-radius: 2vh;
+    border: 2px white solid;
+    box-sizing: border-box;
+    padding: 1rem;
+    margin-top: 3rem;
+    color: white;
+    font-weight: bold;
+}
+
+.plink-box-failed-payment-container-content button:hover {
+    background: white;
+    outline: none;
+    border: none;
+    border-radius: 2vh;
+    border: 2px white solid;
+    box-sizing: border-box;
+    padding: 1rem;
+    margin-top: 3rem;
+    color: rgba(0, 0, 0, 0);
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-box-shadow: 0px 0px 10px -6px rgba(0, 0, 0, 0.93);
+    -moz-box-shadow: 0px 0px 10px -6px rgba(0, 0, 0, 0.93);
+    box-shadow: 0px 0px 10px -6px rgba(0, 0, 0, 0.93);
+}
+
+.plink-box-succes-payment-container {
+    background: rgba(175, 225, 175);
+    -webkit-box-shadow: 0px 0px 40px -6px rgba(0, 0, 0, 0.93);
+    -moz-box-shadow: 0px 0px 40px -6px rgba(0, 0, 0, 0.93);
+    box-shadow: 0px 0px 40px -6px rgba(0, 0, 0, 0.93);
+    width: 30rem;
+    height: 30rem;
+    border-radius: 4vh;
+}
+
+.plink-box-succes-payment-container-content {
+    box-sizing: border-box;
+    padding: 30px;
+}
+
+.plink-box-succes-payment-container-content h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
+.plink-box-succes-payment-container-content .plink-payment-status-icon {
+    margin-top: 2rem;
+    font-size: 10rem;
+    color: white;
+}
+
+.plink-box-succes-payment-container-content button {
+    background: none;
+    outline: none;
+    border: none;
+    border-radius: 2vh;
+    border: 2px white solid;
+    box-sizing: border-box;
+    padding: 1rem;
+    margin-top: 3rem;
+    color: white;
+    font-weight: bold;
+}
+
+.plink-box-succes-payment-container-content button:hover {
+    background: white;
+    outline: none;
+    border: none;
+    border-radius: 2vh;
+    border: 2px white solid;
+    box-sizing: border-box;
+    padding: 1rem;
+    margin-top: 3rem;
+    color: rgba(0, 0, 0, 0);
+    font-weight: bold;
+    cursor: pointer;
+    -webkit-box-shadow: 0px 0px 10px -6px rgba(0, 0, 0, 0.93);
+    -moz-box-shadow: 0px 0px 10px -6px rgba(0, 0, 0, 0.93);
+    box-shadow: 0px 0px 10px -6px rgba(0, 0, 0, 0.93);
+}

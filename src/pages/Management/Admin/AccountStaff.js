@@ -111,7 +111,7 @@
 //   const [Username, setUsername] = useState("");
 //   const [Password, setPassword] = useState("");
 //   const [passwordConfirm, setPasswordConfirm] = useState("");
-//   const createStaffUrl = "https://localhost:7259/api/staff";
+//   const createStaffUrl = "https://e-tailorapi.azurewebsites.net/api/staff";
 //   const admin = JSON.parse(localStorage.getItem("admin"));
 
 //   const style = {
@@ -376,7 +376,7 @@
 
 // const AccountStaffContent = ({ itemsPerPage }) => {
 //   const admin = JSON.parse(localStorage.getItem("admin"));
-//   const getStaffUrl = "https://localhost:7259/api/staff";
+//   const getStaffUrl = "https://e-tailorapi.azurewebsites.net/api/staff";
 //   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
 //     fetch(getStaffUrl, {
 //       headers: {
@@ -730,7 +730,7 @@ const AccountStaffHeader = () => {
 };
 
 const AccountStaffContent = () => {
-  const getStaffUrl = "https://localhost:7259/api/staff";
+  const getStaffUrl = "https://e-tailorapi.azurewebsites.net/api/staff";
   const manager = JSON.parse(localStorage.getItem("manager"));
   const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
     fetch(getStaffUrl, {

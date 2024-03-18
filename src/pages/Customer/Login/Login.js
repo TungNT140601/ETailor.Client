@@ -73,7 +73,7 @@ export default function Login({ openModal, closeModal }) {
   const checkOTPEmail = async () => {
     console.log("OTP:", otpValues);
     setLoading(true);
-    const CHECK_OTP_URL = `https://etailorapi.azurewebsites.net/api/auth/customer/verify-otp`;
+    const CHECK_OTP_URL = `https://e-tailorapi.azurewebsites.net/api/auth/customer/verify-otp`;
     try {
       const response = await fetch(CHECK_OTP_URL, {
         method: "POST",
@@ -106,7 +106,7 @@ export default function Login({ openModal, closeModal }) {
 
   const handleVerifyEmail = async () => {
     setLoadingSendMail(true);
-    const VERIFY_MAIL_URL = `https://etailorapi.azurewebsites.net/api/auth/customer/verify-email?email=${values.regis_email}`;
+    const VERIFY_MAIL_URL = `https://e-tailorapi.azurewebsites.net/api/auth/customer/verify-email?email=${values.regis_email}`;
     try {
       const response = await fetch(VERIFY_MAIL_URL, {
         method: "GET",
@@ -146,7 +146,7 @@ export default function Login({ openModal, closeModal }) {
       email: values.login_email,
       password: values.login_password,
     });
-    const LOGIN_URL = `https://etailorapi.azurewebsites.net/api/auth/customer/login`;
+    const LOGIN_URL = `https://e-tailorapi.azurewebsites.net/api/auth/customer/login`;
     try {
       const response = await fetch(LOGIN_URL, {
         method: "POST",
@@ -211,7 +211,7 @@ export default function Login({ openModal, closeModal }) {
     formData.append("Username", values.regis_username);
     formData.append("Password", values.regis_password);
 
-    const LOGIN_URL = `https://etailorapi.azurewebsites.net/api/customer-management/regis`;
+    const LOGIN_URL = `https://e-tailorapi.azurewebsites.net/api/customer-management/regis`;
     try {
       const response = await fetch(LOGIN_URL, {
         method: "POST",

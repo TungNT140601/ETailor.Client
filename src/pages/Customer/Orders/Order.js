@@ -139,7 +139,7 @@ const OrderDetails = ({ id }) => {
         const customer = localStorage.getItem("customer");
         const token = JSON.parse(customer)?.token;
         const response = await fetch(
-          `https://etailorapi.azurewebsites.net/api/order/${id}`,
+          `https://e-tailorapi.azurewebsites.net/api/order/${id}`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -302,7 +302,7 @@ export default function Order() {
   const customer = localStorage.getItem("customer");
   const token = JSON.parse(customer)?.token;
   const { data: getOrdersAPI, isLoading } = useQuery("get-order", () =>
-    fetch(`https://etailorapi.azurewebsites.net/api/order`, {
+    fetch(`https://e-tailorapi.azurewebsites.net/api/order`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

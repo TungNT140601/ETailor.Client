@@ -10,7 +10,7 @@ export default function BlogDetail() {
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   console.log("ID", id);
-  const blogDetailUrl = `https://etailorapi.azurewebsites.net/api/blog/${id}`;
+  const blogDetailUrl = `https://e-tailorapi.azurewebsites.net/api/blog/${id}`;
 
   const { data: blog, isLoading: loading } = useQuery("get-detail-blog", () =>
     fetch(blogDetailUrl, {}).then((response) => response.json())
