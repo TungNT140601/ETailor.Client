@@ -125,7 +125,8 @@ const ManagementCategoryHeader = () => {
 };
 
 const ManagementCategoryContent = () => {
-  const getUrl = "https://etailorapi.azurewebsites.net/api/category-management";
+  const getUrl =
+    "https://e-tailorapi.azurewebsites.net/api/category-management";
 
   const { data: category, isLoading: loading } = useQuery("get-category", () =>
     fetch(getUrl, {

@@ -76,7 +76,7 @@ export default function BodyProfile() {
     setGuideImg(attribute[0]?.image);
   };
   const handleCreateBodySize = async () => {
-    const PROFILE_URL = `https://etailorapi.azurewebsites.net/api/profile-body`;
+    const PROFILE_URL = `https://e-tailorapi.azurewebsites.net/api/profile-body`;
     const customer = localStorage.getItem("customer");
     const token = JSON.parse(customer)?.token;
     try {
@@ -116,7 +116,7 @@ export default function BodyProfile() {
   const { data: getBodyAttributesDetail, Loading } = useQuery(
     "get-all-body-profile",
     () =>
-      fetch(`https://etailorapi.azurewebsites.net/api/profile-body/`, {
+      fetch(`https://e-tailorapi.azurewebsites.net/api/profile-body/`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -135,7 +135,7 @@ export default function BodyProfile() {
   const { data: getAllBodyAttributes, isLoading } = useQuery(
     "get-all-bodyAtrributes",
     () =>
-      fetch(`https://etailorapi.azurewebsites.net/api/body-size`, {
+      fetch(`https://e-tailorapi.azurewebsites.net/api/body-size`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

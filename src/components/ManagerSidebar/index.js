@@ -47,7 +47,7 @@ export const ManagerSidebar = () => {
   );
   console.log("active", active);
   const logoutAdminUrl =
-    "https://etailorapi.azurewebsites.net/api/auth/staff/logout";
+    "https://e-tailorapi.azurewebsites.net/api/auth/staff/logout";
 
   const items = [
     {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import { Breadcrumb } from "antd";
 import { useQueryClient } from "react-query";
@@ -109,17 +109,34 @@ const ManagementBodySizeHeader = () => {
 
 const ManagementBodySizeContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
-  const queryClient = useQueryClient();
-  const getUrl = "https://etailorapi.azurewebsites.net/api/body-size";
+  const [bodySize, setBodySize] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const { data: bodySize, isLoading: loading } = useQuery("get-body-size", () =>
-    fetch(getUrl, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${manager?.token}`,
-      },
-    }).then((response) => response.json())
-  );
+  const getUrl = "https://e-tailorapi.azurewebsites.net/api/body-size";
+
+  const handleBodySize = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(getUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setLoading(false);
+        setBodySize(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  useEffect(() => {
+    handleBodySize();
+  }, []);
 
   const columns = [
     {
@@ -188,7 +205,7 @@ const ManagementBodySizeContent = () => {
       key: "6",
       width: 100,
       fixed: "right",
-      render: () => (
+      render: (_, record) => (
         <Row justify="start">
           <Col span={4}>
             <DeleteOutlined
@@ -200,6 +217,7 @@ const ManagementBodySizeContent = () => {
                 fontSize: 15,
                 cursor: "pointer",
               }}
+              onClick={() => onDeleteBodySize(record?.id)}
             />
           </Col>
           <Col span={4} offset={7}>
@@ -212,6 +230,7 @@ const ManagementBodySizeContent = () => {
                 fontSize: 15,
                 cursor: "pointer",
               }}
+              onClick={() => handleOpenUpdate(record.id)}
             />
           </Col>
         </Row>
@@ -221,6 +240,7 @@ const ManagementBodySizeContent = () => {
 
   const getApi = bodySize?.map((item, index) => ({
     stt: index + 1,
+    id: item.id,
     name: item.name,
     BodyPart: item.bodyPart,
     GuideVideoLink: item.guideVideoLink,
@@ -229,22 +249,10 @@ const ManagementBodySizeContent = () => {
     image: item.image,
   }));
 
-  // const data = [];
-  // for (let i = 0; i < 100; i++) {
-  //   data.push({
-  //     stt: i,
-  //     name: `Edward ${i}`,
-  //     BodyPart: `${i}`,
-  //     address: `London Park no. ${i}`,
-  //     MinValidValue: `${i}`,
-  //     MaxValidValue: `${i}`,
-  //   });
-  // }
-
   //------------------------------------------------------------Modal create-------------------------------------------------------
   const [open, setOpen] = useState(false);
   const onCreate = async (values) => {
-    const urlCreateMaterialType = `https://etailorapi.azurewebsites.net/api/body-size`;
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/body-size`;
     try {
       const response = await fetch(urlCreateMaterialType, {
         method: "POST",
@@ -262,12 +270,85 @@ const ManagementBodySizeContent = () => {
           showConfirmButton: false,
           timer: 1500,
         });
-        queryClient.invalidateQueries("get-body-size");
+        handleBodySize();
         setOpen(false);
       }
     } catch (error) {
       console.error("Error calling API:", error);
     }
+  };
+
+  //-----------------------------------------------------------------Update------------------------------------------------
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [saveBodySizeId, setSaveBodySizeId] = useState(null);
+  const handleOpenUpdate = (id) => {
+    setSaveBodySizeId(id);
+    setOpenUpdate(true);
+  };
+  const onUpdate = async (values) => {
+    const url = `https://e-tailorapi.azurewebsites.net/api/body-size/${saveBodySizeId}`;
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: values,
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        handleBodySize();
+        return 1;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  //-------------------------------------------------------------------------Delete-------------------------------------------------------------------------
+  const onDeleteBodySize = (id) => {
+    const urlCreateBodySize = `https://e-tailorapi.azurewebsites.net/api/body-size/${id}`;
+    Swal.fire({
+      title: "Bạn có muốn số đo cơ thể này?",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(urlCreateBodySize, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${manager?.token}`,
+            },
+          });
+          if (response.ok && response.status === 200) {
+            const responseData = await response.text();
+            Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 2000,
+            });
+            handleBodySize();
+            return 1;
+          }
+        } catch (error) {
+          console.error("Error calling API:", error);
+        }
+      } else if (result.isDenied) {
+        Swal.fire("Hủy bỏ xóa nguyên liệu", "", "info");
+      }
+    });
   };
 
   const defaultCheckedList = columns.map((item) => item.key);
@@ -318,6 +399,15 @@ const ManagementBodySizeContent = () => {
                   setOpen(false);
                 }}
               />
+              <CollectionUpdateForm
+                open={openUpdate}
+                onUpdate={onUpdate}
+                onCancel={() => {
+                  setOpenUpdate(false);
+                }}
+                saveBodySizeId={saveBodySizeId}
+                setSaveBodySizeId={setSaveBodySizeId}
+              />
             </Col>
           </Row>
         </div>
@@ -354,11 +444,13 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
+  const [postImage, setPostImage] = useState(null);
   const [loading] = useState(false);
   const getFile = (e) => {
     console.log(e);
     const file = e.fileList[0];
     if (file && file.originFileObj) {
+      setPostImage(file.originFileObj);
       const reader = new FileReader();
       reader.readAsDataURL(file.originFileObj);
       reader.onload = () => {
@@ -397,6 +489,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
       onCancel={() => {
         form.resetFields();
         setImageUrl(null);
+        setPostImage(null);
         onCancel();
       }}
       onOk={() => {
@@ -416,7 +509,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
             formData.append("BodyPart", values.bodyPart);
             formData.append("BodyIndex", bodyIndex());
             formData.append("Name", values.name);
-            formData.append("Image", imageUrl);
+            formData.append("Image", postImage);
             formData.append("GuideVideoLink", values.guideVideoLink);
             formData.append("MinValidValue", values.minValidValue);
             formData.append("MaxValidValue", values.maxValidValue);
@@ -424,6 +517,8 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
             const check = await onCreate(formData);
             if (check === 1) {
               form.resetFields();
+              setPostImage(null);
+              setImageUrl(null);
             }
           })
           .catch((info) => {
@@ -510,9 +605,11 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
                   {imageUrl ? (
                     <img
                       src={imageUrl}
-                      alt="avatar"
+                      alt="bodySize"
                       style={{
-                        width: "100%",
+                        width: "131px",
+                        height: "131px",
+                        borderRadius: "10px",
                       }}
                     />
                   ) : (
@@ -554,6 +651,19 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
                   min: 1,
                   message: "Phải là một số lớn hơn hoặc bằng 1",
                 },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const maxValidValue = getFieldValue("maxValidValue");
+                    if (value && maxValidValue && value > maxValidValue) {
+                      return Promise.reject(
+                        new Error(
+                          "Giá trị tối thiểu không thể lớn hơn giá trị tối đa"
+                        )
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                }),
               ]}
             >
               <InputNumber style={{ width: 220 }} />
@@ -575,6 +685,336 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
                   min: 1,
                   message: "Phải là một số lớn hơn hoặc bằng 1",
                 },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const minValidValue = getFieldValue("minValidValue");
+                    if (value && minValidValue && value < minValidValue) {
+                      return Promise.reject(
+                        new Error(
+                          "Giá trị tối đa không thể nhỏ hơn giá trị tối thiểu"
+                        )
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                }),
+              ]}
+            >
+              <InputNumber style={{ width: 220 }} />
+            </Form.Item>
+          </Col>
+        </Row>
+      </Form>
+    </Modal>
+  );
+};
+
+const CollectionUpdateForm = ({
+  open,
+  onUpdate,
+  onCancel,
+  saveBodySizeId,
+  setSaveBodySizeId,
+}) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const [form] = Form.useForm();
+  const [imageUrl, setImageUrl] = useState(null);
+  const [postImage, setPostImage] = useState(null);
+  const [loadingImage] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
+  const [bodySizeDetail, setBodySizeDetail] = useState(null);
+  const getFile = (e) => {
+    console.log(e);
+    const file = e.fileList[0];
+    if (file && file.originFileObj) {
+      setPostImage(file.originFileObj);
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      reader.onload = () => {
+        setImageUrl(reader.result);
+      };
+    }
+    return e && e.fileList;
+  };
+
+  useEffect(() => {
+    const handleDataDetail = async () => {
+      setLoading(true);
+      const urlDetail = `https://e-tailorapi.azurewebsites.net/api/body-size/${saveBodySizeId}`;
+      try {
+        const response = await fetch(urlDetail, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setLoading(false);
+          setImageUrl(responseData?.image);
+          setBodySizeDetail(responseData);
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    };
+    handleDataDetail();
+  }, [saveBodySizeId]);
+
+  useEffect(() => {
+    if (bodySizeDetail) {
+      form.setFieldsValue({
+        modifier: "public",
+        bodyPart: bodySizeDetail.bodyPart || "",
+        name: bodySizeDetail.name || "",
+        image: bodySizeDetail.image || "",
+        guideVideoLink: bodySizeDetail.guideVideoLink || "",
+        minValidValue: bodySizeDetail.minValidValue || "",
+        maxValidValue: bodySizeDetail.maxValidValue || "",
+      });
+    }
+  }, [bodySizeDetail]);
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loadingImage ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 95 }}
+      title="Cập nhật số đo cơ thể"
+      okText="Cập nhật"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        onCancel();
+        setSaveBodySizeId(null);
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(async (values) => {
+            setLoadingUpdate(true);
+            const bodyIndex = function CheckBodyIndex() {
+              if (values.bodyPart === "Đầu") {
+                return 1;
+              } else if (values.bodyPart === "Thân") {
+                return 2;
+              } else if (values.bodyPart === "Chân") {
+                return 3;
+              }
+            };
+            const formData = new FormData();
+            formData.append("Id", saveBodySizeId);
+            formData.append("BodyPart", values.bodyPart);
+            formData.append("BodyIndex", bodyIndex());
+            formData.append("Name", values.name);
+            formData.append("Image", postImage);
+            formData.append("GuideVideoLink", values.guideVideoLink);
+            formData.append("MinValidValue", values.minValidValue);
+            formData.append("MaxValidValue", values.maxValidValue);
+            const check = await onUpdate(formData);
+            if (check === 1) {
+              onCancel();
+              setSaveBodySizeId(null);
+            }
+            setLoadingUpdate(false);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+      okButtonProps={{ loading: loadingUpdate }}
+    >
+      <Form
+        style={{
+          height: 420,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+          marginTop: 24,
+        }}
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+        }}
+      >
+        <Row>
+          <Col span={12}>
+            <div>
+              <Form.Item
+                label="Số đo từng bộ phận"
+                name="bodyPart"
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: "Số đo từng bộ phận không được để trống",
+                  },
+                ]}
+              >
+                <Select>
+                  <Select.Option value="Đầu">Đầu</Select.Option>
+                  <Select.Option value="Thân">Thân</Select.Option>
+                  <Select.Option value="Chân">Chân</Select.Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                className="mt-2"
+                hasFeedback
+                name="name"
+                label="Tên số đo"
+                rules={[
+                  {
+                    required: true,
+                    message: "Tên không được để trống",
+                  },
+                ]}
+              >
+                <Input />
+              </Form.Item>
+            </div>
+          </Col>
+          <Col span={12}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                marginTop: "25px",
+              }}
+            >
+              <Form.Item
+                name="image"
+                getValueFromEvent={getFile}
+                style={{ width: "130px" }}
+                rules={[
+                  {
+                    required: true,
+                    message: "Ảnh không được để trống",
+                  },
+                ]}
+              >
+                <Upload
+                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                  listType="picture-card"
+                  maxCount={1}
+                  showUploadList={false}
+                >
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt="avatar"
+                      style={{
+                        width: "131px",
+                        height: "131px",
+                        borderRadius: "10px",
+                      }}
+                    />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
+              </Form.Item>
+            </div>
+          </Col>
+        </Row>
+
+        <Form.Item
+          className="mt-2"
+          name="guideVideoLink"
+          label="Video hướng dẫn"
+          hasFeedback
+          rules={[
+            { required: true, message: "Video hướng dẫn không được để trống" },
+            { type: "url", warningOnly: true },
+            { type: "string", min: 6 },
+          ]}
+        >
+          <Input placeholder="Nhập đường dẫn" />
+        </Form.Item>
+        <Row>
+          <Col span={12}>
+            <Form.Item
+              hasFeedback
+              className="mt-2"
+              label="Giá trị tối thiểu (cm)"
+              name="minValidValue"
+              rules={[
+                {
+                  required: true,
+                  message: "Giá trị tối thiểu (cm) không được để trống",
+                },
+                {
+                  type: "number",
+                  min: 1,
+                  message: "Phải là một số lớn hơn hoặc bằng 1",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const maxValidValue = getFieldValue("maxValidValue");
+                    if (value && maxValidValue && value > maxValidValue) {
+                      return Promise.reject(
+                        new Error(
+                          "Giá trị tối thiểu không thể lớn hơn giá trị tối đa"
+                        )
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                }),
+              ]}
+            >
+              <InputNumber style={{ width: 220 }} />
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              hasFeedback
+              className="mt-2 ml-4"
+              label="Giá trị tối đa (cm)"
+              name="maxValidValue"
+              rules={[
+                {
+                  required: true,
+                  message: "Giá trị tối đa (cm) không được để trống",
+                },
+                {
+                  type: "number",
+                  min: 1,
+                  message: "Phải là một số lớn hơn hoặc bằng 1",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    const minValidValue = getFieldValue("minValidValue");
+                    if (value && minValidValue && value < minValidValue) {
+                      return Promise.reject(
+                        new Error(
+                          "Giá trị tối đa không thể nhỏ hơn giá trị tối thiểu"
+                        )
+                      );
+                    }
+                    return Promise.resolve();
+                  },
+                }),
               ]}
             >
               <InputNumber style={{ width: 220 }} />
