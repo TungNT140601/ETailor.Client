@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
@@ -108,17 +108,32 @@ const ManagementStaffHeader = () => {
 };
 
 const ManagementStaffContent = () => {
-  const getStaffUrl = "https://etailorapi.azurewebsites.net/api/staff";
+  const getStaffUrl = "https://e-tailorapi.azurewebsites.net/api/staff";
+  const [staffs, setStaffs] = useState([]);
+  const [loading, setLoading] = useState(false);
   const manager = JSON.parse(localStorage.getItem("manager"));
-  const { data: staffs, isLoading: loading } = useQuery("getStaffs", () =>
-    fetch(getStaffUrl, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${manager?.token}`,
-      },
-    }).then((response) => response.json())
-  );
-  console.log("staffs", staffs);
+  const handleDataStaff = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(getStaffUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setLoading(false);
+        setStaffs(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  useEffect(() => {
+    handleDataStaff();
+  }, []);
   const columns = [
     {
       title: "STT",
@@ -214,9 +229,36 @@ const ManagementStaffContent = () => {
 
   //------------------------------------------------------------Modal create-------------------------------------------------------
   const [open, setOpen] = useState(false);
-  const onCreate = (values) => {
-    console.log("Received values of form: ", values);
-    setOpen(false);
+  const onCreate = async (values) => {
+    const formData = new FormData();
+    formData.append("MaterialCategoryId", values.materialCategoryId);
+    formData.append("Name", values.name);
+    formData.append("ImageFile", values.imageFile);
+    formData.append("Quantity", values.quantity);
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/material`;
+    try {
+      const response = await fetch(urlCreateMaterialType, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: formData,
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        handleDataStaff();
+        return 1;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
   };
 
   const defaultCheckedList = columns.map((item) => item.key);
@@ -301,11 +343,13 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [postImage, setPostImage] = useState(null);
 
   const getFile = (e) => {
     console.log(e);
     const file = e.fileList[0];
     if (file && file.originFileObj) {
+      setPostImage(file.originFileObj);
       const reader = new FileReader();
       reader.readAsDataURL(file.originFileObj);
       reader.onload = () => {
@@ -344,14 +388,19 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
       onCancel={() => {
         form.resetFields();
         setImageUrl(null);
+        setPostImage(null);
         onCancel();
       }}
       onOk={() => {
         form
           .validateFields()
-          .then((values) => {
-            form.resetFields();
-            onCreate(values);
+          .then(async (values) => {
+            const check = await onCreate(values);
+            if (check === 1) {
+              form.resetFields();
+              setImageUrl(null);
+              setPostImage(null);
+            }
           })
           .catch((info) => {
             console.log("Validate Failed:", info);

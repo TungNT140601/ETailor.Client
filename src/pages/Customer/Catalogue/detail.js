@@ -33,7 +33,7 @@ export default function ProductDetail() {
     const fetchDetailProduct = async () => {
       try {
         const response = await fetch(
-          `https://etailorapi.azurewebsites.net/api/template-management/get-template/${id}`,
+          `https://e-tailorapi.azurewebsites.net/api/template-management/get-template/${id}`,
           {
             method: "GET",
             headers: {

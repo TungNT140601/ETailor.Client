@@ -96,7 +96,7 @@ export const publicRouters = [
     layout: null,
   },
   {
-    path: "/payment-failed",
+    path: "/payment-fail",
     name: "failed",
     component: PaymentFailed,
     layout: null,

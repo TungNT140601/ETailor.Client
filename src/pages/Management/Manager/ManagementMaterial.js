@@ -132,8 +132,30 @@ const ManagementMaterialHeader = () => {
 const ManagementMaterialContent = () => {
   const [material, setMaterial] = useState([]);
   const [loadingMaterial, setLoadingMaterial] = useState(false);
-  const getMaterialUrl = "https://etailorapi.azurewebsites.net/api/material";
+  const [materialCategory, setMaterialCategory] = useState([]);
+  const getMaterialUrl = "https://e-tailorapi.azurewebsites.net/api/material";
   const manager = JSON.parse(localStorage.getItem("manager"));
+  const getMaterialCategoryUrl =
+    "https://e-tailorapi.azurewebsites.net/api/material-category";
+
+  const handleDataMaterialCategory = async () => {
+    try {
+      const response = await fetch(getMaterialCategoryUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+
+        setMaterialCategory(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
   const handleDataMaterial = async () => {
     setLoadingMaterial(true);
     try {
@@ -156,6 +178,7 @@ const ManagementMaterialContent = () => {
 
   useEffect(() => {
     handleDataMaterial();
+    handleDataMaterialCategory();
   }, []);
 
   const getApi = material?.map((item, index) => ({
@@ -163,6 +186,7 @@ const ManagementMaterialContent = () => {
     name: item.name,
     image: item.image,
     quantity: item.quantity,
+    id: item.id,
   }));
 
   //--------------------------------------------------------------------data table Material-------------------------------------------------
@@ -202,7 +226,7 @@ const ManagementMaterialContent = () => {
       key: "6",
       width: "5%",
       fixed: "right",
-      render: () => (
+      render: (_, record) => (
         <Row justify="start">
           <Col span={4}>
             <DeleteOutlined
@@ -214,6 +238,7 @@ const ManagementMaterialContent = () => {
                 fontSize: 15,
                 cursor: "pointer",
               }}
+              onClick={() => onDeleteMaterial(record.id)}
             />
           </Col>
           <Col span={4} offset={1}>
@@ -226,6 +251,7 @@ const ManagementMaterialContent = () => {
                 fontSize: 15,
                 cursor: "pointer",
               }}
+              onClick={() => handleOpenUpdate(record.id)}
             />
           </Col>
         </Row>
@@ -235,10 +261,111 @@ const ManagementMaterialContent = () => {
 
   //------------------------------------------------------------Modal create-------------------------------------------------------
   const [open, setOpen] = useState(false);
-  const onCreateMaterial = (values) => {
+  const onCreateMaterial = async (values) => {
     const formData = new FormData();
-    console.log("Tao nguyen lieu: ", values);
-    setOpen(false);
+    formData.append("MaterialCategoryId", values.materialCategoryId);
+    formData.append("Name", values.name);
+    formData.append("ImageFile", values.imageFile);
+    formData.append("Quantity", values.quantity);
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/material`;
+    try {
+      const response = await fetch(urlCreateMaterialType, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: formData,
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        handleDataMaterial();
+        setOpen(false);
+        return 1;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  //--------------------------------------------------------------Update--------------------------------------------------------
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [saveMaterialId, setSaveMaterialId] = useState(null);
+  const handleOpenUpdate = (id) => {
+    console.log(id);
+    setSaveMaterialId(id);
+    setOpenUpdate(true);
+  };
+  const onUpdate = async (values) => {
+    const urlCreateMaterial = `https://e-tailorapi.azurewebsites.net/api/material/${saveMaterialId}`;
+    try {
+      const response = await fetch(urlCreateMaterial, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: values,
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        handleDataMaterial();
+
+        return 1;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  //---------------------------------------------------------------------------------------Delete--------------------------------------------------
+  const onDeleteMaterial = (id) => {
+    const urlCreateMaterial = `https://e-tailorapi.azurewebsites.net/api/material/${id}`;
+    Swal.fire({
+      title: "Bạn có muốn xóa nguyên liệu này?",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(urlCreateMaterial, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${manager?.token}`,
+            },
+          });
+          if (response.ok && response.status === 200) {
+            const responseData = await response.text();
+            Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 2000,
+            });
+            handleDataMaterial();
+            return 1;
+          }
+        } catch (error) {
+          console.error("Error calling API:", error);
+        }
+      } else if (result.isDenied) {
+        Swal.fire("Hủy bỏ xóa nguyên liệu", "", "info");
+      }
+    });
   };
 
   const defaultCheckedList = columns.map((item) => item.key);
@@ -286,10 +413,20 @@ const ManagementMaterialContent = () => {
               </Button>
               <CreateMaterial
                 open={open}
-                onCreate={onCreateMaterial}
+                onCreateMaterial={onCreateMaterial}
                 onCancel={() => {
                   setOpen(false);
                 }}
+                materialCategory={materialCategory}
+              />
+              <UpdateMaterial
+                open={openUpdate}
+                onUpdate={onUpdate}
+                onCancel={() => {
+                  setOpenUpdate(false);
+                }}
+                saveMaterialId={saveMaterialId}
+                setSaveMaterialId={setSaveMaterialId}
               />
             </Col>
           </Row>
@@ -322,15 +459,26 @@ const ManagementMaterialContent = () => {
   );
 };
 
-const CreateMaterial = ({ open, onCreate, onCancel }) => {
+const UpdateMaterial = ({
+  open,
+  onUpdate,
+  onCancel,
+  saveMaterialId,
+  setSaveMaterialId,
+}) => {
   const [form] = Form.useForm();
-  const [imageUrl, setImageUrl] = useState(null);
+  const [materialDetail, setMaterialDetail] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
+  const [imageUrl, setImageUrl] = useState(null);
+  const [postImage, setPostImage] = useState(null);
+  const [loadingImage, setLoadingImage] = useState(false);
 
   const getFile = (e) => {
     console.log(e);
     const file = e.fileList[0];
     if (file && file.originFileObj) {
+      setPostImage(file.originFileObj);
       const reader = new FileReader();
       reader.readAsDataURL(file.originFileObj);
       reader.onload = () => {
@@ -348,7 +496,258 @@ const CreateMaterial = ({ open, onCreate, onCancel }) => {
       }}
       type="button"
     >
-      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      {loadingImage ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Tải ảnh
+      </div>
+    </button>
+  );
+
+  useEffect(() => {
+    const handleDataDetail = async () => {
+      setLoading(true);
+      const urlMaterialDetail = `https://e-tailorapi.azurewebsites.net/api/material/${saveMaterialId}`;
+      try {
+        const response = await fetch(urlMaterialDetail, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setLoading(false);
+          console.log("Data image: ", responseData?.image);
+          setImageUrl(responseData?.image);
+          setMaterialDetail(responseData);
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    };
+    handleDataDetail();
+  }, [saveMaterialId]);
+
+  useEffect(() => {
+    console.log("materialDetail,", materialDetail);
+    if (materialDetail) {
+      form.setFieldsValue({
+        modifier: "public",
+        name: materialDetail.name || "",
+        quantity: materialDetail.quantity || "",
+        image: materialDetail.image || "",
+        materialCategoryId: materialDetail.materialCategory.name || "",
+      });
+    }
+  }, [materialDetail]);
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 155 }}
+      title="Cập nhật nguyên liệu"
+      okText="Cập nhật"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        onCancel();
+        setSaveMaterialId(null);
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(async (values) => {
+            setLoadingUpdate(true);
+            const formData = new FormData();
+            formData.append("Id", saveMaterialId);
+            formData.append("MaterialCategoryId", values.materialCategoryId);
+            formData.append("Name", values.name);
+            formData.append("ImageFile", postImage);
+            formData.append("Quantity", values.quantity);
+
+            const check = await onUpdate(formData);
+            if (check === 1) {
+              onCancel();
+              setSaveMaterialId(null);
+            }
+            setLoadingUpdate(false);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+      okButtonProps={{ loading: loadingUpdate }}
+    >
+      <Form
+        style={{
+          height: 300,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+          marginTop: 24,
+        }}
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+        }}
+      >
+        {loading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "300px",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        ) : (
+          <>
+            <Row>
+              <Col span={12}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "25px",
+                    marginRight: "15px",
+                  }}
+                >
+                  <Form.Item
+                    name="image"
+                    getValueFromEvent={getFile}
+                    style={{ width: "130px" }}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Ảnh nguyên liệu không được để trống",
+                      },
+                    ]}
+                  >
+                    <Upload
+                      action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                      listType="picture-card"
+                      maxCount={1}
+                      showUploadList={false}
+                    >
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="imageMaterial"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                          }}
+                        />
+                      ) : (
+                        uploadButton
+                      )}
+                    </Upload>
+                  </Form.Item>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div>
+                  <Form.Item
+                    name="name"
+                    label="Tên nguyên liệu"
+                    hasFeedback
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tên nguyên liệu không được để trống",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    name="quantity"
+                    label="Số lượng"
+                    hasFeedback
+                    rules={[
+                      {
+                        required: true,
+                        message: "Số lượng phải là số và không được để trống",
+                      },
+                      {
+                        type: "number",
+                        min: 1,
+                        message: "Số lượng ít nhất là 1",
+                      },
+                    ]}
+                  >
+                    <InputNumber
+                      style={{
+                        width: "100%",
+                      }}
+                    />
+                  </Form.Item>
+                </div>
+              </Col>
+            </Row>
+            <Form.Item
+              hasFeedback
+              label={`Danh mục`}
+              name="materialCategoryId"
+              rules={[
+                {
+                  required: true,
+                  message: "Loại vải không được để trống",
+                },
+              ]}
+            >
+              <Select style={{ height: 45 }} disabled></Select>
+            </Form.Item>
+          </>
+        )}
+      </Form>
+    </Modal>
+  );
+};
+
+const CreateMaterial = ({
+  open,
+  onCreateMaterial,
+  onCancel,
+  materialCategory,
+}) => {
+  const [form] = Form.useForm();
+  const [imageUrl, setImageUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingImage, setLoadingImage] = useState(false);
+  const [postImage, setPostImage] = useState(null);
+
+  const getFile = (e) => {
+    console.log(e);
+    const file = e.fileList[0];
+    if (file && file.originFileObj) {
+      setPostImage(file.originFileObj);
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      reader.onload = () => {
+        setImageUrl(reader.result);
+      };
+    }
+    return e && e.fileList;
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loadingImage ? <LoadingOutlined /> : <PlusOutlined />}
       <div
         style={{
           marginTop: 8,
@@ -369,28 +768,37 @@ const CreateMaterial = ({ open, onCreate, onCancel }) => {
       onCancel={() => {
         form.resetFields();
         setImageUrl(null);
+        setPostImage(null);
         onCancel();
       }}
       onOk={() => {
         form
           .validateFields()
-          .then((values) => {
-            form.resetFields();
-            const dataChange = {
-              image: imageUrl,
+          .then(async (values) => {
+            setLoading(true);
+            const dataBackEnd = {
+              materialCategoryId: values.materialCategoryId,
               name: values.name,
+              imageFile: postImage,
               quantity: values.quantity,
             };
-            onCreate(dataChange);
+            const check = await onCreateMaterial(dataBackEnd);
+            if (check === 1) {
+              form.resetFields();
+              setImageUrl(null);
+              setPostImage(null);
+            }
+            setLoading(false);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
       }}
+      okButtonProps={{ loading: loading }}
     >
       <Form
         style={{
-          height: 200,
+          height: 300,
           overflowY: "scroll",
           scrollbarWidth: "none",
           WebkitScrollbar: "none",
@@ -486,6 +894,34 @@ const CreateMaterial = ({ open, onCreate, onCancel }) => {
             </div>
           </Col>
         </Row>
+        <Form.Item
+          hasFeedback
+          label={`Danh mục`}
+          name="materialCategoryId"
+          rules={[
+            {
+              required: true,
+              message: "Loại vải không được để trống",
+            },
+          ]}
+        >
+          <Select style={{ height: 45 }}>
+            {materialCategory?.map((item) => {
+              return (
+                <Select.Option value={item.id} key={item.id}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Title level={5}>{item.name}</Title>
+                  </div>
+                </Select.Option>
+              );
+            })}
+          </Select>
+        </Form.Item>
       </Form>
     </Modal>
   );
@@ -495,7 +931,7 @@ function ManagementMaterialTypeContent() {
   const [materialType, setMaterialType] = useState([]);
   const [loadingMaterialType, setLoadingMaterialType] = useState(false);
   const getMaterialTypeUrl =
-    "https://etailorapi.azurewebsites.net/api/material-type";
+    "https://e-tailorapi.azurewebsites.net/api/material-type";
   const manager = JSON.parse(localStorage.getItem("manager"));
   const handleDataMaterialType = async () => {
     setLoadingMaterialType(true);
@@ -592,7 +1028,7 @@ function ManagementMaterialTypeContent() {
   const [open, setOpen] = useState(false);
   const onCreateMaterialType = async (values) => {
     console.log("Gia tri material type: ", values);
-    const urlCreateMaterialType = `https://etailorapi.azurewebsites.net/api/material-type`;
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/material-type`;
     try {
       const response = await fetch(urlCreateMaterialType, {
         method: "POST",
@@ -629,7 +1065,7 @@ function ManagementMaterialTypeContent() {
     setOpenUpdateModal(true);
   };
   const onUpdateMaterialType = async (values) => {
-    const urlCreateMaterialType = `https://etailorapi.azurewebsites.net/api/material-type/${values}`;
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/material-type/${values}`;
     try {
       const response = await fetch(urlCreateMaterialType, {
         method: "PUT",
@@ -658,7 +1094,7 @@ function ManagementMaterialTypeContent() {
 
   //------------------------------------------------------------------Delete------------------------------------------------------------------------------
   const onDeleteMaterialType = (id) => {
-    const urlCreateMaterialType = `https://etailorapi.azurewebsites.net/api/material-type/${id}`;
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/material-type/${id}`;
     Swal.fire({
       title: "Bạn có muốn xóa nguyên liệu này?",
       showCancelButton: true,
@@ -807,8 +1243,8 @@ const CreateMaterialType = ({ open, onCreateMaterialType, onCancel }) => {
             const check = await onCreateMaterialType(values);
             if (check === 1) {
               form.resetFields();
-              setLoadingCreate(false);
             }
+            setLoadingCreate(false);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
@@ -868,16 +1304,17 @@ const UpdateMaterialType = ({
   onUpdateMaterialType,
   onCancel,
   saveId,
+  setSaveId,
 }) => {
   const [form] = Form.useForm();
   const [materialTypeDetail, setMaterialTypeDetail] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
-  console.log("materialTypeDetail", materialTypeDetail, saveId);
+
   useEffect(() => {
     const handleDataDetail = async () => {
       setLoading(true);
-      const urlMaterialTypeDetail = `https://etailorapi.azurewebsites.net/api/material-type/${saveId}`;
+      const urlMaterialTypeDetail = `https://e-tailorapi.azurewebsites.net/api/material-type/${saveId}`;
       try {
         const response = await fetch(urlMaterialTypeDetail, {
           method: "GET",
@@ -916,7 +1353,7 @@ const UpdateMaterialType = ({
       okText="Cập nhật"
       cancelText="Hủy bỏ"
       onCancel={() => {
-        setMaterialTypeDetail(null);
+        setSaveId(null);
         onCancel();
       }}
       onOk={() => {
@@ -931,9 +1368,10 @@ const UpdateMaterialType = ({
             };
             const checkResult = await onUpdateMaterialType(dataBackEnd);
             if (checkResult === 1) {
-              setLoadingUpdate(false);
               onCancel();
+              setSaveId(null);
             }
+            setLoadingUpdate(false);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
@@ -1004,7 +1442,7 @@ function ManagementMaterialCategoryContent() {
   const [materialType, setMaterialType] = useState([]);
   const [loadingMaterialCategory, setLoadingMaterialCategory] = useState(false);
   const getMaterialCategoryUrl =
-    "https://etailorapi.azurewebsites.net/api/material-category";
+    "https://e-tailorapi.azurewebsites.net/api/material-category";
   const manager = JSON.parse(localStorage.getItem("manager"));
   const handleDataMaterialCategory = async () => {
     setLoadingMaterialCategory(true);
@@ -1028,7 +1466,7 @@ function ManagementMaterialCategoryContent() {
   const handleDataMaterialType = async () => {
     try {
       const response = await fetch(
-        "https://etailorapi.azurewebsites.net/api/material-type",
+        "https://e-tailorapi.azurewebsites.net/api/material-type",
         {
           method: "GET",
           headers: {
@@ -1128,7 +1566,7 @@ function ManagementMaterialCategoryContent() {
   const [open, setOpen] = useState(false);
   const onCreate = async (values) => {
     console.log("Gia tri material category: ", values);
-    const urlCreateMaterialCategory = `https://etailorapi.azurewebsites.net/api/material-category`;
+    const urlCreateMaterialCategory = `https://e-tailorapi.azurewebsites.net/api/material-category`;
     try {
       const response = await fetch(urlCreateMaterialCategory, {
         method: "POST",
@@ -1165,7 +1603,7 @@ function ManagementMaterialCategoryContent() {
     setOpenUpdate(true);
   };
   const onUpdate = async (values) => {
-    const urlCreateMaterialCategory = `https://etailorapi.azurewebsites.net/api/material-category/${values.id}`;
+    const urlCreateMaterialCategory = `https://e-tailorapi.azurewebsites.net/api/material-category/${values.id}`;
     try {
       const response = await fetch(urlCreateMaterialCategory, {
         method: "PUT",
@@ -1195,7 +1633,7 @@ function ManagementMaterialCategoryContent() {
 
   //--------------------------------------------------------------------Delete--------------------------------------------------------
   const onDeleteMaterialCategory = (id) => {
-    const urlCreateMaterialType = `https://etailorapi.azurewebsites.net/api/material-category/${id}`;
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/material-category/${id}`;
     Swal.fire({
       title: "Bạn có muốn xóa danh mục nguyên liệu này?",
       showCancelButton: true,
@@ -1288,6 +1726,7 @@ function ManagementMaterialCategoryContent() {
                 setOpenUpdate(false);
               }}
               saveMaterialCategoryId={saveMaterialCategoryId}
+              setSaveMaterialCategory={setSaveMaterialCategory}
             />
           </Col>
         </Row>
@@ -1324,6 +1763,7 @@ const UpdateMaterialCategory = ({
   onUpdate,
   onCancel,
   saveMaterialCategoryId,
+  setSaveMaterialCategory,
 }) => {
   const [form] = Form.useForm();
   const [materialCategoryDetail, setMaterialCategoryDetail] = useState(null);
@@ -1333,7 +1773,7 @@ const UpdateMaterialCategory = ({
   useEffect(() => {
     const handleDataDetail = async () => {
       setLoading(true);
-      const urlMaterialTypeDetail = `https://etailorapi.azurewebsites.net/api/material-category/${saveMaterialCategoryId}`;
+      const urlMaterialTypeDetail = `https://e-tailorapi.azurewebsites.net/api/material-category/${saveMaterialCategoryId}`;
       try {
         const response = await fetch(urlMaterialTypeDetail, {
           method: "GET",
@@ -1373,7 +1813,7 @@ const UpdateMaterialCategory = ({
       okText="Cập nhật"
       cancelText="Hủy bỏ"
       onCancel={() => {
-        setMaterialCategoryDetail(null);
+        setSaveMaterialCategory(null);
         onCancel();
       }}
       onOk={() => {
@@ -1388,8 +1828,8 @@ const UpdateMaterialCategory = ({
             };
             const check = await onUpdate(dataBackEnd);
             if (check === 1) {
-              form.resetFields();
               onCancel();
+              setSaveMaterialCategory(null);
             }
             setLoadingUpdate(false);
           })

@@ -119,7 +119,8 @@ const ManagementCustomerHeader = () => {
 const ManagementCustomerContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
 
-  const getUrl = "https://etailorapi.azurewebsites.net/api/customer-management";
+  const getUrl =
+    "https://e-tailorapi.azurewebsites.net/api/customer-management";
 
   const { data: getCustomer, isLoading: loading } = useQuery(
     "get-customer",

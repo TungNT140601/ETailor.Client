@@ -522,7 +522,7 @@ const ManagementBlogHeader = () => {
 };
 
 const ManagementBlogContent = () => {
-  const getUrl = "https://etailorapi.azurewebsites.net/api/blog";
+  const getUrl = "https://e-tailorapi.azurewebsites.net/api/blog";
   const [formValues, setFormValues] = useState();
   const [open, setOpen] = useState(false);
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
@@ -535,7 +535,7 @@ const ManagementBlogContent = () => {
     formData.append("Thumbnail", values.image);
     formData.append("Content", values.description);
     try {
-      const CREATE_BLOG_URL = `https://etailorapi.azurewebsites.net/api/blog`;
+      const CREATE_BLOG_URL = `https://e-tailorapi.azurewebsites.net/api/blog`;
       const response = await fetch(CREATE_BLOG_URL, {
         method: "POST",
         headers: {
@@ -579,7 +579,7 @@ const ManagementBlogContent = () => {
     formData.append("Id", id);
     console.log("VALUES UPDATE:", values);
     try {
-      const UPDATE_BLOG_URL = `https://etailorapi.azurewebsites.net/api/blog/${id}`;
+      const UPDATE_BLOG_URL = `https://e-tailorapi.azurewebsites.net/api/blog/${id}`;
       const response = await fetch(UPDATE_BLOG_URL, {
         method: "PUT",
         headers: {
@@ -705,7 +705,7 @@ const ManagementBlogContent = () => {
       cancelButtonText: `Huỷ`,
     }).then(async (result) => {
       if (result.isDenied) {
-        const DELETE_URL = `https://etailorapi.azurewebsites.net/api/blog/${id}`;
+        const DELETE_URL = `https://e-tailorapi.azurewebsites.net/api/blog/${id}`;
         try {
           const response = await fetch(DELETE_URL, {
             method: "DELETE",
@@ -740,7 +740,7 @@ const ManagementBlogContent = () => {
   const handleEdit = (record) => {
     console.log("Edit clicked for:", record);
     if (record) {
-      const GET_DETAIL_BLOG_URL = `https://etailorapi.azurewebsites.net/api/blog/${record.id}`;
+      const GET_DETAIL_BLOG_URL = `https://e-tailorapi.azurewebsites.net/api/blog/${record.id}`;
       fetch(GET_DETAIL_BLOG_URL, {
         headers: {
           "Content-Type": "application/json",

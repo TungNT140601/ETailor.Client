@@ -105,7 +105,7 @@ const ManagementOrderHeader = () => {
 const ManagementOrderContent = () => {
   const [dataOrder, setDataOrder] = useState([]);
   const [loading, setLoading] = useState([]);
-  const getUrl = "https://etailorapi.azurewebsites.net/api/order";
+  const getUrl = "https://e-tailorapi.azurewebsites.net/api/order";
 
   const handleDataMaterial = async () => {
     setLoading(true);

@@ -9,7 +9,7 @@ export const VnPay = () => {
     let connection; // Declare the connection variable
 
     const connectionInit = async () => {
-      const URL = "https://etailorapi.azurewebsites.net/chatHub"; // Replace with your SignalR hub URL
+      const URL = "https://e-tailorapi.azurewebsites.net/chatHub"; // Replace with your SignalR hub URL
       const manager = JSON.parse(localStorage.getItem("manager"));
 
       connection = new signalR.HubConnectionBuilder() // Assign value to connection variable
