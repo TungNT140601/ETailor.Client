@@ -74,7 +74,7 @@ const Header = () => {
             <div className="navbar-item">
               <Link to="/blog" onClick={() => setClickedSection("Bai Viet")}>
                 <h1
-                  className="subtitle is-5"
+                  className="subtitle is-5 "
                   style={{
                     color: window.location.pathname.startsWith("/blog")
                       ? "#9F78FF"

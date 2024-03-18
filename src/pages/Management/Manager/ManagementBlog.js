@@ -451,6 +451,10 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
   );
 };
 const ManagementBlogHeader = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  if (!manager) {
+    manager = JSON.parse(localStorage.getItem("manager"));
+  }
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -522,6 +526,12 @@ const ManagementBlogHeader = () => {
 };
 
 const ManagementBlogContent = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  useEffect(() => {
+    if (!manager) {
+      manager = JSON.parse(localStorage.getItem("manager"));
+    }
+  }, []);
   const getUrl = "https://e-tailorapi.azurewebsites.net/api/blog";
   const [formValues, setFormValues] = useState();
   const [open, setOpen] = useState(false);
@@ -840,6 +850,7 @@ const ManagementBlogContent = () => {
 };
 
 function ManagementBlog() {
+
   return (
     <div>
       <div

@@ -56,7 +56,7 @@ export default function Blog() {
     const day = date.getDate();
     const month = date.toLocaleString("vi-VI", { month: "long" });
     const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
+    return `${day} ${month} ${year}`
   };
 
   return (

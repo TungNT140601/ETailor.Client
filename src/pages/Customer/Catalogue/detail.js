@@ -15,6 +15,8 @@ export default function ProductDetail() {
   const [componentData, setComponentData] = useState("");
   const [selectedImg, setSelectedImg] = useState("");
   const { id } = useParams();
+
+
   function formatCurrency(amount) {
     if (amount) {
       const strAmount = amount.toString();
@@ -29,6 +31,9 @@ export default function ProductDetail() {
     }
     return null;
   }
+
+
+
   useEffect(() => {
     const fetchDetailProduct = async () => {
       try {
@@ -51,17 +56,33 @@ export default function ProductDetail() {
         }
       } catch (error) {
         console.error("Error:", error);
-        setIsLoading(false);
       } finally {
         setIsLoading(false);
       }
     };
     fetchDetailProduct();
   }, []);
+
   const handleSelectedImg = (img) => {
     setSelectedImg(img);
   };
   console.log("COMPONENT:", componentData);
+  const [clicked, setClicked] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const hide = () => {
+    setClicked(false);
+    setHovered(false);
+  };
+  const handleHoverChange = (open) => {
+    setHovered(open);
+    setClicked(false);
+  };
+  const handleClickChange = (open) => {
+    setHovered(false);
+    setClicked(open);
+  };
+  const hoverContent = <div>This is hover content.</div>;
+  const clickContent = <div>This is click content.</div>;
   return (
     <>
       {isLoading ? (
@@ -128,7 +149,7 @@ export default function ProductDetail() {
                     className="mySwiper1"
                     slidesPerView={6}
                   >
-                    {imgData.map((img, index) => (
+                    {imgData && imgData.map((img, index) => (
                       <Space wrap key={index}>
                         <Popover title={img.name} trigger="hover">
                           <SwiperSlide>
@@ -232,24 +253,39 @@ export default function ProductDetail() {
                             {component?.components &&
                               component?.components.map((img, index) => {
                                 return (
-                                  <div className="product-component-style-items">
-                                    <figure
-                                      className="image is-32x32"
-                                      style={{
-                                        overflowY: "hidden",
-                                        borderRadius: "10px",
-                                      }}
-                                    >
-                                      <img
-                                        src={img?.image}
-                                        alt=""
-                                        style={{ objectFit: "cover" }}
-                                      ></img>
-                                    </figure>
-                                  </div>
+                                  <>
+
+                                    <div className="product-component-style-items">
+                                      <figure
+                                        className="image is-32x32"
+                                        style={{
+                                          overflowY: "hidden",
+                                          borderRadius: "10px",
+                                        }}
+                                      >
+                                        <Popover
+                                          content={
+                                            <div>
+                                              {clickContent}
+                                            </div>
+                                          }
+                                          trigger="hover"
+                                          open={clicked}
+                                          onOpenChange={handleHoverChange}
+                                        >
+                                          <img
+                                            src={img?.image}
+                                            alt=""
+                                            style={{ objectFit: "cover" }}
+                                          ></img>
+                                        </Popover>
+                                      </figure>
+                                    </div >
+
+                                  </>
                                 );
                               })}
-                          </div>
+                          </div >
                         </>
                       );
                     })}
