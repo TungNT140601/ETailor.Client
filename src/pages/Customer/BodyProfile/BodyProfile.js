@@ -24,42 +24,77 @@ const formatDate = (date) => {
 };
 
 const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, updateLoading, id }) => {
-  const [inputValues, setInputValues] = useState([]);
-  const [guideImg, setGuideImg] = useState(BangSize);
-  const handleImageGuide = (id) => {
-    const attribute = bodySizeData.filter((item) => item.id === id);
-    setGuideImg(attribute[0]?.image);
-  };
-  const handleInputChange = (attributeId, value) => {
-    console.log("Input Values:", inputValues);
-    // const existingIndex = inputValues.findIndex(
-    //   (item) => item.id === attributeId
-    // );
+  const [profileDetailData, setProfileDetailData] = useState([]);
+  const [currentGuideImage, setCurrentGuideImage] = useState(BangSize);
+  const [modifiedDetailData, setModifiedDetailData] = useState({});
 
-    // if (existingIndex !== -1) {
-    //   setInputValues((prevState) => {
-    //     const newState = [...prevState];
-    //     newState[existingIndex].value = value;
-    //     validateInput(attributeId, value);
-    //     return newState;
-    //   });
-    // } else {
-    //   setInputValues((prevState) => [
-    //     ...prevState,
-    //     { id: attributeId, value: value },
-    //   ]);
-    //   validateInput(attributeId, value);
-    // }
+  useEffect(() => {
+    setModifiedDetailData(detailData)
+    setUpdateBodyProfileName(detailData?.name)
+  }, [detailData]);
+  console.log("Modified detail data:", modifiedDetailData);
+  const handleImageGuide = (image) => {
+    setCurrentGuideImage(image);
   };
+
+  const [valueBodyAttribute, setValueBodyAttribute] = useState([]);
+
+  const handleInputChange = async (attributeId, value, parentId) => {
+    const existingIndex = modifiedDetailData.bodyAttributes.findIndex((item) => item.id === parentId);
+
+    if (existingIndex !== -1) {
+      const updatedDetailData = { ...modifiedDetailData };
+      updatedDetailData.bodyAttributes = [...updatedDetailData.bodyAttributes];
+      const updatedAttribute = { ...updatedDetailData.bodyAttributes[existingIndex] };
+      updatedAttribute.value = value;
+      updatedDetailData.bodyAttributes[existingIndex] = updatedAttribute;
+
+      setModifiedDetailData(updatedDetailData);
+    }
+
+    const existingValueIndex = valueBodyAttribute.findIndex(item => item.id === attributeId);
+
+    // If the attribute exists, update its value in valueBodyAttribute state
+    if (existingValueIndex !== -1) {
+      // Create a shallow copy of valueBodyAttribute
+      const updatedValueBodyAttribute = [...valueBodyAttribute];
+
+      // Update the value of the attribute at the existing index
+      updatedValueBodyAttribute[existingValueIndex] = {
+        ...updatedValueBodyAttribute[existingValueIndex],
+        value: value
+      };
+
+      // Update the state with the modified valueBodyAttribute
+      setValueBodyAttribute(updatedValueBodyAttribute);
+    } else {
+      // If the attribute doesn't exist, add it to valueBodyAttribute state
+      setValueBodyAttribute(prevState => [
+        ...prevState,
+        { id: attributeId, value: value }
+      ]);
+    }
+
+    // Validate the input
+    validateInput(parentId, value);
+  };
+
+  console.log("Value body attribute:", valueBodyAttribute);
+
+  console.log("Existing index:", valueBodyAttribute);
   const [formInstance, setFormInstance] = useState();
   const [form] = Form.useForm();
   const [validationMessages, setValidationMessages] = useState({});
+
   const validateInput = (id, value) => {
-    const attribute = bodySizeData.find((item) => item.id === id);
+    console.log("ALL:", detailData?.bodyAttributes)
+    const attribute = detailData?.bodyAttributes.find((item) => item.id === id);
+
+
     if (!attribute) return;
 
-    const min = parseFloat(attribute.minValidValue);
-    const max = parseFloat(attribute.maxValidValue);
+    const min = parseFloat(attribute?.bodySize.minValidValue);
+    const max = parseFloat(attribute?.bodySize.maxValidValue);
     const parsedValue = parseFloat(value);
     const isValid =
       !isNaN(parsedValue) &&
@@ -72,24 +107,18 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
       [id]: isValid ? "" : `Số đo từ ${min} ~ ${max} cm`,
     }));
   };
-  useEffect(() => {
-    if (detailData) {
-      const values = {};
-      bodySizeData.forEach(attribute => {
-        values[attribute.id] = detailData?.valueBodyAttribute.find(item => item.id === attribute.id)?.value || '';
-      });
-      setInputValues(values);
-    }
-  }, [detailData, bodySizeData]);
-  const [updateBodyProfileName, setUpdateBodyProfileName] = useState(detailData.name ? detailData.name : "");
+  const [updateBodyProfileName, setUpdateBodyProfileName] = useState(detailData?.name ? detailData?.name : "");
+
   const handleUpdateBodyProfileName = async (name) => {
     console.log("Update name:", name)
     setUpdateBodyProfileName(name)
   }
-  console.log("DATA TRUYEFNAF VÀO:", detailData)
   const [profileID, setProfileID] = useState(id)
-  const handleUpdateProfile = async (id) => {
-    const UPDATE_PROFILE_URL = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
+  console.log("Profile ID:", profileID)
+  const handleUpdateProfile = async () => {
+    console.log("Name:", updateBodyProfileName)
+    const id = detailData.id;
+    const UPDATE_PROFILE_URL = `https://e-tailorapi.azurewebsites.net/api/profile-body/customer/${id}`;
     const customer = localStorage.getItem("customer");
     const token = JSON.parse(customer)?.token;
     try {
@@ -101,15 +130,21 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
         },
         body: JSON.stringify({
           name: updateBodyProfileName,
-          valueBodyAttribute: inputValues,
+          valueBodyAttribute: valueBodyAttribute,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
+        await Swal.fire({
+          icon: "success",
+          title: "Thay đổi thành công",
+          timer: 2000,
+        });
       }
     } catch { }
   };
+  console.log("Detail data:", modifiedDetailData)
   return (
     <Modal
       open={open}
@@ -188,9 +223,9 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
                           ? "II. Phần thân trên"
                           : "III. Phần thân dưới"}
                     </p>
-                    {bodySizeData &&
-                      bodySizeData.map((attribute, attrIndex) => {
-                        if (attribute?.bodyIndex === index) {
+                    {modifiedDetailData &&
+                      modifiedDetailData?.bodyAttributes.map((attribute, attrIndex) => {
+                        if (attribute?.bodySize?.bodyIndex === index) {
                           return (
                             <div
                               key={attrIndex}
@@ -213,11 +248,11 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
                                     width: 150,
                                   }}
                                 >
-                                  {attribute.name}
+                                  {attribute?.bodySize?.name}
                                 </label>
-                                {validationMessages[attribute.id] && (
+                                {validationMessages[attribute?.id] && (
                                   <p style={{ color: "red", marginLeft: 10 }}>
-                                    {validationMessages[attribute.id]}
+                                    {validationMessages[attribute?.id]}
                                   </p>
                                 )}
                               </div>
@@ -226,11 +261,11 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
                                 className="input is-normal"
                                 autoComplete="off"
                                 onClick={() => {
-                                  handleImageGuide(attribute.id);
+                                  handleImageGuide(attribute?.bodySize?.image);
                                 }}
-                                name={`${attribute.id}`}
+                                name={`${attribute?.id}`}
                                 type="text"
-                                placeholder={`${attribute.minValidValue}~${attribute.maxValidValue} cm`}
+                                placeholder={`${attribute?.bodySize?.minValidValue}~${attribute?.bodySize?.maxValidValue} cm`}
                                 style={{
                                   height: 35,
                                   textAlign: "center",
@@ -239,17 +274,19 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
                                 }}
                                 onChange={(e) =>
                                   handleInputChange(
-                                    attribute.id,
-                                    e.target.value
+                                    attribute?.bodySize?.id,
+                                    e.target.value,
+                                    attribute?.id
                                   )
                                 }
-                                value={inputValues[attribute.id]}
+                                value={attribute?.value}
                               />
                             </div>
                           );
                         }
                         return null;
                       })}
+
                   </div>
                 ))}
               </div>
@@ -276,7 +313,7 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
                 }}
               >
                 <img
-                  src={guideImg}
+                  src={currentGuideImage}
                   style={{
                     objectFit: "cover",
                     width: "400px",
@@ -306,7 +343,7 @@ const CustomerBodyProfile = ({ loadProfile, allBodySize, getBodyProfile, getAllP
   //     },
   //   }).then((response) => response.json())
   // );
-  const [detailProfile, setDetaiProfile] = useState('')
+  const [detailProfile, setDetailProfile] = useState('')
   const [updateLoading, setUpdateLoading] = useState(false)
   const [updateProfileId, setUpdateProfileId] = useState('')
   const handleEdit = async (id) => {
@@ -321,9 +358,9 @@ const CustomerBodyProfile = ({ loadProfile, allBodySize, getBodyProfile, getAllP
       })
         .then((response) => response.json())
         .then((data) => {
-          setDetaiProfile(data);
+          setDetailProfile(data);
           setUpdateLoading(true)
-          setUpdateProfileId(id)
+          setUpdateProfileId(data.id)
         })
         .catch((error) => {
           console.error("Error fetching blog detail:", error);
@@ -547,7 +584,7 @@ export default function BodyProfile() {
           title: "Tạo mới thành công",
           timer: 2000,
         });
-        navigate("/body-profile");
+        fetchProfileData()
       } else {
         const errorText = await response.text();
       }
@@ -572,7 +609,7 @@ export default function BodyProfile() {
     const customer = localStorage.getItem("customer");
     const token = JSON.parse(customer)?.token;
     try {
-      const response = await fetch(`https://etailorapi.azurewebsites.net/api/profile-body`, {
+      const response = await fetch(`https://e-tailorapi.azurewebsites.net/api/profile-body`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

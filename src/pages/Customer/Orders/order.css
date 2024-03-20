@@ -38,3 +38,38 @@
 .order-img.ant-image-preview-img {
     margin-top: 80px;
 }
+
+.textarea-chat {
+    padding: 10px 5px;
+    margin: 0;
+    width: 260px;
+    border: none;
+    margin-left: 7px;
+    background-color: #f2f2f2;
+    border-radius: 8px;
+   height: 40px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    font-size: 14px;
+    resize: none;
+    box-shadow: none;
+}
+
+.textarea-chat.focused {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.textarea-chat:focus {
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+.css-o4b71y-MuiAccordionSummary-content.Mui-expanded {
+    margin: 5px !important;
+}
+.css-sh22l5-MuiButtonBase-root-MuiAccordionSummary-root.Mui-expanded {
+    min-height: 30px !important;
+}
