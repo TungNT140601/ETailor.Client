@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import "./index.css";
 import Logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
-import ShoppingBag from "../../assets/images/notification.png";
 import Login from "../../pages/Customer/Login/Login";
 import Menu from "@mui/joy/Menu";
 import MenuButton from "@mui/joy/MenuButton";
@@ -13,6 +12,7 @@ import MenuDropIcon from "../../assets/images/caret-down.png";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
+import Notification from "./Notification";
 const Header = () => {
   const [clickedSection, setClickedSection] = useState("Trang Chu");
   const [open, setOpen] = React.useState(false);
@@ -165,14 +165,7 @@ const Header = () => {
           )}
 
           <div className="navbar-items">
-            <button className="button is-rounded is-medium wrapper-shopping">
-              <img src={ShoppingBag} width={18} height={18}></img>
-              {/* <p
-                style={{ paddingLeft: 10, color: "#FFFFFF", fontSize: "15px" }}
-              >
-                
-              </p> */}
-            </button>
+            <Notification />
           </div>
         </div>
       </div>

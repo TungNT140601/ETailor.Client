@@ -72,3 +72,17 @@
 .navbar-items h1 {
     font-weight: 400;
 }
+
+.ant-popover-placement-bottom {
+    z-index: 100001;
+}
+
+.ant-popover-arrow {
+    z-index: 100001;
+}
+
+.readmore-btn {
+    border: none !important;
+    cursor: pointer;
+    background-color: #ffffff;
+}
