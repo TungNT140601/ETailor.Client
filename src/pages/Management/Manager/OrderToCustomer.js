@@ -512,7 +512,6 @@ const UpdateProductModal = ({
       okText="Cập nhật"
       cancelText="Hủy bỏ"
       onCancel={() => {
-        setDataDetailForUpdate(null);
         onCancel();
       }}
       onOk={() => {
