@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
@@ -10,6 +10,7 @@ import {
   RollbackOutlined,
   PlusOutlined,
   CloseOutlined,
+  MinusCircleOutlined,
 } from "@ant-design/icons";
 import {
   Typography,
@@ -19,9 +20,11 @@ import {
   Input,
   Modal,
   InputNumber,
+  Tag,
 } from "antd";
 import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
+import shop from "../../../assets/shop.png";
 
 import { Button, Flex, Divider } from "antd";
 import { Image } from "antd";
@@ -50,10 +53,8 @@ const { Title, Text } = Typography;
 const { Meta } = Card;
 const { Option } = Select;
 
-const manager = JSON.parse(localStorage.getItem("manager"));
-console.log("manager", manager);
-
 const ManagementCategoryHeader = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -125,92 +126,321 @@ const ManagementCategoryHeader = () => {
 };
 
 const ManagementCategoryContent = () => {
-  const getUrl =
-    "https://e-tailorapi.azurewebsites.net/api/category-management";
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const [category, setCategory] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const { data: category, isLoading: loading } = useQuery("get-category", () =>
-    fetch(getUrl, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${manager?.token}`,
-      },
-    }).then((response) => response.json())
-  );
+  const handleGetDataCategory = async () => {
+    const getUrl =
+      "https://e-tailorapi.azurewebsites.net/api/category-management";
+    try {
+      setLoading(true);
+      const response = await fetch(getUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setCategory(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    handleGetDataCategory();
+  }, []);
+  function randomColor() {
+    const colors = [
+      "magenta",
+      "red",
+      "volcano",
+      "orange",
+      "gold",
+      "lime",
+      "green",
+      "cyan",
+      "blue",
+      "geekblue",
+      "purple",
+    ];
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    return colors[randomIndex];
+  }
 
   const columns = [
     {
       title: "STT",
       width: "10%",
       dataIndex: "stt",
-      key: "index",
+      key: "stt",
       fixed: "left",
     },
     {
       title: "Tên loại đồ",
       dataIndex: "name",
-      key: "2",
-      width: "70%",
+      key: "name",
+      width: "10%",
+    },
+    {
+      title: "Các bộ phận",
+      dataIndex: "componentTypes",
+      key: "componentTypes",
+      width: "40%",
+      render: (_, record) => {
+        const randomColors = record.componentTypes.map(() => randomColor());
+        return (
+          <>
+            {record.componentTypes.map((item, index) => {
+              return (
+                <Tag
+                  color={randomColors[index]}
+                  key={item.id}
+                  style={{ cursor: "pointer" }}
+                >
+                  {item.name}
+                </Tag>
+              );
+            })}
+          </>
+        );
+      },
     },
     {
       title: "Action",
       dataIndex: "Action",
-      key: "6",
-      width: "20%",
+      key: "Action",
+      width: "10%",
       fixed: "right",
-      render: () => (
-        <Row justify="start">
-          <Col span={4}>
-            <DeleteOutlined
-              style={{
-                backgroundColor: "red",
-                color: "white",
-                padding: 6,
-                borderRadius: "5px",
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-            />
-          </Col>
-          <Col span={2}>
-            <EditOutlined
-              style={{
-                backgroundColor: "blue",
-                color: "white",
-                padding: 6,
-                borderRadius: "5px",
-                fontSize: 15,
-                cursor: "pointer",
-              }}
-            />
-          </Col>
-        </Row>
+      render: (_, record) => (
+        <>
+          <Row justify="start">
+            <Col span={2}>
+              <DeleteOutlined
+                style={{
+                  backgroundColor: "red",
+                  color: "white",
+                  padding: 6,
+                  borderRadius: "5px",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={() => onDelete(record.id)}
+              />
+            </Col>
+            <Col span={4} offset={4}>
+              <EditOutlined
+                style={{
+                  backgroundColor: "blue",
+                  color: "white",
+                  padding: 6,
+                  borderRadius: "5px",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={() => handleOpenUpdate(record.id)}
+              />
+            </Col>
+          </Row>
+        </>
       ),
     },
   ];
 
   const getApi = category?.map((item, index) => ({
+    id: item.id,
+    key: item.id,
     stt: index + 1,
     name: item.name,
+    componentTypes: item.componentTypes,
   }));
-
-  // const data = [];
-  // for (let i = 0; i < 100; i++) {
-  //   data.push({
-  //     stt: i,
-  //     name: `Edward ${i}`,
-  //     BodyPart: `${i}`,
-  //     address: `London Park no. ${i}`,
-  //     MinValidValue: `${i}`,
-  //     MaxValidValue: `${i}`,
-  //   });
-  // }
 
   //------------------------------------------------------------Modal create-------------------------------------------------------
   const [open, setOpen] = useState(false);
-  const onCreate = (values) => {
-    console.log("Received values of form: ", values);
-    setOpen(false);
+  const onCreate = async (values) => {
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/category-management`;
+    try {
+      const response = await fetch(urlCreateMaterialType, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: JSON.stringify(values),
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        handleGetDataCategory();
+        setOpen(false);
+        return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        return 0;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
   };
+  //-----------------------------------------------------------------Modal update-------------------------------------------
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [saveId, setSaveId] = useState(null);
+  const handleOpenUpdate = async (id) => {
+    await setSaveId(id);
+    setOpenUpdate(true);
+  };
+  const onUpdate = async (values) => {
+    const url = `https://e-tailorapi.azurewebsites.net/api/category-management/${saveId}`;
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: JSON.stringify(values),
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        handleGetDataCategory();
+        setOpenUpdate(false);
+        return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        return 0;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  //-----------------------------------------------------------------Delete-------------------------------------------------
+  const onDelete = async (id) => {
+    Swal.fire({
+      title: "Bạn có muốn xóa loại danh mục?",
+
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy bỏ",
+    }).then(async (result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        const url = `https://e-tailorapi.azurewebsites.net/api/category-management/${id}`;
+        try {
+          const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${manager?.token}`,
+            },
+          });
+          if (response.ok && response.status === 200) {
+            const responseData = await response.text();
+            Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            handleGetDataCategory();
+            return 1;
+          } else if (response.status === 400 || response.status === 500) {
+            const responseData = await response.text();
+            Swal.fire({
+              position: "top-center",
+              icon: "error",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 5500,
+            });
+            return 0;
+          }
+        } catch (error) {
+          console.error("Error calling API:", error);
+        }
+      } else if (result.isDenied) {
+        Swal.fire("Changes are not saved", "", "info");
+      }
+    });
+  };
+
+  //----------------------------------------------------------Update Componenet Type----------------------
+  // const [openComponentType, setOpenComponentType] = useState(false);
+  // const [saveComponentId, setSaveComponentId] = useState(null);
+  // const handleOpenUpdateComponent = (id) => {
+  //   setSaveComponentId(id);
+  //   setOpenComponentType(true);
+  // };
+  // const onUpdateComponents = async (id, value) => {
+  //   console.log("id, value", id, value);
+  //   const url = `https://e-tailorapi.azurewebsites.net/api/component-type-management/${id}`;
+  //   try {
+  //     const response = await fetch(url, {
+  //       method: "PUT",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${manager?.token}`,
+  //       },
+  //       body: JSON.stringify({ id: id, name: value.name }),
+  //     });
+  //     if (response.ok && response.status === 200) {
+  //       const responseData = await response.text();
+  //       Swal.fire({
+  //         position: "top-center",
+  //         icon: "success",
+  //         title: responseData,
+  //         showConfirmButton: false,
+  //         timer: 1500,
+  //       });
+  //       handleGetDataCategory();
+  //       return 1;
+  //     } else if (response.status === 400 || response.status === 500) {
+  //       const responseData = await response.text();
+  //       Swal.fire({
+  //         position: "top-center",
+  //         icon: "error",
+  //         title: responseData,
+  //         showConfirmButton: false,
+  //         timer: 1500,
+  //       });
+  //       return 0;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error calling API:", error);
+  //   }
+  // };
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -224,6 +454,15 @@ const ManagementCategoryContent = () => {
   }));
   return (
     <div>
+      <CollectionUpdateForm
+        open={openUpdate}
+        onUpdate={onUpdate}
+        onCancel={() => {
+          setOpenUpdate(false);
+        }}
+        saveId={saveId}
+        setSaveId={setSaveId}
+      />
       <div
         style={{
           display: "flex",
@@ -258,6 +497,7 @@ const ManagementCategoryContent = () => {
               onCancel={() => {
                 setOpen(false);
               }}
+              componentTypes={category && category.componentTypes}
             />
           </Col>
         </Row>
@@ -283,13 +523,15 @@ const ManagementCategoryContent = () => {
           style={{
             marginTop: 24,
           }}
+          scroll={{ y: 428 }}
         />
       )}
     </div>
   );
 };
 
-const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
+const CollectionCreateForm = ({ open, onCreate, onCancel, componentTypes }) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const [form] = Form.useForm();
 
   return (
@@ -301,15 +543,24 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
       cancelText="Hủy bỏ"
       onCancel={() => {
         form.resetFields();
-
         onCancel();
       }}
       onOk={() => {
         form
           .validateFields()
-          .then((values) => {
-            form.resetFields();
-            onCreate(values);
+          .then(async (values) => {
+            const checkData =
+              values.componentTypes === null ||
+              values.componentTypes === undefined;
+            if (checkData) {
+              alert("Phải có ít nhất 1 bộ phận");
+              return;
+            }
+            const check = await onCreate(values);
+            if (check === 1) {
+              form.resetFields();
+              onCancel();
+            }
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
@@ -331,22 +582,336 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
           className="mt-2"
           hasFeedback
           name="name"
-          label="Tên số đo"
+          label="Tên danh mục"
           rules={[
             {
               required: true,
-              message: "Tên loại bản mẫu không được để trống!",
+              message: "Tên danh mục không được để trống!",
             },
           ]}
         >
           <Input />
         </Form.Item>
+        <Form.Item className="mt-2" hasFeedback label="Các bộ phận" required>
+          <Form.List name="componentTypes" label="Thêm mới bộ phận">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map(({ key, name, ...restField }) => (
+                  <Space
+                    key={key}
+                    style={{
+                      display: "flex",
+                      marginBottom: 8,
+                    }}
+                    align="baseline"
+                  >
+                    <Form.Item
+                      {...restField}
+                      name={[name, "name"]}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Tên bộ phận không được để trống!",
+                        },
+                      ]}
+                    >
+                      <Input
+                        placeholder="Nhập tên bộ phận"
+                        style={{ width: "450px" }}
+                      />
+                    </Form.Item>
+                    <MinusCircleOutlined onClick={() => remove(name)} />
+                  </Space>
+                ))}
+                <Form.Item>
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<PlusOutlined />}
+                  >
+                    Add field
+                  </Button>
+                </Form.Item>
+              </>
+            )}
+          </Form.List>
+        </Form.Item>
       </Form>
     </Modal>
   );
 };
+const CollectionUpdateForm = ({
+  open,
+  onUpdate,
+  onCancel,
+  saveId,
+  setSaveId,
+}) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const [form] = Form.useForm();
+  const [dataDetail, setDataDetail] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const handleDataDetail = async () => {
+      setLoading(true);
+      const urlDetail = `https://e-tailorapi.azurewebsites.net/api/category-management/${saveId}`;
+      try {
+        const response = await fetch(urlDetail, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setLoading(false);
+
+          setDataDetail(responseData);
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    };
+    handleDataDetail();
+  }, [saveId]);
+
+  useEffect(() => {
+    const name = [];
+    dataDetail?.componentTypes?.forEach((item) =>
+      name.push({ name: item.name, id: item.id })
+    );
+    form.setFieldsValue({
+      modifier: "public",
+      name: dataDetail?.name,
+      componentTypes: name,
+    });
+  }, [dataDetail]);
+  console.log("dataDetail", dataDetail);
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 220 }}
+      title="Cập nhật loại bản mẫu"
+      okText="Cập nhật"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        setSaveId(null);
+        onCancel();
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(async (values) => {
+            console.log("valuessssss,", values);
+            const check = await onUpdate(values);
+            if (check === 1) {
+              setSaveId(null);
+              onCancel();
+            }
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+    >
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "300px",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
+        <Form
+          style={{
+            marginTop: 24,
+          }}
+          form={form}
+          layout="vertical"
+          name="form_in_modal"
+          initialValues={{
+            modifier: "public",
+          }}
+        >
+          <Form.Item
+            className="mt-2"
+            hasFeedback
+            name="name"
+            label="Tên danh mục"
+            rules={[
+              {
+                required: true,
+                message: "Tên danh mục không được để trống!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item className="mt-2" hasFeedback label="Các bộ phận" required>
+            <Form.List name="componentTypes" label="Thêm mới bộ phận">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, id, ...restField }) => (
+                    <Space
+                      key={key}
+                      style={{
+                        display: "flex",
+                        marginBottom: 8,
+                      }}
+                      align="baseline"
+                    >
+                      <Form.Item
+                        {...restField}
+                        name={[name, "name"]}
+                        id={[id, "id"]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Tên bộ phận không được để trống!",
+                          },
+                        ]}
+                      >
+                        <Input
+                          placeholder="Nhập tên bộ phận"
+                          style={{ width: "470px" }}
+                        />
+                      </Form.Item>
+                    </Space>
+                  ))}
+                </>
+              )}
+            </Form.List>
+          </Form.Item>
+        </Form>
+      )}
+    </Modal>
+  );
+};
+
+// const CollectionUpdateComponenentForm = ({
+//   open,
+//   onUpdateComponents,
+//   onCancel,
+//   saveComponentId,
+//   setSaveComponentId,
+// }) => {
+//   const manager = JSON.parse(localStorage.getItem("manager"));
+//   const [form] = Form.useForm();
+//   const [dataDetail, setDataDetail] = useState(null);
+//   const [loading, setLoading] = useState(false);
+
+//   useEffect(() => {
+//     const handleDataDetail = async () => {
+//       setLoading(true);
+//       const urlDetail = `https://e-tailorapi.azurewebsites.net/api/component-type-management/${saveComponentId}`;
+//       try {
+//         const response = await fetch(urlDetail, {
+//           method: "GET",
+//           headers: {
+//             "Content-Type": "application/json",
+//             Authorization: `Bearer ${manager?.token}`,
+//           },
+//         });
+//         if (response.ok && response.status === 200) {
+//           const responseData = await response.json();
+//           setLoading(false);
+
+//           setDataDetail(responseData);
+//         }
+//       } catch (error) {
+//         console.error("Error calling API:", error);
+//       }
+//     };
+//     handleDataDetail();
+//   }, [saveComponentId]);
+
+//   useEffect(() => {
+//     form.setFieldsValue({
+//       modifier: "public",
+//       name: dataDetail?.name,
+//     });
+//   }, [dataDetail]);
+//   console.log(dataDetail);
+
+//   return (
+//     <Modal
+//       open={open}
+//       style={{ top: 220 }}
+//       title="Cập nhật loại bản mẫu"
+//       okText="Cập nhật"
+//       cancelText="Hủy bỏ"
+//       onCancel={() => {
+//         setSaveComponentId(null);
+//         onCancel();
+//       }}
+//       onOk={() => {
+//         form
+//           .validateFields()
+//           .then(async (values) => {
+//             const check = await onUpdateComponents(saveComponentId, values);
+//             if (check === 1) {
+//               setSaveComponentId(null);
+//               onCancel();
+//             }
+//           })
+//           .catch((info) => {
+//             console.log("Validate Failed:", info);
+//           });
+//       }}
+//     >
+//       {loading ? (
+//         <div
+//           style={{
+//             display: "flex",
+//             justifyContent: "center",
+//             alignItems: "center",
+//             height: "300px",
+//           }}
+//         >
+//           <CircularProgress />
+//         </div>
+//       ) : (
+//         <Form
+//           style={{
+//             marginTop: 24,
+//           }}
+//           form={form}
+//           layout="vertical"
+//           name="form_in_modal"
+//           initialValues={{
+//             modifier: "public",
+//           }}
+//         >
+//           <Form.Item
+//             className="mt-2"
+//             hasFeedback
+//             name="name"
+//             label="Bộ phận của danh mục"
+//             rules={[
+//               {
+//                 required: true,
+//                 message: "Bộ phận của danh mục không được để trống!",
+//               },
+//             ]}
+//           >
+//             <Input />
+//           </Form.Item>
+//         </Form>
+//       )}
+//     </Modal>
+//   );
+// };
 
 function ManagementCategory() {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   return (
     <div>
       <div

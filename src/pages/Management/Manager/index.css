@@ -22,7 +22,7 @@
 }
 
 .ant-btn-default {
-    border: 1px solid #9F78FF !important;
+    border: 1px solid #9F78FF;
     color: #9F78FF;
     transition: 0.8s;
     font-weight: 700;
@@ -30,8 +30,8 @@
 
 .ant-btn-default:hover,
 .ant-btn-default:focus {
-    color: #fff !important;
-    box-shadow: inset 11em 0 0 0 #9F78FF;
+    color: #9F78FF !important;
+    border: 1px solid #9F78FF !important;
 }
 
 .ant-btn-icon-only.ant-input-search-button {
@@ -89,23 +89,24 @@
 
 
 .ant-select-selection-item span {
-    font-size: 18px;
-    width: 50px;
-
+    font-size: 15px;
 }
 
 .ant-select-selection-overflow-item .ant-select-selection-item {
-    height: 40px !important;
+    min-height: 40px;
     display: flex;
-    justify-content: center;
     align-items: center;
     background-color: #9e78ff1a !important;
     border: 1px solid #9F78FF !important;
     color: #9F78FF !important;
     margin: 10px;
+    border-radius: 50px;
+    font-size: 10px;
+    font-weight: bold;
 }
 
 .ant-select-selection-item-remove span {
+    margin-left: 25px;
     color: #9F78FF !important;
 }
 

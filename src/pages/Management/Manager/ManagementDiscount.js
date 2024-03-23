@@ -171,12 +171,18 @@ const ManagementDiscountContent = () => {
       dataIndex: "discountpercent",
       key: "5",
       width: 150,
+      render: (_, record) => <Text>{`${record.discountpercent}%`}</Text>,
     },
     {
       title: "Số tiền giảm",
       dataIndex: "discountprice",
       key: "6",
       width: 150,
+      render: (_, record) => (
+        <Text>
+          {`${record.discountprice}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+        </Text>
+      ),
     },
     {
       title: "Điều kiện giảm giá tối thiểu",
@@ -234,6 +240,7 @@ const ManagementDiscountContent = () => {
   ];
 
   const getApi = discount?.map((item, index) => ({
+    id: item.id,
     stt: index + 1,
     name: item.name,
     code: item.code,
@@ -245,21 +252,6 @@ const ManagementDiscountContent = () => {
     conditionPriceMax: item.conditionPriceMax,
     conditionProductMin: item.conditionProductMin,
   }));
-
-  console.log(getApi);
-
-  // const data = [];
-  // for (let i = 0; i < 100; i++) {
-  //   data.push({
-  //     stt: i,
-  //     name: `Tudeptrai${i}`,
-  //     code: `21050${i}`,
-  //     startdate: `29/1/2024`,
-  //     enđate: `30/1/2024`,
-  //     discountpercent: `100`,
-  //     discountprice: `2.000.000`,
-  //   });
-  // }
 
   //------------------------------------------------------------Modal create-------------------------------------------------------
   const [open, setOpen] = useState(false);
