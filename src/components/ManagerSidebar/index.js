@@ -4,6 +4,7 @@ import {
   FileOutlined,
   UserOutlined,
   HomeOutlined,
+  ControlOutlined,
   LogoutOutlined,
   AppstoreAddOutlined,
   FileTextOutlined,
@@ -99,6 +100,11 @@ export const ManagerSidebar = () => {
           key: "/manager/account/staffs",
           label: <Link to="/manager/account/staffs">Nhân viên</Link>,
           icon: <UserOutlined />,
+        },
+        {
+          key: "/manager/tasks-management",
+          label: <Link to="/manager/tasks-management">Quản lý công việc</Link>,
+          icon: <ControlOutlined />,
         },
         {
           key: "/manager/body-size",
