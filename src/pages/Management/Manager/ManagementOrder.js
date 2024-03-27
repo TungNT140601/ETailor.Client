@@ -24,9 +24,8 @@ import { useQuery } from "react-query";
 const { Search } = Input;
 const { Title, Text } = Typography;
 
-const manager = JSON.parse(localStorage.getItem("manager"));
-
 const ManagementOrderHeader = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -103,6 +102,7 @@ const ManagementOrderHeader = () => {
 };
 
 const ManagementOrderContent = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const [dataOrder, setDataOrder] = useState([]);
   const [loading, setLoading] = useState([]);
   const getUrl = "https://e-tailorapi.azurewebsites.net/api/order";
@@ -156,7 +156,7 @@ const ManagementOrderContent = () => {
       key: "1",
       width: 160,
       fixed: "left",
-      render: () => (
+      render: (_, record) => (
         <>
           <Text
             style={{
@@ -183,12 +183,22 @@ const ManagementOrderContent = () => {
       dataIndex: "totalPrice",
       key: "3",
       width: 150,
+      render: (_, record) => (
+        <Text>
+          {`${record.totalPrice}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+        </Text>
+      ),
     },
     {
       title: "Số tiền giảm",
       dataIndex: "discountPrice",
       key: "4",
       width: 150,
+      render: (_, record) => (
+        <Text>
+          {`${record.discountPrice}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+        </Text>
+      ),
     },
     {
       title: "Mã giảm",
@@ -201,30 +211,67 @@ const ManagementOrderContent = () => {
       dataIndex: "afterDiscountPrice",
       key: "6",
       width: 200,
+      render: (_, record) => (
+        <Text>
+          {`${record.afterDiscountPrice}đ`.replace(
+            /\B(?=(\d{3})+(?!\d))/g,
+            ","
+          )}
+        </Text>
+      ),
     },
     {
       title: "Tiền đặt cọc đã trả",
       dataIndex: "payDeposit",
       key: "7",
       width: 200,
+      render: (_, record) =>
+        record.payDeposit ? (
+          <Text>
+            {`${record.payDeposit}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          </Text>
+        ) : (
+          <Text>{`0đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Text>
+        ),
     },
     {
       title: "Tiền trả trước",
       dataIndex: "deposit",
       key: "8",
       width: 150,
+      render: (_, record) =>
+        record.deposit === null ? (
+          <Text>{`0đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Text>
+        ) : (
+          <Text>
+            {`${record.deposit}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          </Text>
+        ),
     },
     {
       title: "Tiền đã trả",
       dataIndex: "paidMoney",
       key: "9",
       width: 150,
+      render: (_, record) =>
+        record.paidMoney ? (
+          <Text>
+            {`${record.paidMoney}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          </Text>
+        ) : (
+          <Text>{`0đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Text>
+        ),
     },
     {
       title: "Tiền còn lại",
       dataIndex: "unPaidMoney",
       key: "10",
       width: 150,
+      render: (_, record) => (
+        <Text>
+          {`${record.unPaidMoney}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+        </Text>
+      ),
     },
     {
       title: "Action",
@@ -562,6 +609,7 @@ const ManagementOrderContent = () => {
 };
 
 function ManagementOrder() {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   return (
     <div>
       <div

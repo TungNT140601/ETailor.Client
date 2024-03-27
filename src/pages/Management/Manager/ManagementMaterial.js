@@ -215,7 +215,7 @@ const ManagementMaterialContent = () => {
       width: "7%",
     },
     {
-      title: "Số lượng",
+      title: "Số lượng (m)",
       dataIndex: "quantity",
       key: "2",
       width: "7%",
@@ -1509,6 +1509,11 @@ function ManagementMaterialCategoryContent() {
       dataIndex: "pricePerUnit",
       key: "2",
       width: "25%",
+      render: (_, record) => (
+        <Text>
+          {`${record.pricePerUnit}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+        </Text>
+      ),
     },
     {
       title: "Loại vải",

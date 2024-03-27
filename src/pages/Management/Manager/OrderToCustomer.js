@@ -10,6 +10,13 @@ import {
   GlobalOutlined,
   InfoCircleOutlined,
   CloseOutlined,
+  SearchOutlined,
+  MinusCircleOutlined,
+  CloseCircleOutlined,
+  PlusOutlined,
+  EditOutlined,
+  LeftOutlined,
+  RightOutlined,
 } from "@ant-design/icons";
 import {
   Typography,
@@ -29,6 +36,9 @@ import {
   Popover,
   Tag,
   Spin,
+  Space,
+  Upload,
+  Carousel,
 } from "antd";
 import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -41,8 +51,10 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
+import chooseTemplate from "../../../assets/dress.png";
+
 const { Search } = Input;
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { Meta } = Card;
 
 const OrderToCustomerHeader = () => {
@@ -512,7 +524,6 @@ const UpdateProductModal = ({
       okText="Cập nhật"
       cancelText="Hủy bỏ"
       onCancel={() => {
-        setDataDetailForUpdate(null);
         onCancel();
       }}
       onOk={() => {
@@ -720,13 +731,280 @@ const UpdateProductModal = ({
     </Modal>
   );
 };
+const ChooseTemplate = ({ open, onCancel, handleChooseTemplate }) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  // list ra category
+  const [category, setCategory] = useState(null);
+  // chọn category
+  const [selected, setSelected] = useState(null);
+  // chi tiết product template
+  const [detailProduct, setDetailProduct] = useState(null);
+  // Chọn bản mẫu
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [selectedLoading, setSelectedLoading] = useState(false);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const handleGetCategory = async () => {
+    setLoading(true);
+    const url = `https://e-tailorapi.azurewebsites.net/api/category-management`;
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setLoading(false);
+        setCategory(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  const handleSelected = async () => {
+    setSelectedLoading(true);
+    const url = `https://e-tailorapi.azurewebsites.net/api/template-management/category/${selected}`;
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setDetailProduct(responseData);
+        setSelectedLoading(false);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  useEffect(() => {
+    handleGetCategory();
+  }, []);
+
+  useEffect(() => {
+    handleSelected();
+  }, [selected]);
+
+  const handleSelectedTemplate = (value, index) => {
+    if (activeIndex === index) {
+      setSelectedTemplate(null);
+    } else {
+      setSelectedTemplate(value);
+    }
+    setActiveIndex((prevIndex) => (prevIndex === index ? null : index));
+  };
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 80 }}
+      title="Chọn bản mẫu phù hợp"
+      okText="Xác nhận"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        form.resetFields();
+        setSelected(null);
+        setActiveIndex(null);
+        setSelectedTemplate(null);
+        onCancel();
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(async () => {
+            setConfirmLoading(true);
+            if (selectedTemplate) {
+              const check = await handleChooseTemplate(
+                selectedTemplate.id,
+                selectedTemplate
+              );
+              if (check === 1) {
+                form.resetFields();
+                setSelected(null);
+                setActiveIndex(null);
+                setSelectedTemplate(null);
+                onCancel();
+              }
+              setConfirmLoading(false);
+            } else {
+              await Swal.fire({
+                position: "top-center",
+                icon: "warning",
+                title: "Chọn loại bản mẫu thì phải chọn bản mẫu",
+                showConfirmButton: false,
+                timer: 2500,
+                zIndex: 1000,
+              });
+            }
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+      okButtonProps={{ loading: confirmLoading }}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+        }}
+        style={{
+          height: 400,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+        }}
+        onFinish={(values) => {
+          console.log("Values cua create", values);
+        }}
+      >
+        {loading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "400px",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        ) : (
+          <>
+            <Form.Item
+              label="Loại bản mẫu"
+              hasFeedback
+              name="category"
+              rules={[
+                {
+                  required: true,
+                  message: "Loại bản mẫu không được để trống!",
+                },
+              ]}
+            >
+              <Select
+                showSearch
+                placeholder="Chọn loại bản mẫu"
+                optionFilterProp="children"
+                onChange={(value) => {
+                  setSelected(value);
+                }}
+                filterOption={(value, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(value.toLowerCase())
+                }
+                options={
+                  category &&
+                  category.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                  }))
+                }
+              />
+            </Form.Item>
+            {selected ? (
+              selectedLoading ? (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "350px",
+                  }}
+                >
+                  <CircularProgress />
+                </div>
+              ) : detailProduct.productTemplates?.length !== 0 ? (
+                detailProduct?.productTemplates?.map((item, index) => {
+                  return (
+                    <>
+                      <Card
+                        style={{
+                          width: 470,
+                          marginTop: 16,
+                          border:
+                            activeIndex === index ? "1px solid #9F78FF" : "",
+                          cursor: "pointer",
+                        }}
+                        loading={loading}
+                        onClick={() => handleSelectedTemplate(item, index)}
+                      >
+                        <Meta
+                          avatar={
+                            <Image width={100} src={item.thumbnailImage} />
+                          }
+                          title={item.name}
+                          description={item.description}
+                        />
+                      </Card>
+                    </>
+                  );
+                })
+              ) : (
+                <div
+                  style={{
+                    textAlign: "center",
+                  }}
+                >
+                  <div>
+                    <img
+                      src={chooseTemplate}
+                      style={{ width: 200, height: 200 }}
+                      alt=""
+                    />
+                    <Title level={5}>
+                      Chưa có bản mẫu phù hợp nào vui lòng chọn lại loại bản mẫu
+                      khác
+                    </Title>
+                  </div>
+                </div>
+              )
+            ) : (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <div style={{ marginTop: 24 }}>
+                  <img
+                    src={chooseTemplate}
+                    style={{ width: 200, height: 200 }}
+                    alt=""
+                  />
+                  <Title level={5}>
+                    Chọn <span style={{ color: "red" }}>loại bản mẫu</span>{" "}
+                    trước!
+                  </Title>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </Form>
+    </Modal>
+  );
+};
 
 const OrderToCustomerContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const navigate = useNavigate();
   const vnpayNotification = VnPay();
   const [form] = Form.useForm();
-  console.log("vnpayNotification", vnpayNotification);
 
   useEffect(() => {
     if (!manager) {
@@ -753,36 +1031,36 @@ const OrderToCustomerContent = () => {
   const [active, setActive] = useState(0);
 
   //-------------------------------------------------Modal thêm mới khách hàng--------------------------------------------------------
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
+  // const [isModalOpen, setIsModalOpen] = useState(false);
+  // const showModal = () => {
+  //   setIsModalOpen(true);
+  // };
 
-  const onCreate = async (values) => {
-    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/customer-management`;
-    try {
-      const response = await fetch(`${urlCreateNew}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok) {
-        const responseData = await response.json();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: "Tạo mới thành công",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        setIsModalOpen(false);
-      }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
-  };
+  // const onCreate = async (values) => {
+  //   const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/customer-management`;
+  //   try {
+  //     const response = await fetch(`${urlCreateNew}`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${manager?.token}`,
+  //       },
+  //     });
+  //     if (response.ok) {
+  //       const responseData = await response.json();
+  //       Swal.fire({
+  //         position: "top-center",
+  //         icon: "success",
+  //         title: "Tạo mới thành công",
+  //         showConfirmButton: false,
+  //         timer: 1500,
+  //       });
+  //       setIsModalOpen(false);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error calling API:", error);
+  //   }
+  // };
   //------------------------------------------------Kiểm tra 2 field options---------------------------------------------------------
   const [checkValid, setCheckValid] = useState(0);
 
@@ -819,29 +1097,13 @@ const OrderToCustomerContent = () => {
       dataIndex: "price",
       key: "price",
     },
-    // {
-    //   title: "Action",
-    //   key: "action",
-    //   render: (_, record) => (
-    //     <Space size="middle">
-    //       <Radio.Group
-    //         onChange={(e) => handleCheckMaterial(e, record)}
-    //         value={record.radioValue}
-    //       >
-    //         <Radio value={1}>Đã có vải</Radio>
-    //         <Radio value={2} className="mt-2">
-    //           Chưa có vải
-    //         </Radio>
-    //       </Radio.Group>
-    //     </Space>
-    //   ),
-    // },
   ];
 
   //---------------------------------------------------Lưu orderId-----------------------------------------------------------------
   const [saveCustomer, setSaveCustomer] = useState(null);
   const [saveOrderId, setSaveOrderId] = useState(null);
   const [searchInfo, setSearchInfo] = useState("");
+  const [saveFormCustomer, setSaveFormCustomer] = useState(null);
   const [searchResult, setSearchResult] = useState([]);
   const handleSaveOrder = () => {
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/order`;
@@ -888,8 +1150,24 @@ const OrderToCustomerContent = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSearchInfoCustomer = async (value) => {
-    setSearchInfo(value);
+    if (!value || !searchInfo) {
+      setSearchInfo(value);
+      setSearchResult([]);
+    } else {
+      setSearchInfo(value);
+    }
   };
+  useEffect(() => {
+    if (saveCustomer) {
+      form.setFieldsValue({
+        modifier: "create_customer",
+        fullname: saveCustomer.fullname || "",
+        email: saveCustomer.email || "",
+        phone: saveCustomer.phone || "",
+        address: saveCustomer.address || "",
+      });
+    }
+  }, [saveCustomer]);
 
   useEffect(() => {
     let timer;
@@ -1257,6 +1535,73 @@ const OrderToCustomerContent = () => {
     price: item.price,
   }));
 
+  //-------------------------------------------------------------------Xử lý bước 2 mới----------------------------------------
+  const [openChooseProductTemplate, setOpenChooseProductTemplate] =
+    useState(false);
+  const [productComponent, setProductComponent] = useState(null);
+  const [chooseProductTemplate, setChooseProductTemplate] = useState(null);
+  console.log("productComponent", productComponent);
+  const handleChooseTemplate = async (id, data) => {
+    setChooseProductTemplate(data);
+    const url = `https://e-tailorapi.azurewebsites.net/api/template/${id}/component-types`;
+    try {
+      const response = await fetch(`${url}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("responseData", responseData);
+        setProductComponent(responseData);
+        return 1;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  const SampleNextArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <div
+        className={`${className} slick-next`}
+        style={{
+          ...style,
+          right: "-30px",
+          borderRadius: "50%",
+        }}
+        onClick={onClick}
+      >
+        <RightOutlined style={{ color: "black", fontSize: "20px" }} />
+      </div>
+    );
+  };
+
+  const SamplePrevArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <div
+        className={`${className} slick-prev`}
+        style={{
+          ...style,
+          left: "-30px",
+          borderRadius: "50%",
+        }}
+        onClick={onClick}
+      >
+        <LeftOutlined style={{ color: "black", fontSize: "20px" }} />
+      </div>
+    );
+  };
+  const settings = {
+    nextArrow: <SampleNextArrow />,
+    prevArrow: <SamplePrevArrow />,
+  };
+
   const steps = [
     {
       title: "Thông tin khách hàng",
@@ -1267,345 +1612,185 @@ const OrderToCustomerContent = () => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
+              position: "relative",
             }}
           >
-            <div
-              style={{
-                width: 500,
-                marginTop: 24,
-                height: 460,
-                padding: 30,
-                borderRadius: "10px",
-              }}
-            >
-              <Title level={4}>
-                <FileSearchOutlined /> Tìm kiếm thông tin khách hàng
-              </Title>
-              <Text>Nhập email để tìm kiếm thông tin khách hàng</Text>
-              <Search
-                placeholder="Nhập số email"
-                size="large"
-                style={{ marginTop: 15 }}
-                value={searchInfo}
-                onChange={(e) => handleSearchInfoCustomer(e.target.value)}
-              />
-              {isLoading ? (
-                <div
-                  style={{
-                    marginTop: 24,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "300px",
-                    border: "1px solid #D4D4D4",
-                    borderRadius: 5,
-                  }}
-                >
-                  <CircularProgress />
-                </div>
-              ) : (
-                <div
-                  style={{
-                    marginTop: 24,
-                    height: 300,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    border: "1px solid #D4D4D4",
-                    borderRadius: 5,
-                  }}
-                >
-                  {searchResult?.length !== 0 ? (
-                    <>
-                      <div
-                        style={{
-                          height: 250,
-                          overflowY:
-                            searchResult?.length > 1 ? "scroll" : "hidden",
-                        }}
-                      >
-                        {searchResult?.map((item) => {
-                          return (
-                            <Card
-                              key={item.email}
-                              style={{
-                                width: 300,
-                                marginTop: searchResult?.length === 1 ? 70 : 16,
-                                border: "1px solid #9F78FF",
-                                cursor: "pointer",
-                              }}
-                              onClick={async () => {
-                                const urlGetDetail = `https://e-tailorapi.azurewebsites.net/api/customer-management/info/${item.id}`;
-                                try {
-                                  const response = await fetch(urlGetDetail, {
-                                    method: "GET",
-                                    headers: {
-                                      "Content-Type": "application/json",
-                                      Authorization: `Bearer ${manager?.token}`,
-                                    },
-                                  });
-                                  if (response.ok && response.status === 200) {
-                                    const responseData = await response.json();
-                                    setSaveCustomer((prev) => {
-                                      if (prev && prev.id !== responseData.id) {
-                                        setSaveOrderId(null);
-                                        return responseData;
-                                      } else {
-                                        return responseData;
-                                      }
-                                    });
-                                    await Swal.fire({
-                                      position: "top-center",
-                                      icon: "success",
-                                      title: "Lưu thành công",
-                                      showConfirmButton: false,
-                                      timer: 1500,
-                                    });
-                                    handleDelayNext();
-                                  } else if (response.status === 401) {
-                                    localStorage.removeItem("manager");
-                                    navigate("/management/login");
-                                  }
-                                } catch (error) {
-                                  console.error("Error calling API:", error);
-                                }
-                              }}
-                            >
-                              <Meta
-                                avatar={
-                                  item?.avatar !== "" ? (
-                                    <div>
-                                      <Avatar
-                                        src={item?.avatar}
-                                        size={"large"}
-                                      />
-                                    </div>
-                                  ) : (
-                                    <div>
-                                      <Avatar
-                                        src="https://api.dicebear.com/7.x/miniavs/svg?seed=3"
-                                        size={"large"}
-                                      />
-                                    </div>
-                                  )
-                                }
-                                title={
-                                  item?.fullname === null
-                                    ? item?.email
-                                    : item?.fullname
-                                }
-                                description={
-                                  <Popover
-                                    content={
-                                      <>
-                                        <div className="mt-2">
-                                          <Text>
-                                            <b>
-                                              <IdcardOutlined /> Họ và tên:
-                                            </b>
-                                            &nbsp; {item?.fullname}
-                                          </Text>
-                                        </div>
-                                        <div className="mt-2">
-                                          <Text>
-                                            <b>
-                                              <UserOutlined /> Tên người dùng:
-                                            </b>
-                                            &nbsp; {item?.username}
-                                          </Text>
-                                        </div>
-                                        <div className="mt-2">
-                                          <Text>
-                                            <b>
-                                              <PhoneOutlined /> Email:
-                                            </b>
-                                            &nbsp; {item?.email}
-                                          </Text>
-                                        </div>
-                                        <div className="mt-2">
-                                          <Text>
-                                            <b>
-                                              <GlobalOutlined /> Địa chỉ:
-                                            </b>
-                                            &nbsp; {item?.address}
-                                          </Text>
-                                        </div>
-                                      </>
-                                    }
-                                    title="Thông tin chi tiết"
-                                    trigger="hover"
-                                  >
-                                    <Button>
-                                      <InfoCircleOutlined /> Xem thêm
-                                    </Button>
-                                  </Popover>
-                                }
-                              />
-                            </Card>
-                          );
-                        })}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <Text strong>
-                        Không tìm thấy khách hàng! &nbsp;
-                        <b
-                          level={4}
-                          onClick={showModal}
-                          style={{
-                            fontSize: "18px",
-                            color: "#9F78FF",
-                            textDecoration: "underline",
-                            cursor: "pointer",
-                          }}
-                        >
-                          Tạo mới
-                        </b>
-                      </Text>
-                      <Modal
-                        open={isModalOpen}
-                        style={{ top: 75 }}
-                        title="Thêm mới khách hàng"
-                        okText="Tạo mới"
-                        cancelText="Hủy bỏ"
-                        onCancel={() => {
-                          form.resetFields();
-                          setCheckValid(0);
-                          setIsModalOpen(false);
-                        }}
-                        onOk={() => {
-                          form
-                            .validateFields()
-                            .then((values) => {
-                              form.resetFields();
-                              onCreate(values);
-                            })
-                            .catch((info) => {
-                              console.log("Validate Failed:", info);
+            <div>
+              <div
+                style={{
+                  width: 600,
+                  padding: 30,
+                  borderRadius: "10px",
+                }}
+              >
+                <div style={{ marginLeft: 100 }}>
+                  <Title level={4}>
+                    <FileSearchOutlined /> Tìm kiếm thông tin khách hàng
+                  </Title>
+                  <Text>
+                    Nhập email hoặc số điện thoại để tìm kiếm thông tin khách
+                    hàng
+                  </Text>
+                  <div style={{ marginTop: 10 }}>
+                    <div style={{ position: "relative" }}>
+                      <Select
+                        showSearch
+                        value={searchInfo}
+                        style={{ width: 350 }}
+                        defaultActiveFirstOption={false}
+                        showArrow={false}
+                        filterOption={false}
+                        onChange={async (value) => {
+                          const urlGetDetail = `https://e-tailorapi.azurewebsites.net/api/customer-management/info/${value}`;
+                          try {
+                            const response = await fetch(urlGetDetail, {
+                              method: "GET",
+                              headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${manager?.token}`,
+                              },
                             });
+                            if (response.ok && response.status === 200) {
+                              const responseData = await response.json();
+                              setSaveCustomer((prev) => {
+                                if (prev && prev.id !== responseData.id) {
+                                  setSaveOrderId(null);
+                                  return responseData;
+                                } else {
+                                  return responseData;
+                                }
+                              });
+                              await Swal.fire({
+                                position: "top-center",
+                                icon: "success",
+                                title: "Đã xác nhận khách hàng!",
+                                showConfirmButton: false,
+                                timer: 1500,
+                              });
+                              setSearchInfo(responseData.fullname);
+                            } else if (response.status === 401) {
+                              localStorage.removeItem("manager");
+                              navigate("/management/login");
+                            }
+                          } catch (error) {
+                            console.error("Error calling API:", error);
+                          }
                         }}
-                      >
-                        <Form
-                          style={{
-                            height: 400,
-                            overflowY: "scroll",
-                            scrollbarWidth: "none",
-                            WebkitScrollbar: "none",
-                            marginTop: 24,
-                          }}
-                          form={form}
-                          layout="vertical"
-                          name="form_in_modal"
-                          initialValues={{
-                            modifier: "public",
-                          }}
-                        >
-                          <Form.Item
-                            name="fullname"
-                            label="Họ và tên"
-                            hasFeedback
-                            rules={[
-                              {
-                                required: true,
-                                message: "Họ và tên không được để trống",
-                              },
-                            ]}
-                          >
-                            <Input />
-                          </Form.Item>
-                          <Form.Item
-                            hasFeedback
-                            name="username"
-                            label="Tên người dùng"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Tên người dùng không được để trống",
-                              },
-                            ]}
-                          >
-                            <Input />
-                          </Form.Item>
-
-                          {checkValid === 2 ? (
-                            <Form.Item className="mt-2" label="Email">
-                              <Input disabled />
-                            </Form.Item>
-                          ) : (
-                            <Form.Item
-                              className="mt-2"
-                              hasFeedback
-                              name="email"
-                              label="Email"
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Email không được để trống",
-                                },
-                              ]}
-                            >
-                              <Input
-                                onChange={(e) => {
-                                  const check = e.target.value;
-                                  if (check !== "") {
-                                    setCheckValid(1);
-                                  } else {
-                                    setCheckValid(0);
-                                  }
-                                }}
-                              />
-                            </Form.Item>
-                          )}
-
-                          {checkValid === 1 ? (
-                            <Form.Item label="Số điện thoại">
-                              <Input disabled />
-                            </Form.Item>
-                          ) : (
-                            <Form.Item
-                              name="phone"
-                              label="Số điện thoại"
-                              hasFeedback
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Số điện thoại không được để trống",
-                                },
-                                {
-                                  pattern: /^[0-9]{10}$/,
-                                  message: "Số điện thoại phải là 10 số",
-                                },
-                              ]}
-                            >
-                              <Input
-                                onChange={(e) => {
-                                  const check = e.target.value;
-                                  if (check !== "") {
-                                    setCheckValid(2);
-                                  } else {
-                                    setCheckValid(0);
-                                  }
-                                }}
-                              />
-                            </Form.Item>
-                          )}
-                        </Form>
-                      </Modal>
-                    </>
-                  )}
+                        onSearch={(value) => handleSearchInfoCustomer(value)}
+                        notFoundContent={null}
+                        options={(searchResult || []).map((d) => ({
+                          value: d.id,
+                          label: `${d.fullname} - ${d.phone}`,
+                        }))}
+                      />
+                      <SearchOutlined
+                        style={{
+                          fontSize: 18,
+                          position: "absolute",
+                          right: 100,
+                          top: 7,
+                          cursor: "pointer",
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
-              )}
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  border: "1px solid #9F78FF",
+                  width: 600,
+                  padding: 10,
+                  borderRadius: 10,
+                }}
+              >
+                <Form
+                  layout="vertical"
+                  form={form}
+                  name="create_customer"
+                  initialValues={{ modifier: "create_customer" }}
+                  onFinish={() => {
+                    form
+                      .validateFields()
+                      .then(async (values) => {
+                        console.log("Value da duoc validate", values);
+                      })
+                      .catch((info) => {
+                        console.log("Validate Failed:", info);
+                      });
+                  }}
+                >
+                  <Form.Item
+                    name="fullname"
+                    label="Họ và tên"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Họ và tên không được để trống",
+                      },
+                    ]}
+                    style={{ width: 525 }}
+                  >
+                    <Input placeholder={"Nhập họ và tên"} />
+                  </Form.Item>
+                  <Form.Item
+                    name="address"
+                    label="Địa chỉ"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Địa chỉ không được để trống",
+                      },
+                    ]}
+                    style={{ width: 525 }}
+                  >
+                    <Input placeholder={"Nhập địa chỉ"} />
+                  </Form.Item>
+                  <Row>
+                    <Col span={11}>
+                      <Form.Item
+                        name="email"
+                        label="Email"
+                        style={{ width: 240 }}
+                      >
+                        <Input placeholder={"Nhập email"} />
+                      </Form.Item>
+                    </Col>
+                    <Col span={11} push={2}>
+                      <Form.Item
+                        name="phone"
+                        label="Số điện thoại"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Số điện thoại không được để trống",
+                          },
+                        ]}
+                        style={{ width: 240 }}
+                      >
+                        <Input placeholder={"Nhập số điện thoại"} />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+                  <Form.Item style={{ textAlign: "center" }}>
+                    <Button type="primary" htmlType="submit">
+                      Tạo mới
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </div>
             </div>
           </div>
         </>
       ),
     },
     {
-      title: "Chọn kiểu bản mẫu",
+      title: "Thông tin đơn hàng",
       content: (
         <>
-          <div>
+          {/* <div>
             <Divider orientation="left">
               <Title level={3}>Sản phẩm đã tạo</Title>
             </Divider>
@@ -1729,12 +1914,455 @@ const OrderToCustomerContent = () => {
               materialId={materialId}
               handleUpdateProduct={handleUpdateProduct}
             />
-          </div>
+          </div> */}
+          <Row>
+            <Col
+              flex="1 1 100px"
+              style={{
+                height: 500,
+                marginTop: 15,
+                backgroundColor: "rgba(213,197,255,0.2)",
+                borderRadius: 10,
+                border: "2px solid #9F78FF",
+              }}
+            >
+              {/* <div style={{ marginTop: 24 }}>
+                <Form
+                  name="basic"
+                  labelCol={{
+                    span: 8,
+                  }}
+                  wrapperCol={{
+                    span: 16,
+                  }}
+                  style={{
+                    maxWidth: 800,
+                  }}
+                  initialValues={{
+                    remember: true,
+                  }}
+                  autoComplete="off"
+                >
+                  <Form.Item
+                    label="Chọn loại đồ phù hợp"
+                    name="username"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Chọn loại đồ bạn muốn may!",
+                      },
+                    ]}
+                  >
+                    <Select>
+                      <Select.Option value="Áo">Áo</Select.Option>
+                      <Select.Option value="Quần">Quần</Select.Option>
+                      <Select.Option value="Suits">Suits</Select.Option>
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item
+                    wrapperCol={{
+                      offset: 8,
+                      span: 16,
+                    }}
+                  >
+                    <Button type="primary" htmlType="submit">
+                      Tạo mới sản phẩm
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </div> */}
+              {chooseProductTemplate ? (
+                <>
+                  <div
+                    style={{
+                      height: "100%",
+                      overflowY: "scroll",
+                      scrollbarWidth: "none",
+                      WebkitScrollbar: "none",
+                    }}
+                  >
+                    <div>
+                      <div
+                        style={{
+                          paddingLeft: 20,
+                          paddingTop: 20,
+                          textAlign: "center",
+                        }}
+                      >
+                        <Title level={4}>
+                          Tạo mới sản phẩm{" "}
+                          <EditOutlined style={{ color: "#9F78FF" }} />
+                        </Title>
+                      </div>
+                      <div style={{ paddingLeft: 20, paddingTop: 20 }}>
+                        <Title level={4}>Bản mẫu đã chọn</Title>
+                      </div>
+                      <div
+                        style={{ display: "flex", justifyContent: "center" }}
+                      >
+                        <Card
+                          style={{
+                            width: 500,
+                            marginTop: 16,
+                          }}
+                          loading={loading}
+                        >
+                          <Meta
+                            avatar={
+                              <Image
+                                style={{
+                                  width: 100,
+                                  height: 100,
+                                  objectFit: "cover",
+                                }}
+                                src={chooseProductTemplate?.thumbnailImage}
+                              />
+                            }
+                            title={chooseProductTemplate?.name}
+                            description={
+                              <div style={{ position: "relative" }}>
+                                <Paragraph>
+                                  {chooseProductTemplate?.description}
+                                </Paragraph>
+                                <Button
+                                  style={{ float: "right" }}
+                                  onClick={() =>
+                                    setOpenChooseProductTemplate(true)
+                                  }
+                                >
+                                  Chọn lại
+                                </Button>
+                              </div>
+                            }
+                          />
+                        </Card>
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ paddingLeft: 20, paddingTop: 20 }}>
+                        <Title level={4}>Chọn số đo phù hợp</Title>
+                      </div>
+                      <div
+                        style={{ display: "flex", justifyContent: "center" }}
+                      >
+                        <Carousel
+                          autoplay
+                          style={{ width: "400px" }}
+                          arrows
+                          dots={false}
+                          {...settings}
+                        >
+                          <div>
+                            <h3
+                              style={{
+                                width: 400,
+                                height: "160px",
+                                color: "#fff",
+                                lineHeight: "160px",
+                                textAlign: "center",
+                                background: "#364d79",
+                              }}
+                            >
+                              1
+                            </h3>
+                          </div>
+                          <div>
+                            <h3
+                              style={{
+                                width: 400,
+                                height: "160px",
+                                color: "#fff",
+                                lineHeight: "160px",
+                                textAlign: "center",
+                                background: "#364d79",
+                              }}
+                            >
+                              2
+                            </h3>
+                          </div>
+                          <div>
+                            <h3
+                              style={{
+                                width: 400,
+                                height: "160px",
+                                color: "#fff",
+                                lineHeight: "160px",
+                                textAlign: "center",
+                                background: "#364d79",
+                              }}
+                            >
+                              3
+                            </h3>
+                          </div>
+                          <div>
+                            <h3
+                              style={{
+                                width: 400,
+                                height: "160px",
+                                color: "#fff",
+                                lineHeight: "160px",
+                                textAlign: "center",
+                                background: "#364d79",
+                              }}
+                            >
+                              4
+                            </h3>
+                          </div>
+                        </Carousel>
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ paddingLeft: 20, paddingTop: 20 }}>
+                        <Title level={4}>Thông tin sản phẩm</Title>
+                      </div>
+                      <div
+                        style={{ display: "flex", justifyContent: "center" }}
+                      >
+                        <Form
+                          form={form}
+                          layout="vertical"
+                          name="form_in_modal"
+                          initialValues={{
+                            modifier: "public",
+                          }}
+                          style={{ width: 500 }}
+                        >
+                          <Form.Item
+                            label="Tên sản phẩm"
+                            hasFeedback
+                            name="name"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Tên sản phẩm không được để trống!",
+                              },
+                            ]}
+                          >
+                            <Input />
+                          </Form.Item>
+                          <Form.Item label="Ghi chú" name="note" hasFeedback>
+                            <Input.TextArea />
+                          </Form.Item>
+                          {productComponent &&
+                            productComponent?.map((product) => {
+                              return (
+                                <>
+                                  <Form.Item
+                                    key={product?.id}
+                                    hasFeedback
+                                    label={`Chọn ${product.name}`}
+                                    name={`component_${product.id}`}
+                                    rules={[
+                                      product && {
+                                        required: true,
+                                        message:
+                                          "Chọn bản mẫu không được để trống!",
+                                      },
+                                    ]}
+                                  >
+                                    <Select
+                                      style={{ height: 45 }}
+                                      defaultValue={
+                                        product?.components?.find(
+                                          (item1) => item1.default === true
+                                        )?.id
+                                      }
+                                    >
+                                      {product?.components?.map((item) => {
+                                        return (
+                                          <>
+                                            <Select.Option
+                                              value={item.id}
+                                              key={item.id}
+                                            >
+                                              <div
+                                                style={{
+                                                  display: "flex",
+                                                  alignItems: "center",
+                                                }}
+                                              >
+                                                <Image
+                                                  width={35}
+                                                  src={item.image}
+                                                  height={35}
+                                                />
+                                                &nbsp; &nbsp;
+                                                <Title
+                                                  level={5}
+                                                  style={{ marginTop: 6 }}
+                                                >
+                                                  {item.name}
+                                                </Title>
+                                              </div>
+                                            </Select.Option>
+                                          </>
+                                        );
+                                      })}
+                                    </Select>
+                                  </Form.Item>
+                                  <Form.List
+                                    name={`productComponent_${product.id}`}
+                                  >
+                                    {(fields, { add, remove }) => (
+                                      <>
+                                        {fields?.map(
+                                          ({ key, name, ...restField }) => (
+                                            <Space
+                                              key={key}
+                                              style={{
+                                                display: "flex",
+                                                marginBottom: 8,
+                                              }}
+                                              align="baseline"
+                                            >
+                                              <div>
+                                                <Form.Item
+                                                  {...restField}
+                                                  name={[name, "image"]}
+                                                  rules={[
+                                                    {
+                                                      required: true,
+                                                      message:
+                                                        "Ảnh của kiểu không được để trống!",
+                                                    },
+                                                  ]}
+                                                >
+                                                  <Upload
+                                                    listType="picture"
+                                                    accept=".png,.jpeg,.jpg"
+                                                    beforeUpload={(file) => {
+                                                      console.log(
+                                                        "file image: ",
+                                                        file
+                                                      );
+                                                      return false;
+                                                    }}
+                                                  >
+                                                    <button
+                                                      style={{
+                                                        width: 100,
+                                                        height: 40,
+                                                        borderRadius: 10,
+                                                        color: "white",
+                                                        fontWeight: "bold",
+                                                        backgroundColor:
+                                                          "#9F78FF",
+                                                        border:
+                                                          "1px solid #9F78FF",
+                                                        display: "flex",
+                                                        justifyContent:
+                                                          "center",
+                                                        alignItems: "center",
+                                                        cursor: "pointer",
+                                                      }}
+                                                      type="button"
+                                                    >
+                                                      <div>Upload</div>
+                                                    </button>
+                                                  </Upload>
+                                                </Form.Item>
+                                                <Form.Item
+                                                  style={{ width: 500 }}
+                                                  {...restField}
+                                                  name={[name, "note"]}
+                                                  rules={[
+                                                    {
+                                                      required: true,
+                                                      message:
+                                                        "Ghi chú không được để trống!",
+                                                    },
+                                                  ]}
+                                                >
+                                                  <Input.TextArea placeholder="Ghi chú" />
+                                                </Form.Item>
+                                              </div>
+                                              <CloseCircleOutlined
+                                                style={{ fontSize: 18 }}
+                                                onClick={() => remove(name)}
+                                              />
+                                            </Space>
+                                          )
+                                        )}
+                                        {fields?.length >= 1 ? (
+                                          ""
+                                        ) : (
+                                          <Form.Item>
+                                            <Button
+                                              type="dashed"
+                                              onClick={() => add()}
+                                              block
+                                              icon={<PlusOutlined />}
+                                            >
+                                              Lựa chọn khác
+                                            </Button>
+                                          </Form.Item>
+                                        )}
+                                      </>
+                                    )}
+                                  </Form.List>
+                                </>
+                              );
+                            })}
+                        </Form>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div
+                  style={{
+                    height: "100%",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    display: "flex",
+                  }}
+                >
+                  <Typography.Title
+                    level={4}
+                    style={{
+                      margin: 0,
+                    }}
+                  >
+                    Xác định{" "}
+                    <span
+                      style={{
+                        color: "#9F78FF",
+                        textDecoration: "underline",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => setOpenChooseProductTemplate(true)}
+                    >
+                      loại đồ
+                    </span>{" "}
+                    mà bạn muốn
+                  </Typography.Title>
+                </div>
+              )}
+            </Col>
+            <Col
+              flex="0 1 400px"
+              style={{
+                height: 500,
+                marginTop: 15,
+                backgroundColor: "rgba(213,197,255,0.2)",
+                borderRadius: 10,
+                marginLeft: 10,
+              }}
+            >
+              0 1 300px
+            </Col>
+          </Row>
+          <ChooseTemplate
+            open={openChooseProductTemplate}
+            onCancel={() => setOpenChooseProductTemplate(false)}
+            handleChooseTemplate={handleChooseTemplate}
+          />
         </>
       ),
     },
     {
-      title: "Thanh toán",
+      title: "Chi tiết sản phẩm",
       content: (
         <>
           <Row style={{ marginTop: 24 }}>
@@ -2092,7 +2720,10 @@ const OrderToCustomerContent = () => {
 
   const [current, setCurrent] = useState(0);
   const next = async () => {
-    if (current === 1) {
+    if (current === 0) {
+      handleDelayNext();
+      return;
+    } else if (current === 1) {
       if (orderForProduct.length > 0) {
         await handleDataOrderDetail();
       } else {
@@ -2153,7 +2784,7 @@ const OrderToCustomerContent = () => {
           marginTop: "24px",
         }}
       >
-        {current < steps.length - 1 && current > 0 && (
+        {current < steps.length - 1 && (
           <Button type="primary" onClick={() => next()}>
             Tiếp theo
           </Button>
