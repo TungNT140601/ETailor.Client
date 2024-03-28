@@ -44,6 +44,7 @@ import PaymentSuccess from "../components/PaymentSuccessOrNot/PaymentSuccess";
 import PaymentFailed from "../components/PaymentSuccessOrNot/PaymentFailed";
 import OrderDetail from "../pages/Customer/Orders/OrderDetail";
 import ManagementTask from "../pages/Management/Manager/ManagementTask";
+import ManagementTaskByOrder from "../pages/Management/Manager/ManagementTaskByOrder";
 
 export const customerRouters = [
   {
@@ -195,6 +196,12 @@ export const managerRouters = [
     path: "/manager/tasks-management",
     name: "management-tasks",
     component: ManagementTask,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/tasks-management-by-order",
+    name: "management-tasks",
+    component: ManagementTaskByOrder,
     layout: DefaultLayoutManager,
   },
   {
