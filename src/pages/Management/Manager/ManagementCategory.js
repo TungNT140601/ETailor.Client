@@ -533,11 +533,12 @@ const ManagementCategoryContent = () => {
 const CollectionCreateForm = ({ open, onCreate, onCancel, componentTypes }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   return (
     <Modal
       open={open}
-      style={{ top: 220 }}
+      style={{ top: 80 }}
       title="Thêm mới loại bản mẫu"
       okText="Tạo mới"
       cancelText="Hủy bỏ"
@@ -549,6 +550,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, componentTypes }) => {
         form
           .validateFields()
           .then(async (values) => {
+            setLoading(true);
             const checkData =
               values.componentTypes === null ||
               values.componentTypes === undefined;
@@ -561,15 +563,21 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, componentTypes }) => {
               form.resetFields();
               onCancel();
             }
+            setLoading(false);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
       }}
+      okButtonProps={{ loading: loading }}
     >
       <Form
         style={{
           marginTop: 24,
+          height: "400px",
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
         }}
         form={form}
         layout="vertical"
