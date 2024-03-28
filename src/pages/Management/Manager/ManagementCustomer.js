@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Breadcrumb } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 import {
@@ -118,20 +118,37 @@ const ManagementCustomerHeader = () => {
 
 const ManagementCustomerContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
+  const [getCustomer, setGetCustomer] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const getUrl =
     "https://e-tailorapi.azurewebsites.net/api/customer-management";
 
-  const { data: getCustomer, isLoading: loading } = useQuery(
-    "get-customer",
-    () =>
-      fetch(getUrl, {
+  const handleGetCustomer = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${getUrl}`, {
+        method: "GET",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${manager?.token}`,
         },
-      }).then((response) => response.json())
-  );
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("responseData", responseData);
+        setGetCustomer(responseData);
+        setLoading(false);
+        return 1;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  useEffect(() => {
+    handleGetCustomer();
+  }, []);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const showModal = () => {
