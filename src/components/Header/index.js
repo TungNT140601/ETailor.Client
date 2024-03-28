@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.css";
 import Logo from "../../assets/logo.png";
 import { Link } from "react-router-dom";
@@ -13,7 +13,11 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import Notification from "./Notification";
+import Swal from "sweetalert2";
+
 const Header = () => {
+
+ 
   const [clickedSection, setClickedSection] = useState("Trang Chu");
   const [open, setOpen] = React.useState(false);
   const customer = localStorage.getItem("customer");

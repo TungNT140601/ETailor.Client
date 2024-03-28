@@ -42,6 +42,8 @@ import ManagementOrder from "../pages/Management/Manager/ManagementOrder";
 import OrderToCustomer from "../pages/Management/Manager/OrderToCustomer";
 import PaymentSuccess from "../components/PaymentSuccessOrNot/PaymentSuccess";
 import PaymentFailed from "../components/PaymentSuccessOrNot/PaymentFailed";
+import OrderDetail from "../pages/Customer/Orders/OrderDetail";
+import ManagementTask from "../pages/Management/Manager/ManagementTask";
 
 export const customerRouters = [
   {
@@ -60,6 +62,12 @@ export const customerRouters = [
     path: "/orders",
     name: "customer-orders",
     component: Order,
+    layout: DefaultLayout,
+  },
+  {
+    path: "/orders/:id",
+    name: "customer-order-detail",
+    component: OrderDetail,
     layout: DefaultLayout,
   },
 ];
@@ -181,6 +189,12 @@ export const managerRouters = [
     path: "/manager/body-size",
     name: "management-body-size",
     component: ManagementBodySize,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/tasks-management",
+    name: "management-tasks",
+    component: ManagementTask,
     layout: DefaultLayoutManager,
   },
   {
