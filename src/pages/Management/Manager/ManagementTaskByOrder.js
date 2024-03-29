@@ -466,9 +466,9 @@ export default function ManagementTaskByOrder() {
                     </div>
                 ) : (
                     <>
-                        <div style={{ width: "25%", maxHeight: "100%", backgroundColor: "#ffffff", borderTopLeftRadius: 10, borderBottomLeftRadius: 10, position: "relative", }}>
+                        <div style={{ width: "25%", maxHeight: "100%", borderTopLeftRadius: 10, borderBottomLeftRadius: 10, position: "relative", }}>
 
-                            <div style={{ paddingTop: 10, overflowY: "scroll", scrollbarWidth: "none", height: "79vh", margin: 10, width: "100%", border: "2px solid #9F78FF", borderRadius: 20 }}>
+                            <div style={{ paddingTop: 10, overflowY: "scroll", backgroundColor: "#ffffff", scrollbarWidth: "none", height: "82vh", marginTop: 10, width: "100%", border: "1px solid #9F78FF", borderRadius: 20 }}>
                                 <div style={{ backgroundColor: "#ffffff", height: "6vh", width: "100%", display: "flex", alignItems: "end", borderRadius: 20 }}>
                                     <h2 style={{ fontSize: "1.5rem", fontWeight: "bold", paddingLeft: 20, color: "#9F78FF" }}>Tất cả bản mẫu</h2>
                                 </div>
@@ -505,7 +505,7 @@ export default function ManagementTaskByOrder() {
                             </div>
 
                         </div>
-                        <div style={{ border: "2px solid #9F78FF", width: "75%", height: "79vh", margin: "10px 10px 10px 30px", borderRadius: 20, alignItems: "center" }}>
+                        <div style={{ border: "1px solid #9F78FF", width: "75%", height: "82vh", margin: "10px 10px 10px 30px", borderRadius: 20, alignItems: "center" }}>
 
                             <div style={{ overflowX: "auto", scrollbarWidth: "thin", marginRight: 20 }}>
                                 <div style={{ display: "grid", height: "70vh", gridTemplateColumns: " repeat(minmax(300px,300px))", gridAutoFlow: "column", paddingLeft: 20, paddingRight: 20, marginTop: 20 }}>
@@ -545,7 +545,7 @@ export default function ManagementTaskByOrder() {
 
                                                                         <div title={product?.staffMaker?.fullname} style={{ position: "absolute", bottom: 2, right: 2 }} >
 
-                                                                            <img src={product.staffMaker.avatar} alt='' style={{ width: 40, height: 40, borderRadius: "50%" }} ></img>
+                                                                            <img src={product?.staffMaker?.avatar} alt='' style={{ width: 40, height: 40, borderRadius: "50%" }} ></img>
 
                                                                         </div>
                                                                     </Popover>
@@ -594,7 +594,7 @@ export default function ManagementTaskByOrder() {
                 className="manager-task-content"
                 style={{
                     height: "82vh",
-                    border: "1px solid #9F78FF",
+
                 }}
             >
                 <ManagementTasksContent />
