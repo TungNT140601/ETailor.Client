@@ -708,32 +708,32 @@ const OrderToCustomerContent = () => {
       console.error("Error calling API:", error);
     }
   };
+  const fetchDataProfileBody = async (id) => {
+    console.log("CONC ACACACACACACACAC", id);
+    const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/staff/customer/${id}`;
+    try {
+      const response = await fetch(`${urlProfile}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/staff/customer/${saveCustomer.id}`;
-      try {
-        const response = await fetch(`${urlProfile}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${manager?.token}`,
-          },
-        });
-
-        if (response.ok && response.status === 200) {
-          const responseData = await response.json();
-          setProfileCustomer(responseData);
-        } else if (response.status === 401) {
-          localStorage.removeItem("manager");
-          navigate("/management/login");
-        }
-      } catch (error) {
-        console.error("Error calling API:", error);
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setProfileCustomer(responseData);
+      } else if (response.status === 401) {
+        localStorage.removeItem("manager");
+        navigate("/management/login");
       }
-    };
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  useEffect(() => {
     if (saveCustomer) {
-      fetchData();
+      fetchDataProfileBody(saveCustomer.id);
     }
   }, [saveCustomer]);
 
@@ -870,6 +870,7 @@ const OrderToCustomerContent = () => {
   const [onFinishLoading, setOnFinishLoading] = useState(false);
   const handleChooseTemplate = async (id, data) => {
     setChooseProductTemplate(data);
+    console.log("data cua handleChooseProductTemplate: ", data);
     const url = `https://e-tailorapi.azurewebsites.net/api/template/${id}/component-types`;
     try {
       const response = await fetch(`${url}`, {
@@ -883,7 +884,6 @@ const OrderToCustomerContent = () => {
       if (response.ok) {
         const responseData = await response.json();
         console.log("responseData", responseData);
-
         setProductComponent(responseData);
         return 1;
       }
@@ -2448,6 +2448,7 @@ const OrderToCustomerContent = () => {
               getDetailDataProfileCustomer={getDetailDataProfileCustomer}
               dataBodySize={dataBodySize}
               handleChooseTemplate={handleChooseTemplate}
+              setGetDetailDataProfileCustomer={setGetDetailDataProfileCustomer}
             />
           )}
 
