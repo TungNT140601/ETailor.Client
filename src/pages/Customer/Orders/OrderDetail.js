@@ -94,6 +94,7 @@ export default function OrderDetail() {
             try {
                 const POST_CHAT_API = `https://e-tailorapi.azurewebsites.net/api/chat/order/${id}/send`;
                 const formDta = new FormData();
+                scrollToBottom();
                 if (chat) {
                     formDta.append("Message", chat);
                 }
@@ -111,6 +112,7 @@ export default function OrderDetail() {
                     setCurrentChatText("")
                     fetchChat()
                     console.log("success");
+                    scrollToBottom();
                     setChat("");
                     setFile(null);
 
@@ -305,6 +307,7 @@ export default function OrderDetail() {
                                             value={chat}
                                             maxLength={500}
                                             onChange={(e) => handleChatChange(e.target.value)}
+                                            onKeyDown={(e) => e.key === 13 && e.shiftKey === false ? handleSendChat(orderId) : null}
                                         ></textarea>
 
                                         <div style={{ marginLeft: "20px" }}>
@@ -313,7 +316,6 @@ export default function OrderDetail() {
                                                     color: '#2474fc'
                                                 }
                                             }}
-                                                onKeyPress={(e) => e.key === "Enter" && handleSendChat(orderId)}
                                                 onClick={() => handleSendChat(orderId)} fontSize="small" />
                                         </div>
                                     </div>

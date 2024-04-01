@@ -27,6 +27,7 @@ ChartJS.register(
 
 const options = {
   responsive: true,
+
   plugins: {
     legend: {
       position: 'top',
@@ -67,121 +68,119 @@ export default function ManagementDashboard() {
       fetchOrderStatistic()
     }, [searchMonth, searchYear])
     return (
-      <div style={{ width: "100%", margin: 20 }}>
-        <Row justify="space-between">
-          <Col span={12} >
-            <Col span={23} style={{ backgroundColor: "#fff", borderRadius: 10 }}>
-              <Bar data={{
-                labels: labels,
-                datasets: [
-                  {
-                    label: 'My   Dataset',
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    backgroundColor: 'rgb(255, 99, 132)',
-                  },
-                ],
-              }} options={options} />
-            </Col>
 
-          </Col>
-          <Col span={12} >
-            <Col span={23} style={{ backgroundColor: "#fff", borderRadius: 10 }}>
-              <Bar data={{
-                labels: labels,
-                datasets: [
-                  {
-                    label: 'My First Dataset',
-                    data: [65, 59, 80, 81, 56, 55, 40],
-                    backgroundColor: 'rgb(255, 99, 132)',
-                  },
-                ],
-              }} options={options} />
-            </Col>
 
-          </Col>
-        </Row>
-      </div>
+      <Bar data={{
+
+        labels: labels,
+        datasets: [
+          {
+            label: 'My   Dataset',
+            data: [65, 59, 80, 81, 56, 55, 40],
+            backgroundColor: 'rgb(255, 99, 132)',
+          },
+        ],
+      }} options={options} />
+
     )
   }
   const OverAllStatistic = () => {
 
     return (
       <Row justify="space-between" style={{ backgroundColor: "unset", margin: 15 }}>
-        <Col span={6} style={{ height: "230px" }}>
-          <Col span={23} style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "100%" }}>
-            <div>
-              <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Tổng số đơn hàng</h1>
-            </div>
-            <div style={{ textAlign: "center" }}>
-              <p style={{ fontSize: 34, fontWeight: "bold", color: "#000000", margin: 0 }}>986</p>
-              <p style={{ fontSize: 24, fontWeight: 600, color: "green", margin: 0 }}><RiseOutlined /> 25%</p>
-              <p style={{ fontSize: 15, fontWeight: 600, color: "#c0c0c0", margin: 0 }}>so với 30 ngày trước</p>
-            </div>
-          </Col>
-        </Col>
-        <Col span={6} style={{ height: "230px" }}>
+        <Col span={12}>
+          <Row>
+            <Col span={12} style={{ height: "230px" }}>
+              <Col span={23} style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "100%" }}>
+                <div>
+                  <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Tổng số đơn hàng</h1>
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <p style={{ fontSize: 34, fontWeight: "bold", color: "#000000", margin: 0 }}>986</p>
+                  <p style={{ fontSize: 24, fontWeight: 600, color: "green", margin: 0 }}><RiseOutlined /> 25%</p>
+                  <p style={{ fontSize: 15, fontWeight: 600, color: "#c0c0c0", margin: 0 }}>so với 30 ngày trước</p>
+                </div>
+              </Col>
+            </Col>
+            <Col span={12} style={{ height: "230px" }}>
 
-          <Col span={23} style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "100%" }}>
-            <div>
-              <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Tổng doanh thu</h1>
-              <div style={{ textAlign: "center" }}>
-                <p style={{ fontSize: 34, fontWeight: "bold", color: "#000000", margin: 0 }}>986</p>
-                <p style={{ fontSize: 24, fontWeight: 600, color: "red", margin: 0 }}><FallOutlined /> 25%</p>
-                <p style={{ fontSize: 15, fontWeight: 600, color: "#c0c0c0", margin: 0 }}>so với 30 ngày trước</p>
-              </div>
-            </div>
-          </Col>
+              <Col span={23} style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "100%" }}>
+                <div>
+                  <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Tổng doanh thu</h1>
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: 34, fontWeight: "bold", color: "#000000", margin: 0 }}>986</p>
+                    <p style={{ fontSize: 24, fontWeight: 600, color: "red", margin: 0 }}><FallOutlined /> 25%</p>
+                    <p style={{ fontSize: 15, fontWeight: 600, color: "#c0c0c0", margin: 0 }}>so với 30 ngày trước</p>
+                  </div>
+                </div>
+              </Col>
+            </Col>
+
+          </Row>
+          <Row justify="space-between" style={{ backgroundColor: "#fff", borderRadius: 10, marginTop: 15 , marginRight:13}}>
+           
+              <OrderStatistic searchMonth={searchMonth} searchYear={searchYear} />
+     
+          </Row>
         </Col>
-        <Col span={6} style={{ height: "230px" }}>
-          <Col span={23} style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "100%" }}>
-            <div>
-              <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Tổng số đơn hàng</h1>
-            </div>
-          </Col>
-        </Col>
-        <Col span={6} style={{ height: "230px" }}>
-          <Col span={23} style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "100%" }}>
-            <div style={{ width: "100%", height: 200 }}>
-              <Pie options={{
-                maintainAspectRatio: false,
-                plugins: {
-                  legend: {
-                    position: 'right',
-                  },
-                  title: {
-                    display: true,
-                    text: 'Biểu đồ tổng số đơn hàng',
-                  },
-                }
-              }}
-                data={{
-                  labels: ['Red', 'Blue', 'Yellow'],
-                  datasets: [
-                    {
-                      label: '# of Votes',
-                      data: [12, 19, 3],
-                      backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
+        <Col span={12}>
+          <Row>
+            <Col span={12} style={{ height: "230px" }}>
+              <Col span={23} style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "100%" }}>
+                <div>
+                  <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Tổng số đơn hàng</h1>
+                </div>
+              </Col>
+            </Col>
+            <Col span={12} style={{ height: "230px" }}>
+              <Col span={24} style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "100%" }}>
+                <div style={{ width: "100%", height: 200 }}>
+                  <Pie options={{
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'right',
+                      },
+                      title: {
+                        display: true,
+                        text: 'Biểu đồ tổng số đơn hàng',
+                      },
+                    }
+                  }}
+                    data={{
+                      labels: ['Red', 'Blue', 'Yellow'],
+                      datasets: [
+                        {
+                          label: '# of Votes',
+                          data: [12, 19, 3],
+                          backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                          ],
+                          borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                          ],
+                          borderWidth: 1,
+
+                        },
+
                       ],
-                      borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                      ],
-                      borderWidth: 1,
-
-                    },
-
-                  ],
-                }}
-              />
-            </div>
-          </Col>
+                    }}
+                  />
+                </div>
+              </Col>
+            </Col>
+          </Row>
+          <Row style={{ backgroundColor: "#fff", borderRadius: 10, marginTop: 15 }}>
+            <Col span={24}>
+              <OrderStatistic searchMonth={searchMonth} searchYear={searchYear} />
+            </Col>
+          </Row>
         </Col>
       </Row>
-
     )
   }
   const [searchMonth, setSearchMonth] = useState(new Date().getMonth())
@@ -306,15 +305,15 @@ export default function ManagementDashboard() {
         <div >
           <OverAllStatistic />
         </div>
-        <div style={{ marginTop: 20 }}>
+        {/* <div style={{ marginTop: 20 }}>
           <OrderStatistic searchMonth={searchMonth} searchYear={searchYear} />
-        </div>
-        <div>
+        </div> */}
+        {/* <div>
           <StaffTaskStatistic />
         </div>
         <div>
           <MaterialStatistic />
-        </div>
+        </div> */}
       </div>
     </div >
   )
