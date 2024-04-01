@@ -185,11 +185,16 @@ const BlogUpdateFormModal = ({
         <Form.Item
           name="image"
           label="Ảnh Thumbnail"
-          getValueFromEvent={getFile}
           style={{ width: "130px" }}
         >
           <Upload
-            action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+            beforeUpload={(file) => {
+              console.log(
+                "file image: ",
+                file
+              );
+              return false;
+            }}
             listType="picture-card"
             maxCount={1}
             showUploadList={false}
@@ -272,17 +277,17 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
   };
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
-  const getFile = (e) => {
-    const file = e.fileList[0];
-    if (file && file.originFileObj) {
-      const reader = new FileReader();
-      reader.readAsDataURL(file.originFileObj);
-      reader.onload = () => {
-        setImageUrl(reader.result);
-      };
-    }
-    return e && e.fileList;
-  };
+  // const getFile = (e) => {
+  //   const file = e.fileList[0];
+  //   if (file && file.originFileObj) {
+  //     const reader = new FileReader();
+  //     reader.readAsDataURL(file.originFileObj);
+  //     reader.onload = () => {
+  //       setImageUrl(reader.result);
+  //     };
+  //   }
+  //   return e && e.fileList;
+  // };
   const uploadButton = (
     <button
       style={{
@@ -367,14 +372,19 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
         <Form.Item
           name="image"
           label="Ảnh Thumbnail"
-          getValueFromEvent={getFile}
           style={{ width: "130px" }}
         >
           <Upload
-            action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+            beforeUpload={(file) => {
+              console.log(
+                "file image: ",
+                file
+              );
+              return false;
+            }}
             listType="picture-card"
             maxCount={1}
-            showUploadList={false}
+          
           >
             {imageUrl ? (
               <img
@@ -544,6 +554,9 @@ const ManagementBlogContent = () => {
     formData.append("Hastag", values.Hastag);
     formData.append("Thumbnail", values.image);
     formData.append("Content", values.description);
+    for (var p of formData.entries()) {
+      console.log("formData", p[0] + " - " + p[1]);
+    }
     try {
       const CREATE_BLOG_URL = `https://e-tailorapi.azurewebsites.net/api/blog`;
       const response = await fetch(CREATE_BLOG_URL, {
