@@ -1,22 +1,21 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Image, Row, Avatar, Tag, Col, Space, Table, Divider } from "antd";
+import { Image, Avatar, Tag, Table, Divider } from "antd";
 import Accordion from '@mui/material/Accordion';
-import AccordionActions from '@mui/material/AccordionActions';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Button from '@mui/material/Button';
-import { EyeOutlined, UserOutlined, CheckCircleFilled } from '@ant-design/icons';
+import { UserOutlined, CheckCircleFilled, MessageFilled } from '@ant-design/icons';
 import LeftBanner from "../../../assets/images/banner-blog/still-life-spring-wardrobe-switch (1).jpg";
 import RightBanner from "../../../assets/images/banner-blog/still-life-spring-wardrobe-switch.jpg";
 import { faImage, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import SendIcon from '@mui/icons-material/Send';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTrash, faPencil } from "@fortawesome/free-solid-svg-icons";
 import { Input } from 'antd';
 import { ChatRealTime } from "./RealTime";
+import Loading from "../LoadingComponent/loading";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const { TextArea } = Input;
 
@@ -82,13 +81,14 @@ const getStatusTextAndColor = (status) => {
     return { color, text };
 };
 export default function OrderDetail() {
-
+    const [loading, setLoading] = useState(false);
     const ChatWithUs = ({ orderId, chatDetail }) => {
-
+        const [currentChatText, setCurrentChatText] = useState("");
+        console.log("current chat text", currentChatText)
         const [chat, setChat] = useState("");
         const [file, setFile] = useState(null);
         const handleSendChat = async (id) => {
-            console.log("Send chat", chat);
+            setCurrentChatText(chat);
             const customer = localStorage.getItem("customer");
             const token = JSON.parse(customer)?.token;
             try {
@@ -108,6 +108,7 @@ export default function OrderDetail() {
                     body: formDta
                 })
                 if (response.ok) {
+                    setCurrentChatText("")
                     fetchChat()
                     console.log("success");
                     setChat("");
@@ -120,6 +121,7 @@ export default function OrderDetail() {
 
         }
         const handleChatChange = async (value) => {
+
             console.log("Chat change", value);
             setChat(value);
         }
@@ -133,6 +135,14 @@ export default function OrderDetail() {
         useEffect(() => {
             scrollToBottom();
         }, [chatDetail]);
+        const triggerFileInput = () => {
+            document.getElementById('fileInput').click();
+        };
+
+        // Function to trigger image input
+        const triggerImageInput = () => {
+            document.getElementById('imageInput').click();
+        };
         return (
             <div >
                 <div style={{ width: 280 }}>
@@ -175,7 +185,7 @@ export default function OrderDetail() {
                                                             borderBottomLeftRadius: "8px",
                                                             minHeight: "40px"
                                                         }}>
-                                                            <p style={{ padding: "5px 15px 5px 15px", fontSize: 14, margin: 0 }}>{chat.message}</p>
+                                                            <p style={{ padding: "5px 15px 5px 15px", wordWrap: "break-word", maxWidth: 170, fontSize: 14, margin: 0 }}>{chat.message}</p>
                                                         </div>
                                                     )}
 
@@ -238,7 +248,7 @@ export default function OrderDetail() {
                                                             borderBottomRightRadius: "8px",
                                                             minHeight: "40px"
                                                         }}>
-                                                            <p style={{ padding: "5px 5px 5px 15px ", fontSize: 14, margin: 0 }}>{chat.message}</p>
+                                                            <p style={{ padding: "5px 5px 5px 15px ", wordWrap: "break-word", maxWidth: 170, fontSize: 14, margin: 0 }}>{chat.message}</p>
                                                         </div>
                                                     </div>
 
@@ -247,6 +257,35 @@ export default function OrderDetail() {
                                         );
                                     })
                                     }
+                                    {currentChatText && (
+                                        <>
+
+                                            <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-end", marginBottom: 15 }}>
+                                                <div style={{ display: "block" }}>
+                                                    <div style={{ display: 'flex' }}>
+                                                        <div style={{
+                                                            backgroundColor: "#ffe4cc",
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            borderTopLeftRadius: "8px",
+                                                            borderTopRightRadius: "8px",
+                                                            marginRight: 5,
+                                                            maxWidth: 180,
+                                                            width: "fit-content",
+                                                            borderBottomLeftRadius: "8px",
+                                                            minHeight: "40px"
+                                                        }}>
+                                                            <p style={{ padding: "5px 15px 5px 15px", fontSize: 14, margin: 0 }}>{currentChatText}</p>
+                                                        </div>
+                                                        <MessageFilled style={{ color: "#ffe4cc" }} />
+                                                    </div>
+                                                    <span style={{ fontSize: 10 }}>Đang gửi...</span>
+                                                </div>
+                                            </div>
+
+                                        </>
+                                    )}
+
                                 </div>
 
                                 <div
@@ -274,12 +313,18 @@ export default function OrderDetail() {
                                                     color: '#2474fc'
                                                 }
                                             }}
+                                                onKeyPress={(e) => e.key === "Enter" && handleSendChat(orderId)}
                                                 onClick={() => handleSendChat(orderId)} fontSize="small" />
                                         </div>
                                     </div>
                                     <div style={{ marginLeft: 15, position: "absolute", bottom: 5 }}>
-                                        <FontAwesomeIcon icon={faImage} color="#D9D9D9" style={{ cursor: "pointer" }} />
-                                        <FontAwesomeIcon icon={faPaperclip} color="#D9D9D9" style={{ marginLeft: 15, cursor: "pointer" }} />
+                                        <FontAwesomeIcon icon={faImage} color="#D9D9D9" style={{ cursor: "pointer" }} onClick={triggerImageInput} />
+                                        <FontAwesomeIcon icon={faPaperclip} color="#D9D9D9" style={{ marginLeft: 15, cursor: "pointer" }} onClick={triggerFileInput} />
+                                        <input type="file" id="imageInput" accept="image/*" style={{ display: 'none' }} onChange={event => console.log(event.target.files)} />
+
+                                        {/* Hidden file input */}
+                                        <input type="file" id="fileInput" style={{ display: 'none' }} onChange={event => console.log(event.target.files)} />
+
                                     </div>
 
                                 </div>
@@ -319,6 +364,7 @@ export default function OrderDetail() {
     useEffect(() => {
         const fetchOrderDetails = async () => {
             try {
+                setLoading(true);
                 const customer = localStorage.getItem("customer");
                 const token = JSON.parse(customer)?.token;
                 const response = await fetch(
@@ -330,10 +376,15 @@ export default function OrderDetail() {
                         },
                     }
                 );
-                const orderDetailsData = await response.json();
-                setOrderDetails(orderDetailsData);
+                if (response.ok) {
+                    setLoading(false);
+                    const orderDetailsData = await response.json();
+                    setOrderDetails(orderDetailsData);
+                }
+
             } catch (error) {
                 console.error("Error fetching order details:", error);
+                setLoading(false);
             }
         };
 
@@ -352,6 +403,7 @@ export default function OrderDetail() {
     if (!orderDetails) {
         return <p>Loading...</p>;
     }
+
 
     const parsedStatus = getStatusTextAndColor(orderDetails.status);
     const columns = [
@@ -424,129 +476,141 @@ export default function OrderDetail() {
 
     }));
     return (
-        <div
-            style={{
-                padding: "140px 20px 0 20px",
-                display: "flex",
-                position: "relative",
-                alignContent: "center",
-            }}
-        >
-            <div
-                style={{
-                    maxWidth: "200px",
-                    left: "60px",
-                    top: "200px",
-                    height: "fit-content",
-                    position: "absolute",
+        <>
 
-                }}
-            >
-                <img src={LeftBanner} alt="Left Banner" loading="lazy" />
-            </div>
-            <div
-                style={{
-                    width: "60%",
-                    height: "800px",
-                    position: "relative",
-                    top: 10,
-                    left: 370,
-                    borderRadius: 5,
-                    border: "1px solid #f0f4fc"
-                }}
-            >
+            {loading ? (
+                <div style={{ paddingTop: "300px", display: "flex", justifyContent: "center" }}>
+                    <Loading />
+                </div>
+            ) : (
                 <div
                     style={{
+                        padding: "140px 20px 0 20px",
                         display: "flex",
-                        justifyContent: "space-between",
-                        backgroundClip: "#f0f4fc",
-                        padding: 15,
+                        position: "relative",
+                        alignContent: "center",
                     }}
                 >
+                    <div
+                        style={{
+                            maxWidth: "200px",
+                            left: "60px",
+                            top: "200px",
+                            height: "fit-content",
+                            position: "absolute",
 
-                    <p className="title is-5" style={{ margin: 0, fontSize: 17 }}>
-                        Mã đơn: <span style={{ fontWeight: "bold" }}>{orderDetails.id} </span>
-                    </p>
-                    <p className="has-text-weight-semibold" style={{ padding: 15, fontSize: 17 }}>
-                        Trạng thái: <Tag color={parsedStatus.color}>{parsedStatus.text}</Tag>
-                    </p>
+                        }}
+                    >
+                        <img src={LeftBanner} alt="Left Banner" loading="lazy" />
+                    </div>
+                    <div
+                        style={{
+                            width: "60%",
+                            height: "800px",
+                            position: "relative",
+                            top: 10,
+                            left: 370,
+                            borderRadius: 5,
+                            border: "1px solid #f0f4fc",
+                            overflow: "scroll",
+                            scrollbarWidth: "none",
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                backgroundClip: "#f0f4fc",
+                                padding: 15,
+                            }}
+                        >
 
-                </div>
-                <div style={{ padding: 15, }}>
-                    <Table columns={columns} dataSource={data} bordered />
-                </div>
-                <div style={{ padding: 15, backgroundColor: 'rgb(250, 250, 250)', margin: 15 }}>
-                    <p>Tên khách hàng : <span style={{ fontWeight: "bold" }}>{orderDetails?.customer?.fullname}</span></p>
-                    <Divider />
-                    {orderDetails?.customer?.phone && (
-                        <p>Số điện thoại : <span style={{ fontWeight: "bold" }}>{orderDetails?.customer?.phone}</span></p>
-                    )}
-                    <p>Tổng sản phẩm : <span style={{ fontWeight: "bold" }}>{orderDetails?.totalProduct}</span></p>
-                    <Divider />
+                            <p className="title is-5" style={{ margin: 0, fontSize: 17 }}>
+                                Mã đơn: <span style={{ fontWeight: "bold" }}>{orderDetails.id} </span>
+                            </p>
+                            <p className="has-text-weight-semibold" style={{ padding: 15, fontSize: 17 }}>
+                                Trạng thái: <Tag color={parsedStatus.color}>{parsedStatus.text}</Tag>
+                            </p>
+
+                        </div>
+                        <div style={{ padding: 15, }}>
+                            <Table columns={columns} dataSource={data} bordered />
+                        </div>
+                        <div style={{ padding: 15, backgroundColor: 'rgb(250, 250, 250)', margin: 15 }}>
+                            <p>Tên khách hàng : <span style={{ fontWeight: "bold" }}>{orderDetails?.customer?.fullname}</span></p>
+                            <Divider />
+                            {orderDetails?.customer?.phone && (
+                                <p>Số điện thoại : <span style={{ fontWeight: "bold" }}>{orderDetails?.customer?.phone}</span></p>
+                            )}
+                            <p>Tổng sản phẩm : <span style={{ fontWeight: "bold" }}>{orderDetails?.totalProduct}</span></p>
+                            <Divider />
 
 
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                        <div style={{ padding: 10, width: "400px", }}>
-                            <p>Tổng tiền : <span style={{ fontWeight: "bold" }}>{formatCurrency(orderDetails?.totalPrice)}</span></p>
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                                <div style={{ padding: 10, width: "400px", }}>
+                                    <p>Tổng tiền : <span style={{ fontWeight: "bold" }}>{formatCurrency(orderDetails?.totalPrice)}</span></p>
+                                </div>
+
+                                <div style={{ padding: 10, width: "400px" }}>
+                                    <p>Đã cọc : <span style={{ fontWeight: "bold" }}>{orderDetails?.deposit ? formatCurrency(orderDetails?.deposit) : "Không cọc"}</span></p>
+                                </div>
+
+                                <div style={{ padding: 10, width: "400px" }}>
+                                    <p>Giảm giá: <span style={{ fontWeight: "bold" }}>{orderDetails?.discount ? formatCurrency(orderDetails?.discount) : "Không"}</span></p>
+                                </div>
+
+                                <div style={{ padding: 10, width: "400px" }}>
+                                    <p>Sau khi giảm: <span style={{ fontWeight: "bold" }}>{formatCurrency(orderDetails?.afterDiscountPrice)}</span></p>
+                                </div>
+
+                                {
+                                    orderDetails?.unPaidMoney ? (
+                                        <>
+                                            <div style={{ color: "red", padding: 10, width: "400px" }}>
+                                                <p>CHƯA THANH TOÁN : <span style={{ fontWeight: "bold" }}>{orderDetails?.unPaidMoney && formatCurrency(orderDetails?.unPaidMoney)}</span></p>
+                                            </div>
+                                            <Divider />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <div style={{ color: "green", padding: 10, width: "400px" }}>
+                                                <p>ĐÃ THANH TOÁN</p>
+                                            </div>
+                                            <Divider />
+                                        </>
+                                    )
+                                }
+                            </div>
+
+
+
                         </div>
 
-                        <div style={{ padding: 10, width: "400px" }}>
-                            <p>Đã cọc : <span style={{ fontWeight: "bold" }}>{orderDetails?.deposit ? formatCurrency(orderDetails?.deposit) : "Không cọc"}</span></p>
-                        </div>
-
-                        <div style={{ padding: 10, width: "400px" }}>
-                            <p>Giảm giá: <span style={{ fontWeight: "bold" }}>{orderDetails?.discount ? formatCurrency(orderDetails?.discount) : "Không"}</span></p>
-                        </div>
-
-                        <div style={{ padding: 10, width: "400px" }}>
-                            <p>Sau khi giảm: <span style={{ fontWeight: "bold" }}>{formatCurrency(orderDetails?.afterDiscountPrice)}</span></p>
-                        </div>
-
-                        {
-                            orderDetails?.unPaidMoney ? (
-                                <>
-                                    <div style={{ color: "red", padding: 10, width: "400px" }}>
-                                        <p>CHƯA THANH TOÁN : <span style={{ fontWeight: "bold" }}>{orderDetails?.unPaidMoney && formatCurrency(orderDetails?.unPaidMoney)}</span></p>
-                                    </div>
-                                    <Divider />
-                                </>
-                            ) : (
-                                <>
-                                    <div style={{ color: "green", padding: 10, width: "400px" }}>
-                                        <p>ĐÃ THANH TOÁN</p>
-                                    </div>
-                                    <Divider />
-                                </>
-                            )
-                        }
+                    </div>
+                    <div style={{ position: "fixed", bottom: 10, right: 180, zIndex: 1 }}>
+                        <ChatWithUs orderId={id} chatDetail={getAllChat} />
+                    </div>
+                    <div
+                        style={{
+                            overflowX: "hidden",
+                            height: "fit-content",
+                            position: "absolute",
+                            top: "200px",
+                            right: "60px",
+                        }}
+                    >
+                        <img
+                            src={RightBanner}
+                            alt="Right Banner"
+                            width={200}
+                            loading="lazy"
+                        />
                     </div>
 
+                </div >
+            )
+            }
 
-
-                </div>
-
-            </div>
-            <div style={{ position: "fixed", bottom: 10, right: 60, zIndex: 1 }}>
-                <ChatWithUs orderId={id} chatDetail={getAllChat} />
-            </div>
-            <div
-                style={{
-                    overflowX: "hidden",
-                    height: "fit-content",
-                    position: "absolute",
-                    top: "200px",
-                    right: "60px",
-                }}
-            >
-                <img
-                    src={RightBanner}
-                    alt="Right Banner"
-                    width={200}
-                    loading="lazy"
-                />
-            </div>
-
-        </div >
-
+        </>
     );
 }

@@ -11,7 +11,7 @@
 
 .manager-task-content {
     border-radius: 10px;
-    background-color: #FFFFFF;
+    /* background-color: #FFFFFF; */
     margin: 10px 0px;
 }
 
@@ -144,4 +144,51 @@
 
 #carousel-management-cus .slick-dots li.slick-active button {
     background-color: #5c429e;
+}
+
+.template-category-text {
+    font-size: 20px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.template-product-text {
+    font-size: 18px;
+}
+
+.collapse-all-btn {
+    border: 1px solid #f3f5fac4;
+    background-color: #ffffff;
+    cursor: pointer;
+    padding: 15px;
+}
+
+.collapse-all-btn:hover {
+    background-color: #ffffff;
+}
+
+.template-product-text:hover {
+    color: #9F78FF;
+}
+
+.task-card:hover {
+    background-color: #030405c4;
+    z-index: 1;
+}
+
+.menu-icon {
+    background-color: unset !important;
+    margin-left: 20px;
+}
+
+.ant-menu-submenu-title {
+    width: 40px;
+    height: 40px;
+    border-radius: 50;
+    overflow: hidden;
+}
+
+.ant-menu-horizontal .ant-menu-submenu {
+    padding-inline: unset !important;
+    border: none !important;
 }

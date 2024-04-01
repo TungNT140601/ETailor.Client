@@ -21,7 +21,6 @@ import CategoryIcon from "@mui/icons-material/Category";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import DiscountIcon from "@mui/icons-material/Discount";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
-
 import logo from "../../assets/logo.png";
 import "./index.css";
 
@@ -102,9 +101,25 @@ export const ManagerSidebar = () => {
           icon: <UserOutlined />,
         },
         {
-          key: "/manager/tasks-management",
-          label: <Link to="/manager/tasks-management">Quản lý công việc</Link>,
+          key: "/manager/task-management-group",
+          label: "Quản lý công việc",
           icon: <ControlOutlined />,
+          children: [
+            {
+              key: "/manager/tasks-management-by-order",
+              label: (
+                <Link to="/manager/tasks-management-by-order">
+                  Công đoạn
+                </Link>
+              ),
+              icon: <ControlOutlined />,
+            },
+            {
+              key: "/manager/tasks-management",
+              label: <Link to="/manager/tasks-management">Nhân viên</Link>,
+              icon: <ControlOutlined />,
+            },
+          ],
         },
         {
           key: "/manager/body-size",
@@ -113,7 +128,7 @@ export const ManagerSidebar = () => {
         },
 
         {
-          key: "/manager/product-template",
+          key: "/manager/product-template-group",
           label: "Quản lý bản mẫu",
           icon: <CheckroomIcon />,
           children: [
