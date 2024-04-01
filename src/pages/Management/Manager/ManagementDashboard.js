@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend, ArcElement
 } from 'chart.js';
-import { RiseOutlined, FallOutlined } from '@ant-design/icons';
+import { RiseOutlined, FallOutlined, CalendarOutlined } from '@ant-design/icons';
 import { DatePicker, Select, Space, Row, Col } from 'antd';
 import 'dayjs/locale/vi';
 import dayjs from 'dayjs';
@@ -37,7 +37,7 @@ const options = {
     },
   },
 };
-const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July','August','September','October','November','December'];
+const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 export default function ManagementDashboard() {
   const OrderStatistic = ({ searchMonth, searchYear }) => {
     const [orderStatistic, setOrderStatistic] = useState([]);
@@ -70,12 +70,12 @@ export default function ManagementDashboard() {
       <div style={{ width: "100%", margin: 20 }}>
         <Row justify="space-between">
           <Col span={12} >
-            <Col span={23} style={{ backgroundColor: "#fff" }}>
+            <Col span={23} style={{ backgroundColor: "#fff", borderRadius: 10 }}>
               <Bar data={{
                 labels: labels,
                 datasets: [
                   {
-                    label: 'My First Dataset',
+                    label: 'My   Dataset',
                     data: [65, 59, 80, 81, 56, 55, 40],
                     backgroundColor: 'rgb(255, 99, 132)',
                   },
@@ -85,7 +85,7 @@ export default function ManagementDashboard() {
 
           </Col>
           <Col span={12} >
-            <Col span={23} style={{ backgroundColor: "#fff" }}>
+            <Col span={23} style={{ backgroundColor: "#fff", borderRadius: 10 }}>
               <Bar data={{
                 labels: labels,
                 datasets: [
@@ -222,7 +222,7 @@ export default function ManagementDashboard() {
             <Select
               defaultValue={dayjs().month() + 1}
               style={{ width: 200, height: 40 }}
-              suffixIcon={<i className="fas fa-chevron-down" style={{ fontSize: 15, color: "#9F78FF" }} />}
+              suffixIcon={<CalendarOutlined style={{ fontSize: 14 }} />}
               onChange={handleChoseMonth}
               options={[
                 {

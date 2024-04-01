@@ -193,7 +193,7 @@ export default function Order() {
     productName: order?.productName ? order.productName : "",
     productImg: order?.thumbnailImage ? order.thumbnailImage : "",
     quantity: order?.totalProduct,
-    price: order?.totalPrice,
+    price:  order?.totalPrice? formatCurrency(order.totalPrice) : "Price error",
     status: order?.status,
     date: order?.createdTime ? formatDate(order.createdTime) : "Date error",
   }));
