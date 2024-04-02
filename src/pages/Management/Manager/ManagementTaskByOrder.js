@@ -322,132 +322,136 @@ export default function ManagementTaskByOrder() {
             fetchTemplates();
             fetchAllStaff();
         }, []);
-        const [changeClick, setChangeClick] = useState(false);
-        const [selectedValue, setSelectedValue] = useState(null);
 
-        const handleSelectChange = (value) => {
-            setSelectedValue(value);
-        };
-        const handleCancel = () => {
-            console.log('Clicked cancel button');
-            setOpen(false);
-        };
-        const [open, setOpen] = useState(false);
-        const [confirmLoading, setConfirmLoading] = useState(false);
-        const showModal = () => {
-            setOpen(true);
-        };
-        const handleOk = async (productId) => {
-            console.log('Clicked ok', productId, selectedValue);
-            if (productId && selectedValue !== null) {
-                setConfirmLoading(true);
-                const manager = JSON.parse(localStorage.getItem("manager"));
-                try {
+        const Content = ({ product, stage }) => {
+            const [open, setOpen] = useState(false);
+            const [confirmLoading, setConfirmLoading] = useState(false);
+            const showModal = () => {
+                setOpen(true);
+            };
+            const [changeClick, setChangeClick] = useState(false);
+            const [selectedValue, setSelectedValue] = useState(null);
 
-                    const URL = `https://e-tailorapi.azurewebsites.net/api/task/staff/${selectedValue}/assign/${productId}`
-                    const response = await fetch(URL, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${manager.token}`,
-                        },
-                    });
-                    if (response.status === 200) {
-                        const data = await response.text();
-                        console.log("Data:", data);
+            const handleSelectChange = (value) => {
+                setSelectedValue(value);
+            };
+            const handleCancel = () => {
+                console.log('Clicked cancel button');
+                setOpen(false);
+            };
+
+            const handleOk = async (productId) => {
+                console.log('Clicked ok', productId, selectedValue);
+                if (productId && selectedValue !== null) {
+                    setConfirmLoading(true);
+                    const manager = JSON.parse(localStorage.getItem("manager"));
+                    try {
+
+                        const URL = `https://e-tailorapi.azurewebsites.net/api/task/staff/${selectedValue}/assign/${productId}`
+                        const response = await fetch(URL, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${manager.token}`,
+                            },
+                        });
+                        if (response.status === 200) {
+                            const data = await response.text();
+                            console.log("Data:", data);
+                            setConfirmLoading(false);
+                            toast.success("Thay đổi nhân viên thực hiện thành công");
+                            fetchTemplates();
+                            setOpen(false);
+                        } else {
+                            toast.error("Thay đổi nhân viên thực hiện thất bại");
+                            setConfirmLoading(false);
+                            setOpen(false);
+                        }
+                    } catch (error) {
+                        console.error("Error:", error);
                         setConfirmLoading(false);
-                        toast.success("Thay đổi nhân viên thực hiện thành công");
-                        fetchTemplates();
-                        setOpen(false);
-                    } else {
                         toast.error("Thay đổi nhân viên thực hiện thất bại");
-                        setConfirmLoading(false);
                         setOpen(false);
                     }
-                } catch (error) {
-                    console.error("Error:", error);
-                    setConfirmLoading(false);
-                    toast.error("Thay đổi nhân viên thực hiện thất bại");
-                    setOpen(false);
                 }
-            }
-        };
-        const content = (product, stage) => (
-            <div style={{ marginLeft: 10, minWidth: 240 }}>
-                <div>
+            };
+
+            return (
+                <div style={{ marginLeft: 10, minWidth: 240 }}>
                     <div>
-                        <h3 style={{ fontSize: 15, fontWeight: 600 }}>Tên sản phẩm: {product?.name}</h3>
-                    </div>
-
-                    <p style={{ fontSize: 15, fontWeight: 600 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
-                    <p style={{ fontSize: 15, fontWeight: 600 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
-                    <p style={{ fontSize: 15, fontWeight: 600 }}>Thời hạn: <span style={{ fontWeight: 400 }}>{formatDate(product.createdTime)}-{product.productStages[0].deadline ? formatDate(product.productStages[0].deadline) : ''} </span></p>
-                    <p style={{ fontSize: 15, fontWeight: 600 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
-                    <Button type="primary" onClick={showModal}>
-                        Xem chi tiết
-                    </Button>
-                </div>
-                <Modal
-                    title="Chi tiết công việc"
-                    open={open}
-                    okText="Xác nhận"
-                    cancelText="Đóng"
-                    onOk={() => handleOk(product.id)}
-                    confirmLoading={confirmLoading}
-                    onCancel={handleCancel}
-                    style={{ width: 500, height: 500 }}
-                >
-                    <div style={{ marginLeft: 10, minWidth: 240 }}>
                         <div>
+                            <h3 style={{ fontSize: 15, fontWeight: 600 }}>Tên sản phẩm: {product?.name}</h3>
+                        </div>
+
+                        <p style={{ fontSize: 15, fontWeight: 600 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
+                        <p style={{ fontSize: 15, fontWeight: 600 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
+                        <p style={{ fontSize: 15, fontWeight: 600 }}>Thời hạn: <span style={{ fontWeight: 400 }}>{formatDate(product.createdTime)}-{product.productStages[0].deadline ? formatDate(product.productStages[0].deadline) : ''} </span></p>
+                        <p style={{ fontSize: 15, fontWeight: 600 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
+                        <Button type="primary" onClick={showModal}>
+                            Xem chi tiết
+                        </Button>
+                    </div>
+                    <Modal
+                        title="Chi tiết công việc"
+                        open={open}
+                        okText="Xác nhận"
+                        cancelText="Đóng"
+                        onOk={() => handleOk(product.id)}
+                        confirmLoading={confirmLoading}
+                        onCancel={handleCancel}
+                        style={{ width: 500, height: 500 }}
+                    >
+                        <div style={{ marginLeft: 10, minWidth: 240 }}>
                             <div>
-                                <h3 style={{ fontSize: 15, fontWeight: 600 }}>Tên sản phẩm: {product?.name}</h3>
-                            </div>
-
-                            <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
-                            <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
-                            <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Thời hạn: <span style={{ fontWeight: 400 }}>{formatDate(product.createdTime)}-{product.productStages[0].deadline ? formatDate(product.productStages[0].deadline) : ''} </span></p>
-                            <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
-                            <div style={{ display: "flex" }}>
-                                <p style={{ fontSize: 15, fontWeight: 600 }}>Nhân viên thực hiện : {product?.staffMaker?.fullname}</p>
-                                <Button style={{ marginLeft: 50 }} onClick={() => setChangeClick(changeClick ? false : true)}>Thay đổi</Button>
-
-                            </div>
-                            {changeClick ? (
                                 <div>
-                                    <Select
-                                        showSearch
-                                        style={{ width: 280, marginTop: 20, height: 60 }}
-                                        placeholder="Chọn nhân viên"
-                                        optionFilterProp="children"
-                                        filterOption={(input, option) => {
-                                            const staffName = option.props.children.props.children[1].props.children;
-                                            return staffName.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-                                        }}
-                                        onChange={handleSelectChange}
-                                        defaultValue={product?.staffMaker?.id}
-                                    >
-                                        {allStaff && allStaff.map((staff, index) => (
-                                            <Option key={staff.id} value={staff.id}>
-                                                <div>
-                                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                                        <Avatar src={staff.avatar} />
-                                                        <div>
-                                                            <p style={{ marginLeft: 10 }}>{staff.fullname}</p>
-                                                            <p style={{ marginLeft: 10, marginTop: 0 }}>Task đang có: {staff.totalTask}</p>
+                                    <h3 style={{ fontSize: 15, fontWeight: 600 }}>Tên sản phẩm: {product?.name}</h3>
+                                </div>
+
+                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
+                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
+                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Thời hạn: <span style={{ fontWeight: 400 }}>{formatDate(product.createdTime)}-{product.productStages[0].deadline ? formatDate(product.productStages[0].deadline) : ''} </span></p>
+                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
+                                <div style={{ display: "flex" }}>
+                                    <p style={{ fontSize: 15, fontWeight: 600 }}>Nhân viên thực hiện : {product?.staffMaker?.fullname}</p>
+                                    <Button style={{ marginLeft: 50 }} onClick={() => setChangeClick(changeClick ? false : true)}>Thay đổi</Button>
+
+                                </div>
+                                {changeClick ? (
+                                    <div>
+                                        <Select
+                                            showSearch
+                                            style={{ width: 280, marginTop: 20, height: 60 }}
+                                            placeholder="Chọn nhân viên"
+                                            optionFilterProp="children"
+                                            filterOption={(input, option) => {
+                                                const staffName = option.props.children.props.children[1].props.children;
+                                                return staffName.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                                            }}
+                                            onChange={handleSelectChange}
+                                            defaultValue={product?.staffMaker?.id}
+                                        >
+                                            {allStaff && allStaff.map((staff, index) => (
+                                                <Option key={staff.id} value={staff.id}>
+                                                    <div>
+                                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                                            <Avatar src={staff.avatar} />
+                                                            <div>
+                                                                <p style={{ marginLeft: 10 }}>{staff.fullname}</p>
+                                                                <p style={{ marginLeft: 10, marginTop: 0 }}>Task đang có: {staff.totalTask}</p>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </Option>
-                                        ))}
-                                    </Select>
-                                </div>
-                            ) : null}
+                                                </Option>
+                                            ))}
+                                        </Select>
+                                    </div>
+                                ) : null}
+                            </div>
                         </div>
-                    </div>
-                </Modal >
-            </div >
-        );
-        console.log("slectedValue:", selectedValue)
+                    </Modal >
+                </div >
+            );
+        }
 
 
         return (
@@ -536,7 +540,7 @@ export default function ManagementTaskByOrder() {
 
 
                                                                 <div style={{ textAlign: "start", paddingLeft: 10, paddingRight: 10, height: '100%', position: "relative" }}>
-                                                                    <Popover placement={stage.stageNum === 5 ? "leftTop" : "rightTop"} content={() => content(product, stage)} >
+                                                                    <Popover placement={stage.stageNum === 5 ? "leftTop" : "rightTop"} content={() => <Content product={product} stage={stage} />} >
                                                                         <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Tên sản phẩm:<span style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, }}> {product?.name}</span> </h3>
                                                                         <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn hàng: {product?.orderId}</h3>
                                                                         <p style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }} /> :{product.productStages[0]?.deadline ? product.productStages[0]?.deadline : "-"}</p>
