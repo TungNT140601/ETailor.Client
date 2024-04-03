@@ -28,11 +28,6 @@ import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useNavigate } from "react-router-dom";
 
-import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
-import { useQuery } from "react-query";
-import chooseTemplate from "../../../assets/dress.png";
-
 const { Search } = Input;
 const { Title, Text, Paragraph } = Typography;
 const { Meta } = Card;
@@ -46,19 +41,49 @@ function OrderUpdate({
   productComponent,
   settings,
   profileCustomer,
-  getDetailDataProfileCustomerLoading,
-  getDetailProfileCustomer,
-  getDetailDataProfileCustomer,
   dataBodySize,
   handleChooseTemplate,
+  formUpdate,
+  formUpdateProfile,
+  getDetailDataProfileCustomer,
   setGetDetailDataProfileCustomer,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
-  const [formUpdate] = Form.useForm();
-  const [formUpdateProfile] = Form.useForm();
+  const navigate = useNavigate();
+
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
+  console.log("dataDetailForUpdate", dataDetailForUpdate);
+  const [
+    getDetailDataProfileCustomerLoading,
+    setGetDetailDataProfileCustomerLoading,
+  ] = useState(false);
   const componentInitialValues = {};
+
+  const getDetailProfileCustomer = async (id) => {
+    setGetDetailDataProfileCustomerLoading(true);
+    const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
+    try {
+      const response = await fetch(`${urlProfile}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setGetDetailDataProfileCustomer(responseData);
+        setGetDetailDataProfileCustomerLoading(false);
+      } else if (response.status === 401) {
+        localStorage.removeItem("manager");
+        navigate("/management/login");
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
 
   const renderFormItems = (bodyIndex, name) => {
     return (
@@ -124,6 +149,7 @@ function OrderUpdate({
     });
     formUpdate.setFieldsValue({
       modifier: "public",
+      productTemplateId: dataDetailForUpdate?.productTemplateId,
       name: dataDetailForUpdate?.name,
       note: dataDetailForUpdate?.note,
       materialId: dataDetailForUpdate?.materialId,
@@ -198,35 +224,41 @@ function OrderUpdate({
                       <Title level={4}>Bản mẫu đã chọn</Title>
                     </div>
                     <div style={{ display: "flex", justifyContent: "center" }}>
-                      <Card
-                        style={{
-                          width: 500,
-                          marginTop: 16,
-                        }}
-                      >
-                        <Meta
-                          avatar={
-                            <Image
-                              style={{
-                                width: 100,
-                                height: 100,
-                                objectFit: "cover",
-                              }}
-                              src={dataDetailForUpdate?.productTemplateImage}
+                      <Form form={formUpdate}>
+                        <Form.Item name="productTemplateId">
+                          <Card
+                            style={{
+                              width: 500,
+                              marginTop: 16,
+                            }}
+                          >
+                            <Meta
+                              avatar={
+                                <Image
+                                  style={{
+                                    width: 100,
+                                    height: 100,
+                                    objectFit: "cover",
+                                  }}
+                                  src={
+                                    dataDetailForUpdate?.productTemplateImage
+                                  }
+                                />
+                              }
+                              title={dataDetailForUpdate?.productTemplateName}
+                              description={
+                                <div style={{ position: "relative" }}>
+                                  <Paragraph>
+                                    {dataDetailForUpdate?.description
+                                      ? dataDetailForUpdate?.description
+                                      : ""}
+                                  </Paragraph>
+                                </div>
+                              }
                             />
-                          }
-                          title={dataDetailForUpdate?.productTemplateName}
-                          description={
-                            <div style={{ position: "relative" }}>
-                              <Paragraph>
-                                {dataDetailForUpdate?.description
-                                  ? dataDetailForUpdate?.description
-                                  : ""}
-                              </Paragraph>
-                            </div>
-                          }
-                        />
-                      </Card>
+                          </Card>
+                        </Form.Item>
+                      </Form>
                     </div>
                   </div>
                   <div>
@@ -644,7 +676,7 @@ function OrderUpdate({
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              height: "550px",
+              height: "600px",
             }}
           >
             <CircularProgress />
