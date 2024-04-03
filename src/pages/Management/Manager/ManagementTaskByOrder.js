@@ -375,7 +375,7 @@ export default function ManagementTaskByOrder() {
                         setOpen(false);
                     }
                 }
-                else{
+                else {
                     setOpen(false);
                 }
             };
@@ -474,12 +474,14 @@ export default function ManagementTaskByOrder() {
                     </div>
                 ) : (
                     <>
-                        <div style={{ width: "25%", maxHeight: "100%", borderTopLeftRadius: 10, borderBottomLeftRadius: 10, position: "relative", }}>
+                        <div style={{ width: "25%", maxHeight: "90%", borderTopLeftRadius: 10, borderBottomLeftRadius: 10, position: "relative", }}>
 
-                            <div style={{ paddingTop: 10, overflowY: "scroll", backgroundColor: "#ffffff", scrollbarWidth: "none", height: "82vh", marginTop: 10, width: "100%", border: "1px solid #9F78FF", borderRadius: 20 }}>
+                            <div style={{ paddingTop: 10, overflowY: "scroll", backgroundColor: "#ffffff", scrollbarWidth: "none", height: "82vh", width: "100%", border: "1px solid #9F78FF", borderRadius: 10 }}>
                                 <div style={{ backgroundColor: "#ffffff", height: "6vh", width: "100%", display: "flex", alignItems: "end", borderRadius: 20 }}>
-                                    <h2 style={{ fontSize: "1.5rem", fontWeight: "bold", paddingLeft: 20, color: "#9F78FF" }}>Tất cả bản mẫu</h2>
+                                    <h2 style={{ fontSize: "1.4rem", fontWeight: "bold", paddingLeft: 20, color: "#9F78FF" }}>Tất cả bản mẫu</h2>
+
                                 </div>
+                                <Divider style={{ margin: 5 }} />
                                 <div style={{ padding: 5 }}>
 
                                     {templatesData && templatesData?.map((category, index) => (
@@ -513,16 +515,16 @@ export default function ManagementTaskByOrder() {
                             </div>
 
                         </div>
-                        <div style={{ border: "1px solid #9F78FF", width: "75%", height: "82vh", margin: "10px 10px 10px 30px", borderRadius: 20, alignItems: "center" }}>
+                        <div style={{ border: "1px solid #9F78FF", width: "75%", height: "82vh", margin: "0px 10px 10px 30px", borderRadius: 10, alignItems: "center" }}>
 
-                            <div style={{ overflowX: "auto", scrollbarWidth: "thin", marginRight: 20 }}>
+                            <div style={{ overflowX: "auto", scrollbarWidth: "thin", marginRight: 20, height:"80vh" }}>
                                 <div style={{ display: "grid", height: "70vh", gridTemplateColumns: " repeat(minmax(300px,300px))", gridAutoFlow: "column", paddingLeft: 20, paddingRight: 20, marginTop: 20 }}>
                                     {currentTemplate?.templateStages?.map((stage, index) => (
                                         <div style={{ alignItems: "center", textAlign: "center", height: "70vh", marginRight: 20 }} key={stage.id}>
                                             <div style={{ borderRadius: 15, alignItems: "end", alignContent: "end" }}>
                                                 <p style={{ fontSize: 18, fontWeight: 600 }}>{stage?.name}</p>
                                             </div>
-                                            <div style={{ backgroundColor: "#f3f1fa", marginTop: 20, height: "62vh", width: "280px", paddingTop: 15, overflowY: "scroll", scrollbarWidth: "none" }}>
+                                            <div style={{ backgroundColor: "#f3f1fa", marginTop: 20, height: "75vh", width: "280px", paddingTop: 15, overflowY: "scroll", scrollbarWidth: "none" }}>
                                                 {currentTemplate?.products && currentTemplate?.products.map((product, index) => {
                                                     if (product.productStages[0].stageNum === stage.stageNum) {
                                                         return (
@@ -541,8 +543,6 @@ export default function ManagementTaskByOrder() {
                                                                 className="task-card"
                                                                 key={product.id}
                                                             >
-
-
                                                                 <div style={{ textAlign: "start", paddingLeft: 10, paddingRight: 10, height: '100%', position: "relative" }}>
                                                                     <Popover placement={stage.stageNum === 5 ? "leftTop" : "rightTop"} content={() => <Content product={product} stage={stage} />} >
                                                                         <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Tên sản phẩm:<span style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, }}> {product?.name}</span> </h3>

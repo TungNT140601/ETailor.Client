@@ -240,7 +240,7 @@ export default function ManagementTask() {
             position: 'top-center',
             style: {},
             className: '',
-            icon: '👏',
+            icon: 'success',
             iconTheme: {
                 primary: '#000',
                 secondary: '#fff',
@@ -303,9 +303,9 @@ export default function ManagementTask() {
                     <div style={{ display: "flex" }}>
 
                         <DragDropContext onDragEnd={handleDragEnd}>
-                            <div style={{ marginRight: 20, width: 500, height: "650px", borderRight: "1px solid #9F78FF" }}>
-                                <div style={{ height: 60, borderBottom: "1px solid #9F78FF", alignItems: "end", alignContent: "end", paddingLeft: 20 }}>
-                                    <h2 style={{ fontWeight: "bold", fontSize: "1.6rem", color: " #9F78FF", paddingBottom: 5 }}>Tất cả</h2>
+                            <div style={{ width: 500, height: "82vh", borderRight: "1px solid #9F78FF" }}>
+                                <div style={{ height: 60, borderBottom: "1px solid #9F78FF", alignItems: "end", alignContent: "end", width: "100%", paddingLeft: 20 }}>
+                                    <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: " #9F78FF", paddingBottom: 5 }}>Tất cả công việc</h2>
                                 </div>
                                 <Droppable key={unAssignedTasks?.id} droppableId={unAssignedTasks?.id}>
                                     {(provided) => (
@@ -373,12 +373,13 @@ export default function ManagementTask() {
                                 </Droppable>
                             </div>
 
-                            <div style={{ padding: "10px 50px", textAlign: "center", position: "fixed", left: "60%" }}>
-                                <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: " #9F78FF" }}>Đã phân việc</h2>
-                            </div>
-                            <div style={{ overflowX: "scroll", scrollbarWidth: "thin" }}>
 
-                                <div style={{ display: "grid", height: "400px", gridTemplateColumns: " repeat(minmax(300px,300px))", gridAutoFlow: "column", marginTop: "100px" }}>
+                            <div style={{ height: "82vh", overflowX: "auto", overflowY: "hidden", scrollbarWidth: "thin" }}>
+                                <div style={{ height: 60, borderBottom: "1px solid #9F78FF", alignItems: "end", alignContent: "end" }}>
+                                    <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#9F78FF", paddingLeft: 20 }}>Tất cả nhân viên</h2>
+                                </div>
+
+                                <div style={{ display: "grid", paddingLeft: 10, gridTemplateColumns: " repeat(minmax(300px,300px))", gridAutoFlow: "column", marginTop: "20px" }}>
 
 
                                     {staffs?.data && staffs?.data.map((staff) => (
@@ -391,14 +392,14 @@ export default function ManagementTask() {
                                                 >
 
                                                     <div style={{ color: "#000000", fontWeight: "600" }}>
-                                                        <div style={{ width: "100%", borderRadius: 15, padding: "10px 15px 0 15px", height: "550px", fontStyle: "poppins" }}>
+                                                        <div style={{ width: "100%", borderRadius: 15, padding: "10px 15px 0 15px", height: "75vh", paddingLeft: 15, fontStyle: "poppins" }}>
                                                             <div style={{ background: "#ffffff", width: "90%", height: 40, alignContent: "center", alignItems: "center", display: "flex", justifyContent: "space-between", borderBottom: "1px solid #f3f5fa" }}>
                                                                 <h2 style={{ color: "#000000", maxHeight: 60, textOverflow: "ellipsis", overflow: "hidden", fontSize: "1 rem", fontWeight: 600 }}>{staff?.fullname}</h2>
                                                                 <div style={{ display: "flex", justifyContent: "flex-end", color: "#000000", fontSize: "1rem", fontWeight: 600 }}>
                                                                     <h2>Tất cả<span style={{ width: "fit-content", padding: "2px 4px 2px 4px", marginLeft: 10, borderRadius: 2, border: "0.8px solid #f3f5fa" }}>{allTasks && allTasks.filter((task) => task?.staffMaker?.id === staff.id).length}</span></h2>
                                                                 </div>
                                                             </div>
-                                                            <div style={{ backgroundColor: "#f3f1fa", marginTop: 20, height: 400, alignItems: "center", paddingTop: 15, overflowY: "scroll", scrollbarWidth: "none" }}>
+                                                            <div style={{ backgroundColor: "#f3f1fa", marginTop: 20, height: "55vh", alignItems: "center", paddingTop: 15, overflowY: "hidden", overflowY: "scroll", scrollbarWidth: "none" }}>
                                                                 {allTasks && allTasks.filter((task) => task?.staffMaker?.id === staff.id).map((task, index) => (
                                                                     <Draggable key={task.id} draggableId={task.id} index={task?.index}>
                                                                         {(provided, snapshot) => (
@@ -427,7 +428,7 @@ export default function ManagementTask() {
                                                                             >
                                                                                 <div>
 
-                                                                                    <h3 style={{ color: `${getStatusTextAndColor(task?.status).color}`, fontWeight: "600" }}> <span style={{ fontSize: 15 }}>{index + 1}. </span>{task?.name}+{task.index}</h3>
+                                                                                    <h3 style={{ color: `${getStatusTextAndColor(task?.status).color}`, fontWeight: "600" }}> <span style={{ fontSize: 15 }}>{index + 1}. </span>{task?.name}</h3>
                                                                                     <p style={{ color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.deadline ? task?.deadline : "-"}</p>
 
                                                                                 </div>
