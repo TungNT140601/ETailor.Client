@@ -43,10 +43,19 @@ export default function ManagementDashboard() {
   const OrderStatistic = ({ searchMonth, searchYear }) => {
     const [orderStatistic, setOrderStatistic] = useState([]);
     useEffect(() => {
-      const GET_ORDER_STATISTIC = "https://e-tailorapi.azurewebsites.net/api/Dashboard/order-dashboard"
+
       const GET_STAFF_STATISTIC = "https://e-tailorapi.azurewebsites.net/api/Dashboard/staff-dashboard"
       const manager = JSON.parse(localStorage.getItem("manager"))
       const fetchOrderStatistic = async () => {
+        if (searchMonth && searchYear) {
+          const GET_ORDER_STATISTIC = `https://e-tailorapi.azurewebsites.net/api/Dashboard/order-dashboard?year=${searchYear}&month=${searchMonth}`
+        }
+        else if (searchYear) {
+          const GET_ORDER_STATISTIC = `https://e-tailorapi.azurewebsites.net/api/Dashboard/order-dashboard?year=${searchYear}`
+        }
+        else if (searchMonth) {
+          const GET_ORDER_STATISTIC = `https://e-tailorapi.azurewebsites.net/api/Dashboard/order-dashboard?month=${searchMonth}`
+        }
         try {
           const response = await fetch(GET_ORDER_STATISTIC, {
             method: "GET",
@@ -117,10 +126,10 @@ export default function ManagementDashboard() {
             </Col>
 
           </Row>
-          <Row justify="space-between" style={{ backgroundColor: "#fff", borderRadius: 10, marginTop: 15 , marginRight:13}}>
-           
-              <OrderStatistic searchMonth={searchMonth} searchYear={searchYear} />
-     
+          <Row justify="space-between" style={{ backgroundColor: "#fff", borderRadius: 10, marginTop: 15, marginRight: 13 }}>
+
+            <OrderStatistic searchMonth={searchMonth} searchYear={searchYear} />
+
           </Row>
         </Col>
         <Col span={12}>

@@ -380,6 +380,7 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
                 "file image: ",
                 file
               );
+              
               return false;
             }}
             listType="picture-card"

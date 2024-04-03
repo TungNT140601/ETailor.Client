@@ -361,6 +361,7 @@ export default function ManagementTaskByOrder() {
                             setConfirmLoading(false);
                             toast.success("Thay đổi nhân viên thực hiện thành công");
                             fetchTemplates();
+                            setChangeClick(false);
                             setOpen(false);
                         } else {
                             toast.error("Thay đổi nhân viên thực hiện thất bại");
@@ -373,6 +374,9 @@ export default function ManagementTaskByOrder() {
                         toast.error("Thay đổi nhân viên thực hiện thất bại");
                         setOpen(false);
                     }
+                }
+                else{
+                    setOpen(false);
                 }
             };
 

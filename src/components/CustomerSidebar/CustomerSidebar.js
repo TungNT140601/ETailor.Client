@@ -14,7 +14,7 @@ export default function CustomerSidebar() {
                     <img className='user-avatar' src={UserAvatar}></img>
 
                 </figure>
-                <h2 className='subtitle is-4' style={{ paddingLeft: '20px' }}> Nguyễn Công Vũ </h2>
+                <h2 className='subtitle is-4' style={{ paddingLeft: '20px' }}> Cài đặt hồ sơ </h2>
             </div>
             <hr className="dropdown-divider" />
             <Link to="/profile">

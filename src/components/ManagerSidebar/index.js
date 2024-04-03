@@ -5,6 +5,7 @@ import {
   UserOutlined,
   HomeOutlined,
   ControlOutlined,
+  CommentOutlined,
   LogoutOutlined,
   AppstoreAddOutlined,
   FileTextOutlined,
@@ -78,6 +79,11 @@ export const ManagerSidebar = () => {
           key: "/manager/account/customer",
           label: <Link to="/manager/account/customer">Khách hàng</Link>,
           icon: <UserOutlined />,
+        },
+        {
+          key: "/manager/account/chatWithCustomer",
+          label: <Link to="/manager/account/chatWithCustomer">Trò chuyện với khách hàng</Link>,
+          icon: <CommentOutlined />
         },
         {
           key: "/manager/orders",
