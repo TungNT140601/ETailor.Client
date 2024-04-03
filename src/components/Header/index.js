@@ -13,11 +13,12 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import Notification from "./Notification";
+import { Avatar } from "antd";
 import Swal from "sweetalert2";
 
 const Header = () => {
 
- 
+
   const [clickedSection, setClickedSection] = useState("Trang Chu");
   const [open, setOpen] = React.useState(false);
   const customer = localStorage.getItem("customer");
@@ -48,6 +49,7 @@ const Header = () => {
       console.error("Error:", error);
     }
   };
+
   return (
     <nav className="mobile">
       <div className="header-container">
@@ -150,7 +152,12 @@ const Header = () => {
               <Dropdown>
                 <MenuButton className="user-logo" sx={{ border: "none" }}>
                   {/* <img src={UserLogo} width={30} height={30}></img> */}
-                  <FontAwesomeIcon style={{ fontSize: "32px" }} icon={faUser} />
+                  {customer.avatar ? (
+                    <Avatar size={48} src={customer.avatar} />
+                  ) : (
+                    <FontAwesomeIcon style={{ fontSize: "32px" }} icon={faUser} />
+                  )}
+
                 </MenuButton>
                 <Menu sx={{ zIndex: 100000000 }}>
                   <Link to="/profile">
