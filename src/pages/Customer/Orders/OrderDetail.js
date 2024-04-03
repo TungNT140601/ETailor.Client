@@ -94,12 +94,21 @@ export default function OrderDetail() {
             try {
                 const POST_CHAT_API = `https://e-tailorapi.azurewebsites.net/api/chat/order/${id}/send`;
                 const formDta = new FormData();
+                scrollToBottom();
                 if (chat) {
                     formDta.append("Message", chat);
                 }
-                if (file !== null) {
-                    formDta.append("MessageImages", file);
+                // if (file !== null) {
+                //     formDta.append("MessageImages", file);
+                // }
+                if (imageFiles !== null) {
+                    console.log("Có  Image file", imageFiles);
+                    imageFiles.map((file) => {
+                        formDta.append("MessageImages", file);
+                    })
+
                 }
+
                 const response = await fetch(POST_CHAT_API, {
                     method: "POST",
                     headers: {
@@ -111,6 +120,7 @@ export default function OrderDetail() {
                     setCurrentChatText("")
                     fetchChat()
                     console.log("success");
+                    scrollToBottom();
                     setChat("");
                     setFile(null);
 
@@ -143,6 +153,57 @@ export default function OrderDetail() {
         const triggerImageInput = () => {
             document.getElementById('imageInput').click();
         };
+
+        const [imageFiles, setImageFiles] = useState(null);
+        console.log("Image file 1", imageFiles);
+
+        const [previewImageChat, setPreviewImageChat] = useState(null);
+        console.log("Preview image chat", previewImageChat)
+        const handleImageChange = async (e) => {
+            console.log("Image change", e.currentTarget.files);
+            const files = Array.from(e.currentTarget.files); // Directly use the file objects
+            console.log("FILES:", files)
+            setImageFiles(files)
+            // setImageFiles((prevResults) => {
+            //     if (prevResults === null) {
+            //         return files;
+            //     } else {
+            //         const filteredResults = files.filter(
+            //             (file) => !prevResults.some((prevFile) => prevFile.name === file.name)
+            //         );
+            //         return [...prevResults, ...filteredResults];
+            //     }
+            // });
+
+            const readers = files.map((file) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file); // Correctly pass the file object
+                return reader;
+            });
+
+            // Wait for all FileReader instances to complete
+            const newResults = [];
+            for (const reader of readers) {
+                const result = await new Promise((resolve) => {
+                    reader.onload = () => {
+                        resolve(reader.result);
+                    };
+                });
+                newResults.push(result);
+            }
+
+            setPreviewImageChat((prevResults) => {
+                if (prevResults === null) {
+                    return newResults;
+                } else {
+                    const filteredResults = newResults.filter(
+                        (newResult) => !prevResults.includes(newResult)
+                    );
+                    return [...prevResults, ...filteredResults];
+                }
+            });
+            // return e && e.fileList;
+        }
         return (
             <div >
                 <div style={{ width: 280 }}>
@@ -199,10 +260,11 @@ export default function OrderDetail() {
                                                             marginRight: 5,
                                                             width: 170,
                                                             borderBottomLeftRadius: "8px",
+                                                            flexWrap: "wrap",
                                                             minHeight: "40px"
                                                         }}>
                                                             {JSON.parse(chat?.images).map((image, index) => (
-                                                                <div key={index} style={{}}>
+                                                                <div key={index}>
                                                                     <Image
                                                                         width={55}
                                                                         height={55}
@@ -261,7 +323,7 @@ export default function OrderDetail() {
                                         <>
 
                                             <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "flex-end", marginBottom: 15 }}>
-                                                <div style={{ display: "block" }}>
+                                                <div style={{ display: "block", alignContent: 'end' }}>
                                                     <div style={{ display: 'flex' }}>
                                                         <div style={{
                                                             backgroundColor: "#ffe4cc",
@@ -297,6 +359,36 @@ export default function OrderDetail() {
                                         position: "relative",
                                     }}
                                 >
+                                    {previewImageChat && (
+
+                                        <div style={{}}>
+                                            <Image
+                                                width={55}
+                                                height={55}
+                                                src={previewImageChat}
+                                                style={{ objectFit: "cover" }}
+                                                alt=""
+                                                preview={{
+                                                    imageRender: () => (
+                                                        <div
+                                                            style={{
+                                                                marginTop: "60px",
+                                                                height: "65%",
+                                                                overflowY: "hidden",
+                                                            }}
+                                                        >
+                                                            <Image
+                                                                width="100%"
+                                                                height="100%"
+                                                                style={{ objectFit: "cover" }}
+                                                                src={previewImageChat}
+                                                            />
+                                                        </div>
+                                                    ),
+                                                }}
+                                            />
+                                        </div>
+                                    )}
                                     <div style={{ display: "flex", alignItems: "center", borderRadius: 5, width: 260 }}>
                                         <textarea rows={2}
                                             className="textarea-chat"
@@ -305,6 +397,7 @@ export default function OrderDetail() {
                                             value={chat}
                                             maxLength={500}
                                             onChange={(e) => handleChatChange(e.target.value)}
+                                            onKeyDown={(e) => e.key === 13 && e.shiftKey === false ? handleSendChat(orderId) : null}
                                         ></textarea>
 
                                         <div style={{ marginLeft: "20px" }}>
@@ -313,14 +406,13 @@ export default function OrderDetail() {
                                                     color: '#2474fc'
                                                 }
                                             }}
-                                                onKeyPress={(e) => e.key === "Enter" && handleSendChat(orderId)}
                                                 onClick={() => handleSendChat(orderId)} fontSize="small" />
                                         </div>
                                     </div>
                                     <div style={{ marginLeft: 15, position: "absolute", bottom: 5 }}>
                                         <FontAwesomeIcon icon={faImage} color="#D9D9D9" style={{ cursor: "pointer" }} onClick={triggerImageInput} />
                                         <FontAwesomeIcon icon={faPaperclip} color="#D9D9D9" style={{ marginLeft: 15, cursor: "pointer" }} onClick={triggerFileInput} />
-                                        <input type="file" id="imageInput" accept="image/*" style={{ display: 'none' }} onChange={event => console.log(event.target.files)} />
+                                        <input type="file" id="imageInput" accept="image/*" multiple style={{ display: 'none' }} onChange={handleImageChange} />
 
                                         {/* Hidden file input */}
                                         <input type="file" id="fileInput" style={{ display: 'none' }} onChange={event => console.log(event.target.files)} />
