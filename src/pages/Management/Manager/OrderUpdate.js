@@ -38,276 +38,6 @@ const { Title, Text, Paragraph } = Typography;
 const { Meta } = Card;
 const { Option } = Select;
 
-const ChooseTemplate = ({ open, onCancel, handleChooseTemplate }) => {
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  // list ra category
-  const [category, setCategory] = useState(null);
-  // chọn category
-  const [selected, setSelected] = useState(null);
-  // chi tiết product template
-  const [detailProduct, setDetailProduct] = useState(null);
-  // Chọn bản mẫu
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [activeIndex, setActiveIndex] = useState(null);
-  const [selectedLoading, setSelectedLoading] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const handleGetCategory = async () => {
-    setLoading(true);
-    const url = `https://e-tailorapi.azurewebsites.net/api/category-management`;
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setLoading(false);
-        setCategory(responseData);
-      }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
-  };
-
-  const handleSelected = async () => {
-    setSelectedLoading(true);
-    const url = `https://e-tailorapi.azurewebsites.net/api/template-management/category/${selected}`;
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setDetailProduct(responseData);
-        setSelectedLoading(false);
-      }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
-  };
-  useEffect(() => {
-    handleGetCategory();
-  }, []);
-
-  useEffect(() => {
-    handleSelected();
-  }, [selected]);
-
-  const handleSelectedTemplate = (value, index) => {
-    if (activeIndex === index) {
-      setSelectedTemplate(null);
-    } else {
-      setSelectedTemplate(value);
-    }
-    setActiveIndex((prevIndex) => (prevIndex === index ? null : index));
-  };
-
-  return (
-    <Modal
-      open={open}
-      style={{ top: 80 }}
-      title="Chọn bản mẫu phù hợp"
-      okText="Xác nhận"
-      cancelText="Hủy bỏ"
-      onCancel={() => {
-        form.resetFields();
-        setSelected(null);
-        setActiveIndex(null);
-        setSelectedTemplate(null);
-        onCancel();
-      }}
-      onOk={() => {
-        form
-          .validateFields()
-          .then(async () => {
-            setConfirmLoading(true);
-            if (selectedTemplate) {
-              const check = await handleChooseTemplate(
-                selectedTemplate.id,
-                selectedTemplate
-              );
-              if (check === 1) {
-                form.resetFields();
-                setSelected(null);
-                setActiveIndex(null);
-                setSelectedTemplate(null);
-                onCancel();
-              }
-              setConfirmLoading(false);
-            } else {
-              await Swal.fire({
-                position: "top-center",
-                icon: "warning",
-                title: "Chọn loại bản mẫu thì phải chọn bản mẫu",
-                showConfirmButton: false,
-                timer: 2500,
-                zIndex: 1000,
-              });
-              setConfirmLoading(false);
-            }
-          })
-          .catch((info) => {
-            console.log("Validate Failed:", info);
-          });
-      }}
-      okButtonProps={{ loading: confirmLoading }}
-    >
-      <Form
-        form={form}
-        layout="vertical"
-        name="form_in_modal"
-        initialValues={{
-          modifier: "public",
-        }}
-        style={{
-          height: 400,
-          overflowY: "scroll",
-          scrollbarWidth: "none",
-          WebkitScrollbar: "none",
-        }}
-        onFinish={(values) => {
-          console.log("Values cua create", values);
-        }}
-      >
-        {loading ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "400px",
-            }}
-          >
-            <CircularProgress />
-          </div>
-        ) : (
-          <>
-            <Form.Item
-              label="Loại bản mẫu"
-              hasFeedback
-              name="category"
-              rules={[
-                {
-                  required: true,
-                  message: "Loại bản mẫu không được để trống!",
-                },
-              ]}
-            >
-              <Select
-                showSearch
-                placeholder="Chọn loại bản mẫu"
-                optionFilterProp="children"
-                onChange={(value) => {
-                  setSelected(value);
-                }}
-                filterOption={(value, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(value.toLowerCase())
-                }
-                options={
-                  category &&
-                  category.map((item) => ({
-                    value: item.id,
-                    label: item.name,
-                  }))
-                }
-              />
-            </Form.Item>
-            {selected ? (
-              selectedLoading ? (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "350px",
-                  }}
-                >
-                  <CircularProgress />
-                </div>
-              ) : detailProduct.productTemplates?.length !== 0 ? (
-                detailProduct?.productTemplates?.map((item, index) => {
-                  return (
-                    <>
-                      <Card
-                        style={{
-                          width: 470,
-                          marginTop: 16,
-                          border:
-                            activeIndex === index ? "1px solid #9F78FF" : "",
-                          cursor: "pointer",
-                        }}
-                        loading={loading}
-                        onClick={() => handleSelectedTemplate(item, index)}
-                      >
-                        <Meta
-                          avatar={
-                            <Image width={100} src={item.thumbnailImage} />
-                          }
-                          title={item.name}
-                          description={item.description}
-                        />
-                      </Card>
-                    </>
-                  );
-                })
-              ) : (
-                <div
-                  style={{
-                    textAlign: "center",
-                  }}
-                >
-                  <div>
-                    <img
-                      src={chooseTemplate}
-                      style={{ width: 200, height: 200 }}
-                      alt=""
-                    />
-                    <Title level={5}>
-                      Chưa có bản mẫu phù hợp nào vui lòng chọn lại loại bản mẫu
-                      khác
-                    </Title>
-                  </div>
-                </div>
-              )
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <div style={{ marginTop: 24 }}>
-                  <img
-                    src={chooseTemplate}
-                    style={{ width: 200, height: 200 }}
-                    alt=""
-                  />
-                  <Title level={5}>
-                    Chọn <span style={{ color: "red" }}>loại bản mẫu</span>{" "}
-                    trước!
-                  </Title>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </Form>
-    </Modal>
-  );
-};
-
 function OrderUpdate({
   saveIdProduct,
   saveOrderId,
@@ -321,17 +51,14 @@ function OrderUpdate({
   getDetailDataProfileCustomer,
   dataBodySize,
   handleChooseTemplate,
+  setGetDetailDataProfileCustomer,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [formUpdate] = Form.useForm();
   const [formUpdateProfile] = Form.useForm();
-  const [openChooseProductTemplate, setOpenChooseProductTemplate] =
-    useState(false);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
   const componentInitialValues = {};
-
-  console.log("formUpdate", formUpdate);
 
   const renderFormItems = (bodyIndex, name) => {
     return (
@@ -363,6 +90,7 @@ function OrderUpdate({
       })
     );
   };
+
   useEffect(() => {
     const handleGetDetail = async () => {
       const urlProductDetail = `https://e-tailorapi.azurewebsites.net/api/product/order/${saveOrderId}/${saveIdProduct}`;
@@ -401,11 +129,38 @@ function OrderUpdate({
       materialId: dataDetailForUpdate?.materialId,
       ...componentInitialValues,
     });
+
+    handleChooseTemplate(dataDetailForUpdate?.productTemplateId);
+    getDetailProfileCustomer(dataDetailForUpdate?.profileId);
   }, [dataDetailForUpdate]);
+  useEffect(() => {
+    formUpdateProfile.setFieldsValue({
+      modifier: "ProfileId",
+      ...(getDetailDataProfileCustomer
+        ? {
+            nameProfile:
+              getDetailDataProfileCustomer !== undefined ||
+              getDetailDataProfileCustomer !== null
+                ? getDetailDataProfileCustomer.name
+                : "",
+            ...getDetailDataProfileCustomer.bodyAttributes.reduce(
+              (acc, item) => {
+                acc[item.id] = item.value;
+                return acc;
+              },
+              {}
+            ),
+          }
+        : {
+            nameProfile: "",
+          }),
+    });
+  }, [getDetailDataProfileCustomer]);
+
   return (
     <>
       <Row>
-        {loadingUpdate ? (
+        {!loadingUpdate ? (
           <>
             <Col
               flex="1 1 100px"
@@ -468,14 +223,6 @@ function OrderUpdate({
                                   ? dataDetailForUpdate?.description
                                   : ""}
                               </Paragraph>
-                              <Button
-                                style={{ float: "right" }}
-                                onClick={() =>
-                                  setOpenChooseProductTemplate(true)
-                                }
-                              >
-                                Chọn lại
-                              </Button>
                             </div>
                           }
                         />
@@ -499,9 +246,6 @@ function OrderUpdate({
                           form={formUpdate}
                           layout="vertical"
                           name="form_in_modal"
-                          initialValues={{
-                            modifier: "public",
-                          }}
                           style={{ width: 500 }}
                         >
                           <Form.Item
@@ -806,81 +550,86 @@ function OrderUpdate({
                         marginTop: 24,
                       }}
                     >
-                      {/* <Form
-                  form={formProfileBody}
-                  name="ProfileId"
-                  layout="vertical"
-                  style={{ width: "400px" }}
-                  initialValues={{
-                    remember: true,
-                  }}
-                  autoComplete="off"
-                >
-                  <Form.Item
-                    label={<Title level={4}>Tên hồ sơ</Title>}
-                    name="nameProfile"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Tên hồ sơ không được để trống!",
-                      },
-                    ]}
-                  >
-                    <Input
-                      disabled={getDetailDataProfileCustomer ? true : false}
-                    />
-                  </Form.Item>
-                  <Title level={4}>Phần đầu</Title>
-                  {getDetailDataProfileCustomer
-                    ? renderFormItems(1)
-                    : renderCreateFormItems(1)}
-                  <Title level={4}>Phần thân</Title>
-                  {getDetailDataProfileCustomer
-                    ? renderFormItems(2)
-                    : renderCreateFormItems(2)}
-                  <Title level={4}>Phần chân</Title>
-                  {getDetailDataProfileCustomer
-                    ? renderFormItems(3)
-                    : renderCreateFormItems(3)}
-                  {getDetailDataProfileCustomer ? (
-                    <Form.Item
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                      }}
-                    >
-                      <Button
-                        onClick={() => setGetDetailDataProfileCustomer(null)}
-                      >
-                        Bỏ chọn
-                      </Button>
-                      &nbsp; &nbsp; &nbsp;
-                      <Button
-                        type="primary"
-                        htmlType="submit"
-                        onClick={() => {
-                          const getAllForm = formProfileBody.getFieldsValue();
-                          console.log("getAllForm", getAllForm);
+                      <Form
+                        form={formUpdateProfile}
+                        name="ProfileId"
+                        layout="vertical"
+                        style={{ width: "400px" }}
+                        initialValues={{
+                          remember: true,
                         }}
+                        autoComplete="off"
                       >
-                        Cập nhật
-                      </Button>
-                    </Form.Item>
-                  ) : (
-                    <>
-                      <Form.Item
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                        }}
-                      >
-                        <Button type="primary" htmlType="submit">
-                          Tạo mới
-                        </Button>
-                      </Form.Item>
-                    </>
-                  )}
-                </Form> */}
+                        <Form.Item
+                          label={<Title level={4}>Tên hồ sơ</Title>}
+                          name="nameProfile"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Tên hồ sơ không được để trống!",
+                            },
+                          ]}
+                        >
+                          <Input
+                            disabled={
+                              getDetailDataProfileCustomer ? true : false
+                            }
+                          />
+                        </Form.Item>
+                        <Title level={4}>Phần đầu</Title>
+                        {getDetailDataProfileCustomer
+                          ? renderFormItems(1)
+                          : renderCreateFormItems(1)}
+                        <Title level={4}>Phần thân</Title>
+                        {getDetailDataProfileCustomer
+                          ? renderFormItems(2)
+                          : renderCreateFormItems(2)}
+                        <Title level={4}>Phần chân</Title>
+                        {getDetailDataProfileCustomer
+                          ? renderFormItems(3)
+                          : renderCreateFormItems(3)}
+                        {getDetailDataProfileCustomer ? (
+                          <Form.Item
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <Button
+                              onClick={() =>
+                                setGetDetailDataProfileCustomer(null)
+                              }
+                            >
+                              Bỏ chọn
+                            </Button>
+                            &nbsp; &nbsp; &nbsp;
+                            <Button
+                              type="primary"
+                              htmlType="submit"
+                              onClick={() => {
+                                const getAllForm =
+                                  formUpdateProfile.getFieldsValue();
+                                console.log("getAllForm", getAllForm);
+                              }}
+                            >
+                              Cập nhật
+                            </Button>
+                          </Form.Item>
+                        ) : (
+                          <>
+                            <Form.Item
+                              style={{
+                                display: "flex",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Button type="primary" htmlType="submit">
+                                Tạo mới
+                              </Button>
+                            </Form.Item>
+                          </>
+                        )}
+                      </Form>
                     </div>
                   )}
                 </div>
@@ -902,11 +651,6 @@ function OrderUpdate({
           </div>
         )}
       </Row>
-      <ChooseTemplate
-        open={openChooseProductTemplate}
-        onCancel={() => setOpenChooseProductTemplate(false)}
-        handleChooseTemplate={handleChooseTemplate}
-      />
     </>
   );
 }

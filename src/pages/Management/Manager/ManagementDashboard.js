@@ -42,40 +42,40 @@ const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 
 export default function ManagementDashboard() {
   const OrderStatistic = ({ searchMonth, searchYear }) => {
     const [orderStatistic, setOrderStatistic] = useState([]);
-    useEffect(() => {
 
-      const GET_STAFF_STATISTIC = "https://e-tailorapi.azurewebsites.net/api/Dashboard/staff-dashboard"
-      const manager = JSON.parse(localStorage.getItem("manager"))
+    useEffect(() => {
+      const manager = JSON.parse(localStorage.getItem("manager"));
+      const baseOrderStatisticURL = "https://e-tailorapi.azurewebsites.net/api/Dashboard/order-dashboard";
+    
       const fetchOrderStatistic = async () => {
-        if (searchMonth && searchYear) {
-          const GET_ORDER_STATISTIC = `https://e-tailorapi.azurewebsites.net/api/Dashboard/order-dashboard?year=${searchYear}&month=${searchMonth}`
-        }
-        else if (searchYear) {
-          const GET_ORDER_STATISTIC = `https://e-tailorapi.azurewebsites.net/api/Dashboard/order-dashboard?year=${searchYear}`
-        }
-        else if (searchMonth) {
-          const GET_ORDER_STATISTIC = `https://e-tailorapi.azurewebsites.net/api/Dashboard/order-dashboard?month=${searchMonth}`
-        }
+        let url = baseOrderStatisticURL;
+    
+        const params = new URLSearchParams();
+        if (searchYear) params.append('year', searchYear);
+        if (searchMonth) params.append('month', searchMonth);
+        if (params.toString()) url += `?${params.toString()}`; // Append query parameters to the URL if any
+    
         try {
-          const response = await fetch(GET_ORDER_STATISTIC, {
+          const response = await fetch(url, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${manager.token}`
-            }
-          })
+              Authorization: `Bearer ${manager.token}`,
+            },
+          });
           if (response.ok) {
-            const data = await response.json()
-            setOrderStatistic(data)
-            console.log("DTA:", data)
-
+            const data = await response.json();
+            setOrderStatistic(data);
+            console.log("DTA:", data);
           }
         } catch (error) {
-          console.log("Error:", error)
+          console.log("Error:", error);
         }
-      }
-      fetchOrderStatistic()
-    }, [searchMonth, searchYear])
+      };
+    
+      fetchOrderStatistic();
+    }, [searchMonth, searchYear]);
+    
     return (
 
 
