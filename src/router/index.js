@@ -45,6 +45,7 @@ import PaymentFailed from "../components/PaymentSuccessOrNot/PaymentFailed";
 import OrderDetail from "../pages/Customer/Orders/OrderDetail";
 import ManagementTask from "../pages/Management/Manager/ManagementTask";
 import ManagementTaskByOrder from "../pages/Management/Manager/ManagementTaskByOrder";
+import ManagementUpdateProductTemplate from "../pages/Management/Manager/ManagementUpdateProductTemplate";
 
 export const customerRouters = [
   {
@@ -262,6 +263,12 @@ export const managerRouters = [
     path: "/manager/order-for-customer",
     name: "management-order-for-customer",
     component: OrderToCustomer,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/update/product-template/:id",
+    name: "manager",
+    component: ManagementUpdateProductTemplate,
     layout: DefaultLayoutManager,
   },
 ];

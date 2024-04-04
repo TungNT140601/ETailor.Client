@@ -514,7 +514,6 @@ const OrderToCustomerContent = () => {
     useState(false);
   const handleChooseTemplate = async (id, data) => {
     setChooseProductTemplate(data);
-    console.log("data cua handleChooseProductTemplate: ", data);
     const url = `https://e-tailorapi.azurewebsites.net/api/template/${id}/component-types`;
     try {
       const response = await fetch(`${url}`, {
@@ -580,7 +579,8 @@ const OrderToCustomerContent = () => {
   ] = useState(false);
   const getDetailProfileCustomer = async (id) => {
     setGetDetailDataProfileCustomerLoading(true);
-    const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
+    // const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
+    const urlProfile = `https://localhost:7259/api/profile-body/${id}`;
     try {
       const response = await fetch(`${urlProfile}`, {
         method: "GET",
@@ -633,12 +633,11 @@ const OrderToCustomerContent = () => {
       getDetailDataProfileCustomer &&
       getDetailDataProfileCustomer.bodyAttributes.map((item) => {
         if (item.bodySize.bodyIndex === bodyIndex) {
-          console.log("item", item);
           return (
             <Form.Item
               key={item.id}
               label={item.bodySize.name}
-              name={`bodySizes_${item.id}`}
+              name={`bodySizes_${item.bodySize.id}`}
               rules={[
                 {
                   type: "number",
@@ -670,7 +669,7 @@ const OrderToCustomerContent = () => {
             <Form.Item
               key={item.id}
               label={item.name}
-              name={item.id}
+              name={`bodySizes_${item.id}`}
               rules={[
                 {
                   type: "number",
@@ -743,7 +742,6 @@ const OrderToCustomerContent = () => {
 
   const initialComponentValues = {};
   const initialProfileBodyValues = {};
-
   useEffect(() => {
     productComponent?.forEach((component) => {
       initialComponentValues[`component_${component.id}`] =
@@ -756,22 +754,14 @@ const OrderToCustomerContent = () => {
   }, [productComponent]);
   useEffect(() => {
     getDetailDataProfileCustomer?.bodyAttributes?.forEach((component) => {
-      initialProfileBodyValues[`bodySizes_${component.id}`] = component.value;
+      initialProfileBodyValues[`bodySizes_${component.bodySize.id}`] =
+        component.value;
     });
+
     formProfileBody.setFieldsValue({
       modifier: "ProfileId",
-      ...(getDetailDataProfileCustomer
-        ? {
-            nameProfile:
-              getDetailDataProfileCustomer !== undefined ||
-              getDetailDataProfileCustomer !== null
-                ? getDetailDataProfileCustomer.name
-                : "",
-            ...initialProfileBodyValues,
-          }
-        : {
-            nameProfile: "",
-          }),
+      nameProfile: getDetailDataProfileCustomer?.name,
+      ...initialProfileBodyValues,
     });
   }, [getDetailDataProfileCustomer]);
   const filterOptionForMaterial = (input, option) =>
@@ -851,6 +841,7 @@ const OrderToCustomerContent = () => {
   const handleUpdateProfileBody = async () => {
     if (getDetailDataProfileCustomer) {
       const getProfileBody = formProfileBody.getFieldsValue();
+      console.log("getProfileBody", getProfileBody);
       const dataBackEnd = {
         id: getDetailDataProfileCustomer.id,
         name: getProfileBody.nameProfile,
@@ -866,8 +857,10 @@ const OrderToCustomerContent = () => {
           })
           .filter(Boolean),
       };
+      console.log("DATA BE", dataBackEnd);
       setLoadingUpdateBodyProfile(true);
-      const url = `https://e-tailorapi.azurewebsites.net/api/profile-body/customer/${getDetailDataProfileCustomer.id}`;
+      // const url = `https://e-tailorapi.azurewebsites.net/api/profile-body/customer/${getDetailDataProfileCustomer.id}`;
+      const url = `https://localhost:7259/api/profile-body/customer/${getDetailDataProfileCustomer.id}`;
       try {
         const response = await fetch(`${url}`, {
           method: "PUT",
@@ -887,7 +880,7 @@ const OrderToCustomerContent = () => {
             timer: 1500,
             zIndex: 1000,
           });
-          await getDetailProfileCustomer();
+          await getDetailProfileCustomer(getDetailDataProfileCustomer.id);
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();

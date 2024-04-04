@@ -1,3 +1,4 @@
+import { useParams } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
 import { Breadcrumb } from "antd";
 import {
@@ -49,7 +50,7 @@ const { Title, Text } = Typography;
 const { Meta } = Card;
 const { Option } = Select;
 
-const ManagementProductTemplateHeader = () => {
+const ManagementUpdateProductTemplateHeader = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
@@ -105,7 +106,7 @@ const ManagementProductTemplateHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Bản mẫu</Title>
+        <Title level={4}>Cập nhật bản mẫu</Title>
       </div>
       <div
         style={{
@@ -137,7 +138,153 @@ const ManagementProductTemplateHeader = () => {
   );
 };
 
-export const ManagementCreateProductTemplate = () => {
+const CollectionCreateFormStep2 = ({
+  open,
+  onCreate,
+  onCancel,
+  componentTypeId,
+  componentTypeCreateData,
+}) => {
+  const [form] = Form.useForm();
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const loading = false;
+  const [compomentUrl, setComponentUrl] = useState(null);
+  const [postComponentUrl, setPostComponentUrl] = useState(null);
+  const [loadingCreate, setLoadingCreate] = useState(false);
+
+  const getFileComponent = (e) => {
+    console.log(e);
+    const file = e.fileList[0];
+    if (file && file.originFileObj) {
+      setPostComponentUrl(file.originFileObj);
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      reader.onload = () => {
+        setComponentUrl(reader.result);
+      };
+    }
+    return e && e.fileList;
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+  return (
+    <Modal
+      width={300}
+      open={open}
+      title={`Thêm kiểu cho ${componentTypeCreateData?.name}`}
+      okText="Tạo mới"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        onCancel();
+        form.resetFields();
+        setComponentUrl(null);
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(async (values) => {
+            setLoadingCreate(true);
+            const backendData = {
+              componentTypeId: componentTypeCreateData.id,
+              name: values.Name,
+              image: postComponentUrl,
+              default: values.Default,
+            };
+            const checkResult = await onCreate(backendData);
+            if (checkResult === 1) {
+              form.resetFields();
+              setComponentUrl(null);
+              onCancel();
+            }
+            setLoadingCreate(false);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+    >
+      <Form
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+          Default: false,
+        }}
+      >
+        <Form.Item
+          name="Name"
+          label="Tên kiểu"
+          rules={[
+            {
+              required: true,
+              message: "Please input the title of collection!",
+            },
+          ]}
+        >
+          <Input />
+        </Form.Item>
+
+        <Form.Item
+          label="Thêm hình ảnh"
+          valuePropName="fileList"
+          getValueFromEvent={getFileComponent}
+          name="ImageFile"
+          rules={[
+            {
+              required: true,
+              message: "Thumbnail không được để trống",
+            },
+          ]}
+        >
+          <Upload
+            action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+            listType="picture-card"
+            maxCount={1}
+            showUploadList={false}
+          >
+            {compomentUrl ? (
+              <img
+                src={compomentUrl}
+                alt="component"
+                style={{
+                  width: "131px",
+                  height: "131px",
+                  borderRadius: "10px",
+                }}
+              />
+            ) : (
+              uploadButton
+            )}
+          </Upload>
+        </Form.Item>
+        <Form.Item name="Default" valuePropName="checked">
+          <Checkbox>Mặc định</Checkbox>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+const ManagementUpdateProductTemplateContent = () => {
+  const { id } = useParams();
   const manager = JSON.parse(localStorage.getItem("manager"));
   const loading = false;
   const [form] = Form.useForm();
@@ -145,7 +292,6 @@ export const ManagementCreateProductTemplate = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [postImageUrl, setPostImageUrl] = useState(null);
   const [uploadKey, setUploadKey] = useState(0);
-  console.log("PRODUCT TEMPLATE: ", postImageUrl);
 
   //-----------------------------------------------thumbnail buoc 1
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
@@ -155,8 +301,6 @@ export const ManagementCreateProductTemplate = () => {
   const [collectionUrl, setCollectionUrl] = useState(null);
   const [uploadKeyCollection, setUploadKeyCollection] = useState(0);
   const [postUploadKeyCollection, setPostUploadKeyCollection] = useState(null);
-  //-----------------------------------------------Product Template ID
-  const [saveProductTemplateId, setSaveProductTemplate] = useState(null);
 
   const [current, setCurrent] = useState(0);
   const getFile = async (e) => {
@@ -297,7 +441,7 @@ export const ManagementCreateProductTemplate = () => {
       }
     } else if (current === 2) {
       if (saveBodySize[0].length >= 1) {
-        const getUrl = `https://e-tailorapi.azurewebsites.net/api/template-body-size/template/${saveProductTemplateId}`;
+        const getUrl = `https://e-tailorapi.azurewebsites.net/api/template-body-size/template/${id}`;
         try {
           const response = await fetch(getUrl, {
             method: "POST",
@@ -413,7 +557,7 @@ export const ManagementCreateProductTemplate = () => {
   const onFinishStep1 = async () => {
     const values = form.getFieldsValue();
     const formData = new FormData();
-    formData.append("Id", saveProductTemplateId ? saveProductTemplateId : null);
+    formData.append("Id", id);
     formData.append("CategoryId", values.CategoryId);
     formData.append("Name", values.Name);
     formData.append("Description", values.Description);
@@ -431,9 +575,9 @@ export const ManagementCreateProductTemplate = () => {
     for (var pair of formData.entries()) {
       console.log(pair[0] + ", " + pair[1]);
     }
-    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/template-management/create-template`;
+    const urlCreate = `https://e-tailorapi.azurewebsites.net/api/template-management/create-template`;
     try {
-      const response = await fetch(urlCreateMaterialType, {
+      const response = await fetch(urlCreate, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${manager?.token}`,
@@ -442,13 +586,7 @@ export const ManagementCreateProductTemplate = () => {
       });
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
-        setSaveProductTemplate((prev) => {
-          if (prev) {
-            return prev;
-          } else {
-            return responseData;
-          }
-        });
+
         Swal.fire({
           position: "top-center",
           icon: "success",
@@ -483,7 +621,7 @@ export const ManagementCreateProductTemplate = () => {
     formData.append("ImageFile", values.image);
     formData.append("Default", values.default);
 
-    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/Component/template/${saveProductTemplateId}/${values.componentTypeId}`;
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/Component/template/${id}/${values.componentTypeId}`;
     try {
       const response = await fetch(urlCreateMaterialType, {
         method: "POST",
@@ -504,7 +642,7 @@ export const ManagementCreateProductTemplate = () => {
   };
 
   const handleGetComponentType = async () => {
-    const getDetailUrl = `https://e-tailorapi.azurewebsites.net/api/template/${saveProductTemplateId}/component-types`;
+    const getDetailUrl = `https://e-tailorapi.azurewebsites.net/api/template/${id}/component-types`;
     try {
       const response = await fetch(getDetailUrl, {
         method: "GET",
@@ -523,7 +661,7 @@ export const ManagementCreateProductTemplate = () => {
   };
   useEffect(() => {
     handleGetComponentType();
-  }, [saveProductTemplateId]);
+  }, []);
 
   const handleDeleteComponent = async (
     templateId,
@@ -628,7 +766,7 @@ export const ManagementCreateProductTemplate = () => {
   };
   const handleCompletedTemplate = async () => {
     const step4Check = form.getFieldValue(["items"]);
-    const postlUrl = `https://e-tailorapi.azurewebsites.net/api/template-stage/template/${saveProductTemplateId}`;
+    const postlUrl = `https://e-tailorapi.azurewebsites.net/api/template-stage/template/${id}`;
     try {
       const response = await fetch(postlUrl, {
         method: "POST",
@@ -665,6 +803,35 @@ export const ManagementCreateProductTemplate = () => {
   useEffect(() => {
     handleGetComponentTypesCategory();
   }, [saveCategoryId]);
+
+  //--------------------------------------------------------------Cập nhật bản mẫu-----------------------------------------------------------
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
+  const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
+
+  useEffect(() => {
+    const handleGetDetail = async () => {
+      const urlProductDetail = `https://localhost:7259/api/template-management/detail/${id}`;
+      setLoadingUpdate(true);
+      try {
+        const response = await fetch(`${urlProductDetail}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setLoadingUpdate(false);
+          console.log("response: ", responseData);
+          setDataDetailForUpdate(responseData);
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    };
+    handleGetDetail();
+  }, []);
 
   const steps = [
     {
@@ -718,7 +885,7 @@ export const ManagementCreateProductTemplate = () => {
               >
                 <Select
                   onChange={(value) => setSaveCategoryId(value)}
-                  disabled={saveProductTemplateId}
+                  disabled={id}
                 >
                   {getCategory &&
                     getCategory?.map((category) => {
@@ -766,6 +933,39 @@ export const ManagementCreateProductTemplate = () => {
                 ]}
               >
                 <TextArea rows={4} />
+              </Form.Item>
+              <Form.Item
+                label="Thumbnail"
+                valuePropName="fileList"
+                getValueFromEvent={getFileThumbnail}
+                name="ThumbnailImageFile"
+                rules={[
+                  {
+                    required: true,
+                    message: "Thumbnail không được để trống",
+                  },
+                ]}
+              >
+                <Upload
+                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                  listType="picture-card"
+                  maxCount={1}
+                  showUploadList={false}
+                >
+                  {thumbnailUrl ? (
+                    <img
+                      src={thumbnailUrl}
+                      alt="thumbnail"
+                      style={{
+                        width: "131px",
+                        height: "131px",
+                        borderRadius: "10px",
+                      }}
+                    />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
               </Form.Item>
               <Form.Item
                 label="Hình ảnh bản mẫu"
@@ -865,39 +1065,6 @@ export const ManagementCreateProductTemplate = () => {
                     ))}
                 </Row>
               </Form.Item>
-              <Form.Item
-                label="Thumbnail"
-                valuePropName="fileList"
-                getValueFromEvent={getFileThumbnail}
-                name="ThumbnailImageFile"
-                rules={[
-                  {
-                    required: true,
-                    message: "Thumbnail không được để trống",
-                  },
-                ]}
-              >
-                <Upload
-                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                  listType="picture-card"
-                  maxCount={1}
-                  showUploadList={false}
-                >
-                  {thumbnailUrl ? (
-                    <img
-                      src={thumbnailUrl}
-                      alt="thumbnail"
-                      style={{
-                        width: "131px",
-                        height: "131px",
-                        borderRadius: "10px",
-                      }}
-                    />
-                  ) : (
-                    uploadButton
-                  )}
-                </Upload>
-              </Form.Item>
             </Form>
           </Col>
         </Row>
@@ -978,20 +1145,8 @@ export const ManagementCreateProductTemplate = () => {
                                             <DeleteOutlined
                                               key="delete"
                                               onClick={() => {
-                                                console.log(
-                                                  "Thang ong noi: ",
-                                                  saveProductTemplateId
-                                                );
-                                                console.log(
-                                                  "Thang cha: ",
-                                                  data
-                                                );
-                                                console.log(
-                                                  "Thang con: ",
-                                                  component
-                                                );
                                                 handleDeleteComponent(
-                                                  saveProductTemplateId,
+                                                  id,
                                                   data.id,
                                                   component.id
                                                 );
@@ -1034,7 +1189,7 @@ export const ManagementCreateProductTemplate = () => {
               onCancel={() => {
                 setOpen(false);
               }}
-              saveProductTemplateId={saveProductTemplateId}
+              saveProductTemplateId={id}
               componentTypeCreateData={componentTypeCreateData}
             />
           </Row>
@@ -1229,78 +1384,58 @@ export const ManagementCreateProductTemplate = () => {
 
   return (
     <div>
-      <div
-        style={{
-          padding: "20px 20px",
-          backgroundColor: "#FFFFFF",
-          border: "1px solid #9F78FF",
-        }}
-        className="manager-header"
-      >
-        <ManagementProductTemplateHeader />
-      </div>
-      <div
-        className="manager-content"
-        style={{
-          height: "83vh",
-          overflowY: "scroll",
-          border: "1px solid #9F78FF",
-        }}
-      >
-        <Divider orientation="center" style={{ marginTop: 0 }}>
-          <Title level={3}>Tạo mới bản mẫu</Title>
-        </Divider>
+      <Divider orientation="center" style={{ marginTop: 0 }}>
+        <Title level={3}>Cập nhật bản mẫu</Title>
+      </Divider>
+      <div>
         <div>
-          <div>
-            <Steps current={current} items={items} />
-
-            <div>{steps[current].content}</div>
-            <div
-              style={{
-                marginTop: 24,
-                display: "flex",
-                justifyContent: "space-around",
-              }}
-            >
-              <div>
-                <Link to="/manager/product-template">
-                  <Button icon={<RollbackOutlined />}>Thoát</Button>
-                </Link>
-              </div>
-              <div>
-                {current < steps.length - 1 && (
-                  <Button
-                    type="primary"
-                    onClick={() => {
-                      if (current === 0) {
-                        handleNext();
-                      } else {
-                        next();
-                      }
-                    }}
-                  >
-                    Tiếp theo
-                  </Button>
-                )}
-                {current === steps.length - 1 && (
-                  <Button
-                    type="primary"
-                    onClick={() => handleCompletedTemplate()}
-                  >
-                    Hoàn Thành
-                  </Button>
-                )}
-                {current > 0 && (
-                  <Button
-                    style={{
-                      margin: "0 8px",
-                    }}
-                    onClick={() => prev()}
-                  >
-                    Quay lại
-                  </Button>
-                )}
-              </div>
+          <Steps current={current} items={items} />
+          <div>{steps[current].content}</div>
+          <div
+            style={{
+              marginTop: 24,
+              display: "flex",
+              justifyContent: "space-around",
+            }}
+          >
+            <div>
+              <Link to="/manager/product-template">
+                <Button icon={<RollbackOutlined />}>Thoát</Button>
+              </Link>
+            </div>
+            <div>
+              {current < steps.length - 1 && (
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    if (current === 0) {
+                      handleNext();
+                    } else {
+                      next();
+                    }
+                  }}
+                >
+                  Tiếp theo
+                </Button>
+              )}
+              {current === steps.length - 1 && (
+                <Button
+                  type="primary"
+                  onClick={() => handleCompletedTemplate()}
+                >
+                  Hoàn Thành
+                </Button>
+              )}
+              {current > 0 && (
+                <Button
+                  style={{
+                    margin: "0 8px",
+                  }}
+                  onClick={() => prev()}
+                >
+                  Quay lại
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -1309,308 +1444,8 @@ export const ManagementCreateProductTemplate = () => {
   );
 };
 
-const CollectionCreateFormStep2 = ({
-  open,
-  onCreate,
-  onCancel,
-  componentTypeId,
-  componentTypeCreateData,
-}) => {
-  const [form] = Form.useForm();
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const loading = false;
-  const [compomentUrl, setComponentUrl] = useState(null);
-  const [postComponentUrl, setPostComponentUrl] = useState(null);
-  const [loadingCreate, setLoadingCreate] = useState(false);
-
-  const getFileComponent = (e) => {
-    console.log(e);
-    const file = e.fileList[0];
-    if (file && file.originFileObj) {
-      setPostComponentUrl(file.originFileObj);
-      const reader = new FileReader();
-      reader.readAsDataURL(file.originFileObj);
-      reader.onload = () => {
-        setComponentUrl(reader.result);
-      };
-    }
-    return e && e.fileList;
-  };
-
-  const uploadButton = (
-    <button
-      style={{
-        border: 0,
-        background: "none",
-      }}
-      type="button"
-    >
-      {loading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div
-        style={{
-          marginTop: 8,
-        }}
-      >
-        Upload
-      </div>
-    </button>
-  );
-  return (
-    <Modal
-      width={300}
-      open={open}
-      title={`Thêm kiểu cho ${componentTypeCreateData?.name}`}
-      okText="Tạo mới"
-      cancelText="Hủy bỏ"
-      onCancel={() => {
-        onCancel();
-        form.resetFields();
-        setComponentUrl(null);
-      }}
-      onOk={() => {
-        form
-          .validateFields()
-          .then(async (values) => {
-            setLoadingCreate(true);
-            const backendData = {
-              componentTypeId: componentTypeCreateData.id,
-              name: values.Name,
-              image: postComponentUrl,
-              default: values.Default,
-            };
-            const checkResult = await onCreate(backendData);
-            if (checkResult === 1) {
-              form.resetFields();
-              setComponentUrl(null);
-              onCancel();
-            }
-            setLoadingCreate(false);
-          })
-          .catch((info) => {
-            console.log("Validate Failed:", info);
-          });
-      }}
-    >
-      <Form
-        form={form}
-        layout="vertical"
-        name="form_in_modal"
-        initialValues={{
-          modifier: "public",
-          Default: false,
-        }}
-      >
-        <Form.Item
-          name="Name"
-          label="Tên kiểu"
-          rules={[
-            {
-              required: true,
-              message: "Please input the title of collection!",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Thêm hình ảnh"
-          valuePropName="fileList"
-          getValueFromEvent={getFileComponent}
-          name="ImageFile"
-          rules={[
-            {
-              required: true,
-              message: "Thumbnail không được để trống",
-            },
-          ]}
-        >
-          <Upload
-            action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-            listType="picture-card"
-            maxCount={1}
-            showUploadList={false}
-          >
-            {compomentUrl ? (
-              <img
-                src={compomentUrl}
-                alt="component"
-                style={{
-                  width: "131px",
-                  height: "131px",
-                  borderRadius: "10px",
-                }}
-              />
-            ) : (
-              uploadButton
-            )}
-          </Upload>
-        </Form.Item>
-        <Form.Item name="Default" valuePropName="checked">
-          <Checkbox>Mặc định</Checkbox>
-        </Form.Item>
-      </Form>
-    </Modal>
-  );
-};
-
-const ManagementProductTemplateContent = () => {
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const [loading, setLoading] = useState(false);
-  const [getProductTemplate, setGetProductTemplate] = useState([]);
-  const getUrl =
-    "https://e-tailorapi.azurewebsites.net/api/template-management/templates";
-
-  const handleGetProductTemplate = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(getUrl, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setLoading(false);
-        setGetProductTemplate(responseData);
-      }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
-  };
-  const handleDeleteProductTemplate = async (id) => {
-    Swal.fire({
-      title: "Bạn có muốn xóa bản mẫu này?",
-      showCancelButton: true,
-      confirmButtonText: "Xóa",
-      cancelButtonText: "Hủy bỏ",
-    }).then(async (result) => {
-      /* Read more about isConfirmed, isDenied below */
-      if (result.isConfirmed) {
-        const deleteUrl = `https://e-tailorapi.azurewebsites.net/api/template-management/delete-template/${id}`;
-        try {
-          const response = await fetch(deleteUrl, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${manager?.token}`,
-            },
-          });
-          if (response.ok && response.status === 200) {
-            const responseData = await response.text();
-            await Swal.fire({
-              icon: "success",
-              text: "Xóa bản mẫu thành công!",
-              timer: 1500,
-            });
-            handleGetProductTemplate();
-          }
-        } catch (error) {
-          console.error("Error calling API:", error);
-        }
-      } else if (result.isDenied) {
-        Swal.fire("Changes are not saved", "", "info");
-      }
-    });
-  };
-  useEffect(() => {
-    handleGetProductTemplate();
-  }, []);
-
-  return (
-    <div>
-      <div>
-        <div>
-          <Flex wrap="wrap" gap="small">
-            <Button icon={<PushpinOutlined />}>
-              Tổng cộng ({getProductTemplate?.length})
-            </Button>
-            <Link to="/manager/create/product-template">
-              <Button icon={<PlusCircleOutlined />}>Thêm mới</Button>
-            </Link>
-          </Flex>
-        </div>
-        <div>
-          <Divider plain icon={<PushpinOutlined />}>
-            <Title level={4}> Bản mẫu sản phẩm hiện có</Title>
-          </Divider>
-          <div>
-            <br />
-            {loading ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "450px",
-                }}
-              >
-                <CircularProgress />
-              </div>
-            ) : (
-              <Row gutter={[16, 24]}>
-                {getProductTemplate.map((productTemplate) => {
-                  return (
-                    <Col
-                      className="gutter-row"
-                      span={6}
-                      style={{ display: "flex", justifyContent: "center" }}
-                    >
-                      <Card
-                        bordered
-                        style={{
-                          width: 200,
-                        }}
-                        cover={
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                              padding: 10,
-                            }}
-                          >
-                            <Image
-                              width={190}
-                              src={productTemplate.thumbnailImage}
-                              style={{
-                                height: 200,
-                                objectFit: "cover",
-                              }}
-                            />
-                          </div>
-                        }
-                        actions={[
-                          <Link
-                            to={`/manager/update/product-template/${productTemplate.id}`}
-                          >
-                            <EditOutlined key="edit" />
-                          </Link>,
-                          <DeleteOutlined
-                            key="delete"
-                            onClick={() =>
-                              handleDeleteProductTemplate(productTemplate.id)
-                            }
-                          />,
-                        ]}
-                      >
-                        <Meta title={productTemplate.name} />
-                      </Card>
-                    </Col>
-                  );
-                })}
-              </Row>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-function ManagementProductTemplate() {
+function ManagementUpdateProductTemplate() {
+  const { id } = useParams();
   const manager = JSON.parse(localStorage.getItem("manager"));
   return (
     <div>
@@ -1622,7 +1457,7 @@ function ManagementProductTemplate() {
         }}
         className="manager-header"
       >
-        <ManagementProductTemplateHeader />
+        <ManagementUpdateProductTemplateHeader />
       </div>
       <div
         className="manager-content"
@@ -1633,11 +1468,11 @@ function ManagementProductTemplate() {
         }}
       >
         <div>
-          <ManagementProductTemplateContent />
+          <ManagementUpdateProductTemplateContent />
         </div>
       </div>
     </div>
   );
 }
 
-export default ManagementProductTemplate;
+export default ManagementUpdateProductTemplate;
