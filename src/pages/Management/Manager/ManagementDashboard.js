@@ -39,6 +39,7 @@ const options = {
   },
 };
 const labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 export default function ManagementDashboard() {
   const OrderStatistic = ({ searchMonth, searchYear }) => {
     const [orderStatistic, setOrderStatistic] = useState([]);
@@ -46,15 +47,14 @@ export default function ManagementDashboard() {
     useEffect(() => {
       const manager = JSON.parse(localStorage.getItem("manager"));
       const baseOrderStatisticURL = "https://e-tailorapi.azurewebsites.net/api/Dashboard/order-dashboard";
-    
+
       const fetchOrderStatistic = async () => {
         let url = baseOrderStatisticURL;
-    
+
         const params = new URLSearchParams();
         if (searchYear) params.append('year', searchYear);
         if (searchMonth) params.append('month', searchMonth);
-        if (params.toString()) url += `?${params.toString()}`; // Append query parameters to the URL if any
-    
+        if (params.toString()) url += `?${params.toString()}`;
         try {
           const response = await fetch(url, {
             method: "GET",
@@ -72,10 +72,11 @@ export default function ManagementDashboard() {
           console.log("Error:", error);
         }
       };
-    
+
       fetchOrderStatistic();
     }, [searchMonth, searchYear]);
-    
+
+
     return (
 
 
@@ -192,11 +193,13 @@ export default function ManagementDashboard() {
       </Row>
     )
   }
-  const [searchMonth, setSearchMonth] = useState(new Date().getMonth())
+  const [searchMonth, setSearchMonth] = useState(new Date().getMonth() + 1)
+  console.log("searchMonth", searchMonth)
   const handleChoseMonth = (value) => {
     setSearchMonth(value)
   }
   const [searchYear, setSearchYear] = useState(new Date().getFullYear())
+  console.log("search year", searchYear)
   const handleChoseYear = (date, dateString) => {
     setSearchYear(dateString)
   }
@@ -217,6 +220,19 @@ export default function ManagementDashboard() {
   const disabledDate = (current) => {
     return current && current > dayjs().endOf('year');
   };
+
+  const generateMonthOptions = async () => {
+    const currentYear = dayjs().year();
+    const isCurrentYear = parseInt(searchYear, 10) === currentYear;
+    const currentMonth = dayjs().month() + 1;
+
+    return Array.from({ length: 12 }, (_, i) => ({
+      value: i + 1,
+      label: `Tháng ${i + 1}`,
+      disabled: isCurrentYear && i + 1 > currentMonth,
+    }));
+  };
+
   return (
     <div style={{ width: "100%", height: "99vh", backgroundColor: "#f0f4f5", borderRadius: 10, border: "1px solid #9F78FF", overflowY: "scroll", scrollbarWidth: "none" }}>
       <div style={{ padding: "5px 20px" }}>
@@ -232,71 +248,7 @@ export default function ManagementDashboard() {
               style={{ width: 200, height: 40 }}
               suffixIcon={<CalendarOutlined style={{ fontSize: 14 }} />}
               onChange={handleChoseMonth}
-              options={[
-                {
-                  value: 1,
-                  label: 'Tháng 1',
-                  disabled: searchYear === dayjs().format('YYYY') && 1 > dayjs().month() + 1 ? true : false
-                },
-                {
-                  value: 2,
-                  label: 'Tháng 2',
-                  disabled: searchYear === dayjs().format('YYYY') && 2 > dayjs().month() + 1 ? true : false
-
-                },
-                {
-                  value: 3,
-                  label: 'Tháng 3',
-                  disabled: searchYear === dayjs().format('YYYY') && 3 > dayjs().month() + 1 ? true : false
-
-                },
-                {
-                  value: 4,
-                  label: 'Tháng 4',
-                  disabled: searchYear === dayjs().format('YYYY') && 4 > dayjs().month() + 1 ? true : false
-
-                },
-                {
-                  value: 5,
-                  label: 'Tháng 5',
-                  disabled: searchYear === dayjs().format('YYYY') && 5 > dayjs().month() + 1 ? true : false
-                },
-                {
-                  value: 6,
-                  label: 'Tháng 6',
-                  disabled: searchYear === dayjs().format('YYYY') && 6 > dayjs().month() + 1 ? true : false
-                },
-                {
-                  value: 7,
-                  label: 'Tháng 7',
-                  disabled: searchYear === dayjs().format('YYYY') && 7 > dayjs().month() + 1 ? true : false
-                },
-                {
-                  value: 8,
-                  label: 'Tháng 8',
-                  disabled: searchYear === dayjs().format('YYYY') && 8 > dayjs().month() + 1 ? true : false
-                },
-                {
-                  value: 9,
-                  label: 'Tháng 9',
-                  disabled: searchYear === dayjs().format('YYYY') && 9 > dayjs().month() + 1 ? true : false
-                },
-                {
-                  value: 10,
-                  label: 'Tháng 10',
-                  disabled: searchYear === dayjs().format('YYYY') && 10 > dayjs().month() + 1 ? true : false
-                },
-                {
-                  value: 11,
-                  label: 'Tháng 11',
-                  disabled: searchYear === dayjs().format('YYYY') && 11 > dayjs().month() + 1 ? true : false
-                },
-                {
-                  value: 12,
-                  label: 'Tháng 12',
-                  disabled: searchYear === dayjs().format('YYYY') && 12 > dayjs().month() + 1 ? true : false
-                },
-              ]}
+              options={generateMonthOptions()}
             />
           </Space>
           <Space direction="vertical" size={5} style={{ width: 200, marginLeft: 40 }}>
