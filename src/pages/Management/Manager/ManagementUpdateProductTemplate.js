@@ -13,6 +13,7 @@ import {
   CloseOutlined,
   UploadOutlined,
   LoadingOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel } from "antd";
 import "./index.css";
@@ -165,7 +166,6 @@ const CollectionCreateFormStep2 = ({
     }
     return e && e.fileList;
   };
-
   const uploadButton = (
     <button
       style={{
@@ -288,10 +288,14 @@ const ManagementUpdateProductTemplateContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const loading = false;
   const [form] = Form.useForm();
+  const [formUpdateStep1] = Form.useForm();
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
+  const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
   //-----------------------------------------------Hinh anh buoc 1
   const [imageUrl, setImageUrl] = useState(null);
   const [postImageUrl, setPostImageUrl] = useState(null);
   const [uploadKey, setUploadKey] = useState(0);
+  const [oldImages, setOldImages] = useState(null);
 
   //-----------------------------------------------thumbnail buoc 1
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
@@ -301,6 +305,7 @@ const ManagementUpdateProductTemplateContent = () => {
   const [collectionUrl, setCollectionUrl] = useState(null);
   const [uploadKeyCollection, setUploadKeyCollection] = useState(0);
   const [postUploadKeyCollection, setPostUploadKeyCollection] = useState(null);
+  const [oldImagesCollection, setOldImagesCollection] = useState(null);
 
   const [current, setCurrent] = useState(0);
   const getFile = async (e) => {
@@ -374,7 +379,8 @@ const ManagementUpdateProductTemplateContent = () => {
       } else {
         // Loại bỏ các URL ảnh đã tồn tại trong mảng trước khi thêm vào
         const filteredResults = files.filter(
-          (files) => !prevResults.includes(files)
+          (files) =>
+            !prevResults.includes(files) && oldImagesCollection.includes(files)
         );
         return [...prevResults, ...filteredResults];
       }
@@ -402,7 +408,9 @@ const ManagementUpdateProductTemplateContent = () => {
       } else {
         // Loại bỏ các URL ảnh đã tồn tại trong mảng trước khi thêm vào
         const filteredResults = newResults.filter(
-          (newResult) => !prevResults.includes(newResult)
+          (newResult) =>
+            !prevResults.includes(newResult) &&
+            oldImagesCollection.includes(files)
         );
         return [...prevResults, ...filteredResults];
       }
@@ -416,6 +424,7 @@ const ManagementUpdateProductTemplateContent = () => {
 
   const clearAllImagesCollection = () => {
     setCollectionUrl(null);
+
     setPostUploadKeyCollection(null);
   };
   const handleClearAllImagesCollection = async () => {
@@ -444,7 +453,7 @@ const ManagementUpdateProductTemplateContent = () => {
         const getUrl = `https://e-tailorapi.azurewebsites.net/api/template-body-size/template/${id}`;
         try {
           const response = await fetch(getUrl, {
-            method: "POST",
+            method: "PUT",
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${manager?.token}`,
@@ -453,7 +462,6 @@ const ManagementUpdateProductTemplateContent = () => {
           });
           if (response.ok && response.status === 200) {
             const responseData = await response.text();
-            console.log("body size step 3:", responseData);
             setCurrent(current + 1);
           }
         } catch (error) {
@@ -495,12 +503,14 @@ const ManagementUpdateProductTemplateContent = () => {
   const clearAllImages = () => {
     setImageUrl(null);
     setPostImageUrl(null);
+    setOldImages(null);
   };
   const handleClearAllImages = async () => {
     clearAllImages();
   };
   //-------------------------------------------------------------step 1----------------------------------------------
   const [getCategory, setCategory] = useState([]);
+  const [step3, setStep3] = useState([]);
   const getUrl =
     "https://e-tailorapi.azurewebsites.net/api/category-management";
 
@@ -521,12 +531,9 @@ const ManagementUpdateProductTemplateContent = () => {
       console.error("Error calling API:", error);
     }
   };
-
-  const [saveCategoryId, setSaveCategoryId] = useState(null);
   const [categoryDetailData, setCategoryDetailData] = useState({});
-
   const handleGetDetailCategory = async () => {
-    const getDetailUrl = `https://e-tailorapi.azurewebsites.net/api/category-management/${saveCategoryId}`;
+    const getDetailUrl = `https://e-tailorapi.azurewebsites.net/api/category-management/${dataDetailForUpdate.category.id}`;
     try {
       const response = await fetch(getDetailUrl, {
         method: "GET",
@@ -543,26 +550,81 @@ const ManagementUpdateProductTemplateContent = () => {
       console.error("Error calling API:", error);
     }
   };
+  const handleGetDataCategoryStep3 = async () => {
+    const getDetailUrl = `https://e-tailorapi.azurewebsites.net/api/template-body-size/template/${id}/manager`;
+    try {
+      const response = await fetch(getDetailUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        console.log("responseData", responseData);
+        setStep3(responseData.map((item) => item.id));
+        setSaveBodySize([responseData.map((item) => item.id)]);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  const handleGetDataCategoryStep4 = async () => {
+    const getDetailUrl = `https://e-tailorapi.azurewebsites.net/api/template-stage/template/${id}`;
+    try {
+      const response = await fetch(getDetailUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        console.log(
+          "responseDataresponseDataresponseDataresponseData: ",
+          responseData
+        );
+        const transformedData = responseData.map((stage) => ({
+          name: stage.name,
+          componentTypeIds: stage.componentStages.map(
+            (component) => component.componentTypeId
+          ),
+        }));
+
+        // Now use form.setFieldsValue to set the initialValues of the Form.List
+        form.setFieldsValue({ transformedData });
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
 
   useEffect(() => {
-    if (saveCategoryId) {
+    if (dataDetailForUpdate) {
       handleGetDetailCategory();
+      handleGetDataCategoryStep3();
+      handleGetDataCategoryStep4();
     }
-  }, [saveCategoryId]);
+  }, [dataDetailForUpdate]);
 
   //--------------------------------------------------------------------------------------------------------------
   useEffect(() => {
     handleGetCategory();
   }, []);
   const onFinishStep1 = async () => {
-    const values = form.getFieldsValue();
+    const values = formUpdateStep1.getFieldsValue();
     const formData = new FormData();
     formData.append("Id", id);
     formData.append("CategoryId", values.CategoryId);
     formData.append("Name", values.Name);
     formData.append("Description", values.Description);
     formData.append("Price", values.Price);
-    formData.append("ThumbnailImageFile", postThumbnailUrl);
+    formData.append(
+      "ThumbnailImageFile",
+      postThumbnailUrl?.search(/firebasestorage/) ? "" : postThumbnailUrl
+    );
     if (postImageUrl?.length >= 1) {
       postImageUrl.map((item) => formData.append("ImageFiles", item));
     }
@@ -571,14 +633,23 @@ const ManagementUpdateProductTemplateContent = () => {
         formData.append("CollectionImageFiles", item)
       );
     }
+    oldImages &&
+      oldImages.forEach((image) => {
+        formData.append("OldImages", image);
+      });
+
+    oldImagesCollection &&
+      oldImagesCollection.forEach((imageCollection) => {
+        formData.append("OldCollectionImages", imageCollection);
+      });
 
     for (var pair of formData.entries()) {
       console.log(pair[0] + ", " + pair[1]);
     }
-    const urlCreate = `https://e-tailorapi.azurewebsites.net/api/template-management/create-template`;
+    const urlCreate = `https://e-tailorapi.azurewebsites.net/api/template-management/update-template/${id}`;
     try {
       const response = await fetch(urlCreate, {
-        method: "POST",
+        method: "PUT",
         headers: {
           Authorization: `Bearer ${manager?.token}`,
         },
@@ -586,16 +657,26 @@ const ManagementUpdateProductTemplateContent = () => {
       });
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
-
         Swal.fire({
           position: "top-center",
           icon: "success",
-          title: "Hoàn thành bước đầu rồi yeah!",
+          title: "Cập nhật được bước đầu rồi yeah!",
           showConfirmButton: false,
           timer: 1500,
         });
+
         next();
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 3500,
+        });
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -705,6 +786,7 @@ const ManagementUpdateProductTemplateContent = () => {
   const [saveBodySize, setSaveBodySize] = useState([]);
 
   const handleChange = (value) => {
+    console.log(value);
     setSaveBodySize([value]);
   };
   const [dataBodySize, setDataBodySize] = useState([]);
@@ -721,7 +803,6 @@ const ManagementUpdateProductTemplateContent = () => {
       });
       if (response.ok && response.status === 200) {
         const responseData = await response.json();
-        console.log("DATA BODY SIZE :", responseData);
         setDataBodySize(responseData);
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
@@ -744,10 +825,11 @@ const ManagementUpdateProductTemplateContent = () => {
 
   //--------------------------------------------------------------step 4---------------------------------------------
   const [itemCategoryStep4, setItemCategoryStep4] = useState([]);
+
   const navigate = useNavigate();
 
   const handleGetComponentTypesCategory = async () => {
-    const getlUrl = `https://e-tailorapi.azurewebsites.net/api/category/${saveCategoryId}/component-types`;
+    const getlUrl = `https://e-tailorapi.azurewebsites.net/api/category/${dataDetailForUpdate?.category?.id}/component-types`;
     try {
       const response = await fetch(getlUrl, {
         method: "GET",
@@ -765,16 +847,23 @@ const ManagementUpdateProductTemplateContent = () => {
     }
   };
   const handleCompletedTemplate = async () => {
-    const step4Check = form.getFieldValue(["items"]);
+    const step4Check = form.getFieldValue();
+    console.log("step4Check", step4Check);
+    const beData = step4Check?.items?.map((stage) => ({
+      id: id,
+      name: stage.name,
+      componentTypeIds: stage.componentTypeIds,
+    }));
+    console.log("beData", beData);
     const postlUrl = `https://e-tailorapi.azurewebsites.net/api/template-stage/template/${id}`;
     try {
       const response = await fetch(postlUrl, {
-        method: "POST",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${manager?.token}`,
         },
-        body: JSON.stringify(step4Check),
+        body: JSON.stringify(beData),
       });
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
@@ -802,15 +891,13 @@ const ManagementUpdateProductTemplateContent = () => {
   };
   useEffect(() => {
     handleGetComponentTypesCategory();
-  }, [saveCategoryId]);
+  }, []);
 
   //--------------------------------------------------------------Cập nhật bản mẫu-----------------------------------------------------------
-  const [loadingUpdate, setLoadingUpdate] = useState(false);
-  const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
 
   useEffect(() => {
     const handleGetDetail = async () => {
-      const urlProductDetail = `https://localhost:7259/api/template-management/detail/${id}`;
+      const urlProductDetail = `https://e-tailorapi.azurewebsites.net/api/template-management/detail/${id}`;
       setLoadingUpdate(true);
       try {
         const response = await fetch(`${urlProductDetail}`, {
@@ -833,14 +920,71 @@ const ManagementUpdateProductTemplateContent = () => {
     handleGetDetail();
   }, []);
 
+  useEffect(() => {
+    formUpdateStep1.setFieldsValue({
+      Name: dataDetailForUpdate?.name,
+      CategoryId: dataDetailForUpdate?.category?.id,
+      Price: dataDetailForUpdate?.price,
+      Description: dataDetailForUpdate?.description,
+      ThumbnailImageFile: dataDetailForUpdate?.thumbnailImage
+        ? [
+            {
+              uid: "-1",
+              name: "thumbnail.png",
+              status: "done",
+              url: dataDetailForUpdate.thumbnailImage,
+            },
+          ]
+        : [],
+    });
+    if (dataDetailForUpdate?.thumbnailImage) {
+      setThumbnailUrl(dataDetailForUpdate.thumbnailImage);
+      setPostThumbUrl(dataDetailForUpdate?.thumbnailImage);
+    }
+    if (dataDetailForUpdate?.image) {
+      try {
+        const convertJSON = JSON.parse(dataDetailForUpdate.image);
+        if (Array.isArray(convertJSON)) {
+          setOldImages(convertJSON);
+        } else {
+          console.error("Parsed image data is not an array.");
+        }
+      } catch (error) {
+        console.error("Error parsing image data:", error);
+      }
+    } else if (dataDetailForUpdate?.collectionImage) {
+      try {
+        const convertJSON = JSON.parse(dataDetailForUpdate.collectionImage);
+        if (Array.isArray(convertJSON)) {
+          setOldImagesCollection(convertJSON);
+        } else {
+          console.error("Parsed image data is not an array.");
+        }
+      } catch (error) {
+        console.error("Error parsing image data:", error);
+      }
+    }
+  }, [dataDetailForUpdate]);
+
   const steps = [
     {
       title: "Khởi tạo bản mẫu",
-      content: (
+      content: loadingUpdate ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "450px",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
         <Row justify="center" style={{ marginTop: 24 }}>
           <Col span={24}>
             <Form
-              form={form}
+              form={formUpdateStep1}
               name="basic"
               labelCol={{
                 span: 8,
@@ -856,7 +1000,7 @@ const ManagementUpdateProductTemplateContent = () => {
               }}
               autoComplete="off"
             >
-              {form.getFieldError("name").map((error) => (
+              {formUpdateStep1.getFieldError("name").map((error) => (
                 <Alert message={error} type="error" />
               ))}
               <Form.Item
@@ -883,10 +1027,7 @@ const ManagementUpdateProductTemplateContent = () => {
                   },
                 ]}
               >
-                <Select
-                  onChange={(value) => setSaveCategoryId(value)}
-                  disabled={id}
-                >
+                <Select disabled={id}>
                   {getCategory &&
                     getCategory?.map((category) => {
                       return (
@@ -984,7 +1125,7 @@ const ManagementUpdateProductTemplateContent = () => {
                   >
                     <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
                   </Upload>
-                  {imageUrl && (
+                  {(imageUrl || oldImages) && (
                     <Button
                       icon={<UploadOutlined />}
                       onClick={handleClearAllImages}
@@ -994,26 +1135,81 @@ const ManagementUpdateProductTemplateContent = () => {
                   )}
                 </div>
                 <Row gutter={[16, 24]}>
-                  {imageUrl &&
-                    imageUrl.map((url, index) => (
+                  {oldImages &&
+                    oldImages.map((url, index) => (
                       <Col
                         className="gutter-row"
                         span={6}
-                        key={`image_${index}`}
+                        key={`old_image_${index}`}
                       >
-                        <img
-                          src={url}
-                          alt={`image_${index}`}
-                          style={{
-                            width: 129,
-                            height: 129,
-                            borderRadius: 10,
-                            border: "1px solid #9F78FF",
-                            marginTop: 10,
-                          }}
-                        />
+                        <div style={{ position: "relative" }}>
+                          <img
+                            src={url}
+                            alt={`Old image ${index}`}
+                            style={{
+                              width: 129,
+                              height: 129,
+                              borderRadius: 10,
+                              border: "1px solid #9F78FF",
+                              marginTop: 10,
+                            }}
+                          />
+                          <CloseCircleOutlined
+                            onClick={() =>
+                              setOldImages(
+                                oldImages.filter((_, idx) => idx !== index)
+                              )
+                            }
+                            style={{
+                              position: "absolute",
+                              right: "10px",
+                              top: "10px",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </div>
                       </Col>
                     ))}
+                  {imageUrl &&
+                    imageUrl.map((url, index) => {
+                      return (
+                        <Col
+                          className="gutter-row"
+                          span={6}
+                          key={`image_${index}`}
+                          style={{ position: "relative", marginTop: 15 }}
+                        >
+                          <img
+                            src={url}
+                            alt={`image_${index}`}
+                            style={{
+                              width: 129,
+                              height: 129,
+                              borderRadius: 10,
+                              border: "1px solid #9F78FF",
+                            }}
+                          />
+                          <CloseCircleOutlined
+                            style={{
+                              fontSize: 15,
+                              position: "absolute",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => {
+                              const newImageUrlArray = imageUrl.filter(
+                                (_, idx) => idx !== index
+                              );
+                              console.log("newImageUrlArray", newImageUrlArray);
+                              setImageUrl(newImageUrlArray);
+                              const newPostImageArray = postImageUrl.filter(
+                                (_, idx) => idx !== index
+                              );
+                              setPostImageUrl(newPostImageArray);
+                            }}
+                          />
+                        </Col>
+                      );
+                    })}
                 </Row>
               </Form.Item>
               <Form.Item
@@ -1033,7 +1229,7 @@ const ManagementUpdateProductTemplateContent = () => {
                   >
                     <Button icon={<UploadOutlined />}>Chọn ảnh</Button>
                   </Upload>
-                  {collectionUrl && (
+                  {(collectionUrl || oldImagesCollection) && (
                     <Button
                       icon={<UploadOutlined />}
                       onClick={handleClearAllImagesCollection}
@@ -1043,12 +1239,50 @@ const ManagementUpdateProductTemplateContent = () => {
                   )}
                 </div>
                 <Row gutter={[16, 24]}>
+                  {oldImagesCollection &&
+                    oldImagesCollection.map((url, index) => (
+                      <Col
+                        className="gutter-row"
+                        span={6}
+                        key={`old_image_${index}`}
+                      >
+                        <div style={{ position: "relative" }}>
+                          <img
+                            src={url}
+                            alt={`Old image ${index}`}
+                            style={{
+                              width: 129,
+                              height: 129,
+                              borderRadius: 10,
+                              border: "1px solid #9F78FF",
+                              marginTop: 10,
+                            }}
+                          />
+                          <CloseCircleOutlined
+                            onClick={() =>
+                              setOldImagesCollection(
+                                oldImagesCollection.filter(
+                                  (_, idx) => idx !== index
+                                )
+                              )
+                            }
+                            style={{
+                              position: "absolute",
+                              right: "10px",
+                              top: "10px",
+                              cursor: "pointer",
+                            }}
+                          />
+                        </div>
+                      </Col>
+                    ))}
                   {collectionUrl &&
                     collectionUrl?.map((url, index) => (
                       <Col
                         className="gutter-row"
                         span={6}
                         key={`image_collection_${index}`}
+                        style={{ position: "relative", marginTop: 15 }}
                       >
                         <img
                           src={url}
@@ -1058,7 +1292,24 @@ const ManagementUpdateProductTemplateContent = () => {
                             height: 129,
                             borderRadius: 10,
                             border: "1px solid #9F78FF",
-                            marginTop: 10,
+                          }}
+                        />
+                        <CloseCircleOutlined
+                          style={{
+                            fontSize: 15,
+                            position: "absolute",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            const newImageUrlArray = collectionUrl.filter(
+                              (_, idx) => idx !== index
+                            );
+                            setCollectionUrl(newImageUrlArray);
+                            const newPostImageArray =
+                              postUploadKeyCollection.filter(
+                                (_, idx) => idx !== index
+                              );
+                            setPostUploadKeyCollection(newPostImageArray);
                           }}
                         />
                       </Col>
@@ -1218,16 +1469,6 @@ const ManagementUpdateProductTemplateContent = () => {
               onChange={handleChange}
               defaultValue={() => {
                 if (saveBodySize) {
-                  // const matchingBodySizes = [];
-                  // for (const bodysize in dataBodySize) {
-                  //   let check = saveBodySize[0].includes(
-                  //     dataBodySize.at(bodysize).id
-                  //   );
-                  //   if (check) {
-                  //     matchingBodySizes.push(dataBodySize.at(bodysize).id);
-                  //   }
-                  // }
-                  // return matchingBodySizes;
                   return saveBodySize[0];
                 }
               }}
@@ -1341,7 +1582,6 @@ const ManagementUpdateProductTemplateContent = () => {
                           </Form.Item>
                         </Card>
                       ))}
-
                       <Button type="dashed" onClick={() => add()} block>
                         + Add Item
                       </Button>
@@ -1361,24 +1601,9 @@ const ManagementUpdateProductTemplateContent = () => {
   }));
 
   const handleNext = async () => {
-    try {
-      const valid = await form.validateFields([
-        "Name",
-        "CategoryId",
-        "Price",
-        "Description",
-        "ImageFiles",
-        "CollectionImageFiles",
-        "ThumbnailImageFile",
-      ]);
-      if (valid) {
-        const check = await onFinishStep1();
-        if (check === 1) {
-          await handleGetComponentType();
-        }
-      }
-    } catch (error) {
-      message.error("Vui lòng điền đầy đủ thông tin trước khi chuyển bước.");
+    const check = await onFinishStep1();
+    if (check === 1) {
+      await handleGetComponentType();
     }
   };
 
@@ -1423,7 +1648,7 @@ const ManagementUpdateProductTemplateContent = () => {
                   type="primary"
                   onClick={() => handleCompletedTemplate()}
                 >
-                  Hoàn Thành
+                  Cập nhật
                 </Button>
               )}
               {current > 0 && (
