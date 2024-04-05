@@ -12,6 +12,8 @@ import {
   CloseOutlined,
   UploadOutlined,
   LoadingOutlined,
+  CloseCircleOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel } from "antd";
 import "./index.css";
@@ -626,6 +628,7 @@ export const ManagementCreateProductTemplate = () => {
       console.error("Error calling API:", error);
     }
   };
+
   const handleCompletedTemplate = async () => {
     const step4Check = form.getFieldValue(["items"]);
     const postlUrl = `https://e-tailorapi.azurewebsites.net/api/template-stage/template/${saveProductTemplateId}`;
@@ -768,6 +771,39 @@ export const ManagementCreateProductTemplate = () => {
                 <TextArea rows={4} />
               </Form.Item>
               <Form.Item
+                label="Thumbnail"
+                valuePropName="fileList"
+                getValueFromEvent={getFileThumbnail}
+                name="ThumbnailImageFile"
+                rules={[
+                  {
+                    required: true,
+                    message: "Thumbnail không được để trống",
+                  },
+                ]}
+              >
+                <Upload
+                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                  listType="picture-card"
+                  maxCount={1}
+                  showUploadList={false}
+                >
+                  {thumbnailUrl ? (
+                    <img
+                      src={thumbnailUrl}
+                      alt="thumbnail"
+                      style={{
+                        width: "131px",
+                        height: "131px",
+                        borderRadius: "10px",
+                      }}
+                    />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
+              </Form.Item>
+              <Form.Item
                 label="Hình ảnh bản mẫu"
                 name="ImageFiles"
                 getValueFromEvent={getFile}
@@ -800,6 +836,7 @@ export const ManagementCreateProductTemplate = () => {
                         className="gutter-row"
                         span={6}
                         key={`image_${index}`}
+                        style={{ position: "relative", marginTop: 15 }}
                       >
                         <img
                           src={url}
@@ -810,6 +847,23 @@ export const ManagementCreateProductTemplate = () => {
                             borderRadius: 10,
                             border: "1px solid #9F78FF",
                             marginTop: 10,
+                          }}
+                        />
+                        <CloseCircleOutlined
+                          style={{
+                            fontSize: 15,
+                            position: "absolute",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            const newImageUrlArray = imageUrl.filter(
+                              (_, idx) => idx !== index
+                            );
+                            setImageUrl(newImageUrlArray);
+                            const newPostImageArray = postImageUrl.filter(
+                              (_, idx) => idx !== index
+                            );
+                            setPostImageUrl(newPostImageArray);
                           }}
                         />
                       </Col>
@@ -861,42 +915,27 @@ export const ManagementCreateProductTemplate = () => {
                             marginTop: 10,
                           }}
                         />
+                        <CloseCircleOutlined
+                          style={{
+                            fontSize: 15,
+                            position: "absolute",
+                            cursor: "pointer",
+                          }}
+                          onClick={() => {
+                            const newImageUrlArray = collectionUrl.filter(
+                              (_, idx) => idx !== index
+                            );
+                            setCollectionUrl(newImageUrlArray);
+                            const newPostImageArray =
+                              postUploadKeyCollection.filter(
+                                (_, idx) => idx !== index
+                              );
+                            setPostUploadKeyCollection(newPostImageArray);
+                          }}
+                        />
                       </Col>
                     ))}
                 </Row>
-              </Form.Item>
-              <Form.Item
-                label="Thumbnail"
-                valuePropName="fileList"
-                getValueFromEvent={getFileThumbnail}
-                name="ThumbnailImageFile"
-                rules={[
-                  {
-                    required: true,
-                    message: "Thumbnail không được để trống",
-                  },
-                ]}
-              >
-                <Upload
-                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                  listType="picture-card"
-                  maxCount={1}
-                  showUploadList={false}
-                >
-                  {thumbnailUrl ? (
-                    <img
-                      src={thumbnailUrl}
-                      alt="thumbnail"
-                      style={{
-                        width: "131px",
-                        height: "131px",
-                        borderRadius: "10px",
-                      }}
-                    />
-                  ) : (
-                    uploadButton
-                  )}
-                </Upload>
               </Form.Item>
             </Form>
           </Col>
@@ -1534,7 +1573,7 @@ const ManagementProductTemplateContent = () => {
         </div>
         <div>
           <Divider plain icon={<PushpinOutlined />}>
-            <Title level={4}> Bản mẫu sản phẩm hiện có</Title>
+            <Title level={4}>Bản mẫu sản phẩm hiện có</Title>
           </Divider>
           <div>
             <br />
@@ -1587,6 +1626,11 @@ const ManagementProductTemplateContent = () => {
                             to={`/manager/update/product-template/${productTemplate.id}`}
                           >
                             <EditOutlined key="edit" />
+                          </Link>,
+                          <Link
+                            to={`/manager/product-template/${productTemplate.id}`}
+                          >
+                            <FileTextOutlined />
                           </Link>,
                           <DeleteOutlined
                             key="delete"

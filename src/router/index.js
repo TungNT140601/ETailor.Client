@@ -46,6 +46,7 @@ import OrderDetail from "../pages/Customer/Orders/OrderDetail";
 import ManagementTask from "../pages/Management/Manager/ManagementTask";
 import ManagementTaskByOrder from "../pages/Management/Manager/ManagementTaskByOrder";
 import ManagementUpdateProductTemplate from "../pages/Management/Manager/ManagementUpdateProductTemplate";
+import ProductTemplateDetail from "../pages/Management/Manager/ProductTemplateDetail";
 
 export const customerRouters = [
   {
@@ -269,6 +270,12 @@ export const managerRouters = [
     path: "/manager/update/product-template/:id",
     name: "manager",
     component: ManagementUpdateProductTemplate,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/product-template/:id",
+    name: "manager",
+    component: ProductTemplateDetail,
     layout: DefaultLayoutManager,
   },
 ];
