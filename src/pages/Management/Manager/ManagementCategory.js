@@ -22,6 +22,7 @@ import {
   InputNumber,
   Tag,
 } from "antd";
+import CategoryIcon from "@mui/icons-material/Category";
 import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
 import shop from "../../../assets/shop.png";
@@ -72,10 +73,10 @@ const ManagementCategoryHeader = () => {
               title: <HomeOutlined />,
             },
             {
-              href: "/manager/body-size",
+              href: "/manager/product-template/category",
               title: (
                 <>
-                  <Link to="/manager/body-size">
+                  <Link to="/manager/product-template/category">
                     <div
                       style={{
                         display: "flex",
@@ -83,9 +84,9 @@ const ManagementCategoryHeader = () => {
                         color: "#9F78FF",
                       }}
                     >
-                      <UserOutlined fontSize="small" />
+                      <CategoryIcon fontSize="small" />
                       &nbsp;
-                      <span>Số đo cơ thể</span>
+                      <span>Loại bản mẫu</span>
                     </div>
                   </Link>
                 </>
@@ -93,7 +94,7 @@ const ManagementCategoryHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Số đo cơ thể</Title>
+        <Title level={4}>Loại bản mẫu</Title>
       </div>
       <div
         style={{

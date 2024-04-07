@@ -219,6 +219,7 @@ const CollectionCreateFormStep2 = ({
             console.log("Validate Failed:", info);
           });
       }}
+      okButtonProps={{ loading: loadingCreate }}
     >
       <Form
         form={form}
@@ -450,6 +451,7 @@ const ManagementUpdateProductTemplateContent = () => {
       }
     } else if (current === 2) {
       if (saveBodySize[0].length >= 1) {
+        setLoadingStep3(true);
         const getUrl = `https://e-tailorapi.azurewebsites.net/api/template-body-size/template/${id}`;
         try {
           const response = await fetch(getUrl, {
@@ -466,6 +468,8 @@ const ManagementUpdateProductTemplateContent = () => {
           }
         } catch (error) {
           console.error("Error calling API:", error);
+        } finally {
+          setLoadingStep3(false);
         }
       } else {
         Swal.fire({
@@ -510,6 +514,7 @@ const ManagementUpdateProductTemplateContent = () => {
   };
   //-------------------------------------------------------------step 1----------------------------------------------
   const [getCategory, setCategory] = useState([]);
+  const [loadingStep1, setLoadingStep1] = useState(false);
   const [step3, setStep3] = useState([]);
   const getUrl =
     "https://e-tailorapi.azurewebsites.net/api/category-management";
@@ -588,25 +593,29 @@ const ManagementUpdateProductTemplateContent = () => {
         );
         const transformedData = responseData.map((stage) => ({
           name: stage.name,
-          componentTypeIds: stage.componentStages.map(
-            (component) => component.componentTypeId
-          ),
+          componentTypeIds: stage.componentStages.map((component) => ({
+            value: component.componentTypeId,
+            label: component.componentType.name,
+          })),
         }));
-
-        // Now use form.setFieldsValue to set the initialValues of the Form.List
-        form.setFieldsValue({ transformedData });
+        console.log("transformedData", transformedData);
+        form.setFieldsValue({ items: transformedData });
       }
     } catch (error) {
       console.error("Error calling API:", error);
     }
   };
+  console.log("ALL fields step 4: ", form.getFieldsValue());
 
   useEffect(() => {
     if (dataDetailForUpdate) {
       handleGetDetailCategory();
       handleGetDataCategoryStep3();
-      handleGetDataCategoryStep4();
     }
+  }, [dataDetailForUpdate]);
+
+  useEffect(() => {
+    handleGetDataCategoryStep4();
   }, [dataDetailForUpdate]);
 
   //--------------------------------------------------------------------------------------------------------------
@@ -616,15 +625,13 @@ const ManagementUpdateProductTemplateContent = () => {
   const onFinishStep1 = async () => {
     const values = formUpdateStep1.getFieldsValue();
     const formData = new FormData();
+    console.log("postThumbnailUrl: ", postThumbnailUrl);
     formData.append("Id", id);
     formData.append("CategoryId", values.CategoryId);
     formData.append("Name", values.Name);
     formData.append("Description", values.Description);
     formData.append("Price", values.Price);
-    formData.append(
-      "ThumbnailImageFile",
-      postThumbnailUrl?.search(/firebasestorage/) ? "" : postThumbnailUrl
-    );
+    formData.append("ThumbnailImageFile", postThumbnailUrl);
     if (postImageUrl?.length >= 1) {
       postImageUrl.map((item) => formData.append("ImageFiles", item));
     }
@@ -646,6 +653,7 @@ const ManagementUpdateProductTemplateContent = () => {
     for (var pair of formData.entries()) {
       console.log(pair[0] + ", " + pair[1]);
     }
+    setLoadingStep1(true);
     const urlCreate = `https://e-tailorapi.azurewebsites.net/api/template-management/update-template/${id}`;
     try {
       const response = await fetch(urlCreate, {
@@ -680,6 +688,8 @@ const ManagementUpdateProductTemplateContent = () => {
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setLoadingStep1(false);
     }
   };
 
@@ -784,6 +794,7 @@ const ManagementUpdateProductTemplateContent = () => {
 
   //--------------------------------------------------------------step 3---------------------------------------------
   const [saveBodySize, setSaveBodySize] = useState([]);
+  const [loadingStep3, setLoadingStep3] = useState(false);
 
   const handleChange = (value) => {
     console.log(value);
@@ -825,7 +836,8 @@ const ManagementUpdateProductTemplateContent = () => {
 
   //--------------------------------------------------------------step 4---------------------------------------------
   const [itemCategoryStep4, setItemCategoryStep4] = useState([]);
-
+  const [loadingStep4, setLoadingStep4] = useState(false);
+  console.log("itemCategoryStep4", itemCategoryStep4);
   const navigate = useNavigate();
 
   const handleGetComponentTypesCategory = async () => {
@@ -852,9 +864,10 @@ const ManagementUpdateProductTemplateContent = () => {
     const beData = step4Check?.items?.map((stage) => ({
       id: id,
       name: stage.name,
-      componentTypeIds: stage.componentTypeIds,
+      componentTypeIds: stage.componentTypeIds.map((item) => item.value),
     }));
     console.log("beData", beData);
+    setLoadingStep4(true);
     const postlUrl = `https://e-tailorapi.azurewebsites.net/api/template-stage/template/${id}`;
     try {
       const response = await fetch(postlUrl, {
@@ -887,11 +900,13 @@ const ManagementUpdateProductTemplateContent = () => {
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setLoadingStep4(false);
     }
   };
   useEffect(() => {
     handleGetComponentTypesCategory();
-  }, []);
+  }, [dataDetailForUpdate]);
 
   //--------------------------------------------------------------Cập nhật bản mẫu-----------------------------------------------------------
 
@@ -1325,125 +1340,137 @@ const ManagementUpdateProductTemplateContent = () => {
       title: "Thông tin cơ bản",
       content: (
         <>
-          <Row gutter={[16, 24]} justify="start">
-            {categoryDetailData &&
-              categoryDetailData?.componentTypes?.map((data, index) => {
-                return (
-                  <>
-                    <Col
+          {categoryDetailData &&
+            categoryDetailData?.componentTypes?.map((data, index) => {
+              return (
+                <>
+                  <div
+                    style={{
+                      display: "flex",
+                      marginTop: 20,
+                    }}
+                  >
+                    <Title level={4}>
+                      {index + 1}. {data.name}
+                    </Title>
+                    <Button
+                      type="primary"
+                      onClick={() => handleOpen(data)}
+                      style={{ marginLeft: 24 }}
+                    >
+                      Thêm mới
+                    </Button>
+                  </div>
+                  <div>
+                    <Row
+                      justify="start"
                       className="gutter-row"
-                      span={12}
                       style={{
-                        marginTop: 24,
+                        backgroundColor: "white",
+                        border: "1px solid #9F78FF",
+                        borderRadius: "10px",
+                        width: "100%",
+                        height: 350,
+                        overflowY: "scroll",
                       }}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                        }}
-                      >
-                        <Title level={4}>
-                          {index + 1}. {data.name}
-                        </Title>
-                        <Button
-                          type="primary"
-                          onClick={() => handleOpen(data)}
-                          style={{ marginLeft: 24 }}
-                        >
-                          Thêm mới
-                        </Button>
-                      </div>
-                      <div>
-                        <Row
-                          justify="start"
-                          className="gutter-row"
-                          style={{
-                            backgroundColor: "white",
-                            border: "1px solid #9F78FF",
-                            borderRadius: "10px",
-                            width: 550,
-                            height: 350,
-                            overflowY: "scroll",
-                          }}
-                        >
-                          {(() => {
-                            const filteredCards = cards.filter(
-                              (card) => card.id === data.id
-                            );
-                            return filteredCards?.map((card) => {
-                              return card.components.length > 0 ? (
-                                card.components?.map((component) => {
-                                  return (
-                                    <>
-                                      <Col offset={2} key={component.id}>
-                                        <Card
+                      {(() => {
+                        const filteredCards = cards.filter(
+                          (card) => card.id === data.id
+                        );
+                        return filteredCards?.map((card) => {
+                          return card.components.length > 0 ? (
+                            card.components?.map((component) => {
+                              return (
+                                <>
+                                  <Col
+                                    offset={2}
+                                    key={component.id}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <Card
+                                      style={{
+                                        width: 200,
+                                        marginTop: 15,
+                                        marginLeft: 15,
+                                        marginRight: 15,
+                                        border: "1px solid #D4D4D4",
+                                      }}
+                                      cover={
+                                        <Image
+                                          width={200}
+                                          height={200}
+                                          src={component.image}
                                           style={{
-                                            width: 200,
-                                            marginTop: 10,
                                             border: "1px solid #D4D4D4",
                                           }}
-                                          cover={
-                                            <Image
-                                              width={200}
-                                              height={200}
-                                              src={component.image}
-                                              style={{
-                                                border: "1px solid #D4D4D4",
-                                              }}
-                                            />
-                                          }
-                                          actions={[
-                                            <DeleteOutlined
-                                              key="delete"
-                                              onClick={() => {
-                                                handleDeleteComponent(
-                                                  id,
-                                                  data.id,
-                                                  component.id
-                                                );
-                                              }}
-                                            />,
-                                          ]}
-                                        >
-                                          <Meta title={component.name} />
-                                        </Card>
-                                      </Col>
-                                    </>
-                                  );
-                                })
-                              ) : (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    paddingLeft: 125,
-                                  }}
-                                >
-                                  <Title level={4}>
-                                    Chưa có kiểu nào. Hãy thêm vào
-                                  </Title>
-                                </div>
+                                        />
+                                      }
+                                      actions={[
+                                        <DeleteOutlined
+                                          key="delete"
+                                          onClick={() => {
+                                            handleDeleteComponent(
+                                              id,
+                                              data.id,
+                                              component.id
+                                            );
+                                          }}
+                                        />,
+                                      ]}
+                                    >
+                                      <Meta title={component.name} />
+                                    </Card>
+                                  </Col>
+                                </>
                               );
-                            });
-                          })()}
-                        </Row>
-                      </div>
-                    </Col>
-                  </>
-                );
-              })}
+                            })
+                          ) : (
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                paddingLeft: 125,
+                              }}
+                            >
+                              <Title level={4} onClick={() => handleOpen(data)}>
+                                Chưa có kiểu nào. Hãy{" "}
+                                <span
+                                  style={{
+                                    textDecoration: "underlined",
+                                    color: "#9F78FF",
+                                    fontWeight: "bold",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => handleOpen(data)}
+                                >
+                                  thêm vào
+                                </span>
+                              </Title>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </Row>
+                  </div>
+                </>
+              );
+            })}
 
-            <CollectionCreateFormStep2
-              open={open}
-              onCreate={onCreate}
-              onCancel={() => {
-                setOpen(false);
-              }}
-              saveProductTemplateId={id}
-              componentTypeCreateData={componentTypeCreateData}
-            />
-          </Row>
+          <CollectionCreateFormStep2
+            open={open}
+            onCreate={onCreate}
+            onCancel={() => {
+              setOpen(false);
+            }}
+            saveProductTemplateId={id}
+            componentTypeCreateData={componentTypeCreateData}
+          />
         </>
       ),
     },
@@ -1567,11 +1594,12 @@ const ManagementUpdateProductTemplateContent = () => {
                                 mode="multiple"
                                 placeholder="Select items"
                                 style={{ width: "100%" }}
+                                labelInValue
                               >
                                 {itemCategoryStep4.map((item) => {
                                   return (
                                     <>
-                                      <Option value={item.id}>
+                                      <Option value={item.id} key={item.id}>
                                         {item.name}
                                       </Option>
                                     </>
@@ -1639,6 +1667,13 @@ const ManagementUpdateProductTemplateContent = () => {
                       next();
                     }
                   }}
+                  loading={
+                    current === 0
+                      ? loadingStep1
+                      : current === 2
+                      ? loadingStep3
+                      : false
+                  }
                 >
                   Tiếp theo
                 </Button>
@@ -1647,6 +1682,7 @@ const ManagementUpdateProductTemplateContent = () => {
                 <Button
                   type="primary"
                   onClick={() => handleCompletedTemplate()}
+                  loading={loadingStep4}
                 >
                   Cập nhật
                 </Button>
@@ -1657,6 +1693,13 @@ const ManagementUpdateProductTemplateContent = () => {
                     margin: "0 8px",
                   }}
                   onClick={() => prev()}
+                  loading={
+                    current === 2
+                      ? loadingStep3
+                      : current === 3
+                      ? loadingStep4
+                      : false
+                  }
                 >
                   Quay lại
                 </Button>

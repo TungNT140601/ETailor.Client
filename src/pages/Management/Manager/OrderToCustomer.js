@@ -666,7 +666,6 @@ const OrderToCustomerContent = () => {
     );
   };
   const renderCreateFormItems = (bodyIndex, name) => {
-    console.log("Vo day:", name);
     return (
       dataBodySize &&
       dataBodySize.map((item) => {
@@ -888,7 +887,7 @@ const OrderToCustomerContent = () => {
             timer: 1500,
             zIndex: 1000,
           });
-          await getDetailProfileCustomer(getDetailDataProfileCustomer.id);
+          await fetchDataProfileBody(getDetailDataProfileCustomer.id);
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();
@@ -950,7 +949,8 @@ const OrderToCustomerContent = () => {
             timer: 1500,
             zIndex: 1000,
           });
-          await getAllBodySize();
+          await fetchDataProfileBody(saveCustomer.id);
+          formProfileBody.resetFields();
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();
@@ -993,6 +993,7 @@ const OrderToCustomerContent = () => {
     if (getProfileUpdateCustomer) {
       const allValues = formUpdate.getFieldsValue();
       const backendData = {
+        id: saveIdProduct,
         orderId: saveOrderId,
         name: allValues.name,
         productTemplateId: allValues.productTemplateId,
@@ -1038,7 +1039,7 @@ const OrderToCustomerContent = () => {
             await Swal.fire({
               position: "top-center",
               icon: "success",
-              title: responseData,
+              title: "Cập nhật thành công",
               showConfirmButton: false,
               timer: 1500,
               zIndex: 1000,
@@ -2506,6 +2507,7 @@ const OrderToCustomerContent = () => {
               margin: "0 8px",
             }}
             onClick={() => prev()}
+            loading={onFinishLoading ? onFinishLoading : ""}
           >
             Quay lại
           </Button>
