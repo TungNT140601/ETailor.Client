@@ -147,7 +147,6 @@ export const ManagementCreateProductTemplate = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [postImageUrl, setPostImageUrl] = useState(null);
   const [uploadKey, setUploadKey] = useState(0);
-  console.log("PRODUCT TEMPLATE: ", postImageUrl);
 
   //-----------------------------------------------thumbnail buoc 1
   const [thumbnailUrl, setThumbnailUrl] = useState(null);
@@ -285,20 +284,20 @@ export const ManagementCreateProductTemplate = () => {
       setCurrent(current + 1);
     } else if (current === 1) {
       const checkValid = !cards?.some((item) => item.components.length === 0);
-
       if (checkValid) {
         setCurrent(current + 1);
       } else {
         Swal.fire({
           position: "top-center",
           icon: "warning",
-          title: "Mày có điền không ????",
+          title: "Vui lòng điền ít nhất 1 kiểu cho mỗi bộ phận!",
           showConfirmButton: false,
           timer: 1500,
         });
       }
     } else if (current === 2) {
       if (saveBodySize[0].length >= 1) {
+        setLoadingStep3(true);
         const getUrl = `https://e-tailorapi.azurewebsites.net/api/template-body-size/template/${saveProductTemplateId}`;
         try {
           const response = await fetch(getUrl, {
@@ -311,11 +310,13 @@ export const ManagementCreateProductTemplate = () => {
           });
           if (response.ok && response.status === 200) {
             const responseData = await response.text();
-            console.log("body size step 3:", responseData);
+
             setCurrent(current + 1);
           }
         } catch (error) {
           console.error("Error calling API:", error);
+        } finally {
+          setLoadingStep3(false);
         }
       } else {
         Swal.fire({
@@ -359,6 +360,7 @@ export const ManagementCreateProductTemplate = () => {
   };
   //-------------------------------------------------------------step 1----------------------------------------------
   const [getCategory, setCategory] = useState([]);
+  const [loadingStep1, setLoadingStep1] = useState(false);
   const getUrl =
     "https://e-tailorapi.azurewebsites.net/api/category-management";
 
@@ -433,6 +435,7 @@ export const ManagementCreateProductTemplate = () => {
     for (var pair of formData.entries()) {
       console.log(pair[0] + ", " + pair[1]);
     }
+    setLoadingStep1(true);
     const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/template-management/create-template`;
     try {
       const response = await fetch(urlCreateMaterialType, {
@@ -444,6 +447,7 @@ export const ManagementCreateProductTemplate = () => {
       });
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
+        console.log("step1", responseData);
         setSaveProductTemplate((prev) => {
           if (prev) {
             return prev;
@@ -454,15 +458,27 @@ export const ManagementCreateProductTemplate = () => {
         Swal.fire({
           position: "top-center",
           icon: "success",
-          title: "Hoàn thành bước đầu rồi yeah!",
+          title: "Tạo thông tin cho bản mẫu hoàn tất",
           showConfirmButton: false,
-          timer: 1500,
+          timer: 2500,
         });
+
         next();
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 2500,
+        });
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setLoadingStep1(false);
     }
   };
 
@@ -498,6 +514,15 @@ export const ManagementCreateProductTemplate = () => {
         const responseData = await response.text();
         handleGetComponentType();
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 4500,
+        });
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -567,6 +592,7 @@ export const ManagementCreateProductTemplate = () => {
 
   //--------------------------------------------------------------step 3---------------------------------------------
   const [saveBodySize, setSaveBodySize] = useState([]);
+  const [loadingStep3, setLoadingStep3] = useState(false);
 
   const handleChange = (value) => {
     setSaveBodySize([value]);
@@ -608,6 +634,7 @@ export const ManagementCreateProductTemplate = () => {
 
   //--------------------------------------------------------------step 4---------------------------------------------
   const [itemCategoryStep4, setItemCategoryStep4] = useState([]);
+  const [loadingStep4, setLoadingStep4] = useState(false);
   const navigate = useNavigate();
 
   const handleGetComponentTypesCategory = async () => {
@@ -631,6 +658,7 @@ export const ManagementCreateProductTemplate = () => {
 
   const handleCompletedTemplate = async () => {
     const step4Check = form.getFieldValue(["items"]);
+    setLoadingStep4(true);
     const postlUrl = `https://e-tailorapi.azurewebsites.net/api/template-stage/template/${saveProductTemplateId}`;
     try {
       const response = await fetch(postlUrl, {
@@ -663,6 +691,8 @@ export const ManagementCreateProductTemplate = () => {
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setLoadingStep4(false);
     }
   };
   useEffect(() => {
@@ -836,7 +866,7 @@ export const ManagementCreateProductTemplate = () => {
                         className="gutter-row"
                         span={6}
                         key={`image_${index}`}
-                        style={{ position: "relative", marginTop: 15 }}
+                        style={{ position: "relative", marginTop: 10 }}
                       >
                         <img
                           src={url}
@@ -896,7 +926,7 @@ export const ManagementCreateProductTemplate = () => {
                     </Button>
                   )}
                 </div>
-                <Row gutter={[16, 24]}>
+                <Row gutter={[16, 24]} style={{ marginTop: 10 }}>
                   {collectionUrl &&
                     collectionUrl?.map((url, index) => (
                       <Col
@@ -946,137 +976,144 @@ export const ManagementCreateProductTemplate = () => {
       title: "Thông tin cơ bản",
       content: (
         <>
-          <Row gutter={[16, 24]} justify="start">
-            {categoryDetailData &&
-              categoryDetailData?.componentTypes?.map((data, index) => {
-                return (
-                  <>
-                    <Col
+          {categoryDetailData &&
+            categoryDetailData?.componentTypes?.map((data, index) => {
+              return (
+                <>
+                  <div
+                    style={{
+                      display: "flex",
+                      marginTop: 20,
+                    }}
+                  >
+                    <Title level={4}>
+                      {index + 1}. {data.name}
+                    </Title>
+                    <Button
+                      type="primary"
+                      onClick={() => handleOpen(data)}
+                      style={{ marginLeft: 24 }}
+                    >
+                      Thêm mới
+                    </Button>
+                  </div>
+                  <div style={{ width: "100%" }}>
+                    <Row
+                      justify="center"
                       className="gutter-row"
-                      span={12}
                       style={{
-                        marginTop: 24,
+                        backgroundColor: "white",
+                        border: "1px solid #9F78FF",
+                        borderRadius: "10px",
+                        width: "100%",
+                        height: 350,
+                        overflowY: "scroll",
                       }}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                        }}
-                      >
-                        <Title level={4}>
-                          {index + 1}. {data.name}
-                        </Title>
-                        <Button
-                          type="primary"
-                          onClick={() => handleOpen(data)}
-                          style={{ marginLeft: 24 }}
-                        >
-                          Thêm mới
-                        </Button>
-                      </div>
-                      <div>
-                        <Row
-                          justify="start"
-                          className="gutter-row"
-                          style={{
-                            backgroundColor: "white",
-                            border: "1px solid #9F78FF",
-                            borderRadius: "10px",
-                            width: 550,
-                            height: 350,
-                            overflowY: "scroll",
-                          }}
-                        >
-                          {(() => {
-                            const filteredCards = cards.filter(
-                              (card) => card.id === data.id
-                            );
-                            return filteredCards?.map((card) => {
-                              return card.components.length > 0 ? (
-                                card.components?.map((component) => {
-                                  return (
-                                    <>
-                                      <Col offset={2} key={component.id}>
-                                        <Card
+                      {(() => {
+                        const filteredCards = cards.filter(
+                          (card) => card.id === data.id
+                        );
+                        return filteredCards?.map((card) => {
+                          return card.components.length > 0 ? (
+                            card.components?.map((component) => {
+                              return (
+                                <>
+                                  <Col
+                                    key={component.id}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                    }}
+                                  >
+                                    <Card
+                                      style={{
+                                        width: 200,
+                                        marginTop: 15,
+                                        marginLeft: 15,
+                                        marginRight: 15,
+                                        border: "1px solid #D4D4D4",
+                                      }}
+                                      cover={
+                                        <Image
+                                          width={200}
+                                          height={200}
+                                          src={component.image}
                                           style={{
-                                            width: 200,
-                                            marginTop: 10,
                                             border: "1px solid #D4D4D4",
                                           }}
-                                          cover={
-                                            <Image
-                                              width={200}
-                                              height={200}
-                                              src={component.image}
-                                              style={{
-                                                border: "1px solid #D4D4D4",
-                                              }}
-                                            />
-                                          }
-                                          actions={[
-                                            <DeleteOutlined
-                                              key="delete"
-                                              onClick={() => {
-                                                console.log(
-                                                  "Thang ong noi: ",
-                                                  saveProductTemplateId
-                                                );
-                                                console.log(
-                                                  "Thang cha: ",
-                                                  data
-                                                );
-                                                console.log(
-                                                  "Thang con: ",
-                                                  component
-                                                );
-                                                handleDeleteComponent(
-                                                  saveProductTemplateId,
-                                                  data.id,
-                                                  component.id
-                                                );
-                                              }}
-                                            />,
-                                          ]}
-                                        >
-                                          <Meta title={component.name} />
-                                        </Card>
-                                      </Col>
-                                    </>
-                                  );
-                                })
-                              ) : (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    paddingLeft: 125,
-                                  }}
-                                >
-                                  <Title level={4}>
-                                    Chưa có kiểu nào. Hãy thêm vào
-                                  </Title>
-                                </div>
+                                        />
+                                      }
+                                      actions={[
+                                        <DeleteOutlined
+                                          key="delete"
+                                          onClick={() => {
+                                            console.log(
+                                              "Thang ong noi: ",
+                                              saveProductTemplateId
+                                            );
+                                            console.log("Thang cha: ", data);
+                                            console.log(
+                                              "Thang con: ",
+                                              component
+                                            );
+                                            handleDeleteComponent(
+                                              saveProductTemplateId,
+                                              data.id,
+                                              component.id
+                                            );
+                                          }}
+                                        />,
+                                      ]}
+                                    >
+                                      <Meta title={component.name} />
+                                    </Card>
+                                  </Col>
+                                </>
                               );
-                            });
-                          })()}
-                        </Row>
-                      </div>
-                    </Col>
-                  </>
-                );
-              })}
-
-            <CollectionCreateFormStep2
-              open={open}
-              onCreate={onCreate}
-              onCancel={() => {
-                setOpen(false);
-              }}
-              saveProductTemplateId={saveProductTemplateId}
-              componentTypeCreateData={componentTypeCreateData}
-            />
-          </Row>
+                            })
+                          ) : (
+                            <div
+                              style={{
+                                width: "100%",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              <Title level={4}>
+                                Chưa có kiểu nào. Hãy{" "}
+                                <span
+                                  style={{
+                                    textDecoration: "underlined",
+                                    color: "#9F78FF",
+                                    fontWeight: "bold",
+                                    cursor: "pointer",
+                                  }}
+                                  onClick={() => handleOpen(data)}
+                                >
+                                  thêm vào
+                                </span>
+                              </Title>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </Row>
+                  </div>
+                </>
+              );
+            })}
+          <CollectionCreateFormStep2
+            open={open}
+            onCreate={onCreate}
+            onCancel={() => {
+              setOpen(false);
+            }}
+            saveProductTemplateId={saveProductTemplateId}
+            componentTypeCreateData={componentTypeCreateData}
+          />
         </>
       ),
     },
@@ -1317,6 +1354,13 @@ export const ManagementCreateProductTemplate = () => {
                         next();
                       }
                     }}
+                    loading={
+                      current === 0
+                        ? loadingStep1
+                        : current === 2
+                        ? loadingStep3
+                        : false
+                    }
                   >
                     Tiếp theo
                   </Button>
@@ -1325,6 +1369,7 @@ export const ManagementCreateProductTemplate = () => {
                   <Button
                     type="primary"
                     onClick={() => handleCompletedTemplate()}
+                    loading={loadingStep4}
                   >
                     Hoàn Thành
                   </Button>
@@ -1335,6 +1380,13 @@ export const ManagementCreateProductTemplate = () => {
                       margin: "0 8px",
                     }}
                     onClick={() => prev()}
+                    loading={
+                      current === 2
+                        ? loadingStep3
+                        : current === 3
+                        ? loadingStep4
+                        : false
+                    }
                   >
                     Quay lại
                   </Button>
@@ -1429,6 +1481,7 @@ const CollectionCreateFormStep2 = ({
             console.log("Validate Failed:", info);
           });
       }}
+      okButtonProps={{ loading: loadingCreate }}
     >
       <Form
         form={form}

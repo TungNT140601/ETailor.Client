@@ -163,8 +163,8 @@ const ManagementProductDetailContent = () => {
 
   useEffect(() => {
     const handleGetDetail = async () => {
-      // const urlProductDetail = `https://e-tailorapi.azurewebsites.net/api/template-management/detail/${id}`;
-      const urlProductDetail = `https://localhost:7259/api/template-management/detail/${id}`;
+      const urlProductDetail = `https://e-tailorapi.azurewebsites.net/api/template-management/detail/${id}`;
+      // const urlProductDetail = `https://localhost:7259/api/template-management/detail/${id}`;
       setLoading(true);
       try {
         const response = await fetch(`${urlProductDetail}`, {
@@ -343,44 +343,45 @@ const ManagementProductDetailContent = () => {
                   return (
                     <>
                       <Title level={4}>{component?.name}:</Title>
-                      <div>
+                      <Row gutter={[16, 24]}>
                         {component?.components?.map((item) => {
                           return (
                             <>
-                              <div
-                                style={{
-                                  width: 80,
-                                  height: 80,
-                                  marginLeft: 10,
-                                  marginRight: 10,
-                                }}
-                              >
+                              <Col className="gutter-row" span={2}>
                                 <div
                                   style={{
-                                    display: "flex",
-                                    justifyContent: "center",
+                                    width: 80,
+                                    height: 80,
+                                    marginLeft: 10,
+                                    marginRight: 10,
                                   }}
                                 >
-                                  <Image
-                                    width={60}
-                                    src={item?.image}
+                                  <div
                                     style={{
-                                      borderRadius: "50%",
-                                      height: 60,
-                                      objectFit: "cover",
-                                      textAlign: "center",
+                                      display: "flex",
+                                      justifyContent: "center",
                                     }}
-                                  />
+                                  >
+                                    <Image
+                                      width={60}
+                                      src={item?.image}
+                                      style={{
+                                        borderRadius: "50%",
+                                        height: 60,
+                                        objectFit: "cover",
+                                        textAlign: "center",
+                                      }}
+                                    />
+                                  </div>
+                                  <div style={{ textAlign: "center" }}>
+                                    <Text>{item?.name}</Text>
+                                  </div>
                                 </div>
-
-                                <div style={{ textAlign: "center" }}>
-                                  <Text>{item?.name}</Text>
-                                </div>
-                              </div>
+                              </Col>
                             </>
                           );
                         })}
-                      </div>
+                      </Row>
                     </>
                   );
                 })}

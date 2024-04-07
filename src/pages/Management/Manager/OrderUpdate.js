@@ -66,6 +66,7 @@ function OrderUpdate({
     setGetDetailDataProfileCustomerLoading,
   ] = useState(false);
   const componentInitialValues = {};
+  const productComponenetInitialValues = {};
 
   const getDetailProfileCustomer = async (id) => {
     setGetDetailDataProfileCustomerLoading(true);
@@ -188,6 +189,11 @@ function OrderUpdate({
       componentInitialValues[`${component.component_Id}`] =
         component.selected_Component_Id;
     });
+    // dataDetailForUpdate?.componentTypeOrders?.forEach((component) => {
+    //   productComponenetInitialValues[`${component.component_Id}`] =
+    //     component.selected_Component_Id;
+    // });
+    console.log("dataDetailForUpdate", dataDetailForUpdate);
     formUpdate.setFieldsValue({
       modifier: "public",
       productTemplateId: dataDetailForUpdate?.productTemplateId,
