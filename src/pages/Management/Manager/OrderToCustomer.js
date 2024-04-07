@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import OrderUpdate from "./OrderUpdate.js";
 import { VnPay } from "../../../components/RealTime/index.js";
-import { Breadcrumb } from "antd";
+import { Breadcrumb, InputNumber } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
@@ -46,361 +46,12 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 import chooseTemplate from "../../../assets/dress.png";
+import ChooseTemplate from "./ChooseTemplate.js";
 
 const { Search } = Input;
 const { Title, Text, Paragraph } = Typography;
 const { Meta } = Card;
 const { Option } = Select;
-
-// const OrderToCustomerHeader = () => {
-//   const manager = JSON.parse(localStorage.getItem("manager"));
-//   const onSearch = (value, _e, info) => console.log(info?.source, value);
-//   return (
-//     <div
-//       style={{
-//         display: "flex",
-//         justifyContent: "space-between",
-//         alignItems: "center",
-//       }}
-//     >
-//       <div>
-//         <Breadcrumb
-//           items={[
-//             {
-//               href: "/manager",
-//               title: (
-//                 <>
-//                   <Link to="/manager">
-//                     <div>
-//                       <HomeOutlined />
-//                     </div>
-//                   </Link>
-//                 </>
-//               ),
-//             },
-//             {
-//               href: "/manager/order-for-customer",
-//               title: (
-//                 <>
-//                   <Link to="/manager/order-for-customer">
-//                     <div
-//                       style={{
-//                         display: "flex",
-//                         alignItems: "center",
-//                         color: "#9F78FF",
-//                       }}
-//                     >
-//                       <UserOutlined fontSize="small" />
-//                       &nbsp;
-//                       <span>Lên đơn hàng</span>
-//                     </div>
-//                   </Link>
-//                 </>
-//               ),
-//             },
-//           ]}
-//         />
-//         <Title level={4}>Lên đơn hàng</Title>
-//       </div>
-//       <div
-//         style={{
-//           display: "flex",
-//           alignItems: "center",
-//         }}
-//       >
-//         <div>
-//           <Search
-//             placeholder="Tìm kiếm"
-//             onSearch={onSearch}
-//             style={{
-//               width: 250,
-//             }}
-//           />
-//         </div>
-//         &nbsp; &nbsp; &nbsp;
-//         <div>
-//           {manager?.avatar ? (
-//             <Avatar src={manager?.avatar} />
-//           ) : (
-//             <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-//           )}
-//           &nbsp; &nbsp;
-//           <Text>{manager?.name}</Text>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-const ChooseTemplate = ({ open, onCancel, handleChooseTemplate }) => {
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
-  // list ra category
-  const [category, setCategory] = useState(null);
-  // chọn category
-  const [selected, setSelected] = useState(null);
-  // chi tiết product template
-  const [detailProduct, setDetailProduct] = useState(null);
-  // Chọn bản mẫu
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-  const [activeIndex, setActiveIndex] = useState(null);
-  const [selectedLoading, setSelectedLoading] = useState(false);
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const handleGetCategory = async () => {
-    setLoading(true);
-    const url = `https://e-tailorapi.azurewebsites.net/api/category-management`;
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setLoading(false);
-        setCategory(responseData);
-      }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
-  };
-
-  const handleSelected = async () => {
-    setSelectedLoading(true);
-    const url = `https://e-tailorapi.azurewebsites.net/api/template-management/category/${selected}`;
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setDetailProduct(responseData);
-        setSelectedLoading(false);
-      }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
-  };
-  useEffect(() => {
-    handleGetCategory();
-  }, []);
-
-  useEffect(() => {
-    handleSelected();
-  }, [selected]);
-
-  const handleSelectedTemplate = (value, index) => {
-    if (activeIndex === index) {
-      setSelectedTemplate(null);
-    } else {
-      setSelectedTemplate(value);
-    }
-    setActiveIndex((prevIndex) => (prevIndex === index ? null : index));
-  };
-
-  return (
-    <Modal
-      open={open}
-      style={{ top: 80 }}
-      title="Chọn bản mẫu phù hợp"
-      okText="Xác nhận"
-      cancelText="Hủy bỏ"
-      onCancel={() => {
-        form.resetFields();
-        setSelected(null);
-        setActiveIndex(null);
-        setSelectedTemplate(null);
-        onCancel();
-      }}
-      onOk={() => {
-        form
-          .validateFields()
-          .then(async () => {
-            setConfirmLoading(true);
-            if (selectedTemplate) {
-              const check = await handleChooseTemplate(
-                selectedTemplate.id,
-                selectedTemplate
-              );
-              if (check === 1) {
-                form.resetFields();
-                setSelected(null);
-                setActiveIndex(null);
-                setSelectedTemplate(null);
-                onCancel();
-              }
-              setConfirmLoading(false);
-            } else {
-              await Swal.fire({
-                position: "top-center",
-                icon: "warning",
-                title: "Chọn loại bản mẫu thì phải chọn bản mẫu",
-                showConfirmButton: false,
-                timer: 2500,
-                zIndex: 1000,
-              });
-              setConfirmLoading(false);
-            }
-          })
-          .catch((info) => {
-            console.log("Validate Failed:", info);
-          });
-      }}
-      okButtonProps={{ loading: confirmLoading }}
-    >
-      <Form
-        form={form}
-        layout="vertical"
-        name="form_in_modal"
-        initialValues={{
-          modifier: "public",
-        }}
-        style={{
-          height: 400,
-          overflowY: "scroll",
-          scrollbarWidth: "none",
-          WebkitScrollbar: "none",
-        }}
-        onFinish={(values) => {
-          console.log("Values cua create", values);
-        }}
-      >
-        {loading ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "400px",
-            }}
-          >
-            <CircularProgress />
-          </div>
-        ) : (
-          <>
-            <Form.Item
-              label="Loại bản mẫu"
-              hasFeedback
-              name="category"
-              rules={[
-                {
-                  required: true,
-                  message: "Loại bản mẫu không được để trống!",
-                },
-              ]}
-            >
-              <Select
-                showSearch
-                placeholder="Chọn loại bản mẫu"
-                optionFilterProp="children"
-                onChange={(value) => {
-                  setSelected(value);
-                }}
-                filterOption={(value, option) =>
-                  (option?.label ?? "")
-                    .toLowerCase()
-                    .includes(value.toLowerCase())
-                }
-                options={
-                  category &&
-                  category.map((item) => ({
-                    value: item.id,
-                    label: item.name,
-                  }))
-                }
-              />
-            </Form.Item>
-            {selected ? (
-              selectedLoading ? (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    height: "350px",
-                  }}
-                >
-                  <CircularProgress />
-                </div>
-              ) : detailProduct.productTemplates?.length !== 0 ? (
-                detailProduct?.productTemplates?.map((item, index) => {
-                  return (
-                    <>
-                      <Card
-                        style={{
-                          width: 470,
-                          marginTop: 16,
-                          border:
-                            activeIndex === index ? "1px solid #9F78FF" : "",
-                          cursor: "pointer",
-                        }}
-                        loading={loading}
-                        onClick={() => handleSelectedTemplate(item, index)}
-                      >
-                        <Meta
-                          avatar={
-                            <Image width={100} src={item.thumbnailImage} />
-                          }
-                          title={item.name}
-                          description={item.description}
-                        />
-                      </Card>
-                    </>
-                  );
-                })
-              ) : (
-                <div
-                  style={{
-                    textAlign: "center",
-                  }}
-                >
-                  <div>
-                    <img
-                      src={chooseTemplate}
-                      style={{ width: 200, height: 200 }}
-                      alt=""
-                    />
-                    <Title level={5}>
-                      Chưa có bản mẫu phù hợp nào vui lòng chọn lại loại bản mẫu
-                      khác
-                    </Title>
-                  </div>
-                </div>
-              )
-            ) : (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <div style={{ marginTop: 24 }}>
-                  <img
-                    src={chooseTemplate}
-                    style={{ width: 200, height: 200 }}
-                    alt=""
-                  />
-                  <Title level={5}>
-                    Chọn <span style={{ color: "red" }}>loại bản mẫu</span>{" "}
-                    trước!
-                  </Title>
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </Form>
-    </Modal>
-  );
-};
 
 const OrderToCustomerContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
@@ -409,7 +60,6 @@ const OrderToCustomerContent = () => {
   const [form] = Form.useForm();
   const [formProfileBody] = Form.useForm();
   const [formInfoCustomer] = Form.useForm();
-
   useEffect(() => {
     if (!manager) {
       manager = JSON.parse(localStorage.getItem("manager"));
@@ -429,11 +79,8 @@ const OrderToCustomerContent = () => {
       });
     }
   }, [vnpayNotification]);
-
   //-----------------------------------------Thử làm cách mới--------------------------------------------------
-
   const [active, setActive] = useState(0);
-
   const columns = [
     {
       title: "STT",
@@ -487,6 +134,7 @@ const OrderToCustomerContent = () => {
                   fontSize: 15,
                   cursor: "pointer",
                 }}
+                onClick={() => handleDeleteProduct(record.id)}
               />
             </Col>
             <Col span={4} offset={7}>
@@ -507,7 +155,6 @@ const OrderToCustomerContent = () => {
       ),
     },
   ];
-
   //---------------------------------------------------Lưu orderId-----------------------------------------------------------------
   const [saveCustomer, setSaveCustomer] = useState(null);
   const [saveOrderId, setSaveOrderId] = useState(null);
@@ -526,6 +173,10 @@ const OrderToCustomerContent = () => {
         body: JSON.stringify({
           id: saveOrderId,
           customerId: saveCustomer.id,
+          cusName: saveCustomer.fullname,
+          cusPhone: saveCustomer.phone,
+          cusEmail: saveCustomer.email,
+          cusAddress: saveCustomer.address,
         }),
       }).then(async (response) => {
         if (response.ok && response.status === 200) {
@@ -554,8 +205,8 @@ const OrderToCustomerContent = () => {
     fetchData();
   }, [saveCustomer, saveOrderId]);
   //---------------------------------------------------Xử lý logic bước 1----------------------------------------------------------
-
   const [isLoading, setIsLoading] = useState(false);
+  const [createCustomerLoading, setCreateCustomerLoading] = useState(false);
 
   const handleSearchInfoCustomer = async (value) => {
     if (!value || !searchInfo) {
@@ -576,7 +227,6 @@ const OrderToCustomerContent = () => {
       });
     }
   }, [saveCustomer]);
-
   useEffect(() => {
     let timer;
 
@@ -605,7 +255,6 @@ const OrderToCustomerContent = () => {
         setIsLoading(false);
       }
     };
-
     const searchWithDelay = () => {
       clearTimeout(timer);
       timer = setTimeout(() => {
@@ -614,14 +263,59 @@ const OrderToCustomerContent = () => {
         }
       }, 2000);
     };
-
     if (searchInfo) {
       searchWithDelay();
     }
-
     return () => clearTimeout(timer);
   }, [searchInfo]);
-
+  const handleCreateInfoCustomer = () => {
+    formInfoCustomer.validateFields().then(async () => {
+      const getAllValues = formInfoCustomer.getFieldsValue();
+      const url = `https://e-tailorapi.azurewebsites.net/api/customer-management/staff/customer`;
+      setCreateCustomerLoading(true);
+      try {
+        const response = await fetch(`${url}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+          body: JSON.stringify(getAllValues),
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.text();
+          await Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 1500,
+            zIndex: 1000,
+          });
+          formInfoCustomer.resetFields();
+          return 1;
+        } else if (response.status === 400 || response.status === 500) {
+          const responseData = await response.text();
+          Swal.fire({
+            position: "top-center",
+            icon: "error",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 4500,
+            zIndex: 1000,
+          });
+          return 0;
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      } finally {
+        setCreateCustomerLoading(false);
+      }
+    });
+  };
   //----------------------------------------------------------------Api xử lý bước 2-------------------------------------------------------------
   const [profileCustomer, setProfileCustomer] = useState(null);
   const urlGetAllMaterial =
@@ -636,50 +330,6 @@ const OrderToCustomerContent = () => {
     }).then((response) => response.json())
   );
 
-  const handleUpdateProduct = async (values) => {
-    const urlUpdate = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
-    try {
-      const response = await fetch(`${urlUpdate}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-        body: JSON.stringify(values),
-      });
-
-      if (response.ok && response.status === 200) {
-        const responseData = await response.text();
-        await Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: "Cập nhật thành công",
-          showConfirmButton: false,
-          timer: 1500,
-          zIndex: 1000,
-        });
-        setCurrent(1);
-        return 1;
-      } else if (response.status === 400 || response.status === 500) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "error",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 4500,
-          zIndex: 1000,
-        });
-        return 0;
-      } else if (response.status === 401) {
-        localStorage.removeItem("manager");
-        navigate("/management/login");
-      }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
-  };
-
   const handleCreatePayCash = async (amount, payType, platform) => {
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/payment/${saveOrderId}?amount=${amount}&payType=${payType}&platform=${platform}`;
     try {
@@ -690,7 +340,6 @@ const OrderToCustomerContent = () => {
           Authorization: `Bearer ${manager?.token}`,
         },
       });
-
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
         if (platform === "VN Pay") {
@@ -709,7 +358,6 @@ const OrderToCustomerContent = () => {
     }
   };
   const fetchDataProfileBody = async (id) => {
-    console.log("CONC ACACACACACACACAC", id);
     const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/staff/customer/${id}`;
     try {
       const response = await fetch(`${urlProfile}`, {
@@ -719,7 +367,6 @@ const OrderToCustomerContent = () => {
           Authorization: `Bearer ${manager?.token}`,
         },
       });
-
       if (response.ok && response.status === 200) {
         const responseData = await response.json();
         setProfileCustomer(responseData);
@@ -736,7 +383,6 @@ const OrderToCustomerContent = () => {
       fetchDataProfileBody(saveCustomer.id);
     }
   }, [saveCustomer]);
-
   //------------------------------------------------------------Xóa sản phẩm-------------------------------------------------
   const handleDeleteProduct = (id) => {
     Swal.fire({
@@ -755,7 +401,6 @@ const OrderToCustomerContent = () => {
               Authorization: `Bearer ${manager?.token}`,
             },
           });
-
           if (response.ok && response.status === 200) {
             Swal.fire("Đã xóa sản phẩm!", "", "success");
           } else if (response.status === 401) {
@@ -768,11 +413,9 @@ const OrderToCustomerContent = () => {
       }
     });
   };
-
   //------------------------------------------------------------Api xử lý bước 3--------------------------------------------
   const [orderPaymentDetail, setOrderPaymentDetail] = useState(null);
   const [loadingDiscount, setLoadingDiscount] = useState(false);
-
   const handleDataOrderDetail = async () => {
     const urlOrderDetail = `https://e-tailorapi.azurewebsites.net/api/order/${saveOrderId}`;
     try {
@@ -783,7 +426,6 @@ const OrderToCustomerContent = () => {
           Authorization: `Bearer ${manager?.token}`,
         },
       });
-
       if (response.ok && response.status === 200) {
         const responseData = await response.json();
         setOrderPaymentDetail(responseData);
@@ -851,7 +493,6 @@ const OrderToCustomerContent = () => {
     }
     return null;
   }
-
   const dataForProduct = orderPaymentDetail?.products?.map((item, index) => ({
     index: index,
     name: item.name,
@@ -860,7 +501,6 @@ const OrderToCustomerContent = () => {
     price: item.price,
     id: item.id,
   }));
-
   //-------------------------------------------------------------------Xử lý bước 3 mới----------------------------------------
   const [openChooseProductTemplate, setOpenChooseProductTemplate] =
     useState(false);
@@ -868,6 +508,10 @@ const OrderToCustomerContent = () => {
   const [chooseProductTemplate, setChooseProductTemplate] = useState(null);
   const [dataBodySize, setDataBodySize] = useState([]);
   const [onFinishLoading, setOnFinishLoading] = useState(false);
+  const [loadingUpdateBodyProfile, setLoadingUpdateBodyProfile] =
+    useState(false);
+  const [loadingCreateBodyProfile, setLoadingCreateBodyProfile] =
+    useState(false);
   const handleChooseTemplate = async (id, data) => {
     setChooseProductTemplate(data);
     console.log("data cua handleChooseProductTemplate: ", data);
@@ -880,7 +524,6 @@ const OrderToCustomerContent = () => {
           Authorization: `Bearer ${manager?.token}`,
         },
       });
-
       if (response.ok) {
         const responseData = await response.json();
         console.log("responseData", responseData);
@@ -891,7 +534,6 @@ const OrderToCustomerContent = () => {
       console.error("Error calling API:", error);
     }
   };
-
   const SampleNextArrow = (props) => {
     const { className, style, onClick } = props;
     return (
@@ -908,7 +550,6 @@ const OrderToCustomerContent = () => {
       </div>
     );
   };
-
   const SamplePrevArrow = (props) => {
     const { className, style, onClick } = props;
     return (
@@ -931,7 +572,8 @@ const OrderToCustomerContent = () => {
   };
   const [getDetailDataProfileCustomer, setGetDetailDataProfileCustomer] =
     useState(null);
-
+  const [getProfileUpdateCustomer, setGetProfileUpdateCustomer] =
+    useState(null);
   const [
     getDetailDataProfileCustomerLoading,
     setGetDetailDataProfileCustomerLoading,
@@ -947,20 +589,19 @@ const OrderToCustomerContent = () => {
           Authorization: `Bearer ${manager?.token}`,
         },
       });
-
       if (response.ok && response.status === 200) {
         const responseData = await response.json();
         setGetDetailDataProfileCustomer(responseData);
-        setGetDetailDataProfileCustomerLoading(false);
       } else if (response.status === 401) {
         localStorage.removeItem("manager");
         navigate("/management/login");
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setGetDetailDataProfileCustomerLoading(false);
     }
   };
-
   const getAllBodySize = async () => {
     const url = `https://e-tailorapi.azurewebsites.net/api/body-size`;
     try {
@@ -971,7 +612,6 @@ const OrderToCustomerContent = () => {
           Authorization: `Bearer ${manager?.token}`,
         },
       });
-
       if (response.ok && response.status === 200) {
         const responseData = await response.json();
         setDataBodySize(responseData);
@@ -993,9 +633,27 @@ const OrderToCustomerContent = () => {
       getDetailDataProfileCustomer &&
       getDetailDataProfileCustomer.bodyAttributes.map((item) => {
         if (item.bodySize.bodyIndex === bodyIndex) {
+          console.log("item", item);
           return (
-            <Form.Item key={item.id} label={item.bodySize.name} name={item.id}>
-              <Input />
+            <Form.Item
+              key={item.id}
+              label={item.bodySize.name}
+              name={`bodySizes_${item.id}`}
+              rules={[
+                {
+                  type: "number",
+                  min: item?.bodySize?.minValidValue,
+                  max: item?.bodySize?.maxValidValue,
+                  message: `${item.bodySize.name} nằm trong khoảng từ ${item?.bodySize.minValidValue} - ${item?.bodySize.maxValidValue} cm`,
+                },
+              ]}
+              step={0.01}
+            >
+              <InputNumber
+                placeholder={`${item?.bodySize.minValidValue} - ${item?.bodySize.maxValidValue} cm`}
+                style={{ width: "100%" }}
+                step={0.01}
+              />
             </Form.Item>
           );
         }
@@ -1009,8 +667,25 @@ const OrderToCustomerContent = () => {
       dataBodySize.map((item) => {
         if (item.bodyIndex === bodyIndex) {
           return (
-            <Form.Item key={item.id} label={item.name} name={item.id}>
-              <Input />
+            <Form.Item
+              key={item.id}
+              label={item.name}
+              name={item.id}
+              rules={[
+                {
+                  type: "number",
+                  min: item?.minValidValue,
+                  max: item?.maxValidValue,
+                  message: `${item.name} nằm trong khoảng từ ${item.minValidValue} - ${item.maxValidValue} cm`,
+                },
+              ]}
+              step={0.01}
+            >
+              <InputNumber
+                style={{ width: "100%" }}
+                placeholder={`${item?.minValidValue} - ${item?.maxValidValue} cm`}
+                step={0.01}
+              />
             </Form.Item>
           );
         }
@@ -1020,6 +695,7 @@ const OrderToCustomerContent = () => {
   };
 
   const onCreateNewProduct = async (values) => {
+    // const urlCreateNew = `https://localhost:7259/1api/product/${saveOrderId}`;
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}`;
     try {
       const response = await fetch(`${urlCreateNew}`, {
@@ -1027,7 +703,7 @@ const OrderToCustomerContent = () => {
         headers: {
           Authorization: `Bearer ${manager?.token}`,
         },
-        body: values,
+        body: JSON.stringify(values),
       });
 
       if (response.ok && response.status === 200) {
@@ -1066,6 +742,7 @@ const OrderToCustomerContent = () => {
   };
 
   const initialComponentValues = {};
+  const initialProfileBodyValues = {};
 
   useEffect(() => {
     productComponent?.forEach((component) => {
@@ -1078,6 +755,9 @@ const OrderToCustomerContent = () => {
     });
   }, [productComponent]);
   useEffect(() => {
+    getDetailDataProfileCustomer?.bodyAttributes?.forEach((component) => {
+      initialProfileBodyValues[`bodySizes_${component.id}`] = component.value;
+    });
     formProfileBody.setFieldsValue({
       modifier: "ProfileId",
       ...(getDetailDataProfileCustomer
@@ -1087,13 +767,7 @@ const OrderToCustomerContent = () => {
               getDetailDataProfileCustomer !== null
                 ? getDetailDataProfileCustomer.name
                 : "",
-            ...getDetailDataProfileCustomer.bodyAttributes.reduce(
-              (acc, item) => {
-                acc[item.id] = item.value;
-                return acc;
-              },
-              {}
-            ),
+            ...initialProfileBodyValues,
           }
         : {
             nameProfile: "",
@@ -1108,7 +782,7 @@ const OrderToCustomerContent = () => {
       .includes(input.toLowerCase());
 
   const onFinish = async () => {
-    setOnFinishLoading(true);
+    setOnFinishLoading(false);
     if (!chooseProductTemplate) {
       Swal.fire({
         icon: "error",
@@ -1120,7 +794,6 @@ const OrderToCustomerContent = () => {
       setOnFinishLoading(false);
     } else if (getDetailDataProfileCustomer) {
       const allValues = form.getFieldsValue();
-      const formData = new FormData();
       const backendData = {
         orderId: saveOrderId,
         name: allValues.name,
@@ -1128,9 +801,22 @@ const OrderToCustomerContent = () => {
         materialId: allValues.materialId,
         productComponents: Object.keys(allValues)
           .map((fieldName) => {
-            if (fieldName.startsWith("component_")) {
-              const componentId = allValues[fieldName];
-              return { componentId: componentId };
+            if (fieldName.startsWith("productComponent_")) {
+              const productComponent = allValues[fieldName];
+              let note;
+              let noteImageFiles;
+              if (productComponent) {
+                note = productComponent[0]?.note;
+                noteImageFiles = productComponent[0]?.image?.fileList.map(
+                  (image) => ({
+                    base64String: image.thumbUrl,
+                    fileName: image.name,
+                  })
+                );
+              }
+              const componentId =
+                allValues[fieldName.replace("productComponent_", "component_")];
+              return { componentId: componentId, note, noteImageFiles };
             }
             return null;
           })
@@ -1138,29 +824,7 @@ const OrderToCustomerContent = () => {
         profileId: getDetailDataProfileCustomer.id,
         note: allValues.note ? allValues.note : "",
       };
-      formData.append("ProductTemplateId", backendData.productTemplateId);
-      formData.append("OrderId", backendData.orderId);
-      formData.append("Name", backendData.name);
-      formData.append("MaterialId", backendData.materialId);
-      formData.append("ProfileId", backendData.profileId);
-      formData.append("Note", backendData.note);
-      formData.append(
-        "ProductComponents",
-        backendData.productComponents.forEach((component, index) => {
-          formData.append(`componentId`, component.id);
-          formData.append(`note`, component.note);
-          component?.noteImageFiles?.forEach((imageFile, imageIndex) => {
-            formData.append(
-              `productComponents[${index}][noteImageFiles][${imageIndex}]`,
-              imageFile
-            );
-          });
-        })
-      );
-      for (var p of formData.entries()) {
-        console.log("formData", p[0] + " - " + p[1]);
-      }
-      const checkResult = await onCreateNewProduct(formData);
+      const checkResult = await onCreateNewProduct(backendData);
       if (checkResult === 1) {
         setProductComponent(null);
         form.resetFields();
@@ -1184,15 +848,241 @@ const OrderToCustomerContent = () => {
     }
   };
 
+  const handleUpdateProfileBody = async () => {
+    if (getDetailDataProfileCustomer) {
+      const getProfileBody = formProfileBody.getFieldsValue();
+      const dataBackEnd = {
+        id: getDetailDataProfileCustomer.id,
+        name: getProfileBody.nameProfile,
+        customerId: getDetailDataProfileCustomer.customerId,
+        valueBodyAttribute: Object.keys(getProfileBody)
+          .map((fieldName) => {
+            if (fieldName.startsWith("bodySizes_")) {
+              const productComponent = getProfileBody[fieldName];
+              const keyProduct = fieldName.replace("bodySizes_", "");
+              return { id: keyProduct, value: productComponent };
+            }
+            return null;
+          })
+          .filter(Boolean),
+      };
+      setLoadingUpdateBodyProfile(true);
+      const url = `https://e-tailorapi.azurewebsites.net/api/profile-body/customer/${getDetailDataProfileCustomer.id}`;
+      try {
+        const response = await fetch(`${url}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+          body: JSON.stringify(dataBackEnd),
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.text();
+          await Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 1500,
+            zIndex: 1000,
+          });
+          await getDetailProfileCustomer();
+          return 1;
+        } else if (response.status === 400 || response.status === 500) {
+          const responseData = await response.text();
+          Swal.fire({
+            position: "top-center",
+            icon: "error",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 4500,
+            zIndex: 1000,
+          });
+          return 0;
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      } finally {
+        setLoadingUpdateBodyProfile(false);
+      }
+    }
+  };
+  const handleCreateProfileBody = () => {
+    formProfileBody.validateFields().then(async () => {
+      const getProfileBody = formProfileBody.getFieldsValue();
+      const dataBackEnd = {
+        name: getProfileBody.nameProfile,
+        customerId: saveCustomer.id,
+        valueBodyAttribute: Object.keys(getProfileBody)
+          .map((fieldName) => {
+            if (fieldName.startsWith("bodySizes_")) {
+              const productComponent = getProfileBody[fieldName];
+              const keyProduct = fieldName.replace("bodySizes_", "");
+              return { id: keyProduct, value: productComponent };
+            }
+            return null;
+          })
+          .filter(Boolean),
+      };
+      setLoadingCreateBodyProfile(true);
+      const url = `https://e-tailorapi.azurewebsites.net/api/profile-body`;
+      try {
+        const response = await fetch(`${url}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+          body: JSON.stringify(dataBackEnd),
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.text();
+          await Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 1500,
+            zIndex: 1000,
+          });
+          await getAllBodySize();
+          return 1;
+        } else if (response.status === 400 || response.status === 500) {
+          const responseData = await response.text();
+          Swal.fire({
+            position: "top-center",
+            icon: "error",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 4500,
+            zIndex: 1000,
+          });
+          return 0;
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      } finally {
+        setLoadingCreateBodyProfile(false);
+      }
+    });
+  };
+
   //----------------------------------------------------------------Cập nhật sản phẩm--------------------------------------------
 
   const [openUpdate, setOpenUpdate] = useState(false);
   const [saveIdProduct, setSaveIdProduct] = useState(null);
+  const [formUpdate] = Form.useForm();
+  const [formUpdateProfile] = Form.useForm();
   const handleCheckUpdateProduct = async (id) => {
     await setSaveIdProduct(id);
     setOpenUpdate(true);
     setCurrent(2);
   };
+  const handleUpdateProduct = async () => {
+    const urlUpdate = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
+    // const urlUpdate = `https://localhost:7259/api/product/${saveOrderId}/${saveIdProduct}`;
+    setOnFinishLoading(true);
+    if (getProfileUpdateCustomer) {
+      const allValues = formUpdate.getFieldsValue();
+      const backendData = {
+        orderId: saveOrderId,
+        name: allValues.name,
+        productTemplateId: allValues.productTemplateId,
+        materialId: allValues.materialId,
+        productComponents: Object.keys(allValues)
+          .map((fieldName) => {
+            if (fieldName.startsWith("productComponent_")) {
+              const productComponent = allValues[fieldName];
+              let note;
+              let noteImageFiles;
+              if (productComponent) {
+                note = productComponent[0]?.note;
+                noteImageFiles = productComponent[0]?.image?.fileList.map(
+                  (image) => ({
+                    base64String: image.thumbUrl,
+                    fileName: image.name,
+                  })
+                );
+              }
+              const componentId =
+                allValues[fieldName.replace("productComponent_", "component_")];
+              return { componentId: componentId, note, noteImageFiles };
+            }
+            return null;
+          })
+          .filter(Boolean),
+        profileId: getProfileUpdateCustomer.id,
+        note: allValues.note ? allValues.note : "",
+      };
+      const checkResult = await (async () => {
+        try {
+          const response = await fetch(`${urlUpdate}`, {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${manager?.token}`,
+            },
+            body: JSON.stringify(backendData),
+          });
+          if (response.ok && response.status === 200) {
+            const responseData = await response.text();
+            await Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 1500,
+              zIndex: 1000,
+            });
+            return 1;
+          } else if (response.status === 400 || response.status === 500) {
+            const responseData = await response.text();
+            Swal.fire({
+              position: "top-center",
+              icon: "error",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 4500,
+              zIndex: 1000,
+            });
+            return 0;
+          } else if (response.status === 401) {
+            localStorage.removeItem("manager");
+            navigate("/management/login");
+          }
+        } catch (error) {
+          console.error("Error calling API:", error);
+        }
+      })();
+      console.log("CheckResult: ", checkResult);
+      if (checkResult === 1) {
+        setCurrent(1);
+        const check = await handleDataOrderDetail();
+        if (check === 1) {
+          setOnFinishLoading(false);
+        }
+      } else {
+        setOnFinishLoading(false);
+      }
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Chọn hồ sơ số đo phù hợp cho sản phẩm",
+        showConfirmButton: false,
+        timer: 4500,
+        zIndex: 1000,
+      });
+      setOnFinishLoading(false);
+    }
+  };
+
+  console.log("saveOrderId", saveOrderId);
 
   const steps = [
     {
@@ -1247,6 +1137,10 @@ const OrderToCustomerContent = () => {
                             });
                             if (response.ok && response.status === 200) {
                               const responseData = await response.json();
+                              if (responseData.length === 0) {
+                                setSaveCustomer(null);
+                                setSaveOrderId(null);
+                              }
                               setSaveCustomer((prev) => {
                                 if (prev && prev.id !== responseData.id) {
                                   setSaveOrderId(null);
@@ -1324,7 +1218,10 @@ const OrderToCustomerContent = () => {
                     ]}
                     style={{ width: 700 }}
                   >
-                    <Input placeholder={"Nhập họ và tên"} />
+                    <Input
+                      placeholder={"Nhập họ và tên"}
+                      readOnly={saveCustomer ? true : false}
+                    />
                   </Form.Item>
                   <Form.Item
                     name="address"
@@ -1337,7 +1234,10 @@ const OrderToCustomerContent = () => {
                     ]}
                     style={{ width: 700 }}
                   >
-                    <Input placeholder={"Nhập địa chỉ"} />
+                    <Input
+                      placeholder={"Nhập địa chỉ"}
+                      readOnly={saveCustomer ? true : false}
+                    />
                   </Form.Item>
                   <Row>
                     <Col span={11}>
@@ -1345,8 +1245,17 @@ const OrderToCustomerContent = () => {
                         name="email"
                         label="Email"
                         style={{ width: 320 }}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Email không được để trống",
+                          },
+                        ]}
                       >
-                        <Input placeholder={"Nhập email"} />
+                        <Input
+                          placeholder={"Nhập email"}
+                          readOnly={saveCustomer ? true : false}
+                        />
                       </Form.Item>
                     </Col>
                     <Col span={11} push={2}>
@@ -1361,19 +1270,20 @@ const OrderToCustomerContent = () => {
                         ]}
                         style={{ width: 320 }}
                       >
-                        <Input placeholder={"Nhập số điện thoại"} />
+                        <Input
+                          placeholder={"Nhập số điện thoại"}
+                          readOnly={saveCustomer ? true : false}
+                        />
                       </Form.Item>
                     </Col>
                   </Row>
-                  {saveCustomer ? (
+                  {!saveCustomer && (
                     <Form.Item style={{ textAlign: "center" }}>
-                      <Button type="primary" htmlType="submit">
-                        Cập nhật
-                      </Button>
-                    </Form.Item>
-                  ) : (
-                    <Form.Item style={{ textAlign: "center" }}>
-                      <Button type="primary" htmlType="submit">
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        onClick={() => handleCreateInfoCustomer()}
+                      >
                         Tạo mới
                       </Button>
                     </Form.Item>
@@ -2367,6 +2277,7 @@ const OrderToCustomerContent = () => {
                             ]}
                           >
                             <Input
+                              placeholder="Nhập tên hồ sơ"
                               disabled={
                                 getDetailDataProfileCustomer ? true : false
                               }
@@ -2402,11 +2313,8 @@ const OrderToCustomerContent = () => {
                               <Button
                                 type="primary"
                                 htmlType="submit"
-                                onClick={() => {
-                                  const getAllForm =
-                                    formProfileBody.getFieldsValue();
-                                  console.log("getAllForm", getAllForm);
-                                }}
+                                onClick={() => handleUpdateProfileBody()}
+                                loading={loadingUpdateBodyProfile}
                               >
                                 Cập nhật
                               </Button>
@@ -2419,7 +2327,12 @@ const OrderToCustomerContent = () => {
                                   justifyContent: "center",
                                 }}
                               >
-                                <Button type="primary" htmlType="submit">
+                                <Button
+                                  type="primary"
+                                  htmlType="submit"
+                                  onClick={() => handleCreateProfileBody()}
+                                  loading={loadingCreateBodyProfile}
+                                >
                                   Tạo mới
                                 </Button>
                               </Form.Item>
@@ -2445,10 +2358,12 @@ const OrderToCustomerContent = () => {
                 getDetailDataProfileCustomerLoading
               }
               getDetailProfileCustomer={getDetailProfileCustomer}
-              getDetailDataProfileCustomer={getDetailDataProfileCustomer}
               dataBodySize={dataBodySize}
               handleChooseTemplate={handleChooseTemplate}
-              setGetDetailDataProfileCustomer={setGetDetailDataProfileCustomer}
+              formUpdate={formUpdate}
+              formUpdateProfile={formUpdateProfile}
+              getDetailDataProfileCustomer={getProfileUpdateCustomer}
+              setGetDetailDataProfileCustomer={setGetProfileUpdateCustomer}
             />
           )}
 
@@ -2535,18 +2450,30 @@ const OrderToCustomerContent = () => {
             Tạo đơn
           </Button>
         )}
-        {current === 2 && (
-          <Button
-            type="primary"
-            style={{
-              margin: "0 8px",
-            }}
-            onClick={onFinish}
-            loading={onFinishLoading}
-          >
-            Tạo sản phẩm
-          </Button>
-        )}
+        {current === 2 &&
+          (!openUpdate ? (
+            <Button
+              type="primary"
+              style={{
+                margin: "0 8px",
+              }}
+              onClick={onFinish}
+              loading={onFinishLoading}
+            >
+              Tạo sản phẩm
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              style={{
+                margin: "0 8px",
+              }}
+              onClick={handleUpdateProduct}
+              loading={onFinishLoading}
+            >
+              Cập nhật sản phẩm
+            </Button>
+          ))}
         {current > 0 && (
           <Button
             style={{
@@ -2565,16 +2492,6 @@ const OrderToCustomerContent = () => {
 function OrderToCustomer() {
   return (
     <div>
-      {/* <div
-        style={{
-          padding: "20px 20px",
-          backgroundColor: "#FFFFFF",
-          border: "1px solid #9F78FF",
-        }}
-        className="manager-header"
-      >
-        <OrderToCustomerHeader />
-      </div> */}
       <div
         className="manager-content"
         style={{

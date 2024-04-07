@@ -212,7 +212,7 @@ export default function OrderDetail() {
                         <AccordionSummary
                             expandIcon={
                                 <>
-                                    <ExpandMoreIcon size={20} /><ClearOutlinedIcon size={15} />
+                                    <ExpandMoreIcon size={20} />
                                 </>
                             }
                             aria-controls="panel3-content"
@@ -352,7 +352,6 @@ export default function OrderDetail() {
 
                                 <div
                                     style={{
-                                        height: 75,
                                         width: "100%",
                                         backgroundColor: "#f2f2f2",
                                         borderRadius: 5,
@@ -360,33 +359,36 @@ export default function OrderDetail() {
                                     }}
                                 >
                                     {previewImageChat && (
-
-                                        <div style={{}}>
-                                            <Image
-                                                width={55}
-                                                height={55}
-                                                src={previewImageChat}
-                                                style={{ objectFit: "cover" }}
-                                                alt=""
-                                                preview={{
-                                                    imageRender: () => (
-                                                        <div
-                                                            style={{
-                                                                marginTop: "60px",
-                                                                height: "65%",
-                                                                overflowY: "hidden",
-                                                            }}
-                                                        >
-                                                            <Image
-                                                                width="100%"
-                                                                height="100%"
-                                                                style={{ objectFit: "cover" }}
-                                                                src={previewImageChat}
-                                                            />
-                                                        </div>
-                                                    ),
-                                                }}
-                                            />
+                                        <div style={{ display: "flex", overflowX: "scroll", scrollbarWidth: "thin" }}>
+                                            {previewImageChat.map((image, index) => (
+                                                <div style={{ paddingLeft: 5, paddingTop: 5, borderRadius: 5 }}>
+                                                    <Image
+                                                        width={40}
+                                                        height={40}
+                                                        src={image}
+                                                        style={{ objectFit: "cover" }}
+                                                        alt=""
+                                                        preview={{
+                                                            imageRender: () => (
+                                                                <div
+                                                                    style={{
+                                                                        marginTop: "60px",
+                                                                        height: "65%",
+                                                                        overflowY: "hidden",
+                                                                    }}
+                                                                >
+                                                                    <Image
+                                                                        width="100%"
+                                                                        height="100%"
+                                                                        style={{ objectFit: "cover" }}
+                                                                        src={image}
+                                                                    />
+                                                                </div>
+                                                            ),
+                                                        }}
+                                                    />
+                                                </div>
+                                            ))}
                                         </div>
                                     )}
                                     <div style={{ display: "flex", alignItems: "center", borderRadius: 5, width: 260 }}>
@@ -409,7 +411,7 @@ export default function OrderDetail() {
                                                 onClick={() => handleSendChat(orderId)} fontSize="small" />
                                         </div>
                                     </div>
-                                    <div style={{ marginLeft: 15, position: "absolute", bottom: 5 }}>
+                                    <div style={{ margin: "5px 0px 5px 15px", paddingBottom: 5 }}>
                                         <FontAwesomeIcon icon={faImage} color="#D9D9D9" style={{ cursor: "pointer" }} onClick={triggerImageInput} />
                                         <FontAwesomeIcon icon={faPaperclip} color="#D9D9D9" style={{ marginLeft: 15, cursor: "pointer" }} onClick={triggerFileInput} />
                                         <input type="file" id="imageInput" accept="image/*" multiple style={{ display: 'none' }} onChange={handleImageChange} />

@@ -91,8 +91,8 @@ const Header = () => {
                 </h1>
               </Link>
             </div>
-
-            <div className="navbar-item has-dropdown is-hoverable">
+            {/* has-dropdown is-hoverable */}
+            <div className="navbar-item ">
               <div className="navbar-item">
                 <div style={{ height: "auto" }}>
                   <Link
@@ -109,12 +109,12 @@ const Header = () => {
                       }}
                     >
                       SẢN PHẨM MẪU{" "}
-                      <img width={15} height={15} src={MenuDropIcon}></img>
+                      {/* <img width={15} height={15} src={MenuDropIcon}></img> */}
                     </h1>
                   </Link>
                 </div>
               </div>
-
+              {/* 
               <div
                 className="navbar-dropdown is-boxed"
                 style={{ zIndex: "9999999999999999" }}
@@ -122,7 +122,7 @@ const Header = () => {
                 <a className="navbar-item">Áo sơ mi</a>
                 <a className="navbar-item">Áo vest</a>
                 <a className="navbar-item">Áo dài</a>
-              </div>
+              </div> */}
             </div>
             {token && (
               <div className="navbar-item">

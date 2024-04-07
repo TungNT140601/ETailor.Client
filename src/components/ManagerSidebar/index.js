@@ -81,11 +81,6 @@ export const ManagerSidebar = () => {
           icon: <UserOutlined />,
         },
         {
-          key: "/manager/account/chatWithCustomer",
-          label: <Link to="/manager/account/chatWithCustomer">Trò chuyện với khách hàng</Link>,
-          icon: <CommentOutlined />
-        },
-        {
           key: "/manager/orders",
           label: <Link to="/manager/orders">Đơn hàng</Link>,
           icon: <ShoppingCartIcon />,

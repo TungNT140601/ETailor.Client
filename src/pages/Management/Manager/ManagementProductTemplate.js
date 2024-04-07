@@ -145,6 +145,7 @@ export const ManagementCreateProductTemplate = () => {
   const [imageUrl, setImageUrl] = useState(null);
   const [postImageUrl, setPostImageUrl] = useState(null);
   const [uploadKey, setUploadKey] = useState(0);
+  console.log("PRODUCT TEMPLATE: ", postImageUrl);
 
   //-----------------------------------------------thumbnail buoc 1
   const [thumbnailUrl, setThumbnailUrl] = useState(null);

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import Blog1 from "../../../assets/images/banner-blog/female-fashion-designer-working-studio-sitting-desk.jpg";
 import Blog2 from "../../../assets/images/2011.i203.010..hobby cartoon set-06.jpg";
 import "./blog.css";
 import { useParams } from "react-router-dom";
 import { useQuery } from "react-query";
 import Loading from "../LoadingComponent/loading";
-
+import NoBlog from '../../../assets/images/blog-not-found.jpg'
 export default function BlogDetail() {
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -57,65 +56,80 @@ export default function BlogDetail() {
               </ul>
             </nav>
           </div>
+          {blog ? (
+            <div className="blog-wrapper-container">
 
-          <div className="blog-wrapper-container">
-            <div style={{ paddingLeft: "100px" }}>
-              <div className="title-blog">
-                <p className="title is-1">{blog?.title}</p>
+              <div style={{ paddingLeft: "100px" }}>
+                <div className="title-blog">
+                  <p className="title is-1">{blog?.title}</p>
 
-                <div className="content-blog">
-                  <BlogContent blog={blog} />
+                  <div className="content-blog">
+
+                    <BlogContent blog={blog} />
+
+
+                  </div>
+                </div>
+              </div>
+
+
+              <div style={{ position: "relative", minHeight: "100vh" }}>
+                <div style={{ position: "absolute", right: 10 }}>
+                  <div style={{ position: "fixed", top: "140px", right: "10px" }}>
+                    <div
+                      style={{
+                        borderBottom: "2px solid ",
+                        width: "fit-content",
+                        paddingBottom: "3px",
+                      }}
+                    >
+                      <p className="title is-3">Bài viết khác</p>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <img src={Blog2} alt="" width={64} height={64}></img>
+                      <div>
+                        <span style={{ paddingLeft: "10px" }}>
+                          Làm sao để thu hút ánh nhìn?
+                        </span>
+                        <p
+                          className="blog-description"
+                          style={{ paddingLeft: "10px" }}
+                        >
+                          10/1/2024
+                        </p>
+                      </div>
+                    </div>
+                    <hr style={{ width: "400px", margin: "10px" }} />
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <img src={Blog2} alt="" width={64} height={64}></img>
+                      <div>
+                        <span style={{ paddingLeft: "10px" }}>
+                          Làm sao để thu hút ánh nhìn?
+                        </span>
+                        <p
+                          className="blog-description"
+                          style={{ paddingLeft: "10px" }}
+                        >
+                          10/1/2024
+                        </p>
+                      </div>
+                    </div>
+                    <hr style={{ width: "400px", margin: "10px" }} />
+                  </div>
                 </div>
               </div>
             </div>
+          ) : (
+            <div style={{ justifyContent: "center", alignItems: "center", height: "fit-content", display: "flex" }}>
+              <div>
 
-            <div style={{ position: "relative", minHeight: "100vh" }}>
-              <div style={{ position: "absolute", right: 10 }}>
-                <div style={{ position: "fixed", top: "140px", right: "10px" }}>
-                  <div
-                    style={{
-                      borderBottom: "2px solid ",
-                      width: "fit-content",
-                      paddingBottom: "3px",
-                    }}
-                  >
-                    <p className="title is-3">Bài viết liên quan</p>
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <img src={Blog2} alt="" width={64} height={64}></img>
-                    <div>
-                      <span style={{ paddingLeft: "10px" }}>
-                        Làm sao để thu hút ánh nhìn?
-                      </span>
-                      <p
-                        className="blog-description"
-                        style={{ paddingLeft: "10px" }}
-                      >
-                        10/1/2024
-                      </p>
-                    </div>
-                  </div>
-                  <hr style={{ width: "400px", margin: "10px" }} />
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <img src={Blog2} alt="" width={64} height={64}></img>
-                    <div>
-                      <span style={{ paddingLeft: "10px" }}>
-                        Làm sao để thu hút ánh nhìn?
-                      </span>
-                      <p
-                        className="blog-description"
-                        style={{ paddingLeft: "10px" }}
-                      >
-                        10/1/2024
-                      </p>
-                    </div>
-                  </div>
-                  <hr style={{ width: "400px", margin: "10px" }} />
-                </div>
+                <p style={{ fontSize: 40, textAlign: "center" }}>Không tìm thấy bài viết</p>
+                <img src={NoBlog} alt="blog" style={{ height: "65vh", objectFit: "contain" }} />
               </div>
             </div>
-          </div>
+
+          )}
         </div>
       )}
     </>

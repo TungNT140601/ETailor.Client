@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import './index.css'
 import UserAvatar from "../../../assets/images/user-avatar.jpg"
 import Loading from '../LoadingComponent/loading'
-import FormatPhoneNumber from '../utils/FormatPhonenumber'
+import FormatPhoneNumber from '../../utils/FormatPhonenumber'
 import {
     Button,
 } from '@mui/material'
