@@ -71,12 +71,23 @@ const OrderToCustomerContent = () => {
       vnpayNotification !== undefined &&
       vnpayNotification !== ""
     ) {
-      Swal.fire({
-        position: "top-center",
-        icon: "error",
-        title: vnpayNotification,
-        showConfirmButton: false,
-      });
+      if (vnpayNotification === "False") {
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: "Thanh toán thất bại!",
+          showConfirmButton: false,
+        });
+      } else if (vnpayNotification === "True") {
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: "Thanh toán thành công!",
+          showConfirmButton: false,
+        });
+
+        handleDataOrderDetail();
+      }
     }
   }, [vnpayNotification]);
   //-----------------------------------------Thử làm cách mới--------------------------------------------------
@@ -341,20 +352,29 @@ const OrderToCustomerContent = () => {
         },
       });
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
+        const responseData = await response.json();
         if (platform === "VN Pay") {
-          window.open(responseData);
-          handleDataOrderDetail();
+          window.open(responseData.link);
         } else {
           handleDataOrderDetail();
         }
         return 1;
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 3500,
+          zIndex: 1000,
+        });
         return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setActive(0);
     }
   };
   const fetchDataProfileBody = async (id) => {
@@ -1525,12 +1545,9 @@ const OrderToCustomerContent = () => {
                                       0,
                                       "VN Pay"
                                     );
-                                  } else if (result.isDenied) {
-                                    Swal.fire(
-                                      "Changes are not saved",
-                                      "",
-                                      "info"
-                                    );
+                                  } else if (result.dismiss) {
+                                    setActive(0);
+                                    Swal.fire("Hủy chọn", "", "info");
                                   }
                                 });
                               }}
@@ -1577,12 +1594,9 @@ const OrderToCustomerContent = () => {
                                       0,
                                       "Offline"
                                     );
-                                  } else if (result.isDenied) {
-                                    Swal.fire(
-                                      "Changes are not saved",
-                                      "",
-                                      "info"
-                                    );
+                                  } else if (result.dismiss) {
+                                    setActive(0);
+                                    Swal.fire("Hủy chọn", "", "info");
                                   }
                                 });
                               }}
