@@ -782,17 +782,21 @@ export const ManagementCreateProductTemplate = () => {
               >
                 <InputNumber
                   style={{ width: "100%" }}
-                  formatter={(value) => {
-                    const formatted =
-                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "đ";
-                    console.log("Formatting:", value, "to", formatted);
-                    return formatted;
-                  }}
-                  parser={(value) => {
-                    const parsed = value.replace(/\đ\s?|(,*)/g, "");
-                    console.log("Parsing:", value, "to", parsed);
-                    return parsed;
-                  }}
+                  formatter={(value) =>
+                    `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+                  // formatter={(value) => {
+                  //   const formatted =
+                  //     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "đ";
+                  //   console.log("Formatting:", value, "to", formatted);
+                  //   return formatted;
+                  // }}
+                  // parser={(value) => {
+                  //   const parsed = value.replace(/\đ\s?|(,*)/g, "");
+                  //   console.log("Parsing:", value, "to", parsed);
+                  //   return parsed;
+                  // }}
                 />
               </Form.Item>
               <Form.Item
