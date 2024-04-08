@@ -373,12 +373,10 @@ export default function ManagementTask() {
                                 </Droppable>
                             </div>
 
-
                             <div style={{ height: "82vh", overflowX: "auto", overflowY: "hidden", scrollbarWidth: "thin" }}>
-                                <div style={{ height: 60, borderBottom: "1px solid #9F78FF", alignItems: "end", alignContent: "end" }}>
+                                <div style={{ height: 60, borderBottom: "1px solid #9F78FF", alignItems: "end", alignContent: "end", width: "100vw" }}> {/* Use 100vw instead of 100% */}
                                     <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#9F78FF", paddingLeft: 20 }}>Tất cả nhân viên</h2>
                                 </div>
-
                                 <div style={{ display: "grid", paddingLeft: 10, gridTemplateColumns: " repeat(minmax(300px,300px))", gridAutoFlow: "column", marginTop: "20px" }}>
 
 
@@ -399,7 +397,7 @@ export default function ManagementTask() {
                                                                     <h2>Tất cả<span style={{ width: "fit-content", padding: "2px 4px 2px 4px", marginLeft: 10, borderRadius: 2, border: "0.8px solid #f3f5fa" }}>{allTasks && allTasks.filter((task) => task?.staffMaker?.id === staff.id).length}</span></h2>
                                                                 </div>
                                                             </div>
-                                                            <div style={{ backgroundColor: "#f3f1fa", marginTop: 20, height: "55vh", alignItems: "center", paddingTop: 15, overflowY: "hidden", overflowY: "scroll", scrollbarWidth: "none" }}>
+                                                            <div style={{ backgroundColor: "#f3f1fa", marginTop: 20, height: "55vh", alignItems: "center", paddingTop: 15, overflowY: "scroll", scrollbarWidth: "none" }}>
                                                                 {allTasks && allTasks.filter((task) => task?.staffMaker?.id === staff.id).map((task, index) => (
                                                                     <Draggable key={task.id} draggableId={task.id} index={task?.index}>
                                                                         {(provided, snapshot) => (

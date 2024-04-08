@@ -149,6 +149,7 @@ const BlogUpdateFormModal = ({
           });
       }}
     >
+   
       <Form
         layout="vertical"
         form={form}
@@ -331,7 +332,6 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
               setImageUrl("");
             }
 
-            console.log("VALUE:", values);
           })
           .catch((info) => {
             console.log("Validate Failed:", info);
@@ -549,11 +549,13 @@ const ManagementBlogContent = () => {
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const navigate = useNavigate();
   const onCreate = async (values) => {
+    
+    console.log("VALUE:", values);
     setFormValues(values);
     const formData = new FormData();
     formData.append("Title", values.Title);
     formData.append("Hastag", values.Hastag);
-    formData.append("Thumbnail", values.image);
+    formData.append("Thumbnail", values.image.fileList[0]?.originFileObj);
     formData.append("Content", values.description);
     for (var p of formData.entries()) {
       console.log("formData", p[0] + " - " + p[1]);
@@ -598,7 +600,7 @@ const ManagementBlogContent = () => {
     const formData = new FormData();
     formData.append("Title", values.Title);
     formData.append("Hastag", values.Hastag);
-    formData.append("Thumbnail", values?.image);
+    formData.append("Thumbnail", values?.image.fileList[0]?.originFileObj);
     formData.append("Content", values.description);
     formData.append("Id", id);
     console.log("VALUES UPDATE:", values);
@@ -651,7 +653,7 @@ const ManagementBlogContent = () => {
   const columns = [
     {
       title: "STT",
-      width: "10%",
+      width: "5%",
       dataIndex: "stt",
       key: "stt",
       fixed: "left",

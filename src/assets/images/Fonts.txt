@@ -1,0 +1,9 @@
+Fonts used in this design:
+
+Font: Boogaloo
+Author: John Vargas Beltrán
+Url: http://www.fontsquirrel.com/fonts/boogaloo
+
+Font: Barlow
+Author: Tribby
+Url: https://www.fontsquirrel.com/fonts/barlow
