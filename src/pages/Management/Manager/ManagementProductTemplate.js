@@ -785,7 +785,7 @@ export const ManagementCreateProductTemplate = () => {
                   formatter={(value) =>
                     `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                   }
-                  parser={(value) => value.replace(/\đ\s?|(,*)/g, "")}
+                  parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
                 />
               </Form.Item>
               <Form.Item
