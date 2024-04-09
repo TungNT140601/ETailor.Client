@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import {
   CloseCircleOutlined,
   PlusOutlined,
@@ -23,6 +24,7 @@ import {
   Upload,
   Carousel,
   Radio,
+  InputNumber,
 } from "antd";
 import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -47,18 +49,24 @@ function OrderUpdate({
   formUpdateProfile,
   getDetailDataProfileCustomer,
   setGetDetailDataProfileCustomer,
+  saveCustomer,
+  getAllBodySize,
+  fetchDataProfileBody,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const navigate = useNavigate();
 
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);
-  console.log("dataDetailForUpdate", dataDetailForUpdate);
+  const initialProfileBodyValues = {};
+  const [loadingUpdateProfile, setLoadingUpdateProfile] = useState(false);
+
   const [
     getDetailDataProfileCustomerLoading,
     setGetDetailDataProfileCustomerLoading,
   ] = useState(false);
   const componentInitialValues = {};
+  const productComponenetInitialValues = {};
 
   const getDetailProfileCustomer = async (id) => {
     setGetDetailDataProfileCustomerLoading(true);
@@ -91,8 +99,25 @@ function OrderUpdate({
       getDetailDataProfileCustomer.bodyAttributes.map((item) => {
         if (item.bodySize.bodyIndex === bodyIndex) {
           return (
-            <Form.Item key={item.id} label={item.bodySize.name} name={item.id}>
-              <Input />
+            <Form.Item
+              key={item.id}
+              label={item.bodySize.name}
+              name={`bodySizes_${item.bodySize.id}`}
+              rules={[
+                {
+                  type: "number",
+                  min: item?.bodySize?.minValidValue,
+                  max: item?.bodySize?.maxValidValue,
+                  message: `${item.bodySize.name} nằm trong khoảng từ ${item?.bodySize.minValidValue} - ${item?.bodySize.maxValidValue} cm`,
+                },
+              ]}
+              step={0.01}
+            >
+              <InputNumber
+                placeholder={`${item?.bodySize.minValidValue} - ${item?.bodySize.maxValidValue} cm`}
+                style={{ width: "100%" }}
+                step={0.01}
+              />
             </Form.Item>
           );
         }
@@ -106,8 +131,25 @@ function OrderUpdate({
       dataBodySize.map((item) => {
         if (item.bodyIndex === bodyIndex) {
           return (
-            <Form.Item key={item.id} label={item.name} name={item.id}>
-              <Input />
+            <Form.Item
+              key={item.id}
+              label={item.name}
+              name={`bodySizes_${item.id}`}
+              rules={[
+                {
+                  type: "number",
+                  min: item?.minValidValue,
+                  max: item?.maxValidValue,
+                  message: `${item.name} nằm trong khoảng từ ${item.minValidValue} - ${item.maxValidValue} cm`,
+                },
+              ]}
+              step={0.01}
+            >
+              <InputNumber
+                style={{ width: "100%" }}
+                placeholder={`${item?.minValidValue} - ${item?.maxValidValue} cm`}
+                step={0.01}
+              />
             </Form.Item>
           );
         }
@@ -147,6 +189,11 @@ function OrderUpdate({
       componentInitialValues[`${component.component_Id}`] =
         component.selected_Component_Id;
     });
+    // dataDetailForUpdate?.componentTypeOrders?.forEach((component) => {
+    //   productComponenetInitialValues[`${component.component_Id}`] =
+    //     component.selected_Component_Id;
+    // });
+    console.log("dataDetailForUpdate", dataDetailForUpdate);
     formUpdate.setFieldsValue({
       modifier: "public",
       productTemplateId: dataDetailForUpdate?.productTemplateId,
@@ -160,28 +207,146 @@ function OrderUpdate({
     getDetailProfileCustomer(dataDetailForUpdate?.profileId);
   }, [dataDetailForUpdate]);
   useEffect(() => {
+    getDetailDataProfileCustomer?.bodyAttributes?.forEach((component) => {
+      initialProfileBodyValues[`bodySizes_${component.bodySize.id}`] =
+        component.value;
+    });
+
     formUpdateProfile.setFieldsValue({
-      modifier: "ProfileId",
-      ...(getDetailDataProfileCustomer
-        ? {
-            nameProfile:
-              getDetailDataProfileCustomer !== undefined ||
-              getDetailDataProfileCustomer !== null
-                ? getDetailDataProfileCustomer.name
-                : "",
-            ...getDetailDataProfileCustomer.bodyAttributes.reduce(
-              (acc, item) => {
-                acc[item.id] = item.value;
-                return acc;
-              },
-              {}
-            ),
-          }
-        : {
-            nameProfile: "",
-          }),
+      nameProfile: getDetailDataProfileCustomer?.name,
+      ...initialProfileBodyValues,
     });
   }, [getDetailDataProfileCustomer]);
+
+  const handleUpdateProfileBody = async () => {
+    if (getDetailDataProfileCustomer) {
+      const getProfileBody = formUpdateProfile.getFieldsValue();
+
+      const dataBackEnd = {
+        id: getDetailDataProfileCustomer.id,
+        name: getProfileBody.nameProfile,
+        customerId: getDetailDataProfileCustomer.customerId,
+        valueBodyAttribute: Object.keys(getProfileBody)
+          .map((fieldName) => {
+            if (fieldName.startsWith("bodySizes_")) {
+              const productComponent = getProfileBody[fieldName];
+              const keyProduct = fieldName.replace("bodySizes_", "");
+              return { id: keyProduct, value: productComponent };
+            }
+            return null;
+          })
+          .filter(Boolean),
+      };
+
+      setLoadingUpdateProfile(true);
+      // const url = `https://e-tailorapi.azurewebsites.net/api/profile-body/customer/${getDetailDataProfileCustomer.id}`;
+      const url = `https://e-tailorapi.azurewebsites.net/api/profile-body/customer/${getDetailDataProfileCustomer.id}`;
+      try {
+        const response = await fetch(`${url}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+          body: JSON.stringify(dataBackEnd),
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.text();
+          await Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 1500,
+            zIndex: 1000,
+          });
+          await getDetailProfileCustomer(getDetailDataProfileCustomer.id);
+          return 1;
+        } else if (response.status === 400 || response.status === 500) {
+          const responseData = await response.text();
+          Swal.fire({
+            position: "top-center",
+            icon: "error",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 4500,
+            zIndex: 1000,
+          });
+          return 0;
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      } finally {
+        setLoadingUpdateProfile(false);
+      }
+    }
+  };
+  const handleCreateProfileBody = () => {
+    formUpdateProfile.validateFields().then(async () => {
+      const getProfileBody = formUpdateProfile.getFieldsValue();
+      const dataBackEnd = {
+        name: getProfileBody.nameProfile,
+        customerId: saveCustomer.id,
+        valueBodyAttribute: Object.keys(getProfileBody)
+          .map((fieldName) => {
+            if (fieldName.startsWith("bodySizes_")) {
+              const productComponent = getProfileBody[fieldName];
+              const keyProduct = fieldName.replace("bodySizes_", "");
+              return { id: keyProduct, value: productComponent };
+            }
+            return null;
+          })
+          .filter(Boolean),
+      };
+      setLoadingUpdateProfile(true);
+      const url = `https://e-tailorapi.azurewebsites.net/api/profile-body`;
+      try {
+        const response = await fetch(`${url}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+          body: JSON.stringify(dataBackEnd),
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.text();
+          await Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 1500,
+            zIndex: 1000,
+          });
+          await fetchDataProfileBody(saveCustomer.id);
+          formUpdateProfile.resetFields();
+          return 1;
+        } else if (response.status === 400 || response.status === 500) {
+          const responseData = await response.text();
+          Swal.fire({
+            position: "top-center",
+            icon: "error",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 4500,
+            zIndex: 1000,
+          });
+          return 0;
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      } finally {
+        setLoadingUpdateProfile(false);
+      }
+    });
+  };
 
   return (
     <>
@@ -628,9 +793,10 @@ function OrderUpdate({
                             }}
                           >
                             <Button
-                              onClick={() =>
-                                setGetDetailDataProfileCustomer(null)
-                              }
+                              onClick={() => {
+                                setGetDetailDataProfileCustomer(null);
+                                formUpdateProfile.resetFields();
+                              }}
                             >
                               Bỏ chọn
                             </Button>
@@ -638,11 +804,8 @@ function OrderUpdate({
                             <Button
                               type="primary"
                               htmlType="submit"
-                              onClick={() => {
-                                const getAllForm =
-                                  formUpdateProfile.getFieldsValue();
-                                console.log("getAllForm", getAllForm);
-                              }}
+                              onClick={() => handleUpdateProfileBody()}
+                              loading={loadingUpdateProfile}
                             >
                               Cập nhật
                             </Button>
@@ -655,7 +818,12 @@ function OrderUpdate({
                                 justifyContent: "center",
                               }}
                             >
-                              <Button type="primary" htmlType="submit">
+                              <Button
+                                type="primary"
+                                htmlType="submit"
+                                onClick={() => handleCreateProfileBody()}
+                                loading={loadingUpdateProfile}
+                              >
                                 Tạo mới
                               </Button>
                             </Form.Item>

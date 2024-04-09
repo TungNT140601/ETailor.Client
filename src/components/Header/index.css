@@ -1,7 +1,7 @@
 .header-container {
     width: 100vw;
     background-color: #fffcfc;
-    height: 128px;
+    height: 100px;
     position: fixed;
     display: grid;
     grid-template-columns: auto auto;

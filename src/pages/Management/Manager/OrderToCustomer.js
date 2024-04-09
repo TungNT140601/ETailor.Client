@@ -402,6 +402,7 @@ const OrderToCustomerContent = () => {
             },
           });
           if (response.ok && response.status === 200) {
+            await handleDataOrderDetail();
             Swal.fire("Đã xóa sản phẩm!", "", "success");
           } else if (response.status === 401) {
             localStorage.removeItem("manager");
@@ -416,7 +417,9 @@ const OrderToCustomerContent = () => {
   //------------------------------------------------------------Api xử lý bước 3--------------------------------------------
   const [orderPaymentDetail, setOrderPaymentDetail] = useState(null);
   const [loadingDiscount, setLoadingDiscount] = useState(false);
+  const [loadingStep2, setLoadingStep2] = useState(false);
   const handleDataOrderDetail = async () => {
+    setLoadingStep2(true);
     const urlOrderDetail = `https://e-tailorapi.azurewebsites.net/api/order/${saveOrderId}`;
     try {
       const response = await fetch(`${urlOrderDetail}`, {
@@ -436,6 +439,8 @@ const OrderToCustomerContent = () => {
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setLoadingStep2(false);
     }
   };
   const handleCheckDiscount = async (value) => {
@@ -514,7 +519,6 @@ const OrderToCustomerContent = () => {
     useState(false);
   const handleChooseTemplate = async (id, data) => {
     setChooseProductTemplate(data);
-    console.log("data cua handleChooseProductTemplate: ", data);
     const url = `https://e-tailorapi.azurewebsites.net/api/template/${id}/component-types`;
     try {
       const response = await fetch(`${url}`, {
@@ -580,6 +584,7 @@ const OrderToCustomerContent = () => {
   ] = useState(false);
   const getDetailProfileCustomer = async (id) => {
     setGetDetailDataProfileCustomerLoading(true);
+    // const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
     const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
     try {
       const response = await fetch(`${urlProfile}`, {
@@ -633,12 +638,11 @@ const OrderToCustomerContent = () => {
       getDetailDataProfileCustomer &&
       getDetailDataProfileCustomer.bodyAttributes.map((item) => {
         if (item.bodySize.bodyIndex === bodyIndex) {
-          console.log("item", item);
           return (
             <Form.Item
               key={item.id}
               label={item.bodySize.name}
-              name={`bodySizes_${item.id}`}
+              name={`bodySizes_${item.bodySize.id}`}
               rules={[
                 {
                   type: "number",
@@ -670,7 +674,7 @@ const OrderToCustomerContent = () => {
             <Form.Item
               key={item.id}
               label={item.name}
-              name={item.id}
+              name={`bodySizes_${item.id}`}
               rules={[
                 {
                   type: "number",
@@ -695,12 +699,13 @@ const OrderToCustomerContent = () => {
   };
 
   const onCreateNewProduct = async (values) => {
-    // const urlCreateNew = `https://localhost:7259/1api/product/${saveOrderId}`;
+    // const urlCreateNew = `https://e-tailorapi.azurewebsites.net/1api/product/${saveOrderId}`;
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}`;
     try {
       const response = await fetch(`${urlCreateNew}`, {
         method: "POST",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${manager?.token}`,
         },
         body: JSON.stringify(values),
@@ -743,7 +748,6 @@ const OrderToCustomerContent = () => {
 
   const initialComponentValues = {};
   const initialProfileBodyValues = {};
-
   useEffect(() => {
     productComponent?.forEach((component) => {
       initialComponentValues[`component_${component.id}`] =
@@ -756,22 +760,13 @@ const OrderToCustomerContent = () => {
   }, [productComponent]);
   useEffect(() => {
     getDetailDataProfileCustomer?.bodyAttributes?.forEach((component) => {
-      initialProfileBodyValues[`bodySizes_${component.id}`] = component.value;
+      initialProfileBodyValues[`bodySizes_${component.bodySize.id}`] =
+        component.value;
     });
+
     formProfileBody.setFieldsValue({
-      modifier: "ProfileId",
-      ...(getDetailDataProfileCustomer
-        ? {
-            nameProfile:
-              getDetailDataProfileCustomer !== undefined ||
-              getDetailDataProfileCustomer !== null
-                ? getDetailDataProfileCustomer.name
-                : "",
-            ...initialProfileBodyValues,
-          }
-        : {
-            nameProfile: "",
-          }),
+      nameProfile: getDetailDataProfileCustomer?.name,
+      ...initialProfileBodyValues,
     });
   }, [getDetailDataProfileCustomer]);
   const filterOptionForMaterial = (input, option) =>
@@ -782,7 +777,7 @@ const OrderToCustomerContent = () => {
       .includes(input.toLowerCase());
 
   const onFinish = async () => {
-    setOnFinishLoading(false);
+    setOnFinishLoading(true);
     if (!chooseProductTemplate) {
       Swal.fire({
         icon: "error",
@@ -794,6 +789,7 @@ const OrderToCustomerContent = () => {
       setOnFinishLoading(false);
     } else if (getDetailDataProfileCustomer) {
       const allValues = form.getFieldsValue();
+      console.log("allValues", allValues);
       const backendData = {
         orderId: saveOrderId,
         name: allValues.name,
@@ -811,6 +807,7 @@ const OrderToCustomerContent = () => {
                   (image) => ({
                     base64String: image.thumbUrl,
                     fileName: image.name,
+                    type: image.type,
                   })
                 );
               }
@@ -851,6 +848,7 @@ const OrderToCustomerContent = () => {
   const handleUpdateProfileBody = async () => {
     if (getDetailDataProfileCustomer) {
       const getProfileBody = formProfileBody.getFieldsValue();
+
       const dataBackEnd = {
         id: getDetailDataProfileCustomer.id,
         name: getProfileBody.nameProfile,
@@ -866,7 +864,9 @@ const OrderToCustomerContent = () => {
           })
           .filter(Boolean),
       };
+      console.log("DATA BE", dataBackEnd);
       setLoadingUpdateBodyProfile(true);
+      // const url = `https://e-tailorapi.azurewebsites.net/api/profile-body/customer/${getDetailDataProfileCustomer.id}`;
       const url = `https://e-tailorapi.azurewebsites.net/api/profile-body/customer/${getDetailDataProfileCustomer.id}`;
       try {
         const response = await fetch(`${url}`, {
@@ -887,7 +887,7 @@ const OrderToCustomerContent = () => {
             timer: 1500,
             zIndex: 1000,
           });
-          await getDetailProfileCustomer();
+          await fetchDataProfileBody(getDetailDataProfileCustomer.id);
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();
@@ -949,7 +949,8 @@ const OrderToCustomerContent = () => {
             timer: 1500,
             zIndex: 1000,
           });
-          await getAllBodySize();
+          await fetchDataProfileBody(saveCustomer.id);
+          formProfileBody.resetFields();
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();
@@ -987,11 +988,12 @@ const OrderToCustomerContent = () => {
   };
   const handleUpdateProduct = async () => {
     const urlUpdate = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
-    // const urlUpdate = `https://localhost:7259/api/product/${saveOrderId}/${saveIdProduct}`;
+    // const urlUpdate = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
     setOnFinishLoading(true);
     if (getProfileUpdateCustomer) {
       const allValues = formUpdate.getFieldsValue();
       const backendData = {
+        id: saveIdProduct,
         orderId: saveOrderId,
         name: allValues.name,
         productTemplateId: allValues.productTemplateId,
@@ -1008,6 +1010,7 @@ const OrderToCustomerContent = () => {
                   (image) => ({
                     base64String: image.thumbUrl,
                     fileName: image.name,
+                    type: image.type,
                   })
                 );
               }
@@ -1026,6 +1029,7 @@ const OrderToCustomerContent = () => {
           const response = await fetch(`${urlUpdate}`, {
             method: "PUT",
             headers: {
+              "Content-Type": "application/json",
               Authorization: `Bearer ${manager?.token}`,
             },
             body: JSON.stringify(backendData),
@@ -1035,7 +1039,7 @@ const OrderToCustomerContent = () => {
             await Swal.fire({
               position: "top-center",
               icon: "success",
-              title: responseData,
+              title: "Cập nhật thành công",
               showConfirmButton: false,
               timer: 1500,
               zIndex: 1000,
@@ -1081,8 +1085,6 @@ const OrderToCustomerContent = () => {
       setOnFinishLoading(false);
     }
   };
-
-  console.log("saveOrderId", saveOrderId);
 
   const steps = [
     {
@@ -1323,20 +1325,33 @@ const OrderToCustomerContent = () => {
                   Thêm sản phẩm
                 </Button>
               </div>
-              <div
-                style={{
-                  height: 250,
-                }}
-              >
-                <Table
-                  columns={columns}
-                  dataSource={dataForProduct}
-                  pagination={false}
-                  scroll={{
-                    y: 200,
+              {loadingStep2 ? (
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "450px",
                   }}
-                />
-              </div>
+                >
+                  <CircularProgress />
+                </div>
+              ) : (
+                <div
+                  style={{
+                    height: 250,
+                  }}
+                >
+                  <Table
+                    columns={columns}
+                    dataSource={dataForProduct}
+                    pagination={false}
+                    scroll={{
+                      y: 200,
+                    }}
+                  />
+                </div>
+              )}
             </Col>
             <Col
               span={7}
@@ -2303,9 +2318,10 @@ const OrderToCustomerContent = () => {
                               }}
                             >
                               <Button
-                                onClick={() =>
-                                  setGetDetailDataProfileCustomer(null)
-                                }
+                                onClick={() => {
+                                  setGetDetailDataProfileCustomer(null);
+                                  formProfileBody.resetFields();
+                                }}
                               >
                                 Bỏ chọn
                               </Button>
@@ -2364,6 +2380,9 @@ const OrderToCustomerContent = () => {
               formUpdateProfile={formUpdateProfile}
               getDetailDataProfileCustomer={getProfileUpdateCustomer}
               setGetDetailDataProfileCustomer={setGetProfileUpdateCustomer}
+              saveCustomer={saveCustomer}
+              getAllBodySize={getAllBodySize}
+              fetchDataProfileBody={fetchDataProfileBody}
             />
           )}
 
@@ -2380,9 +2399,11 @@ const OrderToCustomerContent = () => {
   const [current, setCurrent] = useState(0);
   const next = async () => {
     if (current === 0) {
-      if (saveCustomer) {
-        await handleDataOrderDetail();
-        setCurrent(current + 1);
+      if (saveCustomer && saveOrderId) {
+        const check = await handleDataOrderDetail();
+        if (check === 1) {
+          setCurrent(current + 1);
+        }
       } else {
         Swal.fire({
           icon: "error",
@@ -2418,7 +2439,7 @@ const OrderToCustomerContent = () => {
         }}
       >
         {current < steps.length - 1 && current === 0 && (
-          <Button type="primary" onClick={() => next()}>
+          <Button type="primary" onClick={() => next()} loading={loadingStep2}>
             Tiếp theo
           </Button>
         )}
@@ -2440,6 +2461,12 @@ const OrderToCustomerContent = () => {
                   navigate("/manager/orders");
                 } else if (response.status === 400 || response.status === 500) {
                   const responseData = await response.text();
+                  Swal.fire({
+                    icon: "error",
+                    title: responseData,
+                    showConfirmButton: false,
+                    timer: 1500,
+                  });
                 }
               } catch (error) {
                 console.error("Error calling API:", error);
@@ -2480,6 +2507,7 @@ const OrderToCustomerContent = () => {
               margin: "0 8px",
             }}
             onClick={() => prev()}
+            loading={onFinishLoading ? onFinishLoading : ""}
           >
             Quay lại
           </Button>

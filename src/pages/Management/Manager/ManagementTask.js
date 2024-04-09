@@ -373,11 +373,11 @@ export default function ManagementTask() {
                                 </Droppable>
                             </div>
 
-                            <div style={{ height: "82vh", overflowX: "auto", overflowY: "hidden", scrollbarWidth: "thin" }}>
-                                <div style={{ height: 60, borderBottom: "1px solid #9F78FF", alignItems: "end", alignContent: "end", width: "100vw" }}> {/* Use 100vw instead of 100% */}
+                            <div style={{ height: "82vh", overflowX: "auto", overflowY: "hidden", scrollbarWidth: "thin", position: "relative" }}>
+                                <div style={{ height: 60, borderBottom: "1px solid #9F78FF", alignItems: "end", alignContent: "end", width: "100vw", position: "fixed" }}> {/* Use 100vw instead of 100% */}
                                     <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#9F78FF", paddingLeft: 20 }}>Tất cả nhân viên</h2>
                                 </div>
-                                <div style={{ display: "grid", paddingLeft: 10, gridTemplateColumns: " repeat(minmax(300px,300px))", gridAutoFlow: "column", marginTop: "20px" }}>
+                                <div style={{ display: "grid", paddingTop: 60, paddingLeft: 10, gridTemplateColumns: " repeat(minmax(300px,300px))", gridAutoFlow: "column", marginTop: "20px" }}>
 
 
                                     {staffs?.data && staffs?.data.map((staff) => (

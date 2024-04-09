@@ -7,6 +7,7 @@ import {
   CloseOutlined,
   PlusOutlined,
   EyeOutlined,
+  ArrowLeftOutlined,
 } from "@ant-design/icons";
 import { Typography, Table, Checkbox } from "antd";
 import "./index.css";
@@ -29,6 +30,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
+import { getAvatarGroupUtilityClass } from "@mui/material";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
@@ -131,8 +133,6 @@ const ManagementOrderContent = () => {
   const [loading, setLoading] = useState([]);
   const getUrl = "https://e-tailorapi.azurewebsites.net/api/order";
 
-  console.log("Data Order", dataOrder);
-
   const handleDataOrder = async () => {
     setLoading(true);
     try {
@@ -160,15 +160,88 @@ const ManagementOrderContent = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [saveIdOrder, setSaveIdOrder] = useState(null);
-  const showModal = async (id) => {
+
+  const [checkStatus, setCheckStatus] = useState(null);
+  const showModal = async (id, status) => {
+    console.log("status", status);
     await setSaveIdOrder(id);
+    await setCheckStatus(status);
     setIsModalOpen(true);
   };
-  const handleOk = () => {
-    setIsModalOpen(false);
+  const handleApproveOrder = async (id) => {
+    const getUrl = `https://localhost:7259/api/order/approve/${id}`;
+    try {
+      const response = await fetch(getUrl, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 4500,
+          zIndex: 1000,
+        });
+        handleDataOrder();
+        setIsModalOpen(false);
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 4500,
+          zIndex: 1000,
+        });
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
   };
   const handleCancel = () => {
     setIsModalOpen(false);
+  };
+  const handleCancelOrder = async (id) => {
+    const getUrl = `https://localhost:7259/api/order/cancel/${id}`;
+    try {
+      const response = await fetch(getUrl, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 4500,
+          zIndex: 1000,
+        });
+        handleDataOrder();
+        setIsModalOpen(false);
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 4500,
+          zIndex: 1000,
+        });
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
   };
 
   const columns = [
@@ -193,20 +266,19 @@ const ManagementOrderContent = () => {
       width: 160,
       fixed: "left",
       render: (_, record) => {
-        console.log(record.status);
         switch (record.status) {
           case 1:
             return <Tag color="purple">Chờ xác nhận</Tag>;
           case 2:
             return <Tag color="lime">Đã xác nhận</Tag>;
           case 3:
-            return <Tag color="gold">Chưa bắt đầu</Tag>;
+            return <Tag color="default">Chưa bắt đầu</Tag>;
           case 4:
             return <Tag color="blue">Trong quá trình</Tag>;
           case 5:
             return <Tag color="green">Hoàn thành</Tag>;
           case 6:
-            return <Tag color="cyan">Kiểm tra</Tag>;
+            return <Tag color="gold">Kiểm tra</Tag>;
           case 7:
             return <Tag color="green">Đã giao</Tag>;
           default:
@@ -335,7 +407,7 @@ const ManagementOrderContent = () => {
                   fontSize: 15,
                   cursor: "pointer",
                 }}
-                onClick={() => showModal(record.id)}
+                onClick={() => showModal(record.id, record.status)}
               />
             </Col>
           </Row>
@@ -422,10 +494,12 @@ const ManagementOrderContent = () => {
 
       <ViewDetailOrder
         isModalOpen={isModalOpen}
-        handleOk={handleOk}
+        handleApproveOrder={handleApproveOrder}
         handleCancel={handleCancel}
         saveIdOrder={saveIdOrder}
         setSaveIdOrder={setSaveIdOrder}
+        checkStatus={checkStatus}
+        handleCancelOrder={handleCancelOrder}
       />
     </div>
   );
@@ -434,14 +508,80 @@ const ManagementOrderContent = () => {
 const ViewDetailOrder = ({
   isModalOpen,
   handleCancel,
-  handleOk,
+  handleApproveOrder,
   saveIdOrder,
+  checkStatus,
+  handleCancelOrder,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
-
+  console.log("status modal: ", checkStatus);
   const getUrl = "https://e-tailorapi.azurewebsites.net/api/order";
   const [loading, setLoading] = useState(false);
   const [dataOrderDetail, setDataOrderDetail] = useState(null);
+  const [viewDetailProduct, setViewDetailProduct] = useState(false);
+  const [detailProductData, setDetailProductData] = useState(null);
+  const [dataMaterialDetail, setDataMaterialDetail] = useState(null);
+  const [dataProfileBodyDetail, setDataProfileBodyDetail] = useState(null);
+
+  const handleGetDetailMaterial = async (id) => {
+    const detailUrl = `https://localhost:7259/api/material/${id}`;
+    try {
+      const response = await fetch(`${detailUrl}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setDataMaterialDetail(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  const handleGetDetailProfileBody = async (id) => {
+    const detailUrl = `https://localhost:7259/api/profile-body/${id}`;
+    try {
+      const response = await fetch(`${detailUrl}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setDataProfileBodyDetail(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  const handleViewProductDetail = async (id, orderId) => {
+    const detailUrl = `https://localhost:7259/api/product/order/${orderId}/${id}`;
+    try {
+      const response = await fetch(`${detailUrl}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setViewDetailProduct(true);
+        handleGetDetailMaterial(responseData.materialId);
+        handleGetDetailProfileBody(responseData.profileId);
+        setDetailProductData(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
 
   const handleDataOrder = async () => {
     setLoading(true);
@@ -534,6 +674,9 @@ const ViewDetailOrder = ({
                   fontSize: 15,
                   cursor: "pointer",
                 }}
+                onClick={() =>
+                  handleViewProductDetail(record.id, record.orderId)
+                }
               />
             </Col>
           </Row>
@@ -542,14 +685,12 @@ const ViewDetailOrder = ({
     },
   ];
 
-  console.log("Order detail: ", dataOrderDetail);
-
   return (
     <div>
       <Modal
         title="Chi tiết đơn hàng"
         open={isModalOpen}
-        onOk={handleOk}
+        onOk={handleApproveOrder}
         onCancel={handleCancel}
         width={1200}
         style={{ top: 40, height: 100 }}
@@ -563,12 +704,31 @@ const ViewDetailOrder = ({
             }}
           >
             <Button key="back" onClick={handleCancel}>
-              Hủy bỏ
+              Đóng
             </Button>
-            ,
-            <Button key="submit" type="primary" onClick={handleOk}>
-              Xác nhận
-            </Button>
+            {checkStatus === 1 && (
+              <>
+                <Button
+                  key="submit"
+                  type="primary"
+                  onClick={() => handleCancelOrder(saveIdOrder)}
+                  danger
+                  style={{ marginLeft: 15 }}
+                >
+                  Hủy đơn hàng
+                </Button>
+                <Button
+                  key="submit"
+                  type="primary"
+                  onClick={() => handleApproveOrder(saveIdOrder)}
+                  style={{ marginLeft: 15 }}
+                >
+                  Xác nhận đơn hàng
+                </Button>
+              </>
+            )}
+
+            {}
           </div>,
         ]}
       >
@@ -593,21 +753,216 @@ const ViewDetailOrder = ({
                   height: 590,
                   padding: "0px 10px",
                   borderRadius: "5px",
+                  position: "relative",
                 }}
               >
-                <Divider style={{ marginTop: 12 }}>Thông tin sản phẩm</Divider>
-                <Table
-                  columns={columns1}
-                  dataSource={dataOrderDetail && dataOrderDetail.products}
-                  pagination={false}
-                  scroll={{
-                    y: 450,
-                    x: 1000,
-                  }}
-                />
+                {viewDetailProduct && detailProductData ? (
+                  <div
+                    style={{
+                      height: "100%",
+                      overflowY: "scroll",
+                      scrollbarWidth: "none",
+                      WebkitScrollbar: "none",
+                    }}
+                  >
+                    <div
+                      style={{ display: "flex", width: "100%", marginTop: 20 }}
+                    >
+                      <Button
+                        type="primary"
+                        icon={<ArrowLeftOutlined />}
+                        onClick={() => {
+                          setViewDetailProduct(false);
+                          setDetailProductData(null);
+                          setDataMaterialDetail(null);
+                          setDataProfileBodyDetail(null);
+                        }}
+                      >
+                        Thoát
+                      </Button>
+                      <Title
+                        level={3}
+                        style={{
+                          textAlign: "center",
+                          marginTop: 0,
+                          marginBottom: 0,
+                          marginLeft: 280,
+                        }}
+                      >
+                        Chi tiết sản phẩm
+                      </Title>
+                    </div>
+
+                    <div style={{ marginTop: 20 }}>
+                      <Row>
+                        <Col span={12}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              height: "100%",
+                            }}
+                          >
+                            <img
+                              alt="product-template-detail"
+                              style={{
+                                width: 300,
+                                height: 300,
+                                objectFit: "cover",
+                                border: "1px solid #9F78FF",
+                              }}
+                              src={detailProductData?.productTemplateImage}
+                            />
+                          </div>
+                        </Col>
+                        <Col span={12}>
+                          <Title level={2}>{detailProductData?.name}</Title>
+                          <div>
+                            <Text style={{ fontSize: 18 }}>
+                              Bản mẫu: {detailProductData?.productTemplateName}
+                            </Text>
+                          </div>
+                          <div style={{ marginTop: 10 }}>
+                            <Text style={{ fontSize: 18 }}>
+                              Nguyên phụ liệu sử dụng:{" "}
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Image
+                                  width={50}
+                                  src={dataMaterialDetail?.image}
+                                  style={{ height: "50px" }}
+                                />
+                                <Text style={{ marginLeft: 10, fontSize: 18 }}>
+                                  {dataMaterialDetail?.name}
+                                </Text>
+                              </div>
+                            </Text>
+                          </div>
+                          <div style={{ marginTop: 10 }}>
+                            <Text style={{ fontSize: 18 }}>
+                              Ghi chú: {detailProductData?.note}
+                            </Text>
+                          </div>
+                        </Col>
+                        <div style={{ marginTop: 20 }}>
+                          <Title level={3} style={{ marginLeft: 40 }}>
+                            Số đo cơ thể:
+                          </Title>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                              border: "1px solid #9F78FF",
+                              borderRadius: 10,
+                              padding: 15,
+                            }}
+                          >
+                            <Row gutter={[16, 24]} style={{ width: "90%" }}>
+                              {dataProfileBodyDetail &&
+                                dataProfileBodyDetail?.bodyAttributes?.map(
+                                  (bodyAttribute) => {
+                                    return (
+                                      <Col span={6}>
+                                        <Text>
+                                          {bodyAttribute?.bodySize?.name} :{" "}
+                                          {bodyAttribute?.value} cm
+                                        </Text>
+                                      </Col>
+                                    );
+                                  }
+                                )}
+                            </Row>
+                          </div>
+                        </div>
+                        <div
+                          style={{
+                            marginTop: 20,
+                            marginBottom: 20,
+                            width: "100%",
+                          }}
+                        >
+                          <Title level={3} style={{ marginLeft: 40 }}>
+                            Kiểu sản phẩm:
+                          </Title>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                              border: "1px solid #9F78FF",
+                              borderRadius: 10,
+                              padding: 15,
+                            }}
+                          >
+                            <Row gutter={[16, 24]} style={{ width: "90%" }}>
+                              {detailProductData &&
+                                detailProductData?.componentTypeOrders?.map(
+                                  (componentTypeOrder) => {
+                                    const selected =
+                                      componentTypeOrder?.components?.find(
+                                        (item) =>
+                                          item.id ===
+                                          componentTypeOrder?.selected_Component_Id
+                                      );
+                                    console.log("selected", selected);
+                                    console.log(
+                                      "componentTypeOrder",
+                                      componentTypeOrder
+                                    );
+                                    return (
+                                      <Col span={6}>
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                          }}
+                                        >
+                                          <Image
+                                            width={50}
+                                            src={selected?.image}
+                                            style={{ height: "50px" }}
+                                          />
+                                          <Text
+                                            style={{
+                                              marginLeft: 10,
+                                              fontSize: 18,
+                                            }}
+                                          >
+                                            {selected?.name}
+                                          </Text>
+                                        </div>
+                                      </Col>
+                                    );
+                                  }
+                                )}
+                            </Row>
+                          </div>
+                        </div>
+                      </Row>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <Divider style={{ marginTop: 12 }}>
+                      Thông tin sản phẩm
+                    </Divider>
+                    <Table
+                      columns={columns1}
+                      dataSource={dataOrderDetail && dataOrderDetail.products}
+                      pagination={false}
+                      scroll={{
+                        y: 450,
+                        x: 1000,
+                      }}
+                    />
+                  </>
+                )}
               </div>
             </Col>
-
             <Col span={6}>
               <Row>
                 <Col span={24}>
