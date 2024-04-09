@@ -271,7 +271,7 @@ const ManagementBodySizeContent = () => {
           timer: 1500,
         });
         handleBodySize();
-        setOpen(false);
+        return 1;
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -519,6 +519,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
               form.resetFields();
               setPostImage(null);
               setImageUrl(null);
+              onCancel();
             }
           })
           .catch((info) => {
