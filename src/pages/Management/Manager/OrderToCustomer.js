@@ -907,7 +907,7 @@ const OrderToCustomerContent = () => {
             timer: 1500,
             zIndex: 1000,
           });
-          await fetchDataProfileBody(getDetailDataProfileCustomer.id);
+          await fetchDataProfileBody(saveCustomer.id);
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();

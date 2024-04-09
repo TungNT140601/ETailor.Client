@@ -38,6 +38,7 @@ import {
   Alert,
   InputNumber,
   Checkbox,
+  Table,
 } from "antd";
 
 import CheckroomIcon from "@mui/icons-material/Checkroom";
@@ -1521,11 +1522,8 @@ const ManagementUpdateProductTemplateContent = () => {
       title: "Quy trình",
       content: (
         <>
-          <Divider>
-            <Title level={4}>Quy trình xử lý</Title>
-          </Divider>
-          <Row justify="center" style={{ marginBottom: 100 }}>
-            <Col span={12}>
+          <Row justify="center" style={{ marginTop: 10 }}>
+            <Col span={24}>
               <Form
                 labelCol={{
                   span: 6,
@@ -1536,7 +1534,7 @@ const ManagementUpdateProductTemplateContent = () => {
                 form={form}
                 name="dynamic_form_complex"
                 style={{
-                  maxWidth: 600,
+                  maxWidth: "100%",
                 }}
                 autoComplete="off"
                 initialValues={{
@@ -1545,75 +1543,113 @@ const ManagementUpdateProductTemplateContent = () => {
               >
                 <Form.List name="items">
                   {(fields, { add, remove }) => (
-                    <div
-                      style={{
-                        display: "flex",
-                        rowGap: 16,
-                        flexDirection: "column",
-                      }}
-                    >
-                      {fields.map((field) => (
-                        <Card
-                          size="small"
-                          title={`Bước ${field.name + 1}`}
-                          key={field.key}
-                          extra={
-                            <CloseOutlined
-                              onClick={() => {
-                                remove(field.name);
-                              }}
-                            />
-                          }
-                        >
-                          <Form.Item
-                            label="Quy trình"
-                            name={[field.name, "name"]}
-                          >
-                            <Input />
-                          </Form.Item>
-                          <Form.Item label="Bộ phận thực hiện">
-                            <Form.Item
-                              name={[field.name, "componentTypeIds"]}
-                              noStyle
-                              rules={[
-                                {
-                                  validator(_, value) {
-                                    if (value && value.length > 0) {
-                                      return Promise.resolve();
-                                    }
-                                    return Promise.reject(
-                                      new Error(
-                                        "Please select at least one item."
-                                      )
-                                    );
+                    <>
+                      <Table
+                        scroll={{ y: 330, x: 1200 }}
+                        dataSource={fields}
+                        pagination={false}
+                        rowKey="key"
+                        columns={[
+                          {
+                            title: `Bước thực hiện`,
+                            width: "15%",
+                            render: (_, record, index) => (
+                              <Text>{`Bước ${index + 1}`}</Text>
+                            ),
+                          },
+                          {
+                            title: "Quy trình",
+                            dataIndex: ["name"],
+                            render: (_, record, index) => (
+                              <Form.Item
+                                name={[record.name, "name"]}
+                                noStyle
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Please input quy trình",
                                   },
-                                },
-                              ]}
-                            >
-                              <Select
-                                mode="multiple"
-                                placeholder="Select items"
-                                style={{ width: "100%" }}
-                                labelInValue
+                                ]}
                               >
-                                {itemCategoryStep4.map((item) => {
-                                  return (
-                                    <>
-                                      <Option value={item.id} key={item.id}>
-                                        {item.name}
-                                      </Option>
-                                    </>
-                                  );
-                                })}
-                              </Select>
-                            </Form.Item>
-                          </Form.Item>
-                        </Card>
-                      ))}
-                      <Button type="dashed" onClick={() => add()} block>
-                        + Add Item
-                      </Button>
-                    </div>
+                                <Input />
+                              </Form.Item>
+                            ),
+                          },
+                          {
+                            title: "Bộ phận thực hiện",
+                            dataIndex: ["componentTypeIds"],
+                            width: "50%",
+                            render: (_, record, index) => (
+                              <Form.Item
+                                name={[record.name, "componentTypeIds"]}
+                                noStyle
+                                rules={[
+                                  {
+                                    validator(_, value) {
+                                      if (value && value.length > 0) {
+                                        return Promise.resolve();
+                                      }
+                                      return Promise.reject(
+                                        new Error(
+                                          "Please select at least one item."
+                                        )
+                                      );
+                                    },
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  mode="multiple"
+                                  size={"default"}
+                                  placeholder="Select items"
+                                  style={{ width: "100%" }}
+                                  labelInValue
+                                >
+                                  {itemCategoryStep4.map((item) => {
+                                    return (
+                                      <>
+                                        <Option value={item.id} key={item.id}>
+                                          {item.name}
+                                        </Option>
+                                      </>
+                                    );
+                                  })}
+                                </Select>
+                              </Form.Item>
+                            ),
+                          },
+                          {
+                            title: "Actions",
+                            dataIndex: "actions",
+                            render: (_, record, index) => (
+                              <Button
+                                type="link"
+                                onClick={() => {
+                                  remove(index);
+                                }}
+                              >
+                                Remove
+                              </Button>
+                            ),
+                          },
+                        ]}
+                      />
+                      <Form.Item
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Button
+                          type="dashed"
+                          onClick={() => add()}
+                          block
+                          style={{ width: 200, marginTop: 10 }}
+                        >
+                          + Add Item
+                        </Button>
+                      </Form.Item>
+                    </>
                   )}
                 </Form.List>
               </Form>
@@ -1646,7 +1682,7 @@ const ManagementUpdateProductTemplateContent = () => {
           <div>{steps[current].content}</div>
           <div
             style={{
-              marginTop: 24,
+              marginTop: current === 3 ? 0 : 24,
               display: "flex",
               justifyContent: "space-around",
             }}

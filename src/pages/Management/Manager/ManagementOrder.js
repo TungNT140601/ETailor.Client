@@ -169,7 +169,7 @@ const ManagementOrderContent = () => {
     setIsModalOpen(true);
   };
   const handleApproveOrder = async (id) => {
-    const getUrl = `https://localhost:7259/api/order/approve/${id}`;
+    const getUrl = `https://e-tailorapi.azurewebsites.net/api/order/approve/${id}`;
     try {
       const response = await fetch(getUrl, {
         method: "PATCH",
@@ -208,7 +208,7 @@ const ManagementOrderContent = () => {
     setIsModalOpen(false);
   };
   const handleCancelOrder = async (id) => {
-    const getUrl = `https://localhost:7259/api/order/cancel/${id}`;
+    const getUrl = `https://e-tailorapi.azurewebsites.net/api/order/cancel/${id}`;
     try {
       const response = await fetch(getUrl, {
         method: "DELETE",
@@ -524,7 +524,7 @@ const ViewDetailOrder = ({
   const [dataProfileBodyDetail, setDataProfileBodyDetail] = useState(null);
 
   const handleGetDetailMaterial = async (id) => {
-    const detailUrl = `https://localhost:7259/api/material/${id}`;
+    const detailUrl = `https://e-tailorapi.azurewebsites.net/api/material/${id}`;
     try {
       const response = await fetch(`${detailUrl}`, {
         method: "GET",
@@ -543,7 +543,7 @@ const ViewDetailOrder = ({
   };
 
   const handleGetDetailProfileBody = async (id) => {
-    const detailUrl = `https://localhost:7259/api/profile-body/${id}`;
+    const detailUrl = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
     try {
       const response = await fetch(`${detailUrl}`, {
         method: "GET",
@@ -562,7 +562,7 @@ const ViewDetailOrder = ({
   };
 
   const handleViewProductDetail = async (id, orderId) => {
-    const detailUrl = `https://localhost:7259/api/product/order/${orderId}/${id}`;
+    const detailUrl = `https://e-tailorapi.azurewebsites.net/api/product/order/${orderId}/${id}`;
     try {
       const response = await fetch(`${detailUrl}`, {
         method: "GET",

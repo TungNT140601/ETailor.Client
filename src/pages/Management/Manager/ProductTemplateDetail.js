@@ -298,7 +298,16 @@ const ManagementProductDetailContent = () => {
                     </Tag>
                   </Text>
                 </div>
-                <div style={{ marginTop: 10 }}>
+                <div
+                  style={{
+                    marginTop: 10,
+                    height: "200px",
+                    overflowY: "scroll",
+                    scrollbarWidth: "none",
+                    WebkitScrollbar: "none",
+                    borderRadius: 10,
+                  }}
+                >
                   <Text style={{ fontSize: 18 }}>
                     Mô tả: {dataDetail?.description}
                   </Text>
