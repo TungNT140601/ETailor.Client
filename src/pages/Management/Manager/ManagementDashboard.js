@@ -148,7 +148,7 @@ export default function ManagementDashboard() {
         <Line
           options={{
             responsive: true,
-            width: "800px",
+            width: "580px",
             height: "400px",
             maintainAspectRatio: false,
             plugins: {
@@ -362,7 +362,7 @@ export default function ManagementDashboard() {
                   }}
 
                     data={{
-                      labels: ['Đã huỷ', 'Hoàn thiện', 'Khác'],
+                      labels: ['Đã huỷ', 'Hoàn thiện', 'Đang thực hiện'],
                       datasets: [
                         {
                           label: 'Số lượng',
@@ -386,7 +386,7 @@ export default function ManagementDashboard() {
               </Col>
             </Col>
           </Row>
-          <Row style={{ backgroundColor: "#fff", borderRadius: 10, marginTop: 15, width: "800px", height: "400px" }}>
+          <Row style={{ backgroundColor: "#fff", borderRadius: 10, marginTop: 15, width: "620px", height: "400px" }}>
 
             <OrderStatistic searchMonth={searchMonth} searchYear={searchYear} barChart={false} lineChart={true} />
 
@@ -417,7 +417,8 @@ export default function ManagementDashboard() {
     const [fabricLoading, setFabricLoading] = useState(false)
     const [materialStatistic, setMaterialStatistic] = useState([]);
     const [fabricName, setFabricName] = useState([]);
-
+    const [commonTemplate, setCommonTemplate] = useState([])
+    const [commonTemplateLoading, setCommonTemplateLoading] = useState(false)
     useEffect(() => {
       const fetchMaterialStatistic = async () => {
         setFabricLoading(true)
@@ -442,10 +443,35 @@ export default function ManagementDashboard() {
           setFabricLoading(false)
         }
       }
+
+      const fetchCommonTemplate = async () => {
+        setCommonTemplateLoading(true)
+        const manager = JSON.parse(localStorage.getItem("manager"));
+        const GET_COMMON_TEMPLATE = `https://e-tailorapi.azurewebsites.net/api/Dashboard/template-common-used?year=${searchYear}&month=${searchMonth}`;
+        try {
+          const response = await fetch(GET_COMMON_TEMPLATE, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${manager.token}`,
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setCommonTemplateLoading(false)
+            console.log("common template", data);
+            setCommonTemplate(data);
+          }
+        } catch (error) {
+          console.log("Error:", error);
+          setCommonTemplateLoading(false)
+        }
+      }
+      fetchCommonTemplate();
       fetchMaterialStatistic();
     }, [searchMonth, searchYear])
 
-    const labels = materialStatistic.map(material => material.name);
+    const fabricLabels = materialStatistic.map(material => material.name);
     const options = {
       indexAxis: 'y',
       elements: {
@@ -467,16 +493,30 @@ export default function ManagementDashboard() {
     };
 
     const fabricData = {
-      labels,
-      datasets: [
-        {
-          label: '',
-          data: materialStatistic.map(material => material.totalOrders),
-          borderColor: 'rgb(255, 99, 132)',
-          backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        },
+      labels: fabricLabels,
+      datasets:
 
-      ],
+        [
+          {
+            label: '',
+            data: materialStatistic.map(material => material.totalProducts),
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+          },
+
+        ]
+    }
+    const templateData = {
+      templateLabels: commonTemplate.map(template => template.name),
+      datasets:
+        [
+          {
+            label: '',
+            data: commonTemplate.map(template => template.total),
+            borderColor: 'rgb(53, 162, 235)',
+            backgroundColor: 'rgba(53, 162, 235, 0.5)',
+          },
+        ]
     }
     return (
       <Row justify="space-between" style={{ backgroundColor: "unset", margin: 15 }}>
@@ -504,7 +544,7 @@ export default function ManagementDashboard() {
                           </div>
                           <div style={{ marginLeft: 20 }}>
                             <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material.name}</p>
-                            <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {material.totalOrders}</p>
+                            <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {material.totalProducts}</p>
                           </div>
                         </div>
                       ))}
@@ -519,6 +559,10 @@ export default function ManagementDashboard() {
         </Col>
         <Col span={8}>
           <Row style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "30em" }}>
+            <div>
+
+            </div>
+            <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Đề xuất nhập vải</h1>
           </Row>
         </Col>
       </Row>

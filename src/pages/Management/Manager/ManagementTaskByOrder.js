@@ -7,7 +7,8 @@ import {
     PlusOutlined,
     LoadingOutlined,
     SettingOutlined,
-    ClockCircleOutlined
+    ClockCircleOutlined,
+    WarningOutlined
 } from "@ant-design/icons";
 import { Typography } from "antd";
 import "./index.css";
@@ -19,7 +20,8 @@ import {
     Breadcrumb,
     Popover,
     Button,
-    Modal
+    Modal,
+    DatePicker
 } from "antd";
 import Notask from "../../../assets/images/nodata.jpg";
 import toast, { Toaster } from 'react-hot-toast';
@@ -38,12 +40,23 @@ import Fade from '@mui/material/Fade';
 const { Search } = Input;
 const { Title, Text } = Typography;
 const { Option } = Select;
+function getHoursDifference(deadline) {
+    const currentDateUTC = new Date();
+
+    const startMillis = new Date(deadline).getTime();
+    const currentMillisUTC7 = currentDateUTC.getTime();
+
+    const millisDiff = startMillis - currentMillisUTC7;
+    const hoursDiff = millisDiff / (1000 * 60 * 60);
+
+    return hoursDiff < 1 ? `${Math.floor(hoursDiff * 60)} phút` : hoursDiff < 24 ? `${Math.floor(hoursDiff)} giờ ` : `${Math.floor(hoursDiff / 24)} ngày`;
+}
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate();
-    const month = date.toLocaleString("vi-VI", { month: "long" });
+    const month = date.toLocaleString("vi-VI", { month: "2-digit" });
     const year = date.getFullYear();
-    return `${day} ${month} ${year}`
+    return `${day}/${month}/${year}`
 };
 function formatCurrency(amount) {
     if (amount) {
@@ -211,6 +224,21 @@ export default function ManagementTaskByOrder() {
     };
     const ManagementTasksContent = () => {
 
+        const dayjs = require('dayjs');
+        const utc = require('dayjs/plugin/utc');
+        const timezone = require('dayjs/plugin/timezone');
+
+        // Extend dayjs with utc and timezone plugins
+        dayjs.extend(utc);
+        dayjs.extend(timezone);
+
+        // Set the timezone to Vietnam
+        dayjs.tz.setDefault('Asia/Ho_Chi_Minh');
+
+        // Get the current date and time in Vietnam timezone
+        const currentTimeVietnam = dayjs().format('YYYY-MM-DD HH:mm:ss');
+        const milliseconds = dayjs(currentTimeVietnam).valueOf()
+
         const [expanded, setExpanded] = useState(false);
         const handleExpansion = (panel) => {
             setExpanded((prevExpanded) => ({
@@ -219,15 +247,15 @@ export default function ManagementTaskByOrder() {
             }));
         };
         const staffImageHover = (product) => {
-            console.log("Staff Image Hover", product.id)
+            // console.log("Staff Image Hover", product.id)
         }
         const handleCloseAll = () => {
-            console.log("Closing all accordions");
+            // console.log("Closing all accordions");
             const newExpandedState = {};
             Object.keys(expanded).forEach((panel) => {
                 newExpandedState[panel] = false;
             });
-            console.log("New Expanded State:", newExpandedState);
+            // console.log("New Expanded State:", newExpandedState);
             setExpanded(false);
         };
         const [loading, setLoading] = useState(true);
@@ -235,7 +263,7 @@ export default function ManagementTaskByOrder() {
         const [templateCategories, setTemplateCategories] = useState("");
         const [currentTemplate, setCurrentTemplate] = useState("");
         const handleChoseTemplate = (id) => {
-            console.log("Chose template:", id);
+            // console.log("Chose template:", id);
             templatesData.filter((category) => {
                 category.productTemplates.filter((template) => {
                     if (template.id === id) {
@@ -244,7 +272,7 @@ export default function ManagementTaskByOrder() {
                 })
             })
         }
-        console.log("Current Template:", currentTemplate);
+        // console.log("Current Template:", currentTemplate);
         const [allStaff, setAllStaff] = useState("");
         const fetchTemplates = async () => {
             try {
@@ -260,7 +288,7 @@ export default function ManagementTaskByOrder() {
                 );
                 if (response.ok) {
                     const data = await response.json();
-                    console.log("Data:", data);
+                    // console.log("Data:", data);
                     setTemplatesData(data);
                     setCurrentTemplate(data[0]?.productTemplates[0]);
                     setLoading(false);
@@ -312,7 +340,7 @@ export default function ManagementTaskByOrder() {
                     );
                     if (response.ok) {
                         const data = await response.json();
-                        console.log("Data staff:", data);
+                        // console.log("Data staff:", data);
                         setAllStaff(data);
                     }
                 } catch (error) {
@@ -336,12 +364,12 @@ export default function ManagementTaskByOrder() {
                 setSelectedValue(value);
             };
             const handleCancel = () => {
-                console.log('Clicked cancel button');
+                // console.log('Clicked cancel button');
                 setOpen(false);
             };
 
             const handleOk = async (productId) => {
-                console.log('Clicked ok', productId, selectedValue);
+                // console.log('Clicked ok', productId, selectedValue);
                 if (productId && selectedValue !== null) {
                     setConfirmLoading(true);
                     const manager = JSON.parse(localStorage.getItem("manager"));
@@ -357,7 +385,7 @@ export default function ManagementTaskByOrder() {
                         });
                         if (response.status === 200) {
                             const data = await response.text();
-                            console.log("Data:", data);
+                            // console.log("Data:", data);
                             setConfirmLoading(false);
                             toast.success("Thay đổi nhân viên thực hiện thành công");
                             fetchTemplates();
@@ -379,7 +407,33 @@ export default function ManagementTaskByOrder() {
                     setOpen(false);
                 }
             };
-
+            const [deadline, setDeadline] = useState(null);
+            const onOk = async (productId, deadline) => {
+                console.log('onOk: ', deadline);
+                const manager = JSON.parse(localStorage.getItem("manager"));
+                const UPDATE_DEADLINE_URL = `https://e-tailorapi.azurewebsites.net/api/task/task/${productId}/deadline?deadlineTickString=${deadline}`
+                try {
+                    const response = await fetch(UPDATE_DEADLINE_URL, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${manager.token}`,
+                        },
+                    });
+                    if (response.status === 200) {
+                        const data = await response.text();
+                        console.log("Data:", data);
+                        fetchTemplates();
+                        setDeadline(null);
+                        setOpen(false);
+                        toast.success("Cập nhật deadline thành công");
+                    } else {
+                        toast.error("Cập nhật deadline thất bại");
+                    }
+                } catch (e) {
+                    console.log("Error at update deadline:", e)
+                }
+            };
             return (
                 <div style={{ marginLeft: 10, minWidth: 240 }}>
                     <div>
@@ -388,8 +442,9 @@ export default function ManagementTaskByOrder() {
                         </div>
 
                         <p style={{ fontSize: 15, fontWeight: 600 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
-                        <p style={{ fontSize: 15, fontWeight: 600 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
-                        <p style={{ fontSize: 15, fontWeight: 600 }}>Thời hạn: <span style={{ fontWeight: 400 }}>{formatDate(product.createdTime)}-{product.productStages[0].deadline ? formatDate(product.productStages[0].deadline) : ''} </span></p>
+                        <p style={{ fontSize: 15, fontWeight: 600 }}>Giá trị đơn hàng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
+                        <p style={{ fontSize: 15, fontWeight: 600 }}>Ngày bắt đầu: <span style={{ fontWeight: 400 }}>{formatDate(product.createdTime)} </span></p>
+                        <p style={{ fontSize: 15, fontWeight: 600 }}>Hạn hoàn thành: <span style={{ fontWeight: 400 }}>{formatDate(product.productStages[0].deadline)}</span></p>
                         <p style={{ fontSize: 15, fontWeight: 600 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
                         <Button type="primary" onClick={showModal}>
                             Xem chi tiết
@@ -413,7 +468,35 @@ export default function ManagementTaskByOrder() {
 
                                 <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
                                 <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
-                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Thời hạn: <span style={{ fontWeight: 400 }}>{formatDate(product.createdTime)}-{product.productStages[0].deadline ? formatDate(product.productStages[0].deadline) : ''} </span></p>
+                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Thời hạn:
+                                    <span style={{ fontWeight: 400 }}>
+                                        {product.productStages[0].deadline ?
+                                            <div>
+                                                <DatePicker
+                                                    value={dayjs(product.productStages[0].deadline)}
+                                                    showTime={{ format: 'HH:mm' }}
+                                                    onChange={(value, dateString) => {
+                                                        console.log('Selected Time: ', value);
+                                                        setDeadline(dayjs(dateString).valueOf().toString())
+                                                        console.log('Formatted Selected Time: ', dayjs(dateString).valueOf());
+                                                    }}
+                                                    onOk={(dateString) => onOk(product.id, dayjs(dateString).valueOf())}
+                                                />
+                                            </div> : (
+                                                <div>
+                                                    <DatePicker
+                                                        showTime={{ format: 'HH:mm' }}
+                                                        onChange={(value, dateString) => {
+                                                            console.log('Selected Time: ', value);
+                                                            setDeadline(dayjs(dateString).valueOf().toString())
+                                                            console.log('Formatted Selected Time: ', dayjs(dateString).valueOf());
+                                                        }}
+                                                        onOk={(dateString) => onOk(product.id, dayjs(dateString).valueOf())}
+                                                    />
+                                                </div>
+                                            )}
+                                    </span>
+                                </p>
                                 <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
                                 <div style={{ display: "flex" }}>
                                     <p style={{ fontSize: 15, fontWeight: 600 }}>Nhân viên thực hiện : {product?.staffMaker?.fullname}</p>
@@ -517,12 +600,15 @@ export default function ManagementTaskByOrder() {
                         </div>
                         <div style={{ border: "1px solid #9F78FF", width: "75%", height: "82vh", margin: "0px 10px 10px 30px", borderRadius: 10, alignItems: "center" }}>
 
-                            <div style={{ overflowX: "auto", scrollbarWidth: "thin", marginRight: 20, height:"80vh" }}>
+                            <div style={{ overflowX: "auto", scrollbarWidth: "thin", marginRight: 20, height: "80vh" }}>
                                 <div style={{ display: "grid", height: "70vh", gridTemplateColumns: " repeat(minmax(300px,300px))", gridAutoFlow: "column", paddingLeft: 20, paddingRight: 20, marginTop: 20 }}>
                                     {currentTemplate?.templateStages?.map((stage, index) => (
                                         <div style={{ alignItems: "center", textAlign: "center", height: "70vh", marginRight: 20 }} key={stage.id}>
                                             <div style={{ borderRadius: 15, alignItems: "end", alignContent: "end" }}>
-                                                <p style={{ fontSize: 18, fontWeight: 600 }}>{stage?.name}</p>
+                                                <Divider plain>
+                                                    <p style={{ fontSize: 18, fontWeight: 600 }}>{stage?.name}</p>
+                                                </Divider>
+
                                             </div>
                                             <div style={{ backgroundColor: "#f3f1fa", marginTop: 20, height: "75vh", width: "280px", paddingTop: 15, overflowY: "scroll", scrollbarWidth: "none" }}>
                                                 {currentTemplate?.products && currentTemplate?.products.map((product, index) => {
@@ -547,7 +633,21 @@ export default function ManagementTaskByOrder() {
                                                                     <Popover placement={stage.stageNum === 5 ? "leftTop" : "rightTop"} content={() => <Content product={product} stage={stage} />} >
                                                                         <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Tên sản phẩm:<span style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, }}> {product?.name}</span> </h3>
                                                                         <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn hàng: {product?.orderId}</h3>
-                                                                        <p style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }} /> :{product.productStages[0]?.deadline ? product.productStages[0]?.deadline : "-"}</p>
+                                                                        <p style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }}>
+                                                                            {product.productStages[0]?.deadline ? (
+                                                                                <>
+                                                                                    <ClockCircleOutlined style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }} />
+                                                                                    {getHoursDifference(product.productStages[0]?.deadline)}
+                                                                                </>
+
+                                                                            ) : (
+                                                                                <>
+                                                                                    <WarningOutlined /> Chưa có deadline
+                                                                                </>
+
+                                                                            )}
+                                                                        </p>
+
 
 
 
