@@ -537,8 +537,8 @@ export default function ManagementDashboard() {
                   </Col>
                   <Col span={10} style={{ backgroundColor: "#ffffff", borderRadius: 10 }}>
                     <div style={{ padding: "20px 5px 20px 50px", alignContent: "center", alignItems: "center", height: "100%" }}>
-                      {materialStatistic.map(material => (
-                        <div style={{ display: "flex", padding: 5 }}>
+                      {materialStatistic.map((material,index) => (
+                        <div style={{ display: "flex", padding: 5 }} key={index}>
                           <div>
                             <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
                           </div>

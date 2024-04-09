@@ -104,7 +104,7 @@ const getStatusTextAndColor = (status) => {
             break;
         case 4:
             color = "#67b645";
-            borderColor="#c6f0a6"
+            borderColor = "#c6f0a6"
             text = "Hoàn thành";
             backgroundColor = "#f6ffed";
             break;
@@ -410,10 +410,11 @@ export default function ManagementTaskByOrder() {
                 }
             };
             const [deadline, setDeadline] = useState(null);
-            const onOk = async (productId, deadline) => {
-                console.log('onOk: ', deadline);
+            console.log("Current Deadline:", deadline)
+            const handleDeadlineUpdate = async (productId, newDeadline) => {
+                console.log("New Deadline:", newDeadline)
                 const manager = JSON.parse(localStorage.getItem("manager"));
-                const UPDATE_DEADLINE_URL = `https://e-tailorapi.azurewebsites.net/api/task/task/${productId}/deadline?deadlineTickString=${deadline}`
+                const UPDATE_DEADLINE_URL = `https://e-tailorapi.azurewebsites.net/api/task/task/${productId}/deadline?deadlineTickString=${newDeadline}`;
                 try {
                     const response = await fetch(UPDATE_DEADLINE_URL, {
                         method: "PUT",
@@ -433,9 +434,10 @@ export default function ManagementTaskByOrder() {
                         toast.error("Cập nhật deadline thất bại");
                     }
                 } catch (e) {
-                    console.log("Error at update deadline:", e)
+                    console.log("Error at update deadline:", e);
                 }
             };
+
             return (
                 <div style={{ marginLeft: 10, minWidth: 240 }}>
                     <div>
@@ -470,33 +472,25 @@ export default function ManagementTaskByOrder() {
 
                                 <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
                                 <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
-                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Thời hạn:
+                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Thời hạn:&nbsp;
                                     <span style={{ fontWeight: 400 }}>
-                                        {product.productStages[0].deadline ?
-                                            <div>
-                                                <DatePicker
-                                                    value={dayjs(product.productStages[0].deadline)}
-                                                    showTime={{ format: 'HH:mm' }}
-                                                    onChange={(value, dateString) => {
-                                                        console.log('Selected Time: ', value);
-                                                        setDeadline(dayjs(dateString).valueOf().toString())
-                                                        console.log('Formatted Selected Time: ', dayjs(dateString).valueOf());
-                                                    }}
-                                                    onOk={(dateString) => onOk(product.id, dayjs(dateString).valueOf())}
-                                                />
-                                            </div> : (
-                                                <div>
-                                                    <DatePicker
-                                                        showTime={{ format: 'HH:mm' }}
-                                                        onChange={(value, dateString) => {
-                                                            console.log('Selected Time: ', value);
-                                                            setDeadline(dayjs(dateString).valueOf().toString())
-                                                            console.log('Formatted Selected Time: ', dayjs(dateString).valueOf());
-                                                        }}
-                                                        onOk={(dateString) => onOk(product.id, dayjs(dateString).valueOf())}
-                                                    />
-                                                </div>
-                                            )}
+                                        <DatePicker
+                                            value={product.productStages[0].deadline ? dayjs(product.productStages[0].deadline) : ''}
+                                            showTime={{ format: 'HH:mm' }}
+                                            onChange={(value, dateString) => {
+                                                console.log('Selected Time: ', dateString);
+                                                const newDeadline = dayjs(dateString).valueOf().toString();
+                                                setDeadline(newDeadline);
+                                                console.log('Formatted Selected Time: ', dayjs(dateString).valueOf());
+                                                if (newDeadline !== null) {
+                                                    handleDeadlineUpdate(product.id, newDeadline);
+                                                }
+                                            }}
+                                            onOk={() => {
+                                                setOpen(false);
+                                            }}
+                                        />
+
                                     </span>
                                 </p>
                                 <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
