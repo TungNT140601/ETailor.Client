@@ -103,8 +103,10 @@ const getStatusTextAndColor = (status) => {
             text = "Tạm dừng";
             break;
         case 4:
-            color = "volcano";
+            color = "#67b645";
+            borderColor="#c6f0a6"
             text = "Hoàn thành";
+            backgroundColor = "#f6ffed";
             break;
 
     }

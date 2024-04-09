@@ -520,7 +520,7 @@ export default function ManagementDashboard() {
     }
     return (
       <Row justify="space-between" style={{ backgroundColor: "unset", margin: 15 }}>
-        <Col span={16} >
+        <Col span={14} >
           <Row style={{ backgroundColor: "#ffffff", marginRight: 10, borderRadius: 10, height: "30em" }}>
             {fabricLoading ?
               <div style={{ width: "100%", height: "100%", alignContent: "center", alignItems: "center", display: "flex", justifyContent: "center" }}>
@@ -557,7 +557,7 @@ export default function ManagementDashboard() {
 
           </Row>
         </Col>
-        <Col span={8}>
+        <Col span={10}>
           <Row style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "30em" }}>
             <div>
 
