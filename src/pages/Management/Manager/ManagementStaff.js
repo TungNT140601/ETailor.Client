@@ -145,7 +145,6 @@ const ManagementStaffContent = () => {
     {
       title: "Hình đại diện",
       width: 150,
-
       dataIndex: "avatar",
       key: "avatar",
       render: (_, record) => (
@@ -187,7 +186,7 @@ const ManagementStaffContent = () => {
       key: "5",
       width: 150,
       fixed: "right",
-      render: () => (
+      render: (_, record) => (
         <Row justify="start">
           <Col span={4}>
             <DeleteOutlined
@@ -211,6 +210,10 @@ const ManagementStaffContent = () => {
                 fontSize: 15,
                 cursor: "pointer",
               }}
+              onClick={() => {
+                handleOpenUpdate(record.id);
+                console.log(record);
+              }}
             />
           </Col>
         </Row>
@@ -219,6 +222,7 @@ const ManagementStaffContent = () => {
   ];
 
   const getApi = staffs?.data?.map((item) => ({
+    id: item.id,
     stt: item.stt,
     avatar: item.avatar,
     username: item.username,
@@ -231,11 +235,13 @@ const ManagementStaffContent = () => {
   const [open, setOpen] = useState(false);
   const onCreate = async (values) => {
     const formData = new FormData();
-    formData.append("MaterialCategoryId", values.materialCategoryId);
-    formData.append("Name", values.name);
-    formData.append("ImageFile", values.imageFile);
-    formData.append("Quantity", values.quantity);
-    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/material`;
+    formData.append("AvatarImage", values.avatar);
+    formData.append("Fullname", values.fullname);
+    formData.append("Address", values.address);
+    formData.append("Phone", values.phone);
+    formData.append("Username", values.username);
+    values?.masterySkill?.map((item) => formData.append("MasterySkill", item));
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/staff`;
     try {
       const response = await fetch(urlCreateMaterialType, {
         method: "POST",
@@ -244,8 +250,8 @@ const ManagementStaffContent = () => {
         },
         body: formData,
       });
+      const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
         Swal.fire({
           position: "top-center",
           icon: "success",
@@ -255,9 +261,71 @@ const ManagementStaffContent = () => {
         });
         handleDataStaff();
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    }
+  };
+  //----------------------------------------------------------------Update------------------------------------------------
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [saveIdStaff, setSaveIdStaff] = useState(null);
+  const handleOpenUpdate = async (id) => {
+    console.log("id", id);
+    await setSaveIdStaff(id);
+    setOpenUpdate(true);
+  };
+  const onUpdate = async (values) => {
+    const formData = new FormData();
+    if (saveIdStaff) {
+      formData.append("Id", saveIdStaff);
+      formData.append("AvatarImage", values.avatar);
+      formData.append("Fullname", values.fullname);
+      formData.append("Address", values.address);
+      formData.append("Phone", values.phone);
+      formData.append("Username", values.username);
+      values?.masterySkill?.map((item) =>
+        formData.append("MasterySkill", item)
+      );
+      const url = `https://e-tailorapi.azurewebsites.net/api/staff?id=${saveIdStaff}`;
+      try {
+        const response = await fetch(url, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${manager?.token}`,
+          },
+          body: formData,
+        });
+        const responseData = await response.text();
+        if (response.ok && response.status === 200) {
+          Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 1500,
+          });
+          handleDataStaff();
+          return 1;
+        } else if (response.status === 400 || response.status === 500) {
+          Swal.fire({
+            position: "top-center",
+            icon: "error",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
     }
   };
 
@@ -335,6 +403,15 @@ const ManagementStaffContent = () => {
           }}
         />
       )}
+      <CollectionUpdateForm
+        open={openUpdate}
+        onUpdate={onUpdate}
+        onCancel={() => {
+          setOpenUpdate(false);
+        }}
+        saveIdStaff={saveIdStaff}
+        setSaveIdStaff={setSaveIdStaff}
+      />
     </div>
   );
 };
@@ -344,6 +421,36 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
   const [postImage, setPostImage] = useState(null);
+  const [masteryLoading, setMasteryLoading] = useState(false);
+  const [masterySkill, setMasterySkill] = useState(null);
+  const [createLoading, setCreateLoading] = useState(false);
+
+  const handleDataMastery = async () => {
+    setMasteryLoading(true);
+    try {
+      const response = await fetch(
+        "https://e-tailorapi.azurewebsites.net/api/category-management",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        }
+      );
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setMasterySkill(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    } finally {
+      setMasteryLoading(false);
+    }
+  };
+  useEffect(() => {
+    handleDataMastery();
+  }, []);
 
   const getFile = (e) => {
     console.log(e);
@@ -395,17 +502,30 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
         form
           .validateFields()
           .then(async (values) => {
-            const check = await onCreate(values);
+            setCreateLoading(true);
+            const backendData = {
+              address: values.address,
+              avatar: postImage,
+              fullname: values.fullname,
+              phone: values.phone,
+              username: values.username,
+              masterySkill: values.masterySkill,
+            };
+            console.log("valuesvaluesvaluesvaluesvaluesvalues", backendData);
+            const check = await onCreate(backendData);
             if (check === 1) {
               form.resetFields();
               setImageUrl(null);
               setPostImage(null);
+              onCancel();
             }
           })
+          .then(() => setCreateLoading(false))
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
       }}
+      okButtonProps={{ loading: createLoading }}
     >
       <Form
         style={{
@@ -420,117 +540,491 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
         name="form_in_modal"
         initialValues={{
           modifier: "public",
+          masterySkill: [],
         }}
       >
-        <Row>
-          <Col span={12}>
-            <div>
-              <Form.Item
-                name="fullname"
-                label="Họ và tên"
-                hasFeedback
-                rules={[
-                  {
-                    required: true,
-                    message: "Họ và tên không được để trống",
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item
-                hasFeedback
-                name="username"
-                label="Tên người dùng"
-                rules={[
-                  {
-                    required: true,
-                    message: "Tên người dùng không được để trống",
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-            </div>
-          </Col>
-          <Col span={12}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "25px",
-              }}
-            >
-              <Form.Item
-                name="avatar"
-                getValueFromEvent={getFile}
-                style={{ width: "130px" }}
-                rules={[
-                  {
-                    required: true,
-                    message: "Ảnh đại diện không được để trống",
-                  },
-                ]}
-              >
-                <Upload
-                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                  listType="picture-card"
-                  maxCount={1}
-                  showUploadList={false}
-                >
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt="avatar"
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                      }}
-                    />
-                  ) : (
-                    uploadButton
-                  )}
-                </Upload>
-              </Form.Item>
-            </div>
-          </Col>
-        </Row>
-        <Form.Item
-          className="mt-2"
-          hasFeedback
-          name="address"
-          label="Địa chỉ"
-          rules={[
-            {
-              required: true,
-              message: "Địa chỉ không được để trống",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          name="phone"
-          label="Số điện thoại"
-          hasFeedback
-          rules={[
-            {
-              required: true,
-              message: "Số điện thoại không được để trống",
-            },
-            {
-              pattern: /^[0-9]{10}$/,
-              message: "Số điện thoại phải là 10 số",
-            },
-          ]}
-        >
-          <Input
+        {masteryLoading ? (
+          <div
             style={{
-              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "350px",
             }}
-          />
-        </Form.Item>
+          >
+            <CircularProgress />
+          </div>
+        ) : (
+          <>
+            <Row>
+              <Col span={12}>
+                <div>
+                  <Form.Item
+                    name="fullname"
+                    label="Họ và tên"
+                    hasFeedback
+                    rules={[
+                      {
+                        required: true,
+                        message: "Họ và tên không được để trống",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    hasFeedback
+                    name="username"
+                    label="Tên người dùng"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tên người dùng không được để trống",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "25px",
+                  }}
+                >
+                  <Form.Item
+                    name="avatar"
+                    getValueFromEvent={getFile}
+                    style={{ width: "130px" }}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Ảnh đại diện không được để trống",
+                      },
+                    ]}
+                  >
+                    <Upload
+                      action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                      listType="picture-card"
+                      maxCount={1}
+                      showUploadList={false}
+                    >
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="avatar"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                          }}
+                        />
+                      ) : (
+                        uploadButton
+                      )}
+                    </Upload>
+                  </Form.Item>
+                </div>
+              </Col>
+            </Row>
+            <Form.Item
+              className="mt-2"
+              hasFeedback
+              name="masterySkill"
+              label="Kỹ năng chuyên môn"
+              rules={[
+                {
+                  required: true,
+                  message: "Kỹ năng chuyên môn không được để trống",
+                },
+              ]}
+            >
+              <Select
+                mode="multiple"
+                style={{
+                  width: "100%",
+                }}
+                options={
+                  masterySkill &&
+                  masterySkill?.map((skill) => ({
+                    value: skill.id,
+                    label: skill.name,
+                  }))
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              className="mt-2"
+              hasFeedback
+              name="address"
+              label="Địa chỉ"
+              rules={[
+                {
+                  required: true,
+                  message: "Địa chỉ không được để trống",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              name="phone"
+              label="Số điện thoại"
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: "Số điện thoại không được để trống",
+                },
+                {
+                  pattern: /^[0-9]{10}$/,
+                  message: "Số điện thoại phải là 10 số",
+                },
+              ]}
+            >
+              <Input
+                style={{
+                  width: "100%",
+                }}
+              />
+            </Form.Item>
+          </>
+        )}
+      </Form>
+    </Modal>
+  );
+};
+
+const CollectionUpdateForm = ({
+  open,
+  onUpdate,
+  onCancel,
+  saveIdStaff,
+  setSaveIdStaff,
+}) => {
+  const [form] = Form.useForm();
+  const [imageUrl, setImageUrl] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [postImage, setPostImage] = useState(null);
+  const [masteryLoading, setMasteryLoading] = useState(false);
+  const [masterySkill, setMasterySkill] = useState(null);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [dataDetailUpdate, setDadtaDetailUpdate] = useState(null);
+
+  const handleDataMastery = async () => {
+    setMasteryLoading(true);
+    try {
+      const response = await fetch(
+        "https://e-tailorapi.azurewebsites.net/api/category-management",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        }
+      );
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setMasterySkill(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    } finally {
+      setMasteryLoading(false);
+    }
+  };
+  const handleDetailStaff = async () => {
+    setUpdateLoading(true);
+    try {
+      const response = await fetch(
+        `https://e-tailorapi.azurewebsites.net/api/staff/info?id=${saveIdStaff}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        }
+      );
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setImageUrl(responseData.avatar);
+        setDadtaDetailUpdate(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+  useEffect(() => {
+    handleDataMastery();
+    handleDetailStaff();
+  }, [saveIdStaff]);
+  console.log("dataDetailUpdate", dataDetailUpdate);
+  useEffect(() => {
+    if (dataDetailUpdate) {
+      form.setFieldsValue({
+        modifier: "public",
+        avatar: dataDetailUpdate.avatar || "",
+        fullname: dataDetailUpdate.fullname || "",
+        image: dataDetailUpdate.image || "",
+        address: dataDetailUpdate.address || "",
+        username: dataDetailUpdate.username || "",
+        phone: dataDetailUpdate.phone || "",
+        masterySkill: dataDetailUpdate.masterySkills || "",
+      });
+    }
+  }, [dataDetailUpdate]);
+
+  const getFile = (e) => {
+    console.log(e);
+    const file = e.fileList[0];
+    if (file && file.originFileObj) {
+      setPostImage(file.originFileObj);
+      const reader = new FileReader();
+      reader.readAsDataURL(file.originFileObj);
+      reader.onload = () => {
+        setImageUrl(reader.result);
+      };
+    }
+    return e && e.fileList;
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 75 }}
+      title="Cập nhật nhân viên"
+      okText="Cập nhật"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        form.resetFields();
+        setImageUrl(null);
+        setPostImage(null);
+        onCancel();
+        setSaveIdStaff(null);
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(async (values) => {
+            setCreateLoading(true);
+            const backendData = {
+              address: values.address,
+              avatar: postImage,
+              fullname: values.fullname,
+              phone: values.phone,
+              username: values.username,
+              masterySkill: values.masterySkill,
+            };
+            console.log("valuesvaluesvaluesvaluesvaluesvalues", backendData);
+            const check = await onUpdate(backendData);
+            if (check === 1) {
+              form.resetFields();
+              setImageUrl(null);
+              setPostImage(null);
+              onCancel();
+              setSaveIdStaff(null);
+            }
+          })
+          .then(() => setCreateLoading(false))
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+      okButtonProps={{ loading: createLoading }}
+    >
+      <Form
+        style={{
+          height: 400,
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+          marginTop: 24,
+        }}
+        form={form}
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{
+          modifier: "public",
+          masterySkill: [],
+        }}
+      >
+        {masteryLoading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "350px",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        ) : (
+          <>
+            <Row>
+              <Col span={12}>
+                <div>
+                  <Form.Item
+                    name="fullname"
+                    label="Họ và tên"
+                    hasFeedback
+                    rules={[
+                      {
+                        required: true,
+                        message: "Họ và tên không được để trống",
+                      },
+                    ]}
+                  >
+                    <Input />
+                  </Form.Item>
+                  <Form.Item
+                    hasFeedback
+                    name="username"
+                    label="Tên người dùng"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Tên người dùng không được để trống",
+                      },
+                    ]}
+                  >
+                    <Input disabled />
+                  </Form.Item>
+                </div>
+              </Col>
+              <Col span={12}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    marginTop: "25px",
+                  }}
+                >
+                  <Form.Item
+                    name="avatar"
+                    getValueFromEvent={getFile}
+                    style={{ width: "130px" }}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Ảnh đại diện không được để trống",
+                      },
+                    ]}
+                  >
+                    <Upload
+                      action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                      listType="picture-card"
+                      maxCount={1}
+                      showUploadList={false}
+                    >
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt="avatar"
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                          }}
+                        />
+                      ) : (
+                        uploadButton
+                      )}
+                    </Upload>
+                  </Form.Item>
+                </div>
+              </Col>
+            </Row>
+            <Form.Item
+              className="mt-2"
+              hasFeedback
+              name="masterySkill"
+              label="Kỹ năng chuyên môn"
+              rules={[
+                {
+                  required: true,
+                  message: "Kỹ năng chuyên môn không được để trống",
+                },
+              ]}
+            >
+              <Select
+                mode="multiple"
+                style={{
+                  width: "100%",
+                }}
+                options={
+                  masterySkill &&
+                  masterySkill?.map((skill) => ({
+                    value: skill.id,
+                    label: skill.name,
+                  }))
+                }
+              />
+            </Form.Item>
+            <Form.Item
+              className="mt-2"
+              hasFeedback
+              name="address"
+              label="Địa chỉ"
+              rules={[
+                {
+                  required: true,
+                  message: "Địa chỉ không được để trống",
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              name="phone"
+              label="Số điện thoại"
+              hasFeedback
+              rules={[
+                {
+                  required: true,
+                  message: "Số điện thoại không được để trống",
+                },
+                {
+                  pattern: /^[0-9]{10}$/,
+                  message: "Số điện thoại phải là 10 số",
+                },
+              ]}
+            >
+              <Input
+                style={{
+                  width: "100%",
+                }}
+              />
+            </Form.Item>
+          </>
+        )}
       </Form>
     </Modal>
   );

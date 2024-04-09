@@ -196,7 +196,16 @@ function OrderUpdate({
               {
                 note: component?.noteObject?.note,
                 image: component?.noteObject?.noteImage
-                  ? JSON.parse(component?.noteObject?.noteImage).url
+                  ? JSON.parse(component?.noteObject?.noteImage).map(
+                      (item, index) => ({
+                        uid: `${new Date().getMilliseconds() + index}`,
+                        name: "Hình ảnh khách hàng",
+                        thumbUrl: null,
+                        type: null,
+                        originFileObj: null,
+                        url: item,
+                      })
+                    )
                   : null,
               },
             ]
@@ -587,6 +596,14 @@ function OrderUpdate({
                                                   ]}
                                                 >
                                                   <Upload
+                                                    defaultFileList={
+                                                      formUpdate.getFieldValue(
+                                                        `productComponent_${product.id}`
+                                                      ) &&
+                                                      formUpdate.getFieldValue(
+                                                        `productComponent_${product.id}`
+                                                      )[0]?.image
+                                                    }
                                                     multiple
                                                     listType="picture"
                                                     accept=".png,.jpeg,.jpg"
