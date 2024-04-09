@@ -66,7 +66,7 @@ export default function Blog() {
           <Loading />
         </div>
       ) : (
-        <div style={{ paddingTop: "140px" }}>
+        <div style={{ paddingTop: "100px" }}>
           <div className="flex">
             <div className="blog-banner-wrapper">
               <div className="view-blog-btn">
@@ -139,7 +139,7 @@ export default function Blog() {
               Bài viết gần đây
             </p>
             <div className="blog-container">
-              {blogsData &&
+              {blogsData.length > 0 ?
                 blogsData.map((blog, index) => {
                   return (
                     <div className="blog-items" key={index}>
@@ -156,7 +156,11 @@ export default function Blog() {
                       </Link>
                     </div>
                   );
-                })}
+                }) : (
+                  <div style={{ alignItems: "center", paddingBottom: "100px" }}>
+                    <h1>Chưa có bài viết nào</h1>
+                  </div>
+                )}
             </div>
           </div>
         </div>
