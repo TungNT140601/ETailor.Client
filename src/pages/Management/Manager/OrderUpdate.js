@@ -187,13 +187,22 @@ function OrderUpdate({
   useEffect(() => {
     dataDetailForUpdate?.componentTypeOrders?.forEach((component) => {
       componentInitialValues[`${component.component_Id}`] =
-        component.selected_Component_Id;
+        component?.selected_Component_Id;
     });
-    // dataDetailForUpdate?.componentTypeOrders?.forEach((component) => {
-    //   productComponenetInitialValues[`${component.component_Id}`] =
-    //     component.selected_Component_Id;
-    // });
-    console.log("dataDetailForUpdate", dataDetailForUpdate);
+    dataDetailForUpdate?.componentTypeOrders?.forEach((component) => {
+      productComponenetInitialValues[`${component.note_Id}`] =
+        component.noteObject !== null && component.noteObject !== undefined
+          ? [
+              {
+                note: component?.noteObject?.note,
+                image: component?.noteObject?.noteImage
+                  ? JSON.parse(component?.noteObject?.noteImage).url
+                  : null,
+              },
+            ]
+          : null;
+    });
+
     formUpdate.setFieldsValue({
       modifier: "public",
       productTemplateId: dataDetailForUpdate?.productTemplateId,
@@ -201,11 +210,13 @@ function OrderUpdate({
       note: dataDetailForUpdate?.note,
       materialId: dataDetailForUpdate?.materialId,
       ...componentInitialValues,
+      ...productComponenetInitialValues,
     });
 
     handleChooseTemplate(dataDetailForUpdate?.productTemplateId);
     getDetailProfileCustomer(dataDetailForUpdate?.profileId);
   }, [dataDetailForUpdate]);
+  console.log("formUpdate.getFieldsValue()", formUpdate.getFieldsValue());
   useEffect(() => {
     getDetailDataProfileCustomer?.bodyAttributes?.forEach((component) => {
       initialProfileBodyValues[`bodySizes_${component.bodySize.id}`] =
@@ -260,7 +271,7 @@ function OrderUpdate({
             timer: 1500,
             zIndex: 1000,
           });
-          await getDetailProfileCustomer(getDetailDataProfileCustomer.id);
+          await getDetailProfileCustomer(saveCustomer.id);
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();

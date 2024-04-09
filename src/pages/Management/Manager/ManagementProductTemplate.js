@@ -38,6 +38,7 @@ import {
   Alert,
   InputNumber,
   Checkbox,
+  Table,
 } from "antd";
 
 import CheckroomIcon from "@mui/icons-material/Checkroom";
@@ -69,26 +70,9 @@ const ManagementProductTemplateHeader = () => {
               href: "#",
               title: <HomeOutlined />,
             },
+
             {
-              href: "/manager",
-              title: (
-                <>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      color: "#9F78FF",
-                    }}
-                  >
-                    <CheckroomIcon fontSize="small" />
-                    &nbsp;
-                    <span>Quản lý bản mẫu</span>
-                  </div>
-                </>
-              ),
-            },
-            {
-              href: "/manager",
+              href: "/manager/product-template",
               title: (
                 <>
                   <div
@@ -658,6 +642,10 @@ export const ManagementCreateProductTemplate = () => {
 
   const handleCompletedTemplate = async () => {
     const step4Check = form.getFieldValue(["items"]);
+    const beData = step4Check?.map((stage) => ({
+      name: stage.name,
+      componentTypeIds: stage.componentTypeIds.map((item) => item.value),
+    }));
     setLoadingStep4(true);
     const postlUrl = `https://e-tailorapi.azurewebsites.net/api/template-stage/template/${saveProductTemplateId}`;
     try {
@@ -667,7 +655,7 @@ export const ManagementCreateProductTemplate = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${manager?.token}`,
         },
-        body: JSON.stringify(step4Check),
+        body: JSON.stringify(beData),
       });
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
@@ -785,7 +773,18 @@ export const ManagementCreateProductTemplate = () => {
                   formatter={(value) =>
                     `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                   }
-                  parser={(value) => value.replace(/\đ\s?|(,*)/g, "")}
+                  parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+                  // formatter={(value) => {
+                  //   const formatted =
+                  //     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "đ";
+                  //   console.log("Formatting:", value, "to", formatted);
+                  //   return formatted;
+                  // }}
+                  // parser={(value) => {
+                  //   const parsed = value.replace(/\đ\s?|(,*)/g, "");
+                  //   console.log("Parsing:", value, "to", parsed);
+                  //   return parsed;
+                  // }}
                 />
               </Form.Item>
               <Form.Item
@@ -1164,7 +1163,6 @@ export const ManagementCreateProductTemplate = () => {
                     }))
                   : []
               }
-              id="product_template_step_3"
             />
           </Space>
         </>
@@ -1173,12 +1171,109 @@ export const ManagementCreateProductTemplate = () => {
     {
       title: "Quy trình",
       content: (
+        // <>
+        //   <Divider>
+        //     <Title level={4}>Quy trình xử lý</Title>
+        //   </Divider>
+        //   <Row justify="center" style={{ marginBottom: 100 }}>
+        //     <Col span={12}>
+        //       <Form
+        //         labelCol={{
+        //           span: 6,
+        //         }}
+        //         wrapperCol={{
+        //           span: 18,
+        //         }}
+        //         form={form}
+        //         name="dynamic_form_complex"
+        //         style={{
+        //           maxWidth: 600,
+        //         }}
+        //         autoComplete="off"
+        //         initialValues={{
+        //           items: [{}],
+        //         }}
+        //       >
+        //         <Form.List name="items">
+        //           {(fields, { add, remove }) => (
+        //             <div
+        //               style={{
+        //                 display: "flex",
+        //                 rowGap: 16,
+        //                 flexDirection: "column",
+        //               }}
+        //             >
+        //               {fields.map((field) => (
+        //                 <Card
+        //                   size="small"
+        //                   title={`Bước ${field.name + 1}`}
+        //                   key={field.key}
+        //                   extra={
+        //                     <CloseOutlined
+        //                       onClick={() => {
+        //                         remove(field.name);
+        //                       }}
+        //                     />
+        //                   }
+        //                 >
+        //                   <Form.Item
+        //                     label="Quy trình"
+        //                     name={[field.name, "name"]}
+        //                   >
+        //                     <Input />
+        //                   </Form.Item>
+        //                   <Form.Item label="Bộ phận thực hiện">
+        //                     <Form.Item
+        //                       name={[field.name, "componentTypeIds"]}
+        //                       noStyle
+        //                       rules={[
+        //                         {
+        //                           validator(_, value) {
+        //                             if (value && value.length > 0) {
+        //                               return Promise.resolve();
+        //                             }
+        //                             return Promise.reject(
+        //                               new Error(
+        //                                 "Please select at least one item."
+        //                               )
+        //                             );
+        //                           },
+        //                         },
+        //                       ]}
+        //                     >
+        //                       <Select
+        //                         mode="multiple"
+        //                         placeholder="Select items"
+        //                         style={{ width: "100%" }}
+        //                       >
+        //                         {itemCategoryStep4.map((item) => {
+        //                           return (
+        //                             <>
+        //                               <Option value={item.id}>
+        //                                 {item.name}
+        //                               </Option>
+        //                             </>
+        //                           );
+        //                         })}
+        //                       </Select>
+        //                     </Form.Item>
+        //                   </Form.Item>
+        //                 </Card>
+        //               ))}
+
+        //               <Button type="dashed" onClick={() => add()} block>
+        //                 + Add Item
+        //               </Button>
+        //             </div>
+        //           )}
+        //         </Form.List>
+        //       </Form>
+        //     </Col>
+        //   </Row>
+        // </>
         <>
-          <Divider>
-            <Title level={4}>Quy trình xử lý</Title>
-          </Divider>
-          <Row justify="center" style={{ marginBottom: 100 }}>
-            <Col span={12}>
+          <Row justify="center" style={{ marginTop: 10 }}>
+            <Col span={24}>
               <Form
                 labelCol={{
                   span: 6,
@@ -1189,7 +1284,7 @@ export const ManagementCreateProductTemplate = () => {
                 form={form}
                 name="dynamic_form_complex"
                 style={{
-                  maxWidth: 600,
+                  maxWidth: "100%",
                 }}
                 autoComplete="off"
                 initialValues={{
@@ -1198,75 +1293,113 @@ export const ManagementCreateProductTemplate = () => {
               >
                 <Form.List name="items">
                   {(fields, { add, remove }) => (
-                    <div
-                      style={{
-                        display: "flex",
-                        rowGap: 16,
-                        flexDirection: "column",
-                      }}
-                    >
-                      {fields.map((field) => (
-                        <Card
-                          size="small"
-                          title={`Bước ${field.name + 1}`}
-                          key={field.key}
-                          extra={
-                            <CloseOutlined
-                              onClick={() => {
-                                remove(field.name);
-                              }}
-                            />
-                          }
-                        >
-                          <Form.Item
-                            label="Quy trình"
-                            name={[field.name, "name"]}
-                          >
-                            <Input />
-                          </Form.Item>
-                          <Form.Item label="Bộ phận thực hiện">
-                            <Form.Item
-                              name={[field.name, "componentTypeIds"]}
-                              noStyle
-                              rules={[
-                                {
-                                  validator(_, value) {
-                                    if (value && value.length > 0) {
-                                      return Promise.resolve();
-                                    }
-                                    return Promise.reject(
-                                      new Error(
-                                        "Please select at least one item."
-                                      )
-                                    );
+                    <>
+                      <Table
+                        scroll={{ y: 330, x: 1200 }}
+                        dataSource={fields}
+                        pagination={false}
+                        rowKey="key"
+                        columns={[
+                          {
+                            title: `Bước thực hiện`,
+                            width: "15%",
+                            render: (_, record, index) => (
+                              <Text>{`Bước ${index + 1}`}</Text>
+                            ),
+                          },
+                          {
+                            title: "Quy trình",
+                            dataIndex: ["name"],
+                            render: (_, record, index) => (
+                              <Form.Item
+                                name={[record.name, "name"]}
+                                noStyle
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: "Please input quy trình",
                                   },
-                                },
-                              ]}
-                            >
-                              <Select
-                                mode="multiple"
-                                placeholder="Select items"
-                                style={{ width: "100%" }}
+                                ]}
                               >
-                                {itemCategoryStep4.map((item) => {
-                                  return (
-                                    <>
-                                      <Option value={item.id}>
-                                        {item.name}
-                                      </Option>
-                                    </>
-                                  );
-                                })}
-                              </Select>
-                            </Form.Item>
-                          </Form.Item>
-                        </Card>
-                      ))}
-
-                      <Button type="dashed" onClick={() => add()} block>
-                        + Add Item
-                      </Button>
-                    </div>
+                                <Input />
+                              </Form.Item>
+                            ),
+                          },
+                          {
+                            title: "Bộ phận thực hiện",
+                            dataIndex: ["componentTypeIds"],
+                            width: "50%",
+                            render: (_, record, index) => (
+                              <Form.Item
+                                name={[record.name, "componentTypeIds"]}
+                                noStyle
+                                rules={[
+                                  {
+                                    validator(_, value) {
+                                      if (value && value.length > 0) {
+                                        return Promise.resolve();
+                                      }
+                                      return Promise.reject(
+                                        new Error(
+                                          "Please select at least one item."
+                                        )
+                                      );
+                                    },
+                                  },
+                                ]}
+                              >
+                                <Select
+                                  mode="multiple"
+                                  size={"default"}
+                                  placeholder="Select items"
+                                  style={{ width: "100%" }}
+                                  labelInValue
+                                >
+                                  {itemCategoryStep4.map((item) => {
+                                    return (
+                                      <>
+                                        <Option value={item.id} key={item.id}>
+                                          {item.name}
+                                        </Option>
+                                      </>
+                                    );
+                                  })}
+                                </Select>
+                              </Form.Item>
+                            ),
+                          },
+                          {
+                            title: "Actions",
+                            dataIndex: "actions",
+                            render: (_, record, index) => (
+                              <Button
+                                type="link"
+                                onClick={() => {
+                                  remove(index);
+                                }}
+                              >
+                                Remove
+                              </Button>
+                            ),
+                          },
+                        ]}
+                      />
+                      <Form.Item
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                        }}
+                      >
+                        <Button
+                          type="dashed"
+                          onClick={() => add()}
+                          block
+                          style={{ width: 200, marginTop: 10 }}
+                        >
+                          + Add Item
+                        </Button>
+                      </Form.Item>
+                    </>
                   )}
                 </Form.List>
               </Form>

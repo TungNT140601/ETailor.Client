@@ -78,7 +78,7 @@
     background-color: blue !important;
 }
 
-.ant-select-selection-overflow {
+/* .ant-select-selection-overflow {
 
     height: 100px;
     overflow-y: scroll;
@@ -109,6 +109,16 @@
     margin: 10px;
     border-radius: 50px;
     font-size: 10px;
+    font-weight: bold;
+} */
+
+.ant-select-selection-overflow-item .ant-select-selection-item {
+
+    background-color: #9e78ff1a !important;
+    border: 1px solid #9F78FF !important;
+    color: #9F78FF !important;
+    border-radius: 50px;
+    font-size: 15px;
     font-weight: bold;
 }
 
