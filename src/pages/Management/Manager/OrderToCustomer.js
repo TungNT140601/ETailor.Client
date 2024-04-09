@@ -1009,9 +1009,10 @@ const OrderToCustomerContent = () => {
   const handleUpdateProduct = async () => {
     const urlUpdate = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
     // const urlUpdate = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
-    setOnFinishLoading(true);
+    setOnFinishLoading(false);
     if (getProfileUpdateCustomer) {
       const allValues = formUpdate.getFieldsValue();
+      console.log("allValues", allValues);
       const backendData = {
         id: saveIdProduct,
         orderId: saveOrderId,
@@ -1023,20 +1024,28 @@ const OrderToCustomerContent = () => {
             if (fieldName.startsWith("productComponent_")) {
               const productComponent = allValues[fieldName];
               let note;
-              let noteImageFiles;
+              let noteImageFiles = [];
+              let noteImageObjects = [];
               if (productComponent) {
                 note = productComponent[0]?.note;
-                noteImageFiles = productComponent[0]?.image?.fileList.map(
-                  (image) => ({
-                    base64String: image.thumbUrl,
-                    fileName: image.name,
-                    type: image.type,
-                  })
+                productComponent[0]?.image?.fileList?.map((image) =>
+                  image.url
+                    ? noteImageObjects.push(image.url)
+                    : noteImageFiles.push({
+                        base64String: image.thumbUrl,
+                        fileName: image.name,
+                        type: image.type,
+                      })
                 );
               }
               const componentId =
                 allValues[fieldName.replace("productComponent_", "component_")];
-              return { componentId: componentId, note, noteImageFiles };
+              return {
+                componentId: componentId,
+                note,
+                noteImageFiles,
+                noteImageObjects,
+              };
             }
             return null;
           })
@@ -1044,6 +1053,7 @@ const OrderToCustomerContent = () => {
         profileId: getProfileUpdateCustomer.id,
         note: allValues.note ? allValues.note : "",
       };
+      console.log("backendData", backendData);
       const checkResult = await (async () => {
         try {
           const response = await fetch(`${urlUpdate}`, {
@@ -1087,6 +1097,7 @@ const OrderToCustomerContent = () => {
       console.log("CheckResult: ", checkResult);
       if (checkResult === 1) {
         setCurrent(1);
+        formUpdate.resetFields();
         const check = await handleDataOrderDetail();
         if (check === 1) {
           setOnFinishLoading(false);
