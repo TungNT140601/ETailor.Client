@@ -37,13 +37,7 @@ const { Search } = Input;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.toLocaleString("vi-VI", { month: "long" });
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`
-};
+
 function formatCurrency(amount) {
     if (amount) {
         const strAmount = amount.toString();
@@ -89,12 +83,21 @@ const getStatusTextAndColor = (status) => {
             text = "Tạm dừng";
             break;
         case 4:
-            color = "volcano";
+            color = "#67b645";
+            borderColor = "#c6f0a6"
             text = "Hoàn thành";
+            backgroundColor = "#f6ffed";
             break;
 
     }
     return { color, text, backgroundColor, borderColor };
+};
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = date.getDate();
+    const month = date.toLocaleString("vi-VI", { month: "2-digit" });
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`
 };
 export default function ManagementTask() {
 
@@ -316,17 +319,18 @@ export default function ManagementTask() {
                                         >
                                             {provided.placeholder}
                                             <div style={{ color: "#000000", fontWeight: "600" }}>
-                                                <div style={{ width: "100%", paddingLeft: 15, borderRadius: 5, height: "100%", fontStyle: "poppins" }}>
+                                                <div style={{ width: "100%", paddingLeft: 15, borderRadius: 5, height: "100%", maxHeight: "70vh", fontStyle: "poppins", overflowY: "scroll", scrollbarWidth: "none" }}>
                                                     {unAssignedTasks?.data.length === 0 ? (
-                                                        <div style={{ textAlign: "center", height: "100%", position: "relative" }}>
-                                                            <img src={Notask} alt="No task" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-                                                            <h2 style={{ position: "absolute", top: "100%", left: "50%", transform: "translate(-50%, -50%)" }}>Không có công việc</h2>
+                                                        <div style={{ textAlign: "center", height: "60vh", position: "relative" }}>
+                                                            <h2 style={{ position: "absolute", top: "20%", left: "50%", transform: "translate(-50%, -50%)" }}>Đã xử lý hết công việc</h2>
+                                                            <img src={Notask} alt="No task" style={{ width: "100%", height: "100%", objectFit: "contain", marginTop: 20 }} />
+
                                                         </div>
                                                     ) : (
                                                         <div style={{ backgroundColor: "#f3f1fa", minHeight: 500, marginTop: 20, maxHeight: 600, overflowY: "scroll", scrollbarWidth: "none", }}>
                                                             {unAssignedTasks?.data.length > 0 && unAssignedTasks?.data.map((task, index) => (
                                                                 <Popover content={content} title="Title" trigger="click">
-                                                                    <Draggable key={task.id} draggableId={task.id} index={task?.index}>
+                                                                    <Draggable key={task.id} draggableId={task.id} index={task?.à}>
                                                                         {(provided, snapshot) => (
                                                                             <div
                                                                                 ref={provided.innerRef}
@@ -336,9 +340,10 @@ export default function ManagementTask() {
                                                                                     position: "relative",
                                                                                     margin: "0 10px 8px 10px",
                                                                                     border: `2px solid ${getStatusTextAndColor(task?.status).borderColor}`,
-                                                                                    borderRadius: "15px",
-                                                                                    backgroundColor: snapshot.draggingOver ? "#9F78FF" : `${getStatusTextAndColor(task?.status).backgroundColor}`,
+                                                                                    borderRadius: 10,
+                                                                                    backgroundColor: `${getStatusTextAndColor(task?.status).backgroundColor}`,
                                                                                     maxWidth: "320px",
+                                                                                    marginTop: 10,
                                                                                     ...provided.draggableProps.style,
                                                                                     opacity: snapshot.isDragging ? 0.5 : 1,
                                                                                     padding: "3px 20px",
@@ -353,8 +358,20 @@ export default function ManagementTask() {
                                                                                 }}
                                                                             >
                                                                                 <div>
-                                                                                    <h3 style={{ color: `${getStatusTextAndColor(task?.status).color}`, fontWeight: "bold" }}>{task?.name}+{task?.index}</h3>
-                                                                                    <p style={{ minHeight: "fit-content", color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.deadline ? task?.deadline : "-"}</p>
+                                                                                    <h3
+                                                                                        style={{
+                                                                                            color: `${getStatusTextAndColor(task?.status).color}`,
+                                                                                            fontWeight: "bold",
+                                                                                            overflow: "hidden",
+                                                                                            whiteSpace: "nowrap",
+                                                                                            textOverflow: "ellipsis",
+                                                                                            maxWidth: "150px", // Adjust as needed
+                                                                                        }}
+                                                                                        title={task?.name}
+                                                                                    >
+                                                                                        {task?.name}+{task?.index}
+                                                                                    </h3>
+                                                                                    <p style={{ minHeight: "fit-content", color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.deadline ? formatDate(task?.deadline) : "Không có thời hạn"}</p>
                                                                                 </div>
                                                                                 {snapshot.hover && <Popover content={content} title="Title" />}
                                                                             </div>
@@ -375,7 +392,21 @@ export default function ManagementTask() {
 
                             <div style={{ height: "82vh", overflowX: "auto", overflowY: "hidden", scrollbarWidth: "thin", position: "relative" }}>
                                 <div style={{ height: 60, borderBottom: "1px solid #9F78FF", alignItems: "end", alignContent: "end", width: "100vw", position: "fixed" }}> {/* Use 100vw instead of 100% */}
-                                    <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#9F78FF", paddingLeft: 20 }}>Tất cả nhân viên</h2>
+                                    <div style={{ display: "flex" }}>
+                                        <div>
+                                            <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#9F78FF", paddingLeft: 20 }}>Tất cả nhân viên</h2>
+                                        </div>
+                                        <div style={{ display: "flex", paddingLeft: "10vw" }}>
+                                            {[0, 1, 2, 3, 4].map(index => (
+                                                <div key={index} style={{ display: "flex", alignItems: "center", marginRight: "10px" }}>
+                                                    <button style={{ width: "2rem", height: "1rem", backgroundColor: getStatusTextAndColor(index).backgroundColor, borderRadius: 5, border: `1px solid ${getStatusTextAndColor(index).borderColor}` }}></button>
+                                                    &nbsp;<p style={{ fontSize: 15, color: getStatusTextAndColor(index).color }}>{getStatusTextAndColor(index).text}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                    </div>
+
                                 </div>
                                 <div style={{ display: "grid", paddingTop: 60, paddingLeft: 10, gridTemplateColumns: " repeat(minmax(300px,300px))", gridAutoFlow: "column", marginTop: "20px" }}>
 
@@ -408,7 +439,7 @@ export default function ManagementTask() {
                                                                                 style={{
                                                                                     margin: "0 10px 8px 10px",
                                                                                     border: `2px solid ${getStatusTextAndColor(task?.status).borderColor}`,
-                                                                                    borderRadius: "15px",
+                                                                                    borderRadius: 10,
                                                                                     backgroundColor: `${getStatusTextAndColor(task?.status).backgroundColor}`,
                                                                                     maxWidth: "320px",
                                                                                     ...provided.draggableProps.style,
@@ -426,7 +457,14 @@ export default function ManagementTask() {
                                                                             >
                                                                                 <div>
 
-                                                                                    <h3 style={{ color: `${getStatusTextAndColor(task?.status).color}`, fontWeight: "600" }}> <span style={{ fontSize: 15 }}>{index + 1}. </span>{task?.name}</h3>
+                                                                                    <h3 style={{
+                                                                                        color: `${getStatusTextAndColor(task?.status).color}`,
+                                                                                        fontWeight: "bold",
+                                                                                        overflow: "hidden",
+                                                                                        whiteSpace: "nowrap",
+                                                                                        textOverflow: "ellipsis",
+                                                                                        maxWidth: "150px",
+                                                                                    }}> <span style={{ fontSize: 15 }}>{index + 1}. </span>{task?.name}</h3>
                                                                                     <p style={{ color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.deadline ? task?.deadline : "-"}</p>
 
                                                                                 </div>
