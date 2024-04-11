@@ -3,9 +3,6 @@ import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
-  CheckOutlined,
-  CloseOutlined,
-  PlusOutlined,
   EyeOutlined,
   ArrowLeftOutlined,
 } from "@ant-design/icons";
@@ -16,21 +13,20 @@ import {
   Avatar,
   Col,
   Row,
-  Card,
   Modal,
   Divider,
-  Carousel,
   Tag,
   Image,
   Button,
   Input,
+  Badge,
 } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
+import { ChatRealTimeManager } from "./ChatRealTimeManager";
 
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import { useQuery } from "react-query";
-import { getAvatarGroupUtilityClass } from "@mui/material";
+import ManageChat from "./ManageChat";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
@@ -491,7 +487,6 @@ const ManagementOrderContent = () => {
           scroll={{ x: 1500, y: 416 }}
         />
       )}
-
       <ViewDetailOrder
         isModalOpen={isModalOpen}
         handleApproveOrder={handleApproveOrder}
@@ -510,6 +505,7 @@ const ViewDetailOrder = ({
   handleCancel,
   handleApproveOrder,
   saveIdOrder,
+  setSaveIdOrder,
   checkStatus,
   handleCancelOrder,
 }) => {
@@ -522,6 +518,19 @@ const ViewDetailOrder = ({
   const [detailProductData, setDetailProductData] = useState(null);
   const [dataMaterialDetail, setDataMaterialDetail] = useState(null);
   const [dataProfileBodyDetail, setDataProfileBodyDetail] = useState(null);
+  const [chatWithCustomer, setChatWithCustomer] = useState(false);
+  const [badgeChatCount, setBadgeChatCount] = useState(0);
+
+  const chatNotification = ChatRealTimeManager();
+  const { messageReturn, resetMessageReturn } = chatNotification;
+
+  useEffect(() => {
+    if (messageReturn) {
+      fetchChat();
+      resetMessageReturn();
+      setBadgeChatCount((prev) => prev + 1);
+    }
+  }, [messageReturn, resetMessageReturn]);
 
   const handleGetDetailMaterial = async (id) => {
     const detailUrl = `https://e-tailorapi.azurewebsites.net/api/material/${id}`;
@@ -583,6 +592,26 @@ const ViewDetailOrder = ({
     }
   };
 
+  const [getAllChat, setGetAllChat] = useState([]);
+  console.log("Get all chat", getAllChat);
+  const fetchChat = async () => {
+    const GET_CHAT_API = `https://e-tailorapi.azurewebsites.net/api/chat/order/${saveIdOrder}`;
+    try {
+      const response = await fetch(GET_CHAT_API, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      const chatData = await response.json();
+      setGetAllChat(chatData?.chatLists);
+      console.log("chatData", chatData);
+    } catch (error) {
+      console.error("Error fetching order details:", error);
+    }
+  };
+  console.log("getAllChat", getAllChat);
+
   const handleDataOrder = async () => {
     setLoading(true);
     try {
@@ -605,6 +634,7 @@ const ViewDetailOrder = ({
 
   useEffect(() => {
     handleDataOrder();
+    fetchChat();
   }, [saveIdOrder]);
 
   const columns1 = [
@@ -691,7 +721,11 @@ const ViewDetailOrder = ({
         title="Chi tiết đơn hàng"
         open={isModalOpen}
         onOk={handleApproveOrder}
-        onCancel={handleCancel}
+        onCancel={() => {
+          handleCancel();
+          setChatWithCustomer(false);
+          setSaveIdOrder(null);
+        }}
         width={1200}
         style={{ top: 40, height: 100 }}
         bodyStyle={{ height: "600px" }}
@@ -703,9 +737,26 @@ const ViewDetailOrder = ({
               margin: "0 20px",
             }}
           >
-            <Button key="back" onClick={handleCancel}>
+            <Button
+              key="back"
+              onClick={() => {
+                handleCancel();
+                setChatWithCustomer(false);
+                setSaveIdOrder(null);
+              }}
+            >
               Đóng
             </Button>
+            {checkStatus && (
+              <Button
+                key="submit"
+                type="primary"
+                style={{ marginLeft: 15 }}
+                onClick={() => setChatWithCustomer(true)}
+              >
+                Trò chuyện với khách hàng
+              </Button>
+            )}
             {checkStatus === 1 && (
               <>
                 <Button
@@ -751,12 +802,14 @@ const ViewDetailOrder = ({
                   border: "1px solid #9F78FF",
                   width: 850,
                   height: 590,
-                  padding: "0px 10px",
+                  padding: chatWithCustomer ? "" : "0px 10px",
                   borderRadius: "5px",
                   position: "relative",
                 }}
               >
-                {viewDetailProduct && detailProductData ? (
+                {viewDetailProduct &&
+                detailProductData &&
+                chatWithCustomer === false ? (
                   <div
                     style={{
                       height: "100%",
@@ -945,6 +998,16 @@ const ViewDetailOrder = ({
                       </Row>
                     </div>
                   </div>
+                ) : chatWithCustomer ? (
+                  <ManageChat
+                    orderId={saveIdOrder}
+                    chatDetail={getAllChat}
+                    fetchChat={fetchChat}
+                    dataOrderDetail={dataOrderDetail}
+                    setChatWithCustomer={setChatWithCustomer}
+                    setBadgeChatCount={setBadgeChatCount}
+                    checkStatus={checkStatus}
+                  />
                 ) : (
                   <>
                     <Divider style={{ marginTop: 12 }}>
@@ -983,14 +1046,16 @@ const ViewDetailOrder = ({
                         justifyContent: "center",
                       }}
                     >
-                      <Avatar
-                        size={"large"}
-                        src={
-                          dataOrderDetail?.customer?.avatar
-                            ? dataOrderDetail?.customer?.avatar
-                            : "https://api.dicebear.com/7.x/miniavs/svg?seed=1"
-                        }
-                      />
+                      <Badge size="default" count={badgeChatCount}>
+                        <Avatar
+                          size={"large"}
+                          src={
+                            dataOrderDetail?.customer?.avatar
+                              ? dataOrderDetail?.customer?.avatar
+                              : "https://api.dicebear.com/7.x/miniavs/svg?seed=1"
+                          }
+                        />
+                      </Badge>
                     </div>
                     <div style={{ margin: "10px 0" }}>
                       <Text

@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
 import OrderUpdate from "./OrderUpdate.js";
 import { VnPay } from "../../../components/RealTime/index.js";
-import { Breadcrumb, InputNumber } from "antd";
+import { InputNumber } from "antd";
 import {
-  HomeOutlined,
-  UserOutlined,
   FileSearchOutlined,
   SearchOutlined,
   CloseCircleOutlined,
@@ -13,6 +11,7 @@ import {
   LeftOutlined,
   RightOutlined,
   DeleteOutlined,
+  FileDoneOutlined,
 } from "@ant-design/icons";
 import {
   Typography,
@@ -23,8 +22,6 @@ import {
   Row,
   Col,
   Form,
-  Modal,
-  Avatar,
   Input,
   Select,
   Image,
@@ -32,7 +29,6 @@ import {
   Space,
   Upload,
   Carousel,
-  Radio,
 } from "antd";
 import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -41,11 +37,8 @@ import paymenMomo from "../../../assets/payment-method-momo.png";
 import paymenCash from "../../../assets/money.png";
 import paymenDeposit from "../../../assets/deposit.png";
 import { useNavigate } from "react-router-dom";
-
-import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
-import chooseTemplate from "../../../assets/dress.png";
 import ChooseTemplate from "./ChooseTemplate.js";
 
 const { Search } = Input;
@@ -92,6 +85,12 @@ const OrderToCustomerContent = () => {
   }, [vnpayNotification]);
   //-----------------------------------------Thử làm cách mới--------------------------------------------------
   const [active, setActive] = useState(0);
+  const [confirmMaterial, setConfirmMaterial] = useState(false);
+  const [saveIdMaterial, setSaveIdMaterial] = useState(null);
+  const handleConfirmMaterial = (id) => {
+    setSaveIdMaterial(id);
+    setConfirmMaterial(true);
+  };
   const columns = [
     {
       title: "STT",
@@ -159,6 +158,57 @@ const OrderToCustomerContent = () => {
                   cursor: "pointer",
                 }}
                 onClick={() => handleCheckUpdateProduct(record.id)}
+              />
+            </Col>
+          </Row>
+        </>
+      ),
+    },
+  ];
+  const columnsMaterial = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+      width: 60,
+      render: (text) => <a>{text}</a>,
+    },
+    {
+      title: "Nguyên phụ liệu",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "Hình ảnh",
+      dataIndex: "image",
+      key: "image",
+      render: (text) => (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Image width={40} src={text} />
+        </div>
+      ),
+    },
+    {
+      title: "Confirm",
+      dataIndex: "Confirm",
+      key: "Confirm",
+      width: 100,
+      fixed: "right",
+      render: (_, record) => (
+        <>
+          {console.log(record)}
+          <Row justify="start">
+            <Col span={4} offset={7}>
+              <FileDoneOutlined
+                style={{
+                  backgroundColor: "blue",
+                  color: "white",
+                  padding: 6,
+                  borderRadius: "5px",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={() => console.log(record)}
               />
             </Col>
           </Row>
@@ -355,10 +405,9 @@ const OrderToCustomerContent = () => {
         const responseData = await response.json();
         if (platform === "VN Pay") {
           window.open(responseData.link);
-        } else {
+        } else if (platform === "Offline") {
           handleDataOrderDetail();
         }
-        return 1;
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
         Swal.fire({
@@ -369,7 +418,6 @@ const OrderToCustomerContent = () => {
           timer: 3500,
           zIndex: 1000,
         });
-        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -526,6 +574,15 @@ const OrderToCustomerContent = () => {
     price: item.price,
     id: item.id,
   }));
+  const dataOrderMaterials = orderPaymentDetail?.orderMaterials?.map(
+    (item, index) => ({
+      id: item.materialId,
+      index: index,
+      name: item.material.name,
+      image: item.material.image,
+    })
+  );
+
   //-------------------------------------------------------------------Xử lý bước 3 mới----------------------------------------
   const [openChooseProductTemplate, setOpenChooseProductTemplate] =
     useState(false);
@@ -604,7 +661,6 @@ const OrderToCustomerContent = () => {
   ] = useState(false);
   const getDetailProfileCustomer = async (id) => {
     setGetDetailDataProfileCustomerLoading(true);
-    // const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
     const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
     try {
       const response = await fetch(`${urlProfile}`, {
@@ -719,7 +775,6 @@ const OrderToCustomerContent = () => {
   };
 
   const onCreateNewProduct = async (values) => {
-    // const urlCreateNew = `https://e-tailorapi.azurewebsites.net/1api/product/${saveOrderId}`;
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}`;
     try {
       const response = await fetch(`${urlCreateNew}`, {
@@ -732,7 +787,6 @@ const OrderToCustomerContent = () => {
       });
 
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
         await Swal.fire({
           position: "top-center",
           icon: "success",
@@ -884,9 +938,7 @@ const OrderToCustomerContent = () => {
           })
           .filter(Boolean),
       };
-      console.log("DATA BE", dataBackEnd);
       setLoadingUpdateBodyProfile(true);
-      // const url = `https://e-tailorapi.azurewebsites.net/api/profile-body/customer/${getDetailDataProfileCustomer.id}`;
       const url = `https://e-tailorapi.azurewebsites.net/api/profile-body/customer/${getDetailDataProfileCustomer.id}`;
       try {
         const response = await fetch(`${url}`, {
@@ -1008,11 +1060,9 @@ const OrderToCustomerContent = () => {
   };
   const handleUpdateProduct = async () => {
     const urlUpdate = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
-    // const urlUpdate = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
-    setOnFinishLoading(false);
+    setOnFinishLoading(true);
     if (getProfileUpdateCustomer) {
       const allValues = formUpdate.getFieldsValue();
-      console.log("allValues", allValues);
       const backendData = {
         id: saveIdProduct,
         orderId: saveOrderId,
@@ -1053,7 +1103,6 @@ const OrderToCustomerContent = () => {
         profileId: getProfileUpdateCustomer.id,
         note: allValues.note ? allValues.note : "",
       };
-      console.log("backendData", backendData);
       const checkResult = await (async () => {
         try {
           const response = await fetch(`${urlUpdate}`, {
@@ -1065,7 +1114,6 @@ const OrderToCustomerContent = () => {
             body: JSON.stringify(backendData),
           });
           if (response.ok && response.status === 200) {
-            const responseData = await response.text();
             await Swal.fire({
               position: "top-center",
               icon: "success",
@@ -1368,20 +1416,36 @@ const OrderToCustomerContent = () => {
                   <CircularProgress />
                 </div>
               ) : (
-                <div
-                  style={{
-                    height: 250,
-                  }}
-                >
-                  <Table
-                    columns={columns}
-                    dataSource={dataForProduct}
-                    pagination={false}
-                    scroll={{
-                      y: 200,
+                <>
+                  <div
+                    style={{
+                      height: 250,
                     }}
-                  />
-                </div>
+                  >
+                    <Table
+                      columns={columns}
+                      dataSource={dataForProduct}
+                      pagination={false}
+                      scroll={{
+                        y: 200,
+                      }}
+                    />
+                  </div>
+                  <div
+                    style={{
+                      height: 250,
+                    }}
+                  >
+                    <Table
+                      columns={columnsMaterial}
+                      dataSource={dataOrderMaterials}
+                      pagination={false}
+                      scroll={{
+                        y: 250,
+                      }}
+                    />
+                  </div>
+                </>
               )}
             </Col>
             <Col
@@ -1599,7 +1663,11 @@ const OrderToCustomerContent = () => {
                                   cancelButtonText: `Hủy`,
                                 }).then((result) => {
                                   if (result.isConfirmed) {
-                                    Swal.fire("Saved!", "", "success");
+                                    Swal.fire(
+                                      "Thanh toán thành công",
+                                      "",
+                                      "success"
+                                    );
                                     handleCreatePayCash(
                                       orderPaymentDetail?.unPaidMoney,
                                       0,
