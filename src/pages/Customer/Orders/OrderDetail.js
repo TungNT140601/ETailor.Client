@@ -261,7 +261,8 @@ export default function OrderDetail() {
                                                             width: 170,
                                                             borderBottomLeftRadius: "8px",
                                                             flexWrap: "wrap",
-                                                            minHeight: "40px"
+                                                            minHeight: "40px",
+                                                            justifyContent:"flex-end"
                                                         }}>
                                                             {JSON.parse(chat?.images).map((image, index) => (
                                                                 <div key={index}>
