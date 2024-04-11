@@ -490,10 +490,11 @@ export default function OrderDetail() {
     const chatNotification = ChatRealTime();
     useEffect(() => {
         if (chatNotification) {
-
+            console.log("Có tin nhắn :,", chatNotification)
+            fetchChat()
         }
     }, [chatNotification]);
-    console.log("CHat notification,", chatNotification)
+    console.log("Chat notification,", chatNotification)
     if (!orderDetails) {
         return <p>Loading...</p>;
     }

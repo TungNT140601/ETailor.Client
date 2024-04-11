@@ -49,7 +49,7 @@ function getHoursDifference(deadline) {
     const millisDiff = startMillis - currentMillisUTC7;
     const hoursDiff = millisDiff / (1000 * 60 * 60);
 
-    return hoursDiff < 1 ? `${Math.floor(hoursDiff * 60)} phút` : hoursDiff < 24 ? `${Math.floor(hoursDiff)} giờ ` : `${Math.floor(hoursDiff / 24)} ngày`;
+    return hoursDiff < 0 ? "Quá hạn" : hoursDiff < 24 ? `${Math.floor(hoursDiff)} giờ ` : `${Math.floor(hoursDiff / 24)} ngày`;
 }
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -104,7 +104,7 @@ const getStatusTextAndColor = (status) => {
             break;
         case 4:
             color = "#67b645";
-            borderColor="#c6f0a6"
+            borderColor = "#c6f0a6"
             text = "Hoàn thành";
             backgroundColor = "#f6ffed";
             break;
@@ -410,10 +410,11 @@ export default function ManagementTaskByOrder() {
                 }
             };
             const [deadline, setDeadline] = useState(null);
-            const onOk = async (productId, deadline) => {
-                console.log('onOk: ', deadline);
+            console.log("Current Deadline:", deadline)
+            const handleDeadlineUpdate = async (productId, newDeadline) => {
+                console.log("New Deadline:", newDeadline)
                 const manager = JSON.parse(localStorage.getItem("manager"));
-                const UPDATE_DEADLINE_URL = `https://e-tailorapi.azurewebsites.net/api/task/task/${productId}/deadline?deadlineTickString=${deadline}`
+                const UPDATE_DEADLINE_URL = `https://e-tailorapi.azurewebsites.net/api/task/task/${productId}/deadline?deadlineTickString=${newDeadline}`;
                 try {
                     const response = await fetch(UPDATE_DEADLINE_URL, {
                         method: "PUT",
@@ -433,9 +434,10 @@ export default function ManagementTaskByOrder() {
                         toast.error("Cập nhật deadline thất bại");
                     }
                 } catch (e) {
-                    console.log("Error at update deadline:", e)
+                    console.log("Error at update deadline:", e);
                 }
             };
+
             return (
                 <div style={{ marginLeft: 10, minWidth: 240 }}>
                     <div>
@@ -470,33 +472,25 @@ export default function ManagementTaskByOrder() {
 
                                 <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
                                 <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
-                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Thời hạn:
+                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Thời hạn:&nbsp;
                                     <span style={{ fontWeight: 400 }}>
-                                        {product.productStages[0].deadline ?
-                                            <div>
-                                                <DatePicker
-                                                    value={dayjs(product.productStages[0].deadline)}
-                                                    showTime={{ format: 'HH:mm' }}
-                                                    onChange={(value, dateString) => {
-                                                        console.log('Selected Time: ', value);
-                                                        setDeadline(dayjs(dateString).valueOf().toString())
-                                                        console.log('Formatted Selected Time: ', dayjs(dateString).valueOf());
-                                                    }}
-                                                    onOk={(dateString) => onOk(product.id, dayjs(dateString).valueOf())}
-                                                />
-                                            </div> : (
-                                                <div>
-                                                    <DatePicker
-                                                        showTime={{ format: 'HH:mm' }}
-                                                        onChange={(value, dateString) => {
-                                                            console.log('Selected Time: ', value);
-                                                            setDeadline(dayjs(dateString).valueOf().toString())
-                                                            console.log('Formatted Selected Time: ', dayjs(dateString).valueOf());
-                                                        }}
-                                                        onOk={(dateString) => onOk(product.id, dayjs(dateString).valueOf())}
-                                                    />
-                                                </div>
-                                            )}
+                                        <DatePicker
+                                            value={product.productStages[0].deadline ? dayjs(product.productStages[0].deadline) : ''}
+                                            showTime={{ format: 'HH:mm' }}
+                                            onChange={(value, dateString) => {
+                                                console.log('Selected Time: ', dateString);
+                                                const newDeadline = dayjs(dateString).valueOf().toString();
+                                                setDeadline(newDeadline);
+                                                console.log('Formatted Selected Time: ', dayjs(dateString).valueOf());
+                                                if (newDeadline !== null) {
+                                                    handleDeadlineUpdate(product.id, newDeadline);
+                                                }
+                                            }}
+                                            onOk={() => {
+                                                setOpen(false);
+                                            }}
+                                        />
+
                                     </span>
                                 </p>
                                 <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
@@ -634,7 +628,7 @@ export default function ManagementTaskByOrder() {
                                                                 <div style={{ textAlign: "start", paddingLeft: 10, paddingRight: 10, height: '100%', position: "relative" }}>
                                                                     <Popover placement={stage.stageNum === 5 ? "leftTop" : "rightTop"} content={() => <Content product={product} stage={stage} />} >
                                                                         <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Tên sản phẩm:<span style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, }}> {product?.name}</span> </h3>
-                                                                        <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn hàng: {product?.orderId}</h3>
+                                                                        <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn: <span style={{ fontSize: 14 }}>{product?.orderId}</span></h3>
                                                                         <p style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }}>
                                                                             {product.productStages[0]?.deadline ? (
                                                                                 <>
