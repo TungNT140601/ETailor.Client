@@ -148,7 +148,7 @@ export default function Blog() {
                           <img src={blog.thumbnail} alt={`Blog ${index + 1}`} />
                         </div>
                         <div className="blog-items-des">
-                          <p className="title is-4">{blog.title}</p>
+                          <p className="title is-4" style={{width:340}}>{blog.title}</p>
                           <p className="blog-description">
                             Ngày đăng: {formatDate(blog.createdTime)}
                           </p>

@@ -49,7 +49,7 @@ function getHoursDifference(deadline) {
     const millisDiff = startMillis - currentMillisUTC7;
     const hoursDiff = millisDiff / (1000 * 60 * 60);
 
-    return hoursDiff < 1 ? `${Math.floor(hoursDiff * 60)} phút` : hoursDiff < 24 ? `${Math.floor(hoursDiff)} giờ ` : `${Math.floor(hoursDiff / 24)} ngày`;
+    return hoursDiff < 0 ? "Quá hạn" : hoursDiff < 24 ? `${Math.floor(hoursDiff)} giờ ` : `${Math.floor(hoursDiff / 24)} ngày`;
 }
 const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -628,7 +628,7 @@ export default function ManagementTaskByOrder() {
                                                                 <div style={{ textAlign: "start", paddingLeft: 10, paddingRight: 10, height: '100%', position: "relative" }}>
                                                                     <Popover placement={stage.stageNum === 5 ? "leftTop" : "rightTop"} content={() => <Content product={product} stage={stage} />} >
                                                                         <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Tên sản phẩm:<span style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, }}> {product?.name}</span> </h3>
-                                                                        <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn hàng: {product?.orderId}</h3>
+                                                                        <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn: <span style={{ fontSize: 14 }}>{product?.orderId}</span></h3>
                                                                         <p style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }}>
                                                                             {product.productStages[0]?.deadline ? (
                                                                                 <>

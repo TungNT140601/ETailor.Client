@@ -249,7 +249,7 @@ export default function Order() {
           style={{
             width: "100%",
             display: "flex",
-            height: "600px",
+            height: "fit-content",
             justifyContent: "center",
             position: "",
           }}
