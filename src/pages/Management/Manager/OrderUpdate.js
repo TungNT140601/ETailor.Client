@@ -199,7 +199,7 @@ function OrderUpdate({
                   ? JSON.parse(component?.noteObject?.noteImage).map(
                       (item, index) => ({
                         uid: `${new Date().getMilliseconds() + index}`,
-                        name: "Hình ảnh khách hàng",
+                        name: `Hình ảnh ${index}`,
                         thumbUrl: null,
                         type: null,
                         originFileObj: null,
@@ -225,7 +225,6 @@ function OrderUpdate({
     handleChooseTemplate(dataDetailForUpdate?.productTemplateId);
     getDetailProfileCustomer(dataDetailForUpdate?.profileId);
   }, [dataDetailForUpdate]);
-  console.log("formUpdate.getFieldsValue()", formUpdate.getFieldsValue());
   useEffect(() => {
     getDetailDataProfileCustomer?.bodyAttributes?.forEach((component) => {
       initialProfileBodyValues[`bodySizes_${component.bodySize.id}`] =
