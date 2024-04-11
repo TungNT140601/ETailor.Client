@@ -338,52 +338,44 @@ export default function ManagementDashboard() {
         </Col>
         <Col span={12}>
           <Row>
-            <Col span={12} style={{ height: "230px" }}>
-              <Col span={23} style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "100%" }}>
-                <div>
-                  <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Tổng số đơn hàng</h1>
-                </div>
-              </Col>
-            </Col>
-            <Col span={12} style={{ height: "230px" }}>
-              <Col span={24} style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "100%" }}>
-                <div style={{ width: "100%", height: 200 }}>
-                  <Pie options={{
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: 'right',
-                      },
-                      title: {
-                        display: true,
-                        text: `Biểu đồ tổng số đơn hàng ${searchMonth}/${searchYear}`,
-                      },
-                    }
-                  }}
+            <Col span={24} style={{ height: "230px", backgroundColor: "#ffffff", borderRadius: 10 }}>
 
-                    data={{
-                      labels: ['Đã huỷ', 'Hoàn thiện', 'Đang thực hiện'],
-                      datasets: [
-                        {
-                          label: 'Số lượng',
-                          data: [totalForStatus0, totalForStatus7, totalForOtherStatuses],
-                          backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            '#f6ffed',
-                            'rgba(255, 206, 86, 0.2)',
-                          ],
-                          borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            '#389e0d',
-                            'rgba(255, 206, 86, 1)',
-                          ],
-                          borderWidth: 1,
-                        },
-                      ],
-                    }}
-                  />
-                </div>
-              </Col>
+              <div style={{ width: "100%", height: 200 }}>
+                <Pie options={{
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'right',
+                    },
+                    title: {
+                      display: true,
+                      text: `Biểu đồ tổng số đơn hàng ${searchMonth}/${searchYear}`,
+                    },
+                  }
+                }}
+
+                  data={{
+                    labels: ['Đã huỷ', 'Hoàn thiện', 'Đang thực hiện'],
+                    datasets: [
+                      {
+                        label: 'Số lượng',
+                        data: [totalForStatus0, totalForStatus7, totalForOtherStatuses],
+                        backgroundColor: [
+                          'rgba(255, 99, 132, 0.2)',
+                          '#f6ffed',
+                          'rgba(255, 206, 86, 0.2)',
+                        ],
+                        borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          '#389e0d',
+                          'rgba(255, 206, 86, 1)',
+                        ],
+                        borderWidth: 1,
+                      },
+                    ],
+                  }}
+                />
+              </div>
             </Col>
           </Row>
           <Row style={{ backgroundColor: "#fff", borderRadius: 10, marginTop: 15, width: "620px", height: "400px" }}>
@@ -476,8 +468,9 @@ export default function ManagementDashboard() {
       indexAxis: 'y',
       elements: {
         bar: {
-          borderWidth: 2,
+          borderWidth: 1,
         },
+
       },
       responsive: true,
       plugins: {
@@ -495,7 +488,6 @@ export default function ManagementDashboard() {
     const fabricData = {
       labels: fabricLabels,
       datasets:
-
         [
           {
             label: '',
@@ -503,62 +495,132 @@ export default function ManagementDashboard() {
             borderColor: 'rgb(255, 99, 132)',
             backgroundColor: 'rgba(255, 99, 132, 0.5)',
           },
-
         ]
     }
+
     const templateData = {
-      templateLabels: commonTemplate.map(template => template.name),
+      templateLabels: commonTemplate && commonTemplate.map(template => template.name),
       datasets:
         [
           {
             label: '',
-            data: commonTemplate.map(template => template.total),
+            data: commonTemplate && commonTemplate.map(template => template?.total),
             borderColor: 'rgb(53, 162, 235)',
             backgroundColor: 'rgba(53, 162, 235, 0.5)',
           },
         ]
     }
+    const templateChartOptions = {
+      indexAxis: 'y',
+      elements: {
+        bar: {
+          borderWidth: 1,
+          label: {
+            display: true,
+            overflow: "ellipsis",
+            align: "center",
+            padding: 10,
+            width: 100,
+          }
+        },
+      },
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false,
+        },
+        title: {
+          display: true,
+          text: 'Số lượng bản mãu được sử dụng',
+        },
+      },
+    };
+
     return (
       <Row justify="space-between" style={{ backgroundColor: "unset", margin: 15 }}>
         <Col span={14} >
-          <Row style={{ backgroundColor: "#ffffff", marginRight: 10, borderRadius: 10, height: "30em" }}>
-            {fabricLoading ?
-              <div style={{ width: "100%", height: "100%", alignContent: "center", alignItems: "center", display: "flex", justifyContent: "center" }}>
-                <Spin size="large" color="#9F78FF" style={{ paddingTop: 40 }} />
-              </div>
-              : (
-                <>
-
-                  <Col span={14}>
-                    <div>
-                      <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Loại vải được ưa thích trong tháng {searchMonth}</h1>
-                    </div>
-                    <Bar options={options} data={fabricData} />
-                  </Col>
-                  <Col span={10} style={{ backgroundColor: "#ffffff", borderRadius: 10 }}>
-                    <div style={{ padding: "20px 5px 20px 50px", alignContent: "center", alignItems: "center", height: "100%" }}>
-                      {materialStatistic.map(material => (
-                        <div style={{ display: "flex", padding: 5 }}>
-                          <div>
-                            <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+          <div style={{ marginRight: 10, borderRadius: 10, height: "45em" }} >
+            <div style={{ display: "flex", backgroundColor: "#ffffff", height: "22em", borderRadius: 10 }}>
+              {fabricLoading ?
+                <div style={{ width: "100%", height: "100%", alignContent: "center", alignItems: "center", display: "flex", justifyContent: "center" }}>
+                  <Spin size="large" color="#9F78FF" style={{ paddingTop: 40 }} />
+                </div>
+                : (
+                  <>
+                    <Col span={14}>
+                      <div>
+                        <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Loại vải được ưa chuộng tháng {searchMonth}</h1>
+                      </div>
+                      <Bar options={options} data={fabricData} />
+                    </Col>
+                    <Col span={10} style={{ backgroundColor: "#ffffff", borderRadius: 10 }}>
+                      <div style={{ padding: "20px 5px 20px 50px", alignContent: "center", alignItems: "center", height: "100%" }}>
+                        {materialStatistic.map((material, index) => (
+                          <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
+                            <div>
+                              <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+                            </div>
+                            <div style={{ marginLeft: 20 }}>
+                              <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material.name}</p>
+                              <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {material.totalProducts ? material.totalProducts : 0}</p>
+                            </div>
                           </div>
-                          <div style={{ marginLeft: 20 }}>
-                            <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material.name}</p>
-                            <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {material.totalProducts}</p>
+                        ))}
+                      </div>
+
+
+                    </Col>
+                  </>
+                )}
+            </div>
+            <div style={{ display: "flex", backgroundColor: "#ffffff", height: "22em", marginTop: "1em", borderRadius: 10 }}>
+              {commonTemplateLoading ?
+                <div style={{ width: "100%", height: "100%", alignContent: "center", alignItems: "center", display: "flex", justifyContent: "center" }}>
+                  <Spin size="large" color="#9F78FF" style={{ paddingTop: 40 }} />
+                </div>
+                : (
+                  <>
+                    <Col span={14}>
+                      <div>
+                        <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Bản mẫu được ưa chuộng tháng {searchMonth}</h1>
+                      </div>
+                      <Bar options={templateChartOptions} data={{
+                        labels: commonTemplate && commonTemplate.map(template => template?.name),
+                        datasets: [{
+                          label: '',
+                          data: commonTemplate && commonTemplate.map(template => template?.total),
+                          borderColor: 'rgb(53, 162, 235)',
+                          backgroundColor: 'rgba(53, 162, 235, 0.5)',
+                        }],
+                      }} />
+                    </Col>
+                    <Col span={10} style={{ backgroundColor: "#ffffff", borderRadius: 10 }}>
+                      <div style={{ padding: "20px 5px 20px 50px", alignContent: "center", alignItems: "center", height: "100%" }}>
+                        {commonTemplate && commonTemplate.map((template, index) => (
+                          <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
+                            <div>
+                              <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+                            </div>
+                            <div style={{ marginLeft: 20 }}>
+                              <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{template?.name}</p>
+                              <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {template?.total ? template?.total : 0}</p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
 
 
-                  </Col>
-                </>
-              )}
+                    </Col>
+                  </>
+                )}
 
-          </Row>
+
+            </div>
+
+          </div>
         </Col>
         <Col span={10}>
-          <Row style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "30em" }}>
+          <Row style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "45em" }}>
             <div>
 
             </div>
