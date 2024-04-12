@@ -606,7 +606,6 @@ const ManagementUpdateProductTemplateContent = () => {
       console.error("Error calling API:", error);
     }
   };
-  console.log("ALL fields step 4: ", form.getFieldsValue());
 
   useEffect(() => {
     if (dataDetailForUpdate) {
@@ -865,7 +864,9 @@ const ManagementUpdateProductTemplateContent = () => {
     const beData = step4Check?.items?.map((stage) => ({
       id: id,
       name: stage.name,
-      componentTypeIds: stage.componentTypeIds.map((item) => item.value),
+      componentTypeIds: stage?.componentTypeIds
+        ? stage?.componentTypeIds?.map((item) => item.value)
+        : null,
     }));
     console.log("beData", beData);
     setLoadingStep4(true);

@@ -238,16 +238,10 @@ export default function ManagementTask() {
             handleGetAllTasks();
             handleDataStaff();
         }, []);
-        const notify = (msg) => toast(msg, {
+        const notify = (msg) => toast.success(msg, {
             duration: 4000,
             position: 'top-center',
-            style: {},
-            className: '',
-            icon: 'success',
-            iconTheme: {
-                primary: '#000',
-                secondary: '#fff',
-            },
+
             ariaProps: {
                 role: 'status',
                 'aria-live': 'polite',

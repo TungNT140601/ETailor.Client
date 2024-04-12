@@ -34,9 +34,8 @@ const { Search } = Input;
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const manager = JSON.parse(localStorage.getItem("manager"));
-
 const ManagementStaffHeader = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -198,6 +197,9 @@ const ManagementStaffContent = () => {
                 fontSize: 15,
                 cursor: "pointer",
               }}
+              onClick={() => {
+                onDelete(record.id);
+              }}
             />
           </Col>
           <Col span={4} offset={2}>
@@ -212,7 +214,6 @@ const ManagementStaffContent = () => {
               }}
               onClick={() => {
                 handleOpenUpdate(record.id);
-                console.log(record);
               }}
             />
           </Col>
@@ -328,6 +329,53 @@ const ManagementStaffContent = () => {
       }
     }
   };
+  //---------------------------------------------------------------------------Delete-------------------------------------------------------
+  const onDelete = (id) => {
+    const urlCreateBodySize = `https://e-tailorapi.azurewebsites.net/api/staff/${id}`;
+    Swal.fire({
+      title: "Bạn có muốn xóa nhân viên này?",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(urlCreateBodySize, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${manager?.token}`,
+            },
+          });
+          const responseData = await response.text();
+          if (response.ok && response.status === 200) {
+            Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 2000,
+            });
+            handleDataStaff();
+            return 1;
+          } else if (response.status === 400 || response.status === 500) {
+            Swal.fire({
+              position: "top-center",
+              icon: "error",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 2000,
+            });
+            return 0;
+          }
+        } catch (error) {
+          console.error("Error calling API:", error);
+        }
+      } else if (result.isDenied) {
+        Swal.fire("Hủy bỏ xóa nguyên liệu", "", "info");
+      }
+    });
+  };
 
   const defaultCheckedList = columns.map((item) => item.key);
   const [checkedList, setCheckedList] = useState(defaultCheckedList);
@@ -417,6 +465,7 @@ const ManagementStaffContent = () => {
 };
 
 const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const [form] = Form.useForm();
   const [imageUrl, setImageUrl] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -634,12 +683,6 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
               hasFeedback
               name="masterySkill"
               label="Kỹ năng chuyên môn"
-              rules={[
-                {
-                  required: true,
-                  message: "Kỹ năng chuyên môn không được để trống",
-                },
-              ]}
             >
               <Select
                 mode="multiple"
@@ -714,6 +757,7 @@ const CollectionUpdateForm = ({
   const [createLoading, setCreateLoading] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
   const [dataDetailUpdate, setDadtaDetailUpdate] = useState(null);
+  const manager = JSON.parse(localStorage.getItem("manager"));
 
   const handleDataMastery = async () => {
     setMasteryLoading(true);
@@ -763,10 +807,11 @@ const CollectionUpdateForm = ({
     }
   };
   useEffect(() => {
-    handleDataMastery();
-    handleDetailStaff();
+    if (saveIdStaff) {
+      handleDataMastery();
+      handleDetailStaff();
+    }
   }, [saveIdStaff]);
-  console.log("dataDetailUpdate", dataDetailUpdate);
   useEffect(() => {
     if (dataDetailUpdate) {
       form.setFieldsValue({
@@ -777,7 +822,8 @@ const CollectionUpdateForm = ({
         address: dataDetailUpdate.address || "",
         username: dataDetailUpdate.username || "",
         phone: dataDetailUpdate.phone || "",
-        masterySkill: dataDetailUpdate.masterySkills || "",
+        masterySkill:
+          dataDetailUpdate.masterySkills && dataDetailUpdate.masterySkills,
       });
     }
   }, [dataDetailUpdate]);
@@ -966,12 +1012,6 @@ const CollectionUpdateForm = ({
               hasFeedback
               name="masterySkill"
               label="Kỹ năng chuyên môn"
-              rules={[
-                {
-                  required: true,
-                  message: "Kỹ năng chuyên môn không được để trống",
-                },
-              ]}
             >
               <Select
                 mode="multiple"

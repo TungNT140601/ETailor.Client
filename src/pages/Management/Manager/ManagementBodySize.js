@@ -316,7 +316,7 @@ const ManagementBodySizeContent = () => {
   const onDeleteBodySize = (id) => {
     const urlCreateBodySize = `https://e-tailorapi.azurewebsites.net/api/body-size/${id}`;
     Swal.fire({
-      title: "Bạn có muốn số đo cơ thể này?",
+      title: "Bạn có muốn xóa số đo cơ thể này?",
       showCancelButton: true,
       confirmButtonText: "Xóa",
       cancelButtonText: "Hủy",
