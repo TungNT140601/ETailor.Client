@@ -75,7 +75,6 @@ const ChooseTemplate = ({ open, onCancel, handleChooseTemplate }) => {
   }, [selected]);
 
   const handleSelectedTemplate = (value, index) => {
-    console.log("Valuessss", value);
     if (activeIndex === index) {
       setSelectedTemplate(null);
     } else {
@@ -235,7 +234,17 @@ const ChooseTemplate = ({ open, onCancel, handleChooseTemplate }) => {
                             <Image width={100} src={item.thumbnailImage} />
                           }
                           title={item.name}
-                          description={item.description}
+                          description={
+                            <div
+                              style={{
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                            >
+                              {item.description}
+                            </div>
+                          }
                         />
                       </Card>
                     </>

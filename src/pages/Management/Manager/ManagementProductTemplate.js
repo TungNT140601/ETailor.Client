@@ -774,17 +774,6 @@ export const ManagementCreateProductTemplate = () => {
                     `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                   }
                   parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
-                  // formatter={(value) => {
-                  //   const formatted =
-                  //     `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "đ";
-                  //   console.log("Formatting:", value, "to", formatted);
-                  //   return formatted;
-                  // }}
-                  // parser={(value) => {
-                  //   const parsed = value.replace(/\đ\s?|(,*)/g, "");
-                  //   console.log("Parsing:", value, "to", parsed);
-                  //   return parsed;
-                  // }}
                 />
               </Form.Item>
               <Form.Item
@@ -1171,106 +1160,6 @@ export const ManagementCreateProductTemplate = () => {
     {
       title: "Quy trình",
       content: (
-        // <>
-        //   <Divider>
-        //     <Title level={4}>Quy trình xử lý</Title>
-        //   </Divider>
-        //   <Row justify="center" style={{ marginBottom: 100 }}>
-        //     <Col span={12}>
-        //       <Form
-        //         labelCol={{
-        //           span: 6,
-        //         }}
-        //         wrapperCol={{
-        //           span: 18,
-        //         }}
-        //         form={form}
-        //         name="dynamic_form_complex"
-        //         style={{
-        //           maxWidth: 600,
-        //         }}
-        //         autoComplete="off"
-        //         initialValues={{
-        //           items: [{}],
-        //         }}
-        //       >
-        //         <Form.List name="items">
-        //           {(fields, { add, remove }) => (
-        //             <div
-        //               style={{
-        //                 display: "flex",
-        //                 rowGap: 16,
-        //                 flexDirection: "column",
-        //               }}
-        //             >
-        //               {fields.map((field) => (
-        //                 <Card
-        //                   size="small"
-        //                   title={`Bước ${field.name + 1}`}
-        //                   key={field.key}
-        //                   extra={
-        //                     <CloseOutlined
-        //                       onClick={() => {
-        //                         remove(field.name);
-        //                       }}
-        //                     />
-        //                   }
-        //                 >
-        //                   <Form.Item
-        //                     label="Quy trình"
-        //                     name={[field.name, "name"]}
-        //                   >
-        //                     <Input />
-        //                   </Form.Item>
-        //                   <Form.Item label="Bộ phận thực hiện">
-        //                     <Form.Item
-        //                       name={[field.name, "componentTypeIds"]}
-        //                       noStyle
-        //                       rules={[
-        //                         {
-        //                           validator(_, value) {
-        //                             if (value && value.length > 0) {
-        //                               return Promise.resolve();
-        //                             }
-        //                             return Promise.reject(
-        //                               new Error(
-        //                                 "Please select at least one item."
-        //                               )
-        //                             );
-        //                           },
-        //                         },
-        //                       ]}
-        //                     >
-        //                       <Select
-        //                         mode="multiple"
-        //                         placeholder="Select items"
-        //                         style={{ width: "100%" }}
-        //                       >
-        //                         {itemCategoryStep4.map((item) => {
-        //                           return (
-        //                             <>
-        //                               <Option value={item.id}>
-        //                                 {item.name}
-        //                               </Option>
-        //                             </>
-        //                           );
-        //                         })}
-        //                       </Select>
-        //                     </Form.Item>
-        //                   </Form.Item>
-        //                 </Card>
-        //               ))}
-
-        //               <Button type="dashed" onClick={() => add()} block>
-        //                 + Add Item
-        //               </Button>
-        //             </div>
-        //           )}
-        //         </Form.List>
-        //       </Form>
-        //     </Col>
-        //   </Row>
-        // </>
         <>
           <Row justify="center" style={{ marginTop: 10 }}>
             <Col span={24}>
