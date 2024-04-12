@@ -72,7 +72,7 @@ function ManageChat({
         },
         body: formDta,
       });
-      const responseData = await response.json();
+
       if (response.ok || response.status === 200) {
         setCurrentChatText("");
         setCurrentImage(null);
@@ -84,6 +84,7 @@ function ManageChat({
         setChat("");
         setFile(null);
       } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
         Swal.fire({
           position: "top-center",
           icon: "success",

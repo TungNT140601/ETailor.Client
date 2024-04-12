@@ -1503,7 +1503,6 @@ const ManagementUpdateProductTemplateContent = () => {
               }}
               style={{
                 width: "80%",
-                height: "100px",
               }}
               options={
                 Array.isArray(dataBodySize)

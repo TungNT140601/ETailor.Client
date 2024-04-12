@@ -19,6 +19,7 @@ import {
 import { Typography, Carousel } from "antd";
 import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
+import StarIcon from "@mui/icons-material/Star";
 
 import { Input } from "antd";
 import { Button, Flex, Divider, Modal } from "antd";
@@ -40,6 +41,8 @@ import {
   InputNumber,
   Checkbox,
   Tag,
+  Badge,
+  Popover,
 } from "antd";
 
 import CheckroomIcon from "@mui/icons-material/Checkroom";
@@ -159,6 +162,7 @@ const ManagementProductDetailContent = () => {
   const [dataDetail, setDataDetail] = useState(null);
   const [componentType, setComponentType] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [templateStage, setTemplateStage] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -184,6 +188,27 @@ const ManagementProductDetailContent = () => {
         console.error("Error calling API:", error);
       }
     };
+    const handleGetTemplateStage = async () => {
+      const urlProductDetail = `https://e-tailorapi.azurewebsites.net/api/template-stage/template/${id}`;
+      setLoading(true);
+      try {
+        const response = await fetch(`${urlProductDetail}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setLoading(false);
+          setTemplateStage(responseData);
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    };
+    handleGetTemplateStage();
     handleGetDetail();
   }, []);
   useEffect(() => {
@@ -337,12 +362,7 @@ const ManagementProductDetailContent = () => {
             </Title>
             <div
               style={{
-                height: "300px",
                 marginTop: 10,
-                overflowY: "scroll",
-                scrollbarWidth: "none",
-                WebkitScrollbar: "none",
-                border: "1px dashed #9F78FF",
                 borderRadius: 10,
                 paddingLeft: 20,
               }}
@@ -359,8 +379,6 @@ const ManagementProductDetailContent = () => {
                               <Col className="gutter-row" span={2}>
                                 <div
                                   style={{
-                                    width: 80,
-                                    height: 80,
                                     marginLeft: 10,
                                     marginRight: 10,
                                   }}
@@ -372,7 +390,7 @@ const ManagementProductDetailContent = () => {
                                     }}
                                   >
                                     <Image
-                                      width={60}
+                                      width={200}
                                       src={item?.image}
                                       style={{
                                         borderRadius: "50%",
@@ -382,8 +400,26 @@ const ManagementProductDetailContent = () => {
                                       }}
                                     />
                                   </div>
+
                                   <div style={{ textAlign: "center" }}>
-                                    <Text>{item?.name}</Text>
+                                    {item.default ? (
+                                      <Popover title="Kiểu mặc định">
+                                        <Text
+                                          style={{
+                                            color: item.default
+                                              ? "#9F78FF"
+                                              : "",
+                                            fontSize: item.default
+                                              ? "bold"
+                                              : "",
+                                          }}
+                                        >
+                                          {item?.name}
+                                        </Text>
+                                      </Popover>
+                                    ) : (
+                                      <Text>{item?.name}</Text>
+                                    )}
                                   </div>
                                 </div>
                               </Col>
@@ -413,7 +449,6 @@ const ManagementProductDetailContent = () => {
             <Title level={3} style={{ marginTop: 20 }}>
               3/ Bộ sưu tập:{" "}
             </Title>
-
             <div>
               <Space size={[16, 16]} wrap>
                 {dataDetail?.collectionImage ? (
@@ -441,7 +476,6 @@ const ManagementProductDetailContent = () => {
                           src={chooseTemplate}
                         />
                       </div>
-
                       <Title level={4}>
                         Chưa có bộ sưu tập nào trong bản mẫu này!
                       </Title>
@@ -449,6 +483,38 @@ const ManagementProductDetailContent = () => {
                   </div>
                 )}
               </Space>
+            </div>
+            <Title level={3} style={{ marginTop: 20 }}>
+              4/ Quy trình thực hiện
+            </Title>
+            <div>
+              {templateStage && (
+                <div>
+                  {templateStage?.map((stage) => {
+                    return (
+                      <>
+                        <Title level={4} style={{ marginLeft: 50 }}>
+                          Bước {stage?.stageNum}:
+                        </Title>
+                        <div style={{ marginLeft: 70 }}>
+                          {stage?.componentStages?.map((componenetStage) => {
+                            return (
+                              <Tag
+                                bordered={false}
+                                color="processing"
+                                key={componenetStage?.id}
+                                style={{ fontSize: 15 }}
+                              >
+                                {componenetStage?.componentType.name}
+                              </Tag>
+                            );
+                          })}
+                        </div>
+                      </>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </>
         )}

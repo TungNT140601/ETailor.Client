@@ -202,7 +202,7 @@ const ManagementCategoryContent = () => {
                 <Tag
                   color={randomColors[index]}
                   key={item.id}
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer", margin: 5 }}
                 >
                   {item.name}
                 </Tag>

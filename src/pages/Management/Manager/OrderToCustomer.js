@@ -11,7 +11,6 @@ import {
   LeftOutlined,
   RightOutlined,
   DeleteOutlined,
-  FileDoneOutlined,
   DollarOutlined,
 } from "@ant-design/icons";
 import {
@@ -30,6 +29,7 @@ import {
   Space,
   Upload,
   Carousel,
+  Radio,
 } from "antd";
 import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -40,7 +40,6 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 import ChooseTemplate from "./ChooseTemplate.js";
-import MaterialConfirm from "./MaterialConfirm.js";
 
 const { Search } = Input;
 const { Title, Text, Paragraph } = Typography;
@@ -54,6 +53,7 @@ const OrderToCustomerContent = () => {
   const [form] = Form.useForm();
   const [formProfileBody] = Form.useForm();
   const [formInfoCustomer] = Form.useForm();
+  const [formMaterial] = Form.useForm();
   useEffect(() => {
     if (
       vnpayNotification !== null &&
@@ -64,14 +64,14 @@ const OrderToCustomerContent = () => {
         Swal.fire({
           position: "top-center",
           icon: "error",
-          title: "Thanh toán thất bại!",
+          title: "Thanh toán VnPay thất bại!",
           showConfirmButton: false,
         });
       } else if (vnpayNotification === "True") {
         Swal.fire({
           position: "top-center",
           icon: "success",
-          title: "Thanh toán thành công!",
+          title: "Thanh toán VnPay thành công!",
           showConfirmButton: false,
         });
         handleDataOrderDetail();
@@ -80,13 +80,9 @@ const OrderToCustomerContent = () => {
   }, [vnpayNotification]);
   //-----------------------------------------Thử làm cách mới--------------------------------------------------
   const [active, setActive] = useState(0);
-  const [confirmMaterial, setConfirmMaterial] = useState(false);
-  const [saveIdMaterial, setSaveIdMaterial] = useState(null);
+
   const [changePrice, setChangePrice] = useState(false);
-  const handleConfirmMaterial = (id) => {
-    setSaveIdMaterial(id);
-    setConfirmMaterial(true);
-  };
+
   const columns = [
     {
       title: "STT",
@@ -130,7 +126,6 @@ const OrderToCustomerContent = () => {
           />
         ) : (
           <>
-            {console.log(price)}
             <Text>{formatCurrency(price)}</Text>
           </>
         ),
@@ -155,13 +150,15 @@ const OrderToCustomerContent = () => {
                   cursor: "pointer",
                 }}
                 onClick={() =>
-                  setChangePrice((prev) => {
-                    if (prev) {
-                      return false;
-                    } else {
-                      return true;
-                    }
-                  })
+                  orderPaymentDetail?.paidMoney > 0
+                    ? ""
+                    : setChangePrice((prev) => {
+                        if (prev) {
+                          return false;
+                        } else {
+                          return true;
+                        }
+                      })
                 }
               />
             </Col>
@@ -188,7 +185,11 @@ const OrderToCustomerContent = () => {
                   fontSize: 15,
                   cursor: "pointer",
                 }}
-                onClick={() => handleDeleteProduct(record.id)}
+                onClick={() =>
+                  orderPaymentDetail?.paidMoney > 0
+                    ? ""
+                    : handleDeleteProduct(record.id)
+                }
               />
             </Col>
             <Col span={4} offset={7}>
@@ -209,65 +210,72 @@ const OrderToCustomerContent = () => {
       ),
     },
   ];
-  const columnsMaterial = [
-    {
-      title: "STT",
-      dataIndex: "index",
-      key: "index",
-      width: 60,
-      render: (text) => <a>{text}</a>,
-    },
-    {
-      title: "Nguyên phụ liệu",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Hình ảnh",
-      dataIndex: "image",
-      key: "image",
-      render: (text) => (
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <Image width={40} src={text} />
-        </div>
-      ),
-    },
-    {
-      title: "Confirm",
-      dataIndex: "Confirm",
-      key: "Confirm",
-      width: 100,
-      fixed: "right",
-      render: (_, record) => (
-        <>
-          <Row justify="start">
-            <Col span={4} offset={7}>
-              <FileDoneOutlined
-                style={{
-                  backgroundColor: "blue",
-                  color: "white",
-                  padding: 6,
-                  borderRadius: "5px",
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-                onClick={() => handleConfirmMaterial(record.id)}
-              />
-            </Col>
-          </Row>
-        </>
-      ),
-    },
-  ];
-  <MaterialConfirm
-    open={confirmMaterial}
-    onCancel={() => setConfirmMaterial(false)}
-  />;
+
+  // const onConfirmMaterial = async () => {
+  //   const getFieldMaterial = formMaterial.getFieldsValue();
+  //   if (saveOrderId) {
+  //     const dataBackEnd = getFieldMaterial?.itemsMaterial?.map((items) => {
+  //       const { isCusMaterial, value, ...otherProps } = items;
+  //       const materialId = Object.keys(otherProps).find(
+  //         (key) => key !== "isCusMaterial" && key !== "value"
+  //       );
+  //       return {
+  //         isCusMaterial: isCusMaterial === "true" ? true : false,
+  //         value,
+  //         materialId,
+  //         orderId: saveOrderId,
+  //       };
+  //     });
+  //     console.log("dataBackEnd", getFieldMaterial);
+  //     const url = `https://e-tailorapi.azurewebsites.net/order/${saveOrderId}`;
+  //     try {
+  //       const response = await fetch(`${url}`, {
+  //         method: "PUT",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${manager?.token}`,
+  //         },
+  //         body: JSON.stringify(dataBackEnd),
+  //       });
+  //       if (response.ok && response.status === 200) {
+  //         const responseData = await response.text();
+  //         await Swal.fire({
+  //           position: "top-center",
+  //           icon: "success",
+  //           title: responseData,
+  //           showConfirmButton: false,
+  //           timer: 1500,
+  //           zIndex: 1000,
+  //         });
+  //         await handleDataOrderDetail();
+  //         return 1;
+  //       } else if (response.status === 400 || response.status === 500) {
+  //         const responseData = await response.text();
+  //         Swal.fire({
+  //           position: "top-center",
+  //           icon: "error",
+  //           title: responseData,
+  //           showConfirmButton: false,
+  //           timer: 4500,
+  //           zIndex: 1000,
+  //         });
+  //         return 0;
+  //       } else if (response.status === 401) {
+  //         localStorage.removeItem("manager");
+  //         navigate("/management/login");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error calling API:", error);
+  //     }
+  //   }
+  // };
+
   //---------------------------------------------------Lưu orderId-----------------------------------------------------------------
   const [saveCustomer, setSaveCustomer] = useState(null);
   const [saveOrderId, setSaveOrderId] = useState(null);
   const [searchInfo, setSearchInfo] = useState("");
   const [searchResult, setSearchResult] = useState([]);
+  const [createOrderLoading, setCreateOrderLoading] = useState(false);
 
   const handleSaveOrder = () => {
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/order`;
@@ -439,6 +447,9 @@ const OrderToCustomerContent = () => {
   );
 
   const handleCreatePayCash = async (amount, payType, platform) => {
+    const getFieldMaterial = formMaterial.getFieldsValue(["itemsMaterial"]);
+    console.log("getFieldMaterial", getFieldMaterial);
+
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/payment/${saveOrderId}?amount=${amount}&payType=${payType}&platform=${platform}`;
     try {
       const response = await fetch(`${urlCreateNew}`, {
@@ -449,12 +460,15 @@ const OrderToCustomerContent = () => {
         },
       });
       if (response.ok && response.status === 200) {
-        const responseData = await response.json();
+        console.log("platform", platform);
         if (platform === "VN Pay") {
+          const responseData = await response.json();
           window.open(responseData.link);
-        } else if (platform === "Offline") {
-          handleDataOrderDetail();
+        } else {
+          console.log("NHAY");
+          await handleDataOrderDetail();
         }
+        setActive(0);
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
         Swal.fire({
@@ -468,8 +482,6 @@ const OrderToCustomerContent = () => {
       }
     } catch (error) {
       console.error("Error calling API:", error);
-    } finally {
-      setActive(0);
     }
   };
   const fetchDataProfileBody = async (id) => {
@@ -967,7 +979,6 @@ const OrderToCustomerContent = () => {
   const handleUpdateProfileBody = async () => {
     if (getDetailDataProfileCustomer) {
       const getProfileBody = formProfileBody.getFieldsValue();
-
       const dataBackEnd = {
         id: getDetailDataProfileCustomer.id,
         name: getProfileBody.nameProfile,
@@ -1444,6 +1455,7 @@ const OrderToCustomerContent = () => {
                     setCurrent(2);
                     setOpenUpdate(false);
                   }}
+                  disabled={orderPaymentDetail?.paidMoney > 0}
                 >
                   Thêm sản phẩm
                 </Button>
@@ -1476,20 +1488,153 @@ const OrderToCustomerContent = () => {
                       }}
                     />
                   </div>
-                  <div
+
+                  {/* <div
                     style={{
                       height: 250,
+                      marginTop: 50,
                     }}
                   >
-                    <Table
-                      columns={columnsMaterial}
-                      dataSource={dataOrderMaterials}
-                      pagination={false}
-                      scroll={{
-                        y: 250,
+                    <Form
+                      labelCol={{
+                        span: 6,
                       }}
-                    />
-                  </div>
+                      wrapperCol={{
+                        span: 18,
+                      }}
+                      form={formMaterial}
+                      name="dynamic_form_complex"
+                      style={{
+                        maxWidth: "100%",
+                      }}
+                      autoComplete="off"
+                      initialValues={{
+                        items: [{}],
+                      }}
+                    >
+                      <Form.List name="itemsMaterial">
+                        {(fields, { add, remove }) => (
+                          <>
+                            <Table
+                              dataSource={dataOrderMaterials}
+                              pagination={false}
+                              scroll={{
+                                y: 250,
+                              }}
+                              rowKey="id"
+                              columns={[
+                                {
+                                  title: "STT",
+                                  dataIndex: "index",
+                                  key: "index",
+                                  width: 60,
+                                  render: (text) => <a>{text}</a>,
+                                },
+                                {
+                                  title: "Nguyên phụ liệu",
+                                  dataIndex: "name",
+                                  key: "name",
+                                },
+                                {
+                                  title: "Hình ảnh",
+                                  dataIndex: "image",
+                                  key: "image",
+                                  render: (text) => (
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <Image width={40} src={text} />
+                                    </div>
+                                  ),
+                                },
+                                {
+                                  title: "MaterialId",
+                                  dataIndex: "materialId",
+                                  key: "materialId",
+                                  render: (text, record, index) => (
+                                    <Form.Item
+                                      name={[index, index, "materialId"]}
+                                      noStyle
+                                    >
+                                      {record.id}
+                                    </Form.Item>
+                                  ),
+                                },
+                                {
+                                  title: "Xác nhận vải",
+                                  dataIndex: "materialConfirm",
+                                  key: "materialConfirm",
+                                  render: (text, record, index) => (
+                                    <Form.Item
+                                      name={[index, index, "isCusMaterial"]}
+                                      noStyle
+                                    >
+                                      <Radio.Group
+                                        disabled={
+                                          orderPaymentDetail?.paidMoney > 0
+                                        }
+                                      >
+                                        <Radio value={"true"}>Vải khách</Radio>
+                                        <Radio value={"false"}>
+                                          Vải cửa hàng
+                                        </Radio>
+                                      </Radio.Group>
+                                    </Form.Item>
+                                  ),
+                                },
+                                {
+                                  title: "Số met vải yêu cầu",
+                                  dataIndex: "value",
+                                  key: "value",
+                                  render: (text, record, index) => (
+                                    <Form.Item
+                                      name={[index, index, "value"]}
+                                      noStyle
+                                    >
+                                      <InputNumber
+                                        disabled={
+                                          orderPaymentDetail?.paidMoney > 0
+                                        }
+                                        formatter={(value) =>
+                                          `${value}m`.replace(
+                                            /\B(?=(\d{3})+(?!\d))/g,
+                                            ","
+                                          )
+                                        }
+                                        parser={(value) =>
+                                          value.replace(/m\s?|(,*)/g, "")
+                                        }
+                                        style={{ width: "100%" }}
+                                      />
+                                    </Form.Item>
+                                  ),
+                                },
+                              ]}
+                            />
+                            <Form.Item
+                              style={{
+                                display: "flex",
+                                justifyContent: "center",
+                              }}
+                            >
+                              <Button
+                                disabled={orderPaymentDetail?.paidMoney > 0}
+                                type="dashed"
+                                onClick={() => onConfirmMaterial()}
+                                block
+                                style={{ width: 200, marginTop: 10 }}
+                              >
+                                Lưu thay đổi
+                              </Button>
+                            </Form.Item>
+                          </>
+                        )}
+                      </Form.List>
+                    </Form>
+                  </div> */}
                 </>
               )}
             </Col>
@@ -1651,8 +1796,13 @@ const OrderToCustomerContent = () => {
                                   showCancelButton: true,
                                   confirmButtonText: "Xác nhận",
                                   cancelButtonText: `Hủy`,
-                                }).then((result) => {
+                                }).then(async (result) => {
                                   if (result.isConfirmed) {
+                                    await handleCreatePayCash(
+                                      orderPaymentDetail?.unPaidMoney,
+                                      0,
+                                      "VN Pay"
+                                    );
                                     Swal.fire({
                                       position: "top-center",
                                       icon: "warning",
@@ -1660,11 +1810,6 @@ const OrderToCustomerContent = () => {
                                       showConfirmButton: false,
                                       timer: 1500,
                                     });
-                                    handleCreatePayCash(
-                                      orderPaymentDetail?.unPaidMoney,
-                                      0,
-                                      "VN Pay"
-                                    );
                                   } else if (result.dismiss) {
                                     setActive(0);
                                     Swal.fire("Hủy chọn", "", "info");
@@ -1706,17 +1851,17 @@ const OrderToCustomerContent = () => {
                                   showCancelButton: true,
                                   confirmButtonText: "Xác nhận",
                                   cancelButtonText: `Hủy`,
-                                }).then((result) => {
+                                }).then(async (result) => {
                                   if (result.isConfirmed) {
+                                    await handleCreatePayCash(
+                                      orderPaymentDetail?.unPaidMoney,
+                                      0,
+                                      "Offline"
+                                    );
                                     Swal.fire(
                                       "Thanh toán thành công",
                                       "",
                                       "success"
-                                    );
-                                    handleCreatePayCash(
-                                      orderPaymentDetail?.unPaidMoney,
-                                      0,
-                                      "Offline"
                                     );
                                   } else if (result.dismiss) {
                                     setActive(0);
@@ -1753,9 +1898,33 @@ const OrderToCustomerContent = () => {
                                   marginTop: 15,
                                 }}
                                 bodyStyle={{ padding: 0, marginTop: 10 }}
-                                onClick={() =>
-                                  setActive(active === 3 ? null : 3)
-                                }
+                                onClick={() => {
+                                  setActive(active === 3 ? null : 3);
+                                  Swal.fire({
+                                    title: `Xác nhận trả tiền cọc ${formatCurrency(
+                                      orderPaymentDetail?.unPaidMoney
+                                    )} ?`,
+                                    showCancelButton: true,
+                                    confirmButtonText: "Xác nhận",
+                                    cancelButtonText: `Hủy`,
+                                  }).then(async (result) => {
+                                    if (result.isConfirmed) {
+                                      await handleCreatePayCash(
+                                        orderPaymentDetail?.unPaidMoney,
+                                        1,
+                                        "Offline"
+                                      );
+                                      Swal.fire(
+                                        "Thanh toán trả tiền cọc thành công",
+                                        "",
+                                        "success"
+                                      );
+                                    } else if (result.dismiss) {
+                                      setActive(0);
+                                      Swal.fire("Hủy chọn", "", "info");
+                                    }
+                                  });
+                                }}
                               >
                                 <div
                                   style={{
@@ -2541,7 +2710,7 @@ const OrderToCustomerContent = () => {
   const [current, setCurrent] = useState(0);
   const next = async () => {
     if (current === 0) {
-      if (saveCustomer && saveOrderId) {
+      if (saveCustomer || saveOrderId) {
         const check = await handleDataOrderDetail();
         if (check === 1) {
           setCurrent(current + 1);
@@ -2587,8 +2756,10 @@ const OrderToCustomerContent = () => {
         )}
         {current === 1 && (
           <Button
+            loading={createOrderLoading}
             type="primary"
             onClick={async () => {
+              setCreateOrderLoading(true);
               const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/order/finish/${saveOrderId}`;
               try {
                 const response = await fetch(`${urlCreateNew}`, {
@@ -2612,6 +2783,8 @@ const OrderToCustomerContent = () => {
                 }
               } catch (error) {
                 console.error("Error calling API:", error);
+              } finally {
+                setCreateOrderLoading(false);
               }
               return;
             }}
