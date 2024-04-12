@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Bar, Pie, Line } from 'react-chartjs-2';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRankingStar } from "@fortawesome/free-solid-svg-icons";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -517,12 +519,15 @@ export default function ManagementDashboard() {
           borderWidth: 1,
           label: {
             display: true,
-            overflow: "ellipsis",
+            overflow: "hidden",
             align: "center",
             padding: 10,
-            width: 100,
-          }
+            maxWidth: 40,
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          },
         },
+
       },
       responsive: true,
       plugins: {
@@ -596,6 +601,7 @@ export default function ManagementDashboard() {
                     </Col>
                     <Col span={10} style={{ backgroundColor: "#ffffff", borderRadius: 10 }}>
                       <div style={{ padding: "20px 5px 20px 50px", alignContent: "center", alignItems: "center", height: "100%" }}>
+                        {/* <p><FontAwesomeIcon icon={faRankingStar} /></p> */}
                         {commonTemplate && commonTemplate.map((template, index) => (
                           <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
                             <div>
@@ -622,9 +628,40 @@ export default function ManagementDashboard() {
         <Col span={10}>
           <Row style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "45em" }}>
             <div>
+              <div>
+                <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Đề xuất nhập vải</h1>
+                {materialStatistic.map((material, index) => (
+                  material.totalProducts > 0 && (
+                    <div style={{ display: "flex", padding: 15, alignItems: "center", height: "22vh" }} key={index}>
+                      <div>
+                        <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+                      </div>
+                      <div style={{ marginLeft: 20 }}>
+                        <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material.name}</p>
+                      </div>
+                    </div>
+                  )
+
+                ))}
+              </div>
+              <div>
+                <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Xu hướng thịnh hành</h1>
+                {commonTemplate && commonTemplate.map((template, index) => (
+                  commonTemplate && commonTemplate.total > 0 && (
+                    <div style={{ padding: 5, alignItems: "center" }} key={index}>
+                      <div>
+                        <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+                      </div>
+                      <div style={{ marginLeft: 20 }}>
+                        <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{template?.name}</p>
+                      </div>
+                    </div>
+                  )
+
+                ))}
+              </div>
 
             </div>
-            <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Đề xuất nhập vải</h1>
           </Row>
         </Col>
       </Row>

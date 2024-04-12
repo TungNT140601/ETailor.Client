@@ -2,15 +2,10 @@ import React, { useState, useEffect } from 'react'
 import {
     HomeOutlined,
     UserOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    PlusOutlined,
-    LoadingOutlined,
-    SettingOutlined,
     ClockCircleOutlined,
-    WarningOutlined
+    WarningOutlined,
+    MinusCircleOutlined, PlusOutlined
 } from "@ant-design/icons";
-import { Typography } from "antd";
 import "./index.css";
 import {
     Avatar,
@@ -21,22 +16,24 @@ import {
     Popover,
     Button,
     Modal,
-    DatePicker
+    Typography,
+    Form,
+    Space,
+    DatePicker,
+    Spin,
+    Col,
+    Row,
+    TreeSelect,
+    Image
 } from "antd";
 import Notask from "../../../assets/images/nodata.jpg";
 import toast, { Toaster } from 'react-hot-toast';
 import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
-import { useQuery } from "react-query";
 import CircularProgress from "@mui/material/CircularProgress";
-import { render } from '@testing-library/react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Fade from '@mui/material/Fade';
-
 const { Search } = Input;
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -359,6 +356,7 @@ export default function ManagementTaskByOrder() {
             const showModal = () => {
                 setOpen(true);
             };
+            const [deadlineUpdateLoading, setDeadlineUpdateLoading] = useState(false);
             const [changeClick, setChangeClick] = useState(false);
             const [selectedValue, setSelectedValue] = useState(null);
 
@@ -394,6 +392,7 @@ export default function ManagementTaskByOrder() {
                             setChangeClick(false);
                             setOpen(false);
                         } else {
+
                             toast.error("Thay đổi nhân viên thực hiện thất bại");
                             setConfirmLoading(false);
                             setOpen(false);
@@ -410,9 +409,8 @@ export default function ManagementTaskByOrder() {
                 }
             };
             const [deadline, setDeadline] = useState(null);
-            console.log("Current Deadline:", deadline)
             const handleDeadlineUpdate = async (productId, newDeadline) => {
-                console.log("New Deadline:", newDeadline)
+                setDeadlineUpdateLoading(true);
                 const manager = JSON.parse(localStorage.getItem("manager"));
                 const UPDATE_DEADLINE_URL = `https://e-tailorapi.azurewebsites.net/api/task/task/${productId}/deadline?deadlineTickString=${newDeadline}`;
                 try {
@@ -425,13 +423,15 @@ export default function ManagementTaskByOrder() {
                     });
                     if (response.status === 200) {
                         const data = await response.text();
+                        setDeadlineUpdateLoading(false);
                         console.log("Data:", data);
                         fetchTemplates();
                         setDeadline(null);
-                        setOpen(false);
                         toast.success("Cập nhật deadline thành công");
                     } else {
-                        toast.error("Cập nhật deadline thất bại");
+                        const msg = await response.text();
+                        toast.error(msg);
+                        setDeadlineUpdateLoading(false);
                     }
                 } catch (e) {
                     console.log("Error at update deadline:", e);
@@ -441,16 +441,17 @@ export default function ManagementTaskByOrder() {
             return (
                 <div style={{ marginLeft: 10, minWidth: 240 }}>
                     <div>
-                        <div>
+                        <div style={{ display: "flex" }}>
                             <h3 style={{ fontSize: 15, fontWeight: 600 }}>Tên sản phẩm: {product?.name}</h3>
+                            <p style={{ fontSize: 15, fontWeight: 600, paddingLeft: 30 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
                         </div>
 
                         <p style={{ fontSize: 15, fontWeight: 600 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
                         <p style={{ fontSize: 15, fontWeight: 600 }}>Giá trị đơn hàng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
                         <p style={{ fontSize: 15, fontWeight: 600 }}>Ngày bắt đầu: <span style={{ fontWeight: 400 }}>{formatDate(product.createdTime)} </span></p>
                         <p style={{ fontSize: 15, fontWeight: 600 }}>Hạn hoàn thành: <span style={{ fontWeight: 400 }}>{formatDate(product.productStages[0].deadline)}</span></p>
-                        <p style={{ fontSize: 15, fontWeight: 600 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
-                        <Button type="primary" onClick={showModal}>
+
+                        <Button style={{ paddingTop: 5 }} type="primary" onClick={showModal}>
                             Xem chi tiết
                         </Button>
                     </div>
@@ -458,79 +459,181 @@ export default function ManagementTaskByOrder() {
                         title="Chi tiết công việc"
                         open={open}
                         okText="Xác nhận"
+                        width={700}
+                        height={500}
                         cancelText="Đóng"
                         onOk={() => handleOk(product.id)}
                         confirmLoading={confirmLoading}
                         onCancel={handleCancel}
-                        style={{ width: 500, height: 500 }}
+
                     >
-                        <div style={{ marginLeft: 10, minWidth: 240 }}>
-                            <div>
-                                <div>
-                                    <h3 style={{ fontSize: 15, fontWeight: 600 }}>Tên sản phẩm: {product?.name}</h3>
+                        <div style={{ marginLeft: 10, minWidth: 240, width: 500 }}>
+                            {deadlineUpdateLoading ? (
+                                <div style={{ width: 480, height: 250, textAlign: "center" }}>
+                                    <Spin size="large" color="#9F78FF" style={{ paddingTop: 40 }} />
                                 </div>
-
-                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
-                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
-                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Thời hạn:&nbsp;
-                                    <span style={{ fontWeight: 400 }}>
-                                        <DatePicker
-                                            value={product.productStages[0].deadline ? dayjs(product.productStages[0].deadline) : ''}
-                                            showTime={{ format: 'HH:mm' }}
-                                            onChange={(value, dateString) => {
-                                                console.log('Selected Time: ', dateString);
-                                                const newDeadline = dayjs(dateString).valueOf().toString();
-                                                setDeadline(newDeadline);
-                                                console.log('Formatted Selected Time: ', dayjs(dateString).valueOf());
-                                                if (newDeadline !== null) {
-                                                    handleDeadlineUpdate(product.id, newDeadline);
-                                                }
-                                            }}
-                                            onOk={() => {
-                                                setOpen(false);
-                                            }}
-                                        />
-
-                                    </span>
-                                </p>
-                                <p style={{ fontSize: 15, fontWeight: 600, margin: 5 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
-                                <div style={{ display: "flex" }}>
-                                    <p style={{ fontSize: 15, fontWeight: 600 }}>Nhân viên thực hiện : {product?.staffMaker?.fullname}</p>
-                                    <Button style={{ marginLeft: 50 }} onClick={() => setChangeClick(changeClick ? false : true)}>Thay đổi</Button>
-
-                                </div>
-                                {changeClick ? (
+                            ) : (
+                                <div style={{ marginTop: 20, width: "100%" }}>
                                     <div>
-                                        <Select
-                                            showSearch
-                                            style={{ width: 280, marginTop: 20, height: 60 }}
-                                            placeholder="Chọn nhân viên"
-                                            optionFilterProp="children"
-                                            filterOption={(input, option) => {
-                                                const staffName = option.props.children.props.children[1].props.children;
-                                                return staffName.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-                                            }}
-                                            onChange={handleSelectChange}
-                                            defaultValue={product?.staffMaker?.id}
-                                        >
-                                            {allStaff && allStaff.map((staff, index) => (
-                                                <Option key={staff.id} value={staff.id}>
-                                                    <div>
-                                                        <div style={{ display: "flex", alignItems: "center" }}>
-                                                            <Avatar src={staff.avatar} />
-                                                            <div>
-                                                                <p style={{ marginLeft: 10 }}>{staff.fullname}</p>
-                                                                <p style={{ marginLeft: 10, marginTop: 0 }}>Task đang có: {staff.totalTask}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </Option>
-                                            ))}
-                                        </Select>
+                                        <h3 style={{ fontSize: 15, fontWeight: 600 }}>Tên sản phẩm: {product?.name}</h3>
                                     </div>
-                                ) : null}
-                            </div>
-                        </div>
+                                    <Row style={{ width: "100%" }}>
+                                        <Col span={12}>
+                                            <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
+                                            <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
+                                            <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Tiến độ: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
+
+                                        </Col>
+                                        <Col span={12}>
+                                            <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Thời hạn:&nbsp;
+                                                <span style={{ fontWeight: 400 }}>
+                                                    <DatePicker
+                                                        value={product.productStages[0].deadline ? dayjs(product.productStages[0].deadline) : ''}
+                                                        showTime={{ format: 'HH:mm' }}
+                                                        onChange={(value, dateString) => {
+                                                            console.log('Selected Time: ', dateString);
+                                                            const newDeadline = dayjs(dateString).valueOf().toString();
+                                                            setDeadline(newDeadline);
+                                                            console.log('Formatted Selected Time: ', dayjs(dateString).valueOf());
+                                                            if (newDeadline !== null) {
+                                                                handleDeadlineUpdate(product.id, newDeadline);
+                                                            }
+                                                        }}
+
+                                                    />
+
+                                                </span>
+                                            </p>
+                                            <div>
+                                                <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Màu vải:</p>
+                                                <div style={{ marginLeft: 10, display: "flex" }}>
+                                                    <Image
+                                                        width={50}
+                                                        style={{ borderRadius: 5, marginRight: 10 }}
+                                                        src={product?.fabricMaterial?.image}
+                                                    />
+                                                    <p style={{ fontSize: 14, fontWeight: 400, paddingLeft: 5 }}>{product?.fabricMaterial?.name} </p>
+                                                </div>
+                                            </div>
+
+
+                                        </Col>
+                                    </Row>
+
+                                    <div style={{ display: "flex", marginLeft: 10, alignItems: "center" }}>
+                                        <p style={{ fontSize: 15, fontWeight: 600 }}>Nhân viên thực hiện : {product?.staffMaker?.fullname}</p>
+                                        <Button style={{ marginLeft: 20 }} onClick={() => setChangeClick(changeClick ? false : true)}>Thay đổi</Button>
+
+                                    </div>
+                                    {
+                                        changeClick ? (
+                                            <div>
+                                                <Select
+                                                    showSearch
+                                                    style={{ width: 280, marginTop: 10, height: 60 }}
+                                                    placeholder="Chọn nhân viên"
+                                                    optionFilterProp="children"
+                                                    filterOption={(input, option) => {
+                                                        const staffName = option.props.children.props.children[1].props.children;
+                                                        return staffName.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                                                    }}
+                                                    onChange={handleSelectChange}
+                                                    defaultValue={product?.staffMaker?.id}
+                                                >
+                                                    {allStaff && allStaff.map((staff, index) => (
+                                                        <Option key={staff.id} value={staff.id}>
+                                                            <div>
+                                                                <div style={{ display: "flex", alignItems: "center" }}>
+                                                                    <Avatar src={staff.avatar} />
+                                                                    <div>
+                                                                        <p style={{ marginLeft: 10 }}>{staff.fullname}</p>
+                                                                        <p style={{ marginLeft: 10, marginTop: 0 }}>Task đang có: {staff.totalTask}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Option>
+                                                    ))}
+                                                </Select>
+                                            </div>
+                                        ) : null
+                                    }
+                                    <div style={{ paddingTop: 20 }}>
+                                        <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Chọn nguyên liệu</p>
+                                        <Form
+                                            name="dynamic_form_nest_item"
+
+                                            style={{
+                                                maxWidth: 300,
+                                            }}
+                                            autoComplete="off"
+                                        >
+                                            <Form.List name="users">
+                                                {(fields, { add, remove }) => (
+                                                    <>
+                                                        {fields.map(({ key, name, ...restField }) => (
+                                                            <Space
+                                                                key={key}
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    marginBottom: 8,
+                                                                }}
+                                                                align="baseline"
+                                                            >
+                                                                <Form.Item
+                                                                    label="TreeSelect"
+                                                                    {...restField}
+                                                                    name={[name, 'last']}
+                                                                    rules={[
+                                                                        {
+                                                                            required: true,
+                                                                            message: 'Missing last name',
+                                                                        },
+                                                                    ]}>
+                                                                    <TreeSelect
+                                                                        style={{ width: '100%' }}
+                                                                        treeData={[
+                                                                            {
+                                                                                title: 'Light',
+                                                                                value: 'light',
+                                                                                children: [
+                                                                                    {
+                                                                                        title: 'Bamboo',
+                                                                                        value: 'bamboo',
+                                                                                    },
+                                                                                ],
+                                                                            },
+                                                                        ]}
+                                                                    />
+                                                                </Form.Item>
+                                                                <Form.Item
+                                                                    {...restField}
+                                                                    name={[name, 'last']}
+                                                                    rules={[
+                                                                        {
+                                                                            required: true,
+                                                                            message: 'Missing last name',
+                                                                        },
+                                                                    ]}
+                                                                >
+                                                                    <Input placeholder="Số lượng" type='number' />
+                                                                </Form.Item>
+                                                                <MinusCircleOutlined onClick={() => remove(name)} />
+                                                            </Space>
+                                                        ))}
+                                                        <Form.Item>
+                                                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                                                                Add field
+                                                            </Button>
+                                                        </Form.Item>
+                                                    </>
+                                                )}
+                                            </Form.List>
+                                        </Form>
+                                    </div>
+                                </div >
+                            )
+                            }
+                        </div >
                     </Modal >
                 </div >
             );
@@ -608,7 +711,7 @@ export default function ManagementTaskByOrder() {
                                             </div>
                                             <div style={{ backgroundColor: "#f3f1fa", marginTop: 20, height: "75vh", width: "280px", paddingTop: 15, overflowY: "scroll", scrollbarWidth: "none" }}>
                                                 {currentTemplate?.products && currentTemplate?.products.map((product, index) => {
-                                                    if (product.productStages[0].stageNum === stage.stageNum) {
+                                                    if (product?.productStages[0]?.stageNum === stage?.stageNum) {
                                                         return (
                                                             <div
                                                                 style={{
@@ -628,13 +731,39 @@ export default function ManagementTaskByOrder() {
                                                                 <div style={{ textAlign: "start", paddingLeft: 10, paddingRight: 10, height: '100%', position: "relative" }}>
                                                                     <Popover placement={stage.stageNum === 5 ? "leftTop" : "rightTop"} content={() => <Content product={product} stage={stage} />} >
                                                                         <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Tên sản phẩm:<span style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, }}> {product?.name}</span> </h3>
-                                                                        <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn: <span style={{ fontSize: 14 }}>{product?.orderId}</span></h3>
+                                                                        <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn: <span style={{ fontSize: 14, fontWeight: 400 }}>{product?.orderId}</span></h3>
+                                                                        {product?.productStages[0].deadline ? (
+                                                                            <h3
+                                                                                style={{
+                                                                                    color: `${getStatusTextAndColor(stage?.stageNum).color}`,
+                                                                                    fontWeight: "600",
+                                                                                    fontSize: 15,
+                                                                                    alignContent: "start"
+                                                                                }}
+                                                                            >Thời hạn: &nbsp;
+                                                                                <span style={{ fontSize: 14, fontWeight: 400 }}>
+                                                                                    {formatDate(product?.productStages[0].deadline)}
+                                                                                </span>
+                                                                            </h3>
+                                                                        ) : ""}
+
                                                                         <p style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }}>
                                                                             {product.productStages[0]?.deadline ? (
-                                                                                <>
-                                                                                    <ClockCircleOutlined style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }} />
-                                                                                    {getHoursDifference(product.productStages[0]?.deadline)}
-                                                                                </>
+                                                                                getHoursDifference(product.productStages[0]?.deadline) === "Quá hạn" ? (
+                                                                                    <>
+                                                                                        <div style={{ display: "flex", alignItems: "center" }}>
+                                                                                            <WarningOutlined style={{ color: "red" }} />
+                                                                                            <p style={{ color: "red", paddingLeft: 5 }}>{getHoursDifference(product.productStages[0]?.deadline)} </p>
+                                                                                        </div>
+
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        <ClockCircleOutlined style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }} />
+                                                                                        &nbsp;{getHoursDifference(product.productStages[0]?.deadline)}
+                                                                                    </>
+                                                                                )
+
 
                                                                             ) : (
                                                                                 <>
