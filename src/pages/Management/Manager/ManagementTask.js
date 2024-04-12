@@ -6,7 +6,7 @@ import {
     DeleteOutlined,
     PlusOutlined,
     LoadingOutlined,
-    ClockCircleOutlined
+    ClockCircleOutlined,
 } from "@ant-design/icons";
 import { Typography, Table, Checkbox } from "antd";
 import "./index.css";
