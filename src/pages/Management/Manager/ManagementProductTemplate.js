@@ -1142,7 +1142,6 @@ export const ManagementCreateProductTemplate = () => {
               }}
               style={{
                 width: "80%",
-                height: "100px",
               }}
               options={
                 Array.isArray(dataBodySize)
@@ -1206,7 +1205,7 @@ export const ManagementCreateProductTemplate = () => {
                                 rules={[
                                   {
                                     required: true,
-                                    message: "Please input quy trình",
+                                    message: "Quy trình không được bỏ trống",
                                   },
                                 ]}
                               >
