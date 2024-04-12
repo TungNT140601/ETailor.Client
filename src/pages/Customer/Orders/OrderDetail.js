@@ -261,7 +261,8 @@ export default function OrderDetail() {
                                                             width: 170,
                                                             borderBottomLeftRadius: "8px",
                                                             flexWrap: "wrap",
-                                                            minHeight: "40px"
+                                                            minHeight: "40px",
+                                                            justifyContent: "flex-end"
                                                         }}>
                                                             {JSON.parse(chat?.images).map((image, index) => (
                                                                 <div key={index}>
@@ -397,6 +398,7 @@ export default function OrderDetail() {
                                             name="chat"
                                             placeholder=" Aa"
                                             value={chat}
+                                            disabled={orderDetails.status === 0 || orderDetails.status === 7 ? true : false}
                                             maxLength={500}
                                             onChange={(e) => handleChatChange(e.target.value)}
                                             onKeyDown={(e) => e.key === 13 && e.shiftKey === false ? handleSendChat(orderId) : null}
@@ -414,10 +416,10 @@ export default function OrderDetail() {
                                     <div style={{ margin: "5px 0px 5px 15px", paddingBottom: 5 }}>
                                         <FontAwesomeIcon icon={faImage} color="#D9D9D9" style={{ cursor: "pointer" }} onClick={triggerImageInput} />
                                         <FontAwesomeIcon icon={faPaperclip} color="#D9D9D9" style={{ marginLeft: 15, cursor: "pointer" }} onClick={triggerFileInput} />
-                                        <input type="file" id="imageInput" accept="image/*" multiple style={{ display: 'none' }} onChange={handleImageChange} />
+                                        <input type="file" id="imageInput" disabled={orderDetails.status === 0 || orderDetails.status === 7 ? true : false} accept="image/*" multiple style={{ display: 'none' }} onChange={handleImageChange} />
 
                                         {/* Hidden file input */}
-                                        <input type="file" id="fileInput" style={{ display: 'none' }} onChange={event => console.log(event.target.files)} />
+                                        <input type="file" id="fileInput" disabled={orderDetails.status === 0 || orderDetails.status === 7 ? true : false} style={{ display: 'none' }} onChange={event => console.log(event.target.files)} />
 
                                     </div>
 
