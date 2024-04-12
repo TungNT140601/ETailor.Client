@@ -91,7 +91,7 @@ export default function ProductDetail() {
         </div>
       ) : (
         <div style={{ paddingTop: "140px" }}>
-          <div style={{ height: "60px", paddingLeft: "60px" }}>
+          {/* <div style={{ height: "60px", paddingLeft: "60px" }}>
             <nav
               className="breadcrumb has-bullet-separator"
               aria-label="breadcrumbs"
@@ -118,7 +118,7 @@ export default function ProductDetail() {
                 </li>
               </ul>
             </nav>
-          </div>
+          </div> */}
           <div className="product-detail-wrapper">
             <div className="product-detail-items"></div>
             <div className="product-detail-items">
@@ -301,7 +301,7 @@ export default function ProductDetail() {
             <Divider plain>Mô tả</Divider>
             <p
               className="has-text-weight-light is-6"
-              style={{ margin: 0, padding:"10px 100px 10px 100px" }}
+              style={{ margin: 0, padding: "10px 100px 10px 100px" }}
             >
               {productData.description}
             </p>
