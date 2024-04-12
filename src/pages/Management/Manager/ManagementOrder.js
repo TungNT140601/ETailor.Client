@@ -159,7 +159,6 @@ const ManagementOrderContent = () => {
 
   const [checkStatus, setCheckStatus] = useState(null);
   const showModal = async (id, status) => {
-    console.log("status", status);
     await setSaveIdOrder(id);
     await setCheckStatus(status);
     setIsModalOpen(true);
@@ -250,7 +249,7 @@ const ManagementOrderContent = () => {
     },
     {
       title: "Mã đơn",
-      width: 150,
+      width: 170,
       dataIndex: "id",
       key: "1",
       fixed: "left",
@@ -276,9 +275,15 @@ const ManagementOrderContent = () => {
           case 6:
             return <Tag color="gold">Kiểm tra</Tag>;
           case 7:
+            return <Tag color="volcano">Trả hàng</Tag>;
+          case 8:
             return <Tag color="green">Đã giao</Tag>;
           default:
-            return <Tag color="red">Hủy đơn</Tag>;
+            return (
+              <Tag color="red" style={{ display: "none" }}>
+                Hủy đơn
+              </Tag>
+            );
         }
       },
     },
@@ -510,7 +515,6 @@ const ViewDetailOrder = ({
   handleCancelOrder,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
-  console.log("status modal: ", checkStatus);
   const getUrl = "https://e-tailorapi.azurewebsites.net/api/order";
   const [loading, setLoading] = useState(false);
   const [dataOrderDetail, setDataOrderDetail] = useState(null);
@@ -583,8 +587,10 @@ const ViewDetailOrder = ({
       if (response.ok && response.status === 200) {
         const responseData = await response.json();
         setViewDetailProduct(true);
-        handleGetDetailMaterial(responseData.materialId);
-        handleGetDetailProfileBody(responseData.profileId);
+        if (responseData.materialId && responseData.profileId) {
+          handleGetDetailMaterial(responseData.materialId);
+          handleGetDetailProfileBody(responseData.profileId);
+        }
         setDetailProductData(responseData);
       }
     } catch (error) {
@@ -633,8 +639,10 @@ const ViewDetailOrder = ({
   };
 
   useEffect(() => {
-    handleDataOrder();
-    fetchChat();
+    if (saveIdOrder) {
+      handleDataOrder();
+      fetchChat();
+    }
   }, [saveIdOrder]);
 
   const columns1 = [

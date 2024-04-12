@@ -12,6 +12,7 @@ import {
   RightOutlined,
   DeleteOutlined,
   FileDoneOutlined,
+  DollarOutlined,
 } from "@ant-design/icons";
 import {
   Typography,
@@ -33,13 +34,13 @@ import {
 import "./index.css";
 import CircularProgress from "@mui/material/CircularProgress";
 import paymenVnpay from "../../../assets/payment-method-vnpay.png";
-import paymenMomo from "../../../assets/payment-method-momo.png";
 import paymenCash from "../../../assets/money.png";
 import paymenDeposit from "../../../assets/deposit.png";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 import ChooseTemplate from "./ChooseTemplate.js";
+import MaterialConfirm from "./MaterialConfirm.js";
 
 const { Search } = Input;
 const { Title, Text, Paragraph } = Typography;
@@ -53,11 +54,6 @@ const OrderToCustomerContent = () => {
   const [form] = Form.useForm();
   const [formProfileBody] = Form.useForm();
   const [formInfoCustomer] = Form.useForm();
-  useEffect(() => {
-    if (!manager) {
-      manager = JSON.parse(localStorage.getItem("manager"));
-    }
-  }, []);
   useEffect(() => {
     if (
       vnpayNotification !== null &&
@@ -78,7 +74,6 @@ const OrderToCustomerContent = () => {
           title: "Thanh toán thành công!",
           showConfirmButton: false,
         });
-
         handleDataOrderDetail();
       }
     }
@@ -87,6 +82,7 @@ const OrderToCustomerContent = () => {
   const [active, setActive] = useState(0);
   const [confirmMaterial, setConfirmMaterial] = useState(false);
   const [saveIdMaterial, setSaveIdMaterial] = useState(null);
+  const [changePrice, setChangePrice] = useState(false);
   const handleConfirmMaterial = (id) => {
     setSaveIdMaterial(id);
     setConfirmMaterial(true);
@@ -123,16 +119,64 @@ const OrderToCustomerContent = () => {
       title: "Giá tiền",
       dataIndex: "price",
       key: "price",
+      render: (price) =>
+        changePrice ? (
+          <InputNumber
+            style={{ width: "100%" }}
+            formatter={(value) =>
+              `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+            }
+            parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+          />
+        ) : (
+          <>
+            {console.log(price)}
+            <Text>{formatCurrency(price)}</Text>
+          </>
+        ),
     },
     {
-      title: "Action",
+      title: "Thay đổi giá tiền",
+      dataIndex: "ChangePrice",
+      key: "ChangePrice",
+      width: 100,
+      fixed: "right",
+      render: (_, record) => (
+        <>
+          <Row justify="start">
+            <Col span={4}>
+              <DollarOutlined
+                style={{
+                  backgroundColor: "#80ed99",
+                  color: "white",
+                  padding: 6,
+                  borderRadius: "5px",
+                  fontSize: 17,
+                  cursor: "pointer",
+                }}
+                onClick={() =>
+                  setChangePrice((prev) => {
+                    if (prev) {
+                      return false;
+                    } else {
+                      return true;
+                    }
+                  })
+                }
+              />
+            </Col>
+          </Row>
+        </>
+      ),
+    },
+    {
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "Action",
       width: 100,
       fixed: "right",
       render: (_, record) => (
         <>
-          {console.log(record)}
           <Row justify="start">
             <Col span={4}>
               <DeleteOutlined
@@ -196,7 +240,6 @@ const OrderToCustomerContent = () => {
       fixed: "right",
       render: (_, record) => (
         <>
-          {console.log(record)}
           <Row justify="start">
             <Col span={4} offset={7}>
               <FileDoneOutlined
@@ -208,7 +251,7 @@ const OrderToCustomerContent = () => {
                   fontSize: 15,
                   cursor: "pointer",
                 }}
-                onClick={() => console.log(record)}
+                onClick={() => handleConfirmMaterial(record.id)}
               />
             </Col>
           </Row>
@@ -216,6 +259,10 @@ const OrderToCustomerContent = () => {
       ),
     },
   ];
+  <MaterialConfirm
+    open={confirmMaterial}
+    onCancel={() => setConfirmMaterial(false)}
+  />;
   //---------------------------------------------------Lưu orderId-----------------------------------------------------------------
   const [saveCustomer, setSaveCustomer] = useState(null);
   const [saveOrderId, setSaveOrderId] = useState(null);
@@ -607,7 +654,6 @@ const OrderToCustomerContent = () => {
       });
       if (response.ok) {
         const responseData = await response.json();
-        console.log("responseData", responseData);
         setProductComponent(responseData);
         return 1;
       }
@@ -863,7 +909,6 @@ const OrderToCustomerContent = () => {
       setOnFinishLoading(false);
     } else if (getDetailDataProfileCustomer) {
       const allValues = form.getFieldsValue();
-      console.log("allValues", allValues);
       const backendData = {
         orderId: saveOrderId,
         name: allValues.name,
@@ -1142,7 +1187,6 @@ const OrderToCustomerContent = () => {
           console.error("Error calling API:", error);
         }
       })();
-      console.log("CheckResult: ", checkResult);
       if (checkResult === 1) {
         setCurrent(1);
         formUpdate.resetFields();
@@ -1428,6 +1472,7 @@ const OrderToCustomerContent = () => {
                       pagination={false}
                       scroll={{
                         y: 200,
+                        x: 1000,
                       }}
                     />
                   </div>
@@ -1816,7 +1861,6 @@ const OrderToCustomerContent = () => {
                                 </b>
                               </Text>
                             </div>
-
                             <div style={{ marginTop: 5 }}>
                               <Text level={4}>
                                 Số tiền sau khi giảm: &nbsp;
@@ -1973,7 +2017,13 @@ const OrderToCustomerContent = () => {
                               title={chooseProductTemplate?.name}
                               description={
                                 <div style={{ position: "relative" }}>
-                                  <Paragraph>
+                                  <Paragraph
+                                    style={{
+                                      whiteSpace: "nowrap",
+                                      overflow: "hidden",
+                                      textOverflow: "ellipsis",
+                                    }}
+                                  >
                                     {chooseProductTemplate?.description}
                                   </Paragraph>
                                   <Button
@@ -2478,7 +2528,6 @@ const OrderToCustomerContent = () => {
               fetchDataProfileBody={fetchDataProfileBody}
             />
           )}
-
           <ChooseTemplate
             open={openChooseProductTemplate}
             onCancel={() => setOpenChooseProductTemplate(false)}
