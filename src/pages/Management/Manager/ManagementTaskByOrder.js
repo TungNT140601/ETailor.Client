@@ -109,44 +109,6 @@ const getStatusTextAndColor = (status) => {
     }
     return { color, text, backgroundColor, borderColor };
 };
-// const getBorderColorByStage = (stageNum) => {
-//     let color;
-//     let text;
-//     let backgroundColor;
-//     let borderColor;
-//     switch (stageNum) {
-//         case 0:
-//             color = "#e0616b";
-//             backgroundColor = "#fff1f0";
-//             borderColor = "#ffaba7";
-//             text = "Đã huỷ";
-//             break;
-//         case 1:
-//             color = "#8157c2";
-//             borderColor = "#d3adf7";
-//             backgroundColor = "#f9f0ff";
-//             text = "Chưa bắt đầu";
-//             break;
-//         case 2:
-//             color = "#1d39c4";
-//             borderColor = "#adc6ff";
-//             backgroundColor = "#f0f5ff";
-//             text = "Đang xử lý";
-//             break;
-//         case 3:
-//             color = "#dc9e2f";
-//             borderColor = "#ffe58f";
-//             backgroundColor = "#fffbe6";
-//             text = "Tạm dừng";
-//             break;
-//         case 4:
-//             color = "volcano";
-//             text = "Hoàn thành";
-//             break;
-
-//     }
-//     return { color, text, backgroundColor, borderColor };
-// };
 
 export default function ManagementTaskByOrder() {
     const ManagementTasksHeader = () => {
@@ -297,34 +259,28 @@ export default function ManagementTaskByOrder() {
                 setLoading(false);
             }
         };
+        const [allMaterials, setAllMaterials] = useState("");
         useEffect(() => {
 
-            const manager = JSON.parse(localStorage.getItem("manager"));
-            // const fetchTemplates = async () => {
-            //     try {
-            //         const response = await fetch(
-            //             "https://e-tailorapi.azurewebsites.net/api/task/dashboard",
-            //             {
-            //                 method: "GET",
-            //                 headers: {
-            //                     "Content-Type": "application/json",
-            //                     Authorization: `Bearer ${manager.token}`,
-            //                 },
-            //             }
-            //         );
-            //         if (response.ok) {
-            //             const data = await response.json();
-            //             console.log("Data:", data);
-            //             setTemplatesData(data);
-            //             setCurrentTemplate(data[0]?.productTemplates[0]);
-            //             setLoading(false);
-            //         }
-            //     } catch (error) {
-            //         console.error("Error:", error);
-            //         setLoading(false);
-            //     }
-            // };
-
+            const manager = JSON.parse(localStorage.getItem("manager"))
+            const fetchAllMaterial = async () => {
+                const GET_ALL_MATERIAL_URL = `https://e-tailorapi.azurewebsites.net/api/material`
+                try {
+                    const response = await fetch(GET_ALL_MATERIAL_URL, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${manager.token}`,
+                        },
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        setAllMaterials(data);
+                    }
+                } catch (error) {
+                    console.error("Error:", error);
+                }
+            }
             const fetchAllStaff = async () => {
                 try {
                     const response = await fetch(
@@ -347,10 +303,11 @@ export default function ManagementTaskByOrder() {
                 }
             }
             fetchTemplates();
+            fetchAllMaterial()
             fetchAllStaff();
         }, []);
 
-        const Content = ({ product, stage }) => {
+        const Content = ({ product, stage, materials }) => {
             const [open, setOpen] = useState(false);
             const [confirmLoading, setConfirmLoading] = useState(false);
             const showModal = () => {
@@ -364,12 +321,10 @@ export default function ManagementTaskByOrder() {
                 setSelectedValue(value);
             };
             const handleCancel = () => {
-                // console.log('Clicked cancel button');
                 setOpen(false);
             };
 
             const handleOk = async (productId) => {
-                // console.log('Clicked ok', productId, selectedValue);
                 if (productId && selectedValue !== null) {
                     setConfirmLoading(true);
                     const manager = JSON.parse(localStorage.getItem("manager"));
@@ -467,7 +422,7 @@ export default function ManagementTaskByOrder() {
                         onCancel={handleCancel}
 
                     >
-                        <div style={{ marginLeft: 10, minWidth: 240, width: 500 }}>
+                        <div style={{ marginLeft: 10, minWidth: 240, width: 700 }}>
                             {deadlineUpdateLoading ? (
                                 <div style={{ width: 480, height: 250, textAlign: "center" }}>
                                     <Spin size="large" color="#9F78FF" style={{ paddingTop: 40 }} />
@@ -477,7 +432,7 @@ export default function ManagementTaskByOrder() {
                                     <div>
                                         <h3 style={{ fontSize: 15, fontWeight: 600 }}>Tên sản phẩm: {product?.name}</h3>
                                     </div>
-                                    <Row style={{ width: "100%" }}>
+                                    <Row style={{ width: "100%", justifyContent: "flex-end" }}>
                                         <Col span={12}>
                                             <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
                                             <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Tổng cộng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
@@ -520,9 +475,9 @@ export default function ManagementTaskByOrder() {
                                         </Col>
                                     </Row>
 
-                                    <div style={{ display: "flex", marginLeft: 10, alignItems: "center" }}>
+                                    <div style={{ display: "flex", marginLeft: 10, alignItems: "center", marginTop: 20 }}>
                                         <p style={{ fontSize: 15, fontWeight: 600 }}>Nhân viên thực hiện : {product?.staffMaker?.fullname}</p>
-                                        <Button style={{ marginLeft: 20 }} onClick={() => setChangeClick(changeClick ? false : true)}>Thay đổi</Button>
+                                        <Button style={{ marginLeft: 20, border: "none" }} onClick={() => setChangeClick(changeClick ? false : true)}>Thay đổi</Button>
 
                                     </div>
                                     {
@@ -561,7 +516,6 @@ export default function ManagementTaskByOrder() {
                                         <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Chọn nguyên liệu</p>
                                         <Form
                                             name="dynamic_form_nest_item"
-
                                             style={{
                                                 maxWidth: 300,
                                             }}
@@ -580,34 +534,59 @@ export default function ManagementTaskByOrder() {
                                                                 align="baseline"
                                                             >
                                                                 <Form.Item
-                                                                    label="TreeSelect"
+                                                                    label=""
                                                                     {...restField}
-                                                                    name={[name, 'last']}
+                                                                    name={[name, 'name']}
                                                                     rules={[
                                                                         {
                                                                             required: true,
                                                                             message: 'Missing last name',
                                                                         },
-                                                                    ]}>
-                                                                    <TreeSelect
-                                                                        style={{ width: '100%' }}
-                                                                        treeData={[
-                                                                            {
-                                                                                title: 'Light',
-                                                                                value: 'light',
-                                                                                children: [
-                                                                                    {
-                                                                                        title: 'Bamboo',
-                                                                                        value: 'bamboo',
-                                                                                    },
-                                                                                ],
-                                                                            },
-                                                                        ]}
-                                                                    />
+                                                                    ]}
+                                                                >
+                                                                    <Select
+                                                                        showSearch
+                                                                        style={{ width: 280, marginTop: 10, height: 60 }}
+                                                                        placeholder="Chọn nguyên liệu"
+                                                                        optionFilterProp="children"
+                                                                        filterOption={(input, option) => {
+                                                                            if (!option || !option.props || !option.props.children || !option.props.children.props || !option.props.children.props.children) {
+                                                                                return false; // Return false if option or its properties are undefined
+                                                                            }
+                                                                            const materialName = option.props.children.props.children.name;
+                                                                            console.log("Material Name:", materialName);
+                                                                            // Checking if the material name is defined before calling toLowerCase()
+                                                                            if (materialName) {
+                                                                                console.log("Input:", input);
+                                                                                console.log("Match:", materialName.toLowerCase().includes(input.toLowerCase()));
+                                                                                return materialName.toLowerCase().includes(input.toLowerCase());
+                                                                            }
+                                                                            return false; // Return false if material name is undefined
+                                                                        }}
+
+
+
+                                                                    >
+                                                                        {materials && materials.map((material, index) => (
+                                                                            <Option key={material.id} value={material.id}>
+                                                                                <div>
+                                                                                    <div style={{ display: "flex", alignItems: "center" }}>
+                                                                                        <Avatar src={material.image} />
+                                                                                        <div>
+                                                                                            <p style={{ marginLeft: 10 }}>Tên: {material.name} - Loại: {material.materialCategory.name}</p>
+                                                                                            <p style={{ marginLeft: 10, marginTop: 0 }}>Kho: {material.quantity}</p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </Option>
+                                                                        ))}
+                                                                    </Select>
                                                                 </Form.Item>
+
                                                                 <Form.Item
+                                                                    style={{ width: 100, marginLeft: 10 }}
                                                                     {...restField}
-                                                                    name={[name, 'last']}
+                                                                    name={[name, 'quantity']}
                                                                     rules={[
                                                                         {
                                                                             required: true,
@@ -729,7 +708,7 @@ export default function ManagementTaskByOrder() {
                                                                 key={product.id}
                                                             >
                                                                 <div style={{ textAlign: "start", paddingLeft: 10, paddingRight: 10, height: '100%', position: "relative" }}>
-                                                                    <Popover placement={stage.stageNum === 5 ? "leftTop" : "rightTop"} content={() => <Content product={product} stage={stage} />} >
+                                                                    <Popover placement={stage.stageNum === 5 ? "leftTop" : "rightTop"} content={() => <Content product={product} stage={stage} materials={allMaterials} />} >
                                                                         <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Tên sản phẩm:<span style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, }}> {product?.name}</span> </h3>
                                                                         <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn: <span style={{ fontSize: 14, fontWeight: 400 }}>{product?.orderId}</span></h3>
                                                                         {product?.productStages[0].deadline ? (
