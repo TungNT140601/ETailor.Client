@@ -556,7 +556,7 @@ export default function OrderDetail() {
         {
             title: 'Tổng cộng',
             dataIndex: 'price',
-            width: 100,
+            width: 200,
             key: 'price',
         },
         {
