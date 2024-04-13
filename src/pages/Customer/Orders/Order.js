@@ -70,6 +70,10 @@ const getStatusTextAndColor = (status) => {
       color = "green";
       text = "Hoàn tất & nhận hàng";
       break;
+    case 8:
+      color = "green";
+      text = "Hoàn tất & nhận hàng";
+      break;
   }
   return { color, text };
 };
@@ -193,7 +197,7 @@ export default function Order() {
     productName: order?.productName ? order.productName : "",
     productImg: order?.thumbnailImage ? order.thumbnailImage : "",
     quantity: order?.totalProduct,
-    price:  order?.totalPrice? formatCurrency(order.totalPrice) : "Price error",
+    price: order?.totalPrice ? formatCurrency(order.totalPrice) : "Price error",
     status: order?.status,
     date: order?.createdTime ? formatDate(order.createdTime) : "Date error",
   }));
@@ -283,7 +287,7 @@ export default function Order() {
             loading="lazy"
           />
         </div>
-   
+
       </div>
     </>
   );
