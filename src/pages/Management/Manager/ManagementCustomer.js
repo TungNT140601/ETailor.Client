@@ -175,7 +175,15 @@ const ManagementCustomerContent = () => {
       dataIndex: "image",
       key: "image",
       render: (_, record) => (
-        <Image width={40} height={40} src={record.avatar} />
+        <Image
+          width={40}
+          height={40}
+          src={
+            record.avatar
+              ? record.avatar
+              : "https://api.dicebear.com/7.x/miniavs/svg?seed=1"
+          }
+        />
       ),
     },
     {
