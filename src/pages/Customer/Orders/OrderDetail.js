@@ -30,7 +30,7 @@ function formatCurrency(amount) {
             }
             parts.unshift(strAmount[i]);
         }
-        return parts.join("") + "đ";
+        return parts.join("") + "₫";
     }
     return null;
 }
@@ -508,17 +508,20 @@ export default function OrderDetail() {
             title: 'Sản phẩm',
             dataIndex: 'productName',
             key: 'productName',
+            width: 350,
             render: (text) => <a>{text}</a>,
         },
         {
             title: 'Hình ảnh',
+            width: 200,
             dataIndex: 'image',
+            align: 'center',
             key: 'image',
             render: (imgSrc) => {
                 return (
                     <Image
-                        width={60}
-                        height={60}
+                        width={100}
+                        height={100}
                         src={imgSrc}
                         style={{ objectFit: "cover" }}
                         alt=""
@@ -547,11 +550,13 @@ export default function OrderDetail() {
         {
             title: 'Số lượng',
             dataIndex: 'quantity',
+            width: 100,
             key: 'quantity',
         },
         {
             title: 'Tổng cộng',
             dataIndex: 'price',
+            width: 200,
             key: 'price',
         },
         {
@@ -588,7 +593,7 @@ export default function OrderDetail() {
                         alignContent: "center",
                     }}
                 >
-                    <div
+                    {/* <div
                         style={{
                             maxWidth: "200px",
                             left: "60px",
@@ -599,14 +604,13 @@ export default function OrderDetail() {
                         }}
                     >
                         <img src={LeftBanner} alt="Left Banner" loading="lazy" />
-                    </div>
+                    </div> */}
                     <div
                         style={{
-                            width: "60%",
+                            width: "80%",
                             height: "800px",
                             position: "relative",
-                            top: 10,
-                            left: 370,
+                            margin: "auto",
                             borderRadius: 5,
                             border: "1px solid #f0f4fc",
                             overflow: "scroll",
@@ -684,10 +688,10 @@ export default function OrderDetail() {
                         </div>
 
                     </div>
-                    <div style={{ position: "fixed", bottom: 10, right: 180, zIndex: 1 }}>
+                    <div style={{ position: "fixed", bottom: 10, right: 120, zIndex: 1 }}>
                         <ChatWithUs orderId={id} chatDetail={getAllChat} />
                     </div>
-                    <div
+                    {/* <div
                         style={{
                             overflowX: "hidden",
                             height: "fit-content",
@@ -702,7 +706,7 @@ export default function OrderDetail() {
                             width={200}
                             loading="lazy"
                         />
-                    </div>
+                    </div> */}
 
                 </div >
             )

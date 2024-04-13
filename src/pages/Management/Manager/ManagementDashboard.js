@@ -560,17 +560,21 @@ export default function ManagementDashboard() {
                     </Col>
                     <Col span={10} style={{ backgroundColor: "#ffffff", borderRadius: 10 }}>
                       <div style={{ padding: "20px 5px 20px 50px", alignContent: "center", alignItems: "center", height: "100%" }}>
-                        {materialStatistic.map((material, index) => (
-                          <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
-                            <div>
-                              <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+                        <p style={{ padding: 5, fontSize: 14, fontWeight: 600, color: "#727272", }}>Top 3 loại vải được sử dụng nhiều nhất</p>
+                        {materialStatistic
+                          .sort((a, b) => (b.totalProducts ? b.totalProducts : 0) - (a.totalProducts ? a.totalProducts : 0))
+                          .slice(0, 3)
+                          .map((material, index) => (
+                            <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
+                              <div>
+                                <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+                              </div>
+                              <div style={{ marginLeft: 20 }}>
+                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material.name}</p>
+                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {material.totalProducts ? material.totalProducts : 0}</p>
+                              </div>
                             </div>
-                            <div style={{ marginLeft: 20 }}>
-                              <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material.name}</p>
-                              <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {material.totalProducts ? material.totalProducts : 0}</p>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
                       </div>
 
 
@@ -601,18 +605,22 @@ export default function ManagementDashboard() {
                     </Col>
                     <Col span={10} style={{ backgroundColor: "#ffffff", borderRadius: 10 }}>
                       <div style={{ padding: "20px 5px 20px 50px", alignContent: "center", alignItems: "center", height: "100%" }}>
+                        <p style={{ padding: 5, fontSize: 14, fontWeight: 600, color: "#727272", }}>Top 3 bản mẫu được ưa chuộng nhất</p>
                         {/* <p><FontAwesomeIcon icon={faRankingStar} /></p> */}
-                        {commonTemplate && commonTemplate.map((template, index) => (
-                          <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
-                            <div>
-                              <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+                        {commonTemplate && commonTemplate
+                          .sort((a, b) => (b.total ? b.total : 0) - (a.total ? a.total : 0))
+                          .slice(0, 3)
+                          .map((template, index) => (
+                            <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
+                              <div>
+                                <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+                              </div>
+                              <div style={{ marginLeft: 20 }}>
+                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{template?.name}</p>
+                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {template?.total ? template?.total : 0}</p>
+                              </div>
                             </div>
-                            <div style={{ marginLeft: 20 }}>
-                              <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{template?.name}</p>
-                              <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {template?.total ? template?.total : 0}</p>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
                       </div>
 
 

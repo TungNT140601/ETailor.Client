@@ -103,7 +103,7 @@ export default function Notification() {
         return (
             <>
                 <div style={{ maxHeight: 400, overflowY: "scroll" }}>
-                    {allNotification && allNotification.map((notification) => (
+                    {allNotification.length > 0 ? allNotification?.map((notification) => (
                         <>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} >
                                 <div style={{ height: "100%", borderLeft: `3px solid #bcdcfc`, margin: 10, paddingLeft: 20, alignItems: "center", width: "100%" }}>
@@ -118,7 +118,10 @@ export default function Notification() {
                             </div>
                             <Divider style={{ margin: 0, }} />
                         </>
-                    ))}
+                    )) : (
+                        <p>Không có thông báo nào</p>
+
+                    )}
 
                 </div>
                 {/* <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
@@ -175,7 +178,7 @@ export default function Notification() {
                     <img src={NotificationBell} width={18} height={18}></img>
                 </Button>
             </Popover>
-            
+
             <Toaster />
         </div >
     )

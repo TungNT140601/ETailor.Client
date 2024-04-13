@@ -23,7 +23,7 @@ const formatDate = (date) => {
   return formattedDate;
 };
 
-const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, updateLoading, id }) => {
+const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, updateLoading, id, handleUpdateProfileSuccess }) => {
   const [profileDetailData, setProfileDetailData] = useState([]);
   const [currentGuideImage, setCurrentGuideImage] = useState(BangSize);
   const [modifiedDetailData, setModifiedDetailData] = useState({});
@@ -135,14 +135,19 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data = await response.text();
+
         await Swal.fire({
           icon: "success",
           title: "Thay đổi thành công",
           timer: 2000,
         });
+        handleUpdateProfileSuccess();
+        form.resetFields();
       }
-    } catch { }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
   console.log("Detail data:", modifiedDetailData)
   return (
@@ -335,6 +340,10 @@ const CustomerBodyProfile = ({ loadProfile, allBodySize, getBodyProfile, getAllP
   const navigate = useNavigate();
   const customer = localStorage.getItem("customer");
   const token = JSON.parse(customer)?.token;
+  const handleUpdateProfileSuccess = () => {
+    setOpenUpdateModal(false);
+    loadProfile();
+  }
   // const { data: getBodyProfile, isLoading: getAllProfileLoading } = useQuery("get-all-bodyProfile", () =>
   //   fetch(`https://etailorapi.azurewebsites.net/api/profile-body`, {
   //     headers: {
@@ -497,6 +506,7 @@ const CustomerBodyProfile = ({ loadProfile, allBodySize, getBodyProfile, getAllP
         initialValues={{
           modifier: 'public',
         }}
+        handleUpdateProfileSuccess={handleUpdateProfileSuccess}
         id={updateProfileId}
         bodySizeData={allBodySize}
       />
