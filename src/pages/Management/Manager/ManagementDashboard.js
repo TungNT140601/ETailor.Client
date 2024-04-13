@@ -215,10 +215,10 @@ export default function ManagementDashboard() {
             const data = await response.json();
             setOrderStatistic(data);
             const totalForStatus0 = data.find(stat => stat.status === 0)?.total;
-            const totalForStatus7 = data.find(stat => stat.status === 7)?.total;
-            const totalRevenue = data.find(stat => stat.status === 7)?.totalPrice;
+            const totalForStatus7 = data.find(stat => stat.status === 8)?.total;
+            const totalRevenue = data.find(stat => stat.status === 8)?.totalPrice;
             const otherStatusTotals = data
-              .filter(stat => stat.status !== 0 && stat.status !== 7)
+              .filter(stat => stat.status !== 0 && stat.status !== 8)
               .map(stat => stat.total);
 
             const sumOfOtherStatuses = otherStatusTotals.reduce((acc, curr) => acc + curr, 0);
