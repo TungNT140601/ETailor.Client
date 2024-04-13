@@ -1640,6 +1640,7 @@ const OrderToCustomerContent = () => {
                                             value.replace(/m\s?|(,*)/g, "")
                                           }
                                           style={{ width: "100%" }}
+                                          step={0.01}
                                         />
                                       </Form.Item>
                                       <Form.Item
