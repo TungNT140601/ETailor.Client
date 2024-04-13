@@ -512,7 +512,7 @@ export default function ManagementTaskByOrder() {
                                             </div>
                                         ) : null
                                     }
-                                    <div style={{ paddingTop: 20 }}>
+                                    {/* <div style={{ paddingTop: 20 }}>
                                         <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Chọn nguyên liệu</p>
                                         <Form
                                             name="dynamic_form_nest_item"
@@ -608,7 +608,7 @@ export default function ManagementTaskByOrder() {
                                                 )}
                                             </Form.List>
                                         </Form>
-                                    </div>
+                                    </div> */}
                                 </div >
                             )
                             }
