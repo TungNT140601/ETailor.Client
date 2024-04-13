@@ -82,6 +82,53 @@ const OrderToCustomerContent = () => {
   const [active, setActive] = useState(0);
 
   const [changePrice, setChangePrice] = useState(false);
+  const [inputValue, setInputValue] = useState(null);
+  const handleChangePrice = async (value, productId) => {
+    console.log(value, productId);
+
+    if (saveOrderId && productId && value) {
+      const url = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${productId}/price?price=${value}`;
+      try {
+        const response = await fetch(`${url}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.text();
+          await Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 1500,
+            zIndex: 1000,
+          });
+          await handleDataOrderDetail();
+          setChangePrice(false);
+          return 1;
+        } else if (response.status === 400 || response.status === 500) {
+          const responseData = await response.text();
+          Swal.fire({
+            position: "top-center",
+            icon: "error",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 4500,
+            zIndex: 1000,
+          });
+          return 0;
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    }
+  };
 
   const columns = [
     {
@@ -115,7 +162,7 @@ const OrderToCustomerContent = () => {
       title: "Giá tiền",
       dataIndex: "price",
       key: "price",
-      render: (price) =>
+      render: (_, record) =>
         changePrice ? (
           <InputNumber
             style={{ width: "100%" }}
@@ -123,10 +170,14 @@ const OrderToCustomerContent = () => {
               `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
             }
             parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+            onChange={(value) => setInputValue(value)}
+            onPressEnter={() => {
+              handleChangePrice(inputValue, record.id);
+            }}
           />
         ) : (
           <>
-            <Text>{formatCurrency(price)}</Text>
+            <Text>{formatCurrency(record.price)}</Text>
           </>
         ),
     },
@@ -211,64 +262,60 @@ const OrderToCustomerContent = () => {
     },
   ];
 
-  // const onConfirmMaterial = async () => {
-  //   const getFieldMaterial = formMaterial.getFieldsValue();
-  //   if (saveOrderId) {
-  //     const dataBackEnd = getFieldMaterial?.itemsMaterial?.map((items) => {
-  //       const { isCusMaterial, value, ...otherProps } = items;
-  //       const materialId = Object.keys(otherProps).find(
-  //         (key) => key !== "isCusMaterial" && key !== "value"
-  //       );
-  //       return {
-  //         isCusMaterial: isCusMaterial === "true" ? true : false,
-  //         value,
-  //         materialId,
-  //         orderId: saveOrderId,
-  //       };
-  //     });
-  //     console.log("dataBackEnd", getFieldMaterial);
-  //     const url = `https://e-tailorapi.azurewebsites.net/order/${saveOrderId}`;
-  //     try {
-  //       const response = await fetch(`${url}`, {
-  //         method: "PUT",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${manager?.token}`,
-  //         },
-  //         body: JSON.stringify(dataBackEnd),
-  //       });
-  //       if (response.ok && response.status === 200) {
-  //         const responseData = await response.text();
-  //         await Swal.fire({
-  //           position: "top-center",
-  //           icon: "success",
-  //           title: responseData,
-  //           showConfirmButton: false,
-  //           timer: 1500,
-  //           zIndex: 1000,
-  //         });
-  //         await handleDataOrderDetail();
-  //         return 1;
-  //       } else if (response.status === 400 || response.status === 500) {
-  //         const responseData = await response.text();
-  //         Swal.fire({
-  //           position: "top-center",
-  //           icon: "error",
-  //           title: responseData,
-  //           showConfirmButton: false,
-  //           timer: 4500,
-  //           zIndex: 1000,
-  //         });
-  //         return 0;
-  //       } else if (response.status === 401) {
-  //         localStorage.removeItem("manager");
-  //         navigate("/management/login");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error calling API:", error);
-  //     }
-  //   }
-  // };
+  const onConfirmMaterial = async () => {
+    const getFieldMaterial = formMaterial.getFieldsValue();
+    if (saveOrderId) {
+      const dataBackEnd = getFieldMaterial?.itemsMaterial?.map((items) => {
+        const { materialConfirm, value, materialId } = items;
+        return {
+          materialId,
+          isCusMaterial: materialConfirm,
+          value,
+          orderId: saveOrderId,
+        };
+      });
+      const url = `https://e-tailorapi.azurewebsites.net/order/${saveOrderId}`;
+      try {
+        const response = await fetch(`${url}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+          body: JSON.stringify(dataBackEnd),
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.text();
+          await Swal.fire({
+            position: "top-center",
+            icon: "success",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 1500,
+            zIndex: 1000,
+          });
+          await handleDataOrderDetail();
+          return 1;
+        } else if (response.status === 400 || response.status === 500) {
+          const responseData = await response.text();
+          Swal.fire({
+            position: "top-center",
+            icon: "error",
+            title: responseData,
+            showConfirmButton: false,
+            timer: 4500,
+            zIndex: 1000,
+          });
+          return 0;
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    }
+  };
 
   //---------------------------------------------------Lưu orderId-----------------------------------------------------------------
   const [saveCustomer, setSaveCustomer] = useState(null);
@@ -1489,28 +1536,15 @@ const OrderToCustomerContent = () => {
                     />
                   </div>
 
-                  {/* <div
-                    style={{
-                      height: 250,
-                      marginTop: 50,
-                    }}
-                  >
+                  <div style={{ height: 250, marginTop: 50 }}>
                     <Form
-                      labelCol={{
-                        span: 6,
-                      }}
-                      wrapperCol={{
-                        span: 18,
-                      }}
+                      labelCol={{ span: 6 }}
+                      wrapperCol={{ span: 18 }}
                       form={formMaterial}
                       name="dynamic_form_complex"
-                      style={{
-                        maxWidth: "100%",
-                      }}
+                      style={{ maxWidth: "100%" }}
                       autoComplete="off"
-                      initialValues={{
-                        items: [{}],
-                      }}
+                      initialValues={{ items: [{}] }}
                     >
                       <Form.List name="itemsMaterial">
                         {(fields, { add, remove }) => (
@@ -1518,10 +1552,8 @@ const OrderToCustomerContent = () => {
                             <Table
                               dataSource={dataOrderMaterials}
                               pagination={false}
-                              scroll={{
-                                y: 250,
-                              }}
-                              rowKey="id"
+                              scroll={{ y: 250 }}
+                              rowKey={(record) => record.id}
                               columns={[
                                 {
                                   title: "STT",
@@ -1551,38 +1583,35 @@ const OrderToCustomerContent = () => {
                                   ),
                                 },
                                 {
-                                  title: "MaterialId",
-                                  dataIndex: "materialId",
-                                  key: "materialId",
-                                  render: (text, record, index) => (
-                                    <Form.Item
-                                      name={[index, index, "materialId"]}
-                                      noStyle
-                                    >
-                                      {record.id}
-                                    </Form.Item>
-                                  ),
-                                },
-                                {
                                   title: "Xác nhận vải",
                                   dataIndex: "materialConfirm",
                                   key: "materialConfirm",
                                   render: (text, record, index) => (
-                                    <Form.Item
-                                      name={[index, index, "isCusMaterial"]}
-                                      noStyle
-                                    >
-                                      <Radio.Group
-                                        disabled={
-                                          orderPaymentDetail?.paidMoney > 0
-                                        }
+                                    <>
+                                      <Form.Item
+                                        name={[index, "materialConfirm"]}
+                                        key={`${record.id}-materialConfirm`}
+                                        noStyle
                                       >
-                                        <Radio value={"true"}>Vải khách</Radio>
-                                        <Radio value={"false"}>
-                                          Vải cửa hàng
-                                        </Radio>
-                                      </Radio.Group>
-                                    </Form.Item>
+                                        <Radio.Group
+                                          disabled={
+                                            orderPaymentDetail?.paidMoney > 0
+                                          }
+                                        >
+                                          <Radio value={true}>Vải khách</Radio>
+                                          <Radio value={false}>
+                                            Vải cửa hàng
+                                          </Radio>
+                                        </Radio.Group>
+                                      </Form.Item>
+                                      <Form.Item
+                                        name={[index, "materialId"]}
+                                        initialValue={record.id}
+                                        noStyle
+                                      >
+                                        <Input type="hidden" />
+                                      </Form.Item>
+                                    </>
                                   ),
                                 },
                                 {
@@ -1590,26 +1619,38 @@ const OrderToCustomerContent = () => {
                                   dataIndex: "value",
                                   key: "value",
                                   render: (text, record, index) => (
-                                    <Form.Item
-                                      name={[index, index, "value"]}
-                                      noStyle
-                                    >
-                                      <InputNumber
-                                        disabled={
-                                          orderPaymentDetail?.paidMoney > 0
-                                        }
-                                        formatter={(value) =>
-                                          `${value}m`.replace(
-                                            /\B(?=(\d{3})+(?!\d))/g,
-                                            ","
-                                          )
-                                        }
-                                        parser={(value) =>
-                                          value.replace(/m\s?|(,*)/g, "")
-                                        }
-                                        style={{ width: "100%" }}
-                                      />
-                                    </Form.Item>
+                                    <>
+                                      {" "}
+                                      <Form.Item
+                                        name={[index, "value"]}
+                                        key={`${record.id}-value`}
+                                        noStyle
+                                      >
+                                        <InputNumber
+                                          disabled={
+                                            orderPaymentDetail?.paidMoney > 0
+                                          }
+                                          formatter={(value) =>
+                                            `${value}m`.replace(
+                                              /\B(?=(\d{3})+(?!\d))/g,
+                                              ","
+                                            )
+                                          }
+                                          parser={(value) =>
+                                            value.replace(/m\s?|(,*)/g, "")
+                                          }
+                                          style={{ width: "100%" }}
+                                        />
+                                      </Form.Item>
+                                      <Form.Item
+                                        // Trường ẩn để lưu trữ materialId
+                                        name={[index, "materialId"]}
+                                        initialValue={record.id}
+                                        noStyle
+                                      >
+                                        <Input type="hidden" />
+                                      </Form.Item>
+                                    </>
                                   ),
                                 },
                               ]}
@@ -1634,7 +1675,7 @@ const OrderToCustomerContent = () => {
                         )}
                       </Form.List>
                     </Form>
-                  </div> */}
+                  </div>
                 </>
               )}
             </Col>
@@ -1762,12 +1803,12 @@ const OrderToCustomerContent = () => {
                     <div style={{ position: "relative" }}>
                       <Divider />
                       <div>
-                        <Title level={5}>III/ Áp mã</Title>
+                        <Title level={5}>III/ Chương trình giảm giá</Title>
                         <div style={{ marginTop: 10 }}>
                           <Search
-                            placeholder="Mã giảm giá"
+                            placeholder="Chương trình giảm giá"
                             allowClear
-                            enterButton="Kiểm tra"
+                            enterButton="Tìm kiếm"
                             onSearch={(value) => handleCheckDiscount(value)}
                             loading={loadingDiscount}
                           />
