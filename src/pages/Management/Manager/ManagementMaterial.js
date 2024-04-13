@@ -1903,7 +1903,13 @@ const UpdateMaterialCategory = ({
                 },
               ]}
             >
-              <InputNumber style={{ width: 470 }} />
+              <InputNumber
+                style={{ width: 470 }}
+                formatter={(value) =>
+                  `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+                parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+              />
             </Form.Item>
             <Form.Item
               hasFeedback
@@ -2017,16 +2023,22 @@ const CreateMaterialCategory = ({ open, onCreate, onCancel, materialType }) => {
               },
             ]}
           >
-            <InputNumber style={{ width: 470 }} />
+            <InputNumber
+              style={{ width: 470 }}
+              formatter={(value) =>
+                `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              }
+              parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+            />
           </Form.Item>
           <Form.Item
             hasFeedback
-            label={`Loại vải`}
+            label={`Loại nguyên phụ liệu`}
             name="materialTypeId"
             rules={[
               {
                 required: true,
-                message: "Loại vải không được để trống",
+                message: "Loại nguyên phụ liệu không được để trống",
               },
             ]}
           >
