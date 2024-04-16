@@ -148,10 +148,14 @@ const ManagementStaffContent = () => {
       key: "avatar",
       render: (_, record) => (
         <Image
-          width={60}
+          width={30}
           height={30}
           style={{ objectFit: "contain" }}
-          src={record.avatar}
+          src={
+            record.avatar
+              ? record.avatar
+              : "https://api.dicebear.com/7.x/miniavs/svg?seed=1"
+          }
         />
       ),
     },
@@ -180,7 +184,7 @@ const ManagementStaffContent = () => {
       width: 150,
     },
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "5",
       width: 150,
@@ -449,6 +453,7 @@ const ManagementStaffContent = () => {
           style={{
             marginTop: 24,
           }}
+          scroll={{ y: 426 }}
         />
       )}
       <CollectionUpdateForm
@@ -529,7 +534,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
           marginTop: 8,
         }}
       >
-        Upload
+        Hình đại diện
       </div>
     </button>
   );
@@ -578,7 +583,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
     >
       <Form
         style={{
-          height: 400,
+          height: 500,
           overflowY: "scroll",
           scrollbarWidth: "none",
           WebkitScrollbar: "none",
@@ -598,7 +603,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              height: "350px",
+              height: "500px",
             }}
           >
             <CircularProgress />

@@ -4,54 +4,35 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
-  UserOutlined,
-  PushpinOutlined,
-  PlusCircleOutlined,
   EditOutlined,
   DeleteOutlined,
-  RollbackOutlined,
   PlusOutlined,
-  CloseOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
 import "./index.css";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import {
   Avatar,
-  Card,
   Col,
   Row,
-  message,
-  Steps,
-  theme,
   Form,
-  Space,
   Select,
   Upload,
-  Radio,
   Typography,
-  Carousel,
   Table,
   Checkbox,
   Modal,
   Input,
   Button,
-  Flex,
-  Divider,
   Image,
   InputNumber,
-  Spin,
 } from "antd";
 
-import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import { useQuery } from "react-query";
 
-const { Search, TextArea } = Input;
+const { Search } = Input;
 const { Title, Text } = Typography;
-const { Meta } = Card;
-const { Option } = Select;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
 
@@ -221,7 +202,7 @@ const ManagementMaterialContent = () => {
       width: "7%",
     },
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "6",
       width: "5%",
@@ -451,6 +432,9 @@ const ManagementMaterialContent = () => {
             }}
             style={{
               marginTop: 24,
+            }}
+            scroll={{
+              y: 426,
             }}
           />
         )}
