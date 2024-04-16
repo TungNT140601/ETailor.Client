@@ -281,7 +281,7 @@ function StepTwo({
       title: "Thay đổi giá tiền",
       dataIndex: "ChangePrice",
       key: "ChangePrice",
-      width: 100,
+      width: 150,
       fixed: "right",
       render: (_, record) => (
         <>

@@ -20,6 +20,9 @@ import {
   Button,
   Input,
   Badge,
+  Flex,
+  Card,
+  Popover,
 } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ChatRealTimeManager } from "./ChatRealTimeManager";
@@ -29,7 +32,7 @@ import Swal from "sweetalert2";
 import ManageChat from "./ManageChat";
 
 const { Search } = Input;
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 
 function formatCurrency(amount) {
   if (amount) {
@@ -249,7 +252,7 @@ const ManagementOrderContent = () => {
     },
     {
       title: "Mã đơn",
-      width: 170,
+      width: 120,
       dataIndex: "id",
       key: "1",
       fixed: "left",
@@ -258,7 +261,7 @@ const ManagementOrderContent = () => {
       title: "Trạng thái",
       dataIndex: "status",
       key: "2",
-      width: 160,
+      width: 100,
       fixed: "left",
       render: (_, record) => {
         switch (record.status) {
@@ -288,12 +291,6 @@ const ManagementOrderContent = () => {
       },
     },
     {
-      title: "Tổng sản phẩm",
-      width: 150,
-      dataIndex: "totalProduct",
-      key: "3",
-    },
-    {
       title: "Tổng giá tiền",
       dataIndex: "totalPrice",
       key: "4",
@@ -305,41 +302,10 @@ const ManagementOrderContent = () => {
       ),
     },
     {
-      title: "Số tiền giảm",
-      dataIndex: "discountPrice",
-      key: "5",
-      width: 150,
-      render: (_, record) => (
-        <Text>
-          {`${record.discountPrice}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-        </Text>
-      ),
-    },
-    {
-      title: "Mã giảm",
-      dataIndex: "discountCode",
-      key: "6",
-      width: 150,
-    },
-    {
-      title: "Số tiền sau khi giảm",
-      dataIndex: "afterDiscountPrice",
-      key: "7",
-      width: 200,
-      render: (_, record) => (
-        <Text>
-          {`${record.afterDiscountPrice}đ`.replace(
-            /\B(?=(\d{3})+(?!\d))/g,
-            ","
-          )}
-        </Text>
-      ),
-    },
-    {
       title: "Tiền đặt cọc đã trả",
       dataIndex: "payDeposit",
       key: "8",
-      width: 200,
+      width: 100,
       render: (_, record) =>
         record.payDeposit ? (
           <Text>
@@ -350,24 +316,10 @@ const ManagementOrderContent = () => {
         ),
     },
     {
-      title: "Tiền trả trước",
-      dataIndex: "deposit",
-      key: "9",
-      width: 150,
-      render: (_, record) =>
-        record.deposit === null ? (
-          <Text>{`0đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Text>
-        ) : (
-          <Text>
-            {`${record.deposit}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-          </Text>
-        ),
-    },
-    {
       title: "Tiền đã trả",
       dataIndex: "paidMoney",
       key: "10",
-      width: 150,
+      width: 100,
       render: (_, record) =>
         record.paidMoney ? (
           <Text>
@@ -381,7 +333,7 @@ const ManagementOrderContent = () => {
       title: "Tiền còn lại",
       dataIndex: "unPaidMoney",
       key: "11",
-      width: 150,
+      width: 100,
       render: (_, record) => (
         <Text>
           {`${record.unPaidMoney}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
@@ -389,7 +341,7 @@ const ManagementOrderContent = () => {
       ),
     },
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "12",
       width: 100,
@@ -489,7 +441,7 @@ const ManagementOrderContent = () => {
           style={{
             marginTop: 24,
           }}
-          scroll={{ x: 1500, y: 416 }}
+          scroll={{ x: 1000, y: 410 }}
         />
       )}
       <ViewDetailOrder
@@ -923,12 +875,12 @@ const ViewDetailOrder = ({
                               padding: 15,
                             }}
                           >
-                            <Row gutter={[16, 24]} style={{ width: "90%" }}>
+                            <Row gutter={[16, 24]} style={{ width: "100%" }}>
                               {dataProfileBodyDetail &&
                                 dataProfileBodyDetail?.bodyAttributes?.map(
                                   (bodyAttribute) => {
                                     return (
-                                      <Col span={6}>
+                                      <Col span={8}>
                                         <Text>
                                           {bodyAttribute?.bodySize?.name} :{" "}
                                           {bodyAttribute?.value} cm
@@ -954,12 +906,12 @@ const ViewDetailOrder = ({
                             style={{
                               display: "flex",
                               justifyContent: "center",
-                              border: "1px solid #9F78FF",
                               borderRadius: 10,
                               padding: 15,
+                              width: "100%",
                             }}
                           >
-                            <Row gutter={[16, 24]} style={{ width: "90%" }}>
+                            <Row gutter={[16, 24]} style={{ width: "100%" }}>
                               {detailProductData &&
                                 detailProductData?.componentTypeOrders?.map(
                                   (componentTypeOrder) => {
@@ -969,13 +921,9 @@ const ViewDetailOrder = ({
                                           item.id ===
                                           componentTypeOrder?.selected_Component_Id
                                       );
-                                    console.log("selected", selected);
-                                    console.log(
-                                      "componentTypeOrder",
-                                      componentTypeOrder
-                                    );
                                     return (
-                                      <Col span={6}>
+                                      <>
+                                        {/* <Col span={6}>
                                         <div
                                           style={{
                                             display: "flex",
@@ -985,7 +933,10 @@ const ViewDetailOrder = ({
                                           <Image
                                             width={50}
                                             src={selected?.image}
-                                            style={{ height: "50px" }}
+                                            style={{
+                                              height: "50px",
+                                              objectFit: "cover",
+                                            }}
                                           />
                                           <Text
                                             style={{
@@ -996,7 +947,116 @@ const ViewDetailOrder = ({
                                             {selected?.name}
                                           </Text>
                                         </div>
-                                      </Col>
+                                      </Col> */}
+                                        <Col span={12}>
+                                          <Card
+                                            hoverable
+                                            style={{ width: 350 }}
+                                            styles={{
+                                              body: {
+                                                height: 200,
+                                                padding: 0,
+                                                overflow: "auto",
+                                              },
+                                            }}
+                                          >
+                                            <Flex style={{ height: "100%" }}>
+                                              <img
+                                                alt="avatar"
+                                                src={selected?.image}
+                                                style={{
+                                                  display: "block",
+                                                  width: 100,
+                                                  height: 100,
+                                                }}
+                                              />
+                                              <Flex
+                                                direction="column"
+                                                align="flex-start"
+                                                justify="center"
+                                                style={{
+                                                  padding: "0 32px",
+                                                  height: "100%",
+                                                  overflowY: "scroll",
+                                                  scrollbarWidth: "none",
+                                                  WebkitScrollbar: "none",
+                                                }}
+                                              >
+                                                <div>
+                                                  <Typography.Title
+                                                    level={4}
+                                                    style={{ margin: 0 }}
+                                                  >
+                                                    {selected?.name}
+                                                  </Typography.Title>
+                                                  <br />
+                                                  <Popover
+                                                    title={"Lời dặn của khách"}
+                                                    content={
+                                                      <>
+                                                        <Text>Hình ảnh:</Text>
+                                                        <Row
+                                                          gutter={[16, 24]}
+                                                          style={{
+                                                            textAlign: "center",
+                                                          }}
+                                                        >
+                                                          <Col
+                                                            className="gutter-row"
+                                                            span={12}
+                                                          >
+                                                            <Image
+                                                              width={100}
+                                                              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+                                                            />
+                                                          </Col>
+                                                          <Col
+                                                            className="gutter-row"
+                                                            span={12}
+                                                          >
+                                                            <Image
+                                                              width={100}
+                                                              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+                                                            />
+                                                          </Col>
+                                                          <Col
+                                                            className="gutter-row"
+                                                            span={12}
+                                                          >
+                                                            <Image
+                                                              width={100}
+                                                              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+                                                            />
+                                                          </Col>
+                                                        </Row>
+                                                        <br></br>
+                                                        <Text>Ghi chú:</Text>
+                                                        <Paragraph
+                                                          style={{
+                                                            width: "300px",
+                                                          }}
+                                                        >
+                                                          Ghi chú khách hàng về
+                                                          sản phẩm Ghi chú khách
+                                                          hàng về sản phẩm Ghi
+                                                          chú khách hàng về sản
+                                                          phẩm Ghi chú khách
+                                                          hàng về sản phẩm Ghi
+                                                          chú khách hàng về sản
+                                                          phẩm Ghi chú khách
+                                                          hàng về sản phẩm
+                                                        </Paragraph>
+                                                      </>
+                                                    }
+                                                  >
+                                                    <Button>Nhấp để xem</Button>
+                                                  </Popover>
+                                                </div>
+                                              </Flex>
+                                            </Flex>
+                                          </Card>
+                                        </Col>
+                                      </>
                                     );
                                   }
                                 )}
@@ -1195,7 +1255,9 @@ const ViewDetailOrder = ({
                     }}
                   >
                     <b>Số tiền giảm:</b>{" "}
-                    {formatCurrency(dataOrderDetail?.discountPrice)}
+                    {dataOrderDetail?.discountPrice
+                      ? formatCurrency(dataOrderDetail?.discountPrice)
+                      : "0đ"}
                   </Text>
                 </div>
                 {dataOrderDetail?.discountCode && (
@@ -1221,7 +1283,9 @@ const ViewDetailOrder = ({
                     }}
                   >
                     <b>Số tiền sau khi giảm:</b>{" "}
-                    {formatCurrency(dataOrderDetail?.afterDiscountPrice)}
+                    {dataOrderDetail?.afterDiscountPrice
+                      ? formatCurrency(dataOrderDetail?.afterDiscountPrice)
+                      : "0đ"}
                   </Text>
                 </div>
                 <div style={{ margin: "10px 0" }}>
@@ -1233,7 +1297,9 @@ const ViewDetailOrder = ({
                     }}
                   >
                     <b>Tiền đặt cọc:</b>{" "}
-                    {formatCurrency(dataOrderDetail?.deposit)}
+                    {dataOrderDetail?.deposit
+                      ? formatCurrency(dataOrderDetail?.deposit)
+                      : "0đ"}
                   </Text>
                 </div>
                 <div style={{ margin: "10px 0" }}>
@@ -1245,7 +1311,9 @@ const ViewDetailOrder = ({
                     }}
                   >
                     <b>Tiền đã trả:</b>{" "}
-                    {formatCurrency(dataOrderDetail?.paidMoney)}
+                    {dataOrderDetail?.paidMoney
+                      ? formatCurrency(dataOrderDetail?.paidMoney)
+                      : "0đ"}
                   </Text>
                 </div>
                 <div style={{ margin: "10px 0" }}>
@@ -1257,7 +1325,9 @@ const ViewDetailOrder = ({
                     }}
                   >
                     <b>Tiền còn lại:</b>{" "}
-                    {formatCurrency(dataOrderDetail?.unPaidMoney)}
+                    {dataOrderDetail?.unPaidMoney
+                      ? formatCurrency(dataOrderDetail?.unPaidMoney)
+                      : "0đ"}
                   </Text>
                 </div>
               </div>

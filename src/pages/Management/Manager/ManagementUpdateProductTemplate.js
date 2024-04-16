@@ -1619,7 +1619,7 @@ const ManagementUpdateProductTemplateContent = () => {
                             ),
                           },
                           {
-                            title: "Actions",
+                            title: "Tùy chỉnh",
                             dataIndex: "actions",
                             render: (_, record, index) => (
                               <Button
@@ -1628,7 +1628,7 @@ const ManagementUpdateProductTemplateContent = () => {
                                   remove(index);
                                 }}
                               >
-                                Remove
+                                Xóa quy trình
                               </Button>
                             ),
                           },
@@ -1646,7 +1646,7 @@ const ManagementUpdateProductTemplateContent = () => {
                           block
                           style={{ width: 200, marginTop: 10 }}
                         >
-                          + Add Item
+                          Thêm quy trình
                         </Button>
                       </Form.Item>
                     </>

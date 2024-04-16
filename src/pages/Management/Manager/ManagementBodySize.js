@@ -200,7 +200,7 @@ const ManagementBodySizeContent = () => {
       width: 150,
     },
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "6",
       width: 100,
@@ -474,7 +474,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
           marginTop: 8,
         }}
       >
-        Upload
+        Hình Ảnh
       </div>
     </button>
   );
@@ -503,6 +503,8 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
                 return 2;
               } else if (values.bodyPart === "Chân") {
                 return 3;
+              } else if (values.bodyPart === "Cơ Thể") {
+                return 4;
               }
             };
             const formData = new FormData();
@@ -560,6 +562,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
                   <Select.Option value="Đầu">Đầu</Select.Option>
                   <Select.Option value="Thân">Thân</Select.Option>
                   <Select.Option value="Chân">Chân</Select.Option>
+                  <Select.Option value="Cơ Thể">Cơ thể</Select.Option>
                 </Select>
               </Form.Item>
               <Form.Item
@@ -792,7 +795,7 @@ const CollectionUpdateForm = ({
           marginTop: 8,
         }}
       >
-        Upload
+        Hình Ảnh
       </div>
     </button>
   );
@@ -820,6 +823,8 @@ const CollectionUpdateForm = ({
                 return 2;
               } else if (values.bodyPart === "Chân") {
                 return 3;
+              } else if (values.bodyPart === "Cơ Thể") {
+                return 4;
               }
             };
             const formData = new FormData();
@@ -844,185 +849,202 @@ const CollectionUpdateForm = ({
       }}
       okButtonProps={{ loading: loadingUpdate }}
     >
-      <Form
-        style={{
-          height: 420,
-          overflowY: "scroll",
-          scrollbarWidth: "none",
-          WebkitScrollbar: "none",
-          marginTop: 24,
-        }}
-        form={form}
-        layout="vertical"
-        name="form_in_modal"
-        initialValues={{
-          modifier: "public",
-        }}
-      >
-        <Row>
-          <Col span={12}>
-            <div>
-              <Form.Item
-                label="Số đo từng bộ phận"
-                name="bodyPart"
-                hasFeedback
-                rules={[
-                  {
-                    required: true,
-                    message: "Số đo từng bộ phận không được để trống",
-                  },
-                ]}
-              >
-                <Select>
-                  <Select.Option value="Đầu">Đầu</Select.Option>
-                  <Select.Option value="Thân">Thân</Select.Option>
-                  <Select.Option value="Chân">Chân</Select.Option>
-                </Select>
-              </Form.Item>
-              <Form.Item
-                className="mt-2"
-                hasFeedback
-                name="name"
-                label="Tên số đo"
-                rules={[
-                  {
-                    required: true,
-                    message: "Tên không được để trống",
-                  },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-            </div>
-          </Col>
-          <Col span={12}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "25px",
-              }}
-            >
-              <Form.Item
-                name="image"
-                getValueFromEvent={getFile}
-                style={{ width: "130px" }}
-                rules={[
-                  {
-                    required: true,
-                    message: "Ảnh không được để trống",
-                  },
-                ]}
-              >
-                <Upload
-                  action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
-                  listType="picture-card"
-                  maxCount={1}
-                  showUploadList={false}
-                >
-                  {imageUrl ? (
-                    <img
-                      src={imageUrl}
-                      alt="avatar"
-                      style={{
-                        width: "131px",
-                        height: "131px",
-                        borderRadius: "10px",
-                      }}
-                    />
-                  ) : (
-                    uploadButton
-                  )}
-                </Upload>
-              </Form.Item>
-            </div>
-          </Col>
-        </Row>
-
-        <Form.Item
-          className="mt-2"
-          name="guideVideoLink"
-          label="Video hướng dẫn"
-          hasFeedback
-          rules={[
-            { required: true, message: "Video hướng dẫn không được để trống" },
-            { type: "url", warningOnly: true },
-            { type: "string", min: 6 },
-          ]}
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "350px",
+          }}
         >
-          <Input placeholder="Nhập đường dẫn" />
-        </Form.Item>
-        <Row>
-          <Col span={12}>
-            <Form.Item
-              hasFeedback
-              className="mt-2"
-              label="Giá trị tối thiểu (cm)"
-              name="minValidValue"
-              rules={[
-                {
-                  required: true,
-                  message: "Giá trị tối thiểu (cm) không được để trống",
-                },
-                {
-                  type: "number",
-                  min: 1,
-                  message: "Phải là một số lớn hơn hoặc bằng 1",
-                },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    const maxValidValue = getFieldValue("maxValidValue");
-                    if (value && maxValidValue && value > maxValidValue) {
-                      return Promise.reject(
-                        new Error(
-                          "Giá trị tối thiểu không thể lớn hơn giá trị tối đa"
-                        )
-                      );
-                    }
-                    return Promise.resolve();
+          <CircularProgress />
+        </div>
+      ) : (
+        <Form
+          style={{
+            height: 420,
+            overflowY: "scroll",
+            scrollbarWidth: "none",
+            WebkitScrollbar: "none",
+            marginTop: 24,
+          }}
+          form={form}
+          layout="vertical"
+          name="form_in_modal"
+          initialValues={{
+            modifier: "public",
+          }}
+        >
+          <Row>
+            <Col span={12}>
+              <div>
+                <Form.Item
+                  label="Số đo từng bộ phận"
+                  name="bodyPart"
+                  hasFeedback
+                  rules={[
+                    {
+                      required: true,
+                      message: "Số đo từng bộ phận không được để trống",
+                    },
+                  ]}
+                >
+                  <Select>
+                    <Select.Option value="Đầu">Đầu</Select.Option>
+                    <Select.Option value="Thân">Thân</Select.Option>
+                    <Select.Option value="Chân">Chân</Select.Option>
+                    <Select.Option value="Cơ Thể">Cơ Thể</Select.Option>
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  className="mt-2"
+                  hasFeedback
+                  name="name"
+                  label="Tên số đo"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Tên không được để trống",
+                    },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+              </div>
+            </Col>
+            <Col span={12}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: "25px",
+                }}
+              >
+                <Form.Item
+                  name="image"
+                  getValueFromEvent={getFile}
+                  style={{ width: "130px" }}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Ảnh không được để trống",
+                    },
+                  ]}
+                >
+                  <Upload
+                    action="https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188"
+                    listType="picture-card"
+                    maxCount={1}
+                    showUploadList={false}
+                  >
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt="avatar"
+                        style={{
+                          width: "131px",
+                          height: "131px",
+                          borderRadius: "10px",
+                        }}
+                      />
+                    ) : (
+                      uploadButton
+                    )}
+                  </Upload>
+                </Form.Item>
+              </div>
+            </Col>
+          </Row>
+
+          <Form.Item
+            className="mt-2"
+            name="guideVideoLink"
+            label="Video hướng dẫn"
+            hasFeedback
+            rules={[
+              {
+                required: true,
+                message: "Video hướng dẫn không được để trống",
+              },
+              { type: "url", warningOnly: true },
+              { type: "string", min: 6 },
+            ]}
+          >
+            <Input placeholder="Nhập đường dẫn" />
+          </Form.Item>
+          <Row>
+            <Col span={12}>
+              <Form.Item
+                hasFeedback
+                className="mt-2"
+                label="Giá trị tối thiểu (cm)"
+                name="minValidValue"
+                rules={[
+                  {
+                    required: true,
+                    message: "Giá trị tối thiểu (cm) không được để trống",
                   },
-                }),
-              ]}
-            >
-              <InputNumber style={{ width: 220 }} />
-            </Form.Item>
-          </Col>
-          <Col span={12}>
-            <Form.Item
-              hasFeedback
-              className="mt-2 ml-4"
-              label="Giá trị tối đa (cm)"
-              name="maxValidValue"
-              rules={[
-                {
-                  required: true,
-                  message: "Giá trị tối đa (cm) không được để trống",
-                },
-                {
-                  type: "number",
-                  min: 1,
-                  message: "Phải là một số lớn hơn hoặc bằng 1",
-                },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    const minValidValue = getFieldValue("minValidValue");
-                    if (value && minValidValue && value < minValidValue) {
-                      return Promise.reject(
-                        new Error(
-                          "Giá trị tối đa không thể nhỏ hơn giá trị tối thiểu"
-                        )
-                      );
-                    }
-                    return Promise.resolve();
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Phải là một số lớn hơn hoặc bằng 1",
                   },
-                }),
-              ]}
-            >
-              <InputNumber style={{ width: 220 }} />
-            </Form.Item>
-          </Col>
-        </Row>
-      </Form>
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const maxValidValue = getFieldValue("maxValidValue");
+                      if (value && maxValidValue && value > maxValidValue) {
+                        return Promise.reject(
+                          new Error(
+                            "Giá trị tối thiểu không thể lớn hơn giá trị tối đa"
+                          )
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
+                <InputNumber style={{ width: 220 }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                hasFeedback
+                className="mt-2 ml-4"
+                label="Giá trị tối đa (cm)"
+                name="maxValidValue"
+                rules={[
+                  {
+                    required: true,
+                    message: "Giá trị tối đa (cm) không được để trống",
+                  },
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Phải là một số lớn hơn hoặc bằng 1",
+                  },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const minValidValue = getFieldValue("minValidValue");
+                      if (value && minValidValue && value < minValidValue) {
+                        return Promise.reject(
+                          new Error(
+                            "Giá trị tối đa không thể nhỏ hơn giá trị tối thiểu"
+                          )
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
+                <InputNumber style={{ width: 220 }} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      )}
     </Modal>
   );
 };

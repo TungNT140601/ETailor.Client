@@ -14,6 +14,7 @@ import {
   LoadingOutlined,
   CloseCircleOutlined,
   FileTextOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel } from "antd";
 import "./index.css";
@@ -39,6 +40,7 @@ import {
   InputNumber,
   Checkbox,
   Table,
+  Tooltip,
 } from "antd";
 
 import CheckroomIcon from "@mui/icons-material/Checkroom";
@@ -150,7 +152,6 @@ export const ManagementCreateProductTemplate = () => {
       if (prevResults === null) {
         return files;
       } else {
-        // Loại bỏ các URL ảnh đã tồn tại trong mảng trước khi thêm vào
         const filteredResults = files.filter(
           (files) => !prevResults.includes(files)
         );
@@ -162,8 +163,6 @@ export const ManagementCreateProductTemplate = () => {
       reader.readAsDataURL(file.originFileObj);
       return reader;
     });
-
-    // Đợi tất cả các FileReader hoàn thành
     const newResults = [];
     for (const reader of readers) {
       const result = await new Promise((resolve) => {
@@ -178,7 +177,6 @@ export const ManagementCreateProductTemplate = () => {
       if (prevResults === null) {
         return newResults;
       } else {
-        // Loại bỏ các URL ảnh đã tồn tại trong mảng trước khi thêm vào
         const filteredResults = newResults.filter(
           (newResult) => !prevResults.includes(newResult)
         );
@@ -189,7 +187,6 @@ export const ManagementCreateProductTemplate = () => {
   };
 
   useEffect(() => {
-    // Mỗi khi danh sách ảnh thay đổi, cập nhật key của Upload component
     setUploadKey(uploadKey + 1);
   }, [imageUrl]);
 
@@ -213,7 +210,6 @@ export const ManagementCreateProductTemplate = () => {
       if (prevResults === null) {
         return files;
       } else {
-        // Loại bỏ các URL ảnh đã tồn tại trong mảng trước khi thêm vào
         const filteredResults = files.filter(
           (files) => !prevResults.includes(files)
         );
@@ -225,8 +221,6 @@ export const ManagementCreateProductTemplate = () => {
       reader.readAsDataURL(file.originFileObj);
       return reader;
     });
-
-    // Đợi tất cả các FileReader hoàn thành
     const newResults = [];
     for (const reader of readers) {
       const result = await new Promise((resolve) => {
@@ -241,7 +235,6 @@ export const ManagementCreateProductTemplate = () => {
       if (prevResults === null) {
         return newResults;
       } else {
-        // Loại bỏ các URL ảnh đã tồn tại trong mảng trước khi thêm vào
         const filteredResults = newResults.filter(
           (newResult) => !prevResults.includes(newResult)
         );
@@ -294,7 +287,6 @@ export const ManagementCreateProductTemplate = () => {
           });
           if (response.ok && response.status === 200) {
             const responseData = await response.text();
-
             setCurrent(current + 1);
           }
         } catch (error) {
@@ -964,6 +956,25 @@ export const ManagementCreateProductTemplate = () => {
       title: "Thông tin cơ bản",
       content: (
         <>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 15,
+            }}
+          >
+            <Title level={4} style={{ margin: 0 }}>
+              Nhập từ file excel
+            </Title>
+            <Button
+              type="primary"
+              icon={<PlusCircleOutlined />}
+              style={{ marginLeft: "20px" }}
+            >
+              Nhập file
+            </Button>
+          </div>
           {categoryDetailData &&
             categoryDetailData?.componentTypes?.map((data, index) => {
               return (
@@ -971,7 +982,7 @@ export const ManagementCreateProductTemplate = () => {
                   <div
                     style={{
                       display: "flex",
-                      marginTop: 20,
+                      marginTop: 15,
                     }}
                   >
                     <Title level={4}>
@@ -1257,7 +1268,7 @@ export const ManagementCreateProductTemplate = () => {
                             ),
                           },
                           {
-                            title: "Actions",
+                            title: "Tùy chỉnh",
                             dataIndex: "actions",
                             render: (_, record, index) => (
                               <Button
@@ -1266,7 +1277,7 @@ export const ManagementCreateProductTemplate = () => {
                                   remove(index);
                                 }}
                               >
-                                Remove
+                                Xóa quy trình
                               </Button>
                             ),
                           },
@@ -1284,7 +1295,7 @@ export const ManagementCreateProductTemplate = () => {
                           block
                           style={{ width: 200, marginTop: 10 }}
                         >
-                          + Add Item
+                          Thêm quy trình
                         </Button>
                       </Form.Item>
                     </>
