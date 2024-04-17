@@ -38,6 +38,7 @@ import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
+import toast, { Toaster } from "react-hot-toast";
 
 const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
@@ -119,10 +120,14 @@ const ManagementCustomerHeader = () => {
 const ManagementCustomerContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [getCustomer, setGetCustomer] = useState([]);
+  const [getDetailCustomer, setGetDdetailCustomer] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const getUrl =
     "https://e-tailorapi.azurewebsites.net/api/customer-management";
+  const getDetailUrl =
+    "https://e-tailorapi.azurewebsites.net/api/customer-management/info/";
 
   const handleGetCustomer = async () => {
     setLoading(true);
@@ -137,10 +142,34 @@ const ManagementCustomerContent = () => {
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log("responseData", responseData);
         setGetCustomer(responseData);
         setLoading(false);
         return 1;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  const handleGetDetailCustomer = async (id) => {
+    setDetailLoading(true);
+    try {
+      const response = await fetch(`${getDetailUrl}/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log("responseData", responseData);
+        setGetDdetailCustomer(responseData);
+        setDetailLoading(false);
+        return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        toast.error(responseData);
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -151,7 +180,8 @@ const ManagementCustomerContent = () => {
   }, []);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const showModal = () => {
+  const showModal = (id) => {
+    handleGetDetailCustomer(id);
     setIsModalOpen(true);
   };
   const handleOk = () => {
@@ -216,7 +246,7 @@ const ManagementCustomerContent = () => {
       key: "5",
       width: 100,
       fixed: "right",
-      render: () => (
+      render: (_, record) => (
         <>
           <Row justify="start">
             <Col span={4}>
@@ -230,7 +260,7 @@ const ManagementCustomerContent = () => {
                   fontSize: 15,
                   cursor: "pointer",
                 }}
-                onClick={showModal}
+                onClick={() => showModal(record.id)}
               />
             </Col>
           </Row>
@@ -268,6 +298,7 @@ const ManagementCustomerContent = () => {
 
   return (
     <div>
+      <Toaster />
       <div
         style={{
           display: "flex",
@@ -316,189 +347,137 @@ const ManagementCustomerContent = () => {
       )}
 
       <Modal
-        title="Hồ sơ số đo"
+        title={`Khách hàng ${getDetailCustomer?.fullname}`}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
         width={800}
+        style={{ top: 200 }}
+        okText="OK"
+        cancelText="Đóng"
       >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            marginTop: 24,
-          }}
-        >
-          <div>
-            <Avatar
-              src="https://api.dicebear.com/7.x/miniavs/svg?seed=1"
-              style={{ width: 100, height: 100 }}
-            />
-            <Title
-              level={4}
+        {detailLoading ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "250px",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        ) : (
+          <>
+            <div
               style={{
-                marginTop: 10,
+                marginTop: 24,
               }}
             >
-              Đào Anh Tú
-            </Title>
-          </div>
-        </div>
-        <Divider />
-        <div
-          style={{
-            marginTop: 24,
-          }}
-        >
-          <Row justify="center">
-            <Col span={12}>
-              <Title level={5}>Thông tin người dùng</Title>
-              <div
-                style={{
-                  border: "1px solid #9F78FF",
-                  width: 360,
-                  height: 200,
-                  padding: "0px 10px",
-                  borderRadius: "10px",
-                }}
-              >
-                <div
-                  style={{
-                    marginTop: 10,
-                  }}
-                >
-                  <Text level={5}>
-                    <b>Tên người dùng:</b> anhtu21
-                  </Text>
-                </div>
-                <div
-                  style={{
-                    marginTop: 10,
-                  }}
-                >
-                  <Text level={5}>
-                    <b>Họ và tên:</b> Đào Anh Tú
-                  </Text>
-                </div>
-                <div
-                  style={{
-                    marginTop: 10,
-                  }}
-                >
-                  <Text level={5}>
-                    <b>Địa chỉ:</b> 117/18 Phan văn hân phường 17 quận bình
-                    thạnh
-                  </Text>
-                </div>
-                <div
-                  style={{
-                    marginTop: 10,
-                  }}
-                >
-                  <Text level={5}>
-                    <b>Số điện thoại:</b> 0937550256
-                  </Text>
-                </div>
-              </div>
-            </Col>
-            <Col span={12}>
-              <Title level={5}>Profile số đo cơ thể</Title>
-              <Carousel afterChange={onChange} id="carousel-management-cus">
-                <div>
-                  <Card
-                    size="small"
-                    title="Tên profile"
+              <Row justify="center">
+                <Col span={12}>
+                  <div
                     style={{
-                      width: 370,
-                      height: 200,
-                      border: "1px solid #9F78FF",
+                      height: "100%",
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
                     }}
                   >
-                    <Row gutter={[16, 12]}>
-                      <Col className="gutter-row" span={12}>
-                        <div>
-                          <p>Số đo ngực: 1 cm</p>
-                        </div>
-                      </Col>
+                    <div>
+                      <div
+                        style={{
+                          height: "100%",
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        <Avatar
+                          src={
+                            getDetailCustomer?.avatar
+                              ? getDetailCustomer?.avatar
+                              : "https://api.dicebear.com/7.x/miniavs/svg?seed=1"
+                          }
+                          style={{ width: 100, height: 100 }}
+                        />
+                      </div>
 
-                      <Col className="gutter-row" span={12}>
-                        <div>
-                          <p>Số đo eo: 1 cm</p>
-                        </div>
-                      </Col>
-                      <Col className="gutter-row" span={12}>
-                        <div>
-                          <p>Số đo tay: 1 cm</p>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Card>
-                </div>
-                <div>
-                  <Card
-                    size="small"
-                    title="Tên profile"
+                      <Title
+                        level={4}
+                        style={{
+                          whiteSpace: "nowrap",
+                          width: "300px",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          marginTop: 10,
+                          textAlign: "center",
+                        }}
+                      >
+                        {getDetailCustomer?.fullname}
+                      </Title>
+                    </div>
+                  </div>
+                </Col>
+                <Col span={12}>
+                  <Title level={5}>Thông tin khách hàng</Title>
+                  <div
                     style={{
-                      width: 370,
-                      height: 200,
                       border: "1px solid #9F78FF",
+                      width: 360,
+                      height: 200,
+                      padding: "0px 10px",
+                      borderRadius: "10px",
                     }}
                   >
-                    <Row gutter={[16, 12]}>
-                      <Col className="gutter-row" span={12}>
-                        <div>
-                          <p>Số đo ngực: 1 cm</p>
-                        </div>
-                      </Col>
-
-                      <Col className="gutter-row" span={12}>
-                        <div>
-                          <p>Số đo eo: 1 cm</p>
-                        </div>
-                      </Col>
-                      <Col className="gutter-row" span={12}>
-                        <div>
-                          <p>Số đo tay: 1 cm</p>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Card>
-                </div>
-                <div>
-                  <Card
-                    size="small"
-                    title="Tên profile"
-                    style={{
-                      width: 370,
-                      height: 200,
-                      border: "1px solid #9F78FF",
-                    }}
-                  >
-                    <Row gutter={[16, 12]}>
-                      <Col className="gutter-row" span={12}>
-                        <div>
-                          <p>Số đo ngực: 1 cm</p>
-                        </div>
-                      </Col>
-
-                      <Col className="gutter-row" span={12}>
-                        <div>
-                          <p>Số đo eo: 1 cm</p>
-                        </div>
-                      </Col>
-                      <Col className="gutter-row" span={12}>
-                        <div>
-                          <p>Số đo tay: 1 cm</p>
-                        </div>
-                      </Col>
-                    </Row>
-                  </Card>
-                </div>
-              </Carousel>
-            </Col>
-          </Row>
-        </div>
+                    <div
+                      style={{
+                        marginTop: 15,
+                      }}
+                    >
+                      <Text level={5}>
+                        <b>Họ và tên:</b> {getDetailCustomer?.fullname}
+                      </Text>
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 15,
+                      }}
+                    >
+                      <Text level={5}>
+                        <b>Email:</b>{" "}
+                        {getDetailCustomer?.email
+                          ? getDetailCustomer?.email
+                          : "Chưa có"}
+                      </Text>
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 15,
+                      }}
+                    >
+                      <Text level={5}>
+                        <b>Địa chỉ:</b>{" "}
+                        {getDetailCustomer?.address
+                          ? getDetailCustomer?.address
+                          : "Chưa có"}
+                      </Text>
+                    </div>
+                    <div
+                      style={{
+                        marginTop: 15,
+                      }}
+                    >
+                      <Text level={5}>
+                        <b>Số điện thoại:</b> {getDetailCustomer?.phone}
+                      </Text>
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            </div>
+          </>
+        )}
       </Modal>
     </div>
   );

@@ -51,9 +51,8 @@ const { Title, Text } = Typography;
 const { Meta } = Card;
 const { Option } = Select;
 
-const manager = JSON.parse(localStorage.getItem("manager"));
-
 const ManagementDiscountHeader = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const onSearch = (value, _e, info) => console.log(info?.source, value);
   return (
     <div
@@ -78,7 +77,7 @@ const ManagementDiscountHeader = () => {
                     <div style={{ display: "flex", alignItems: "center" }}>
                       <DiscountIcon fontSize="small" style={{ fontSize: 15 }} />
                       &nbsp;
-                      <span>Mã giảm giá</span>
+                      <span>Chương trình giảm giá</span>
                     </div>
                   </Link>
                 </>
@@ -86,7 +85,7 @@ const ManagementDiscountHeader = () => {
             },
           ]}
         />
-        <Title level={4}>Mã giảm giá</Title>
+        <Title level={4}>Chương trình giảm giá</Title>
       </div>
       <div
         style={{
@@ -119,9 +118,14 @@ const ManagementDiscountHeader = () => {
 };
 
 const ManagementDiscountContent = () => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const getUrl = "https://e-tailorapi.azurewebsites.net/api/discount";
 
-  const { data: discount, isLoading: loading } = useQuery("get-discount", () =>
+  const {
+    data: discount,
+    isLoading: loading,
+    refetch: Discount,
+  } = useQuery("get-discount", () =>
     fetch(getUrl, {
       headers: {
         "Content-Type": "application/json",
@@ -140,19 +144,13 @@ const ManagementDiscountContent = () => {
     },
 
     {
-      title: "Tên mã",
+      title: "Tên chương trình",
       dataIndex: "name",
       key: "1",
       width: 150,
       ellipsis: {
         showTitle: false,
       },
-    },
-    {
-      title: "Code",
-      dataIndex: "code",
-      key: "2",
-      width: 150,
     },
     {
       title: "Ngày bắt đầu",
@@ -185,13 +183,13 @@ const ManagementDiscountContent = () => {
       ),
     },
     {
-      title: "Điều kiện giảm giá tối thiểu",
+      title: "Số tiền tối thiểu",
       dataIndex: "conditionPriceMin",
       key: "7",
       width: 220,
     },
     {
-      title: "Điều kiện giảm giá tối đa",
+      title: "Số tiền giảm tối đa",
       dataIndex: "conditionPriceMax",
       key: "8",
       width: 200,
@@ -203,7 +201,7 @@ const ManagementDiscountContent = () => {
       width: 200,
     },
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "10",
       width: 100,
@@ -256,9 +254,8 @@ const ManagementDiscountContent = () => {
   //------------------------------------------------------------Modal create-------------------------------------------------------
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
-  const onCreate = (values) => {
-    const { startDate, endDate } = values;
-    console.log("success");
+  const onCreate = async (values, startDate, endDate) => {
+    const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/discount`;
     if (startDate.isAfter(endDate)) {
       setError("Ngày bắt đầu không được lớn hơn ngày kết thúc");
       return;
@@ -266,7 +263,38 @@ const ManagementDiscountContent = () => {
       setError("Ngày kết thúc không được bé hơn ngày bắt đầu");
       return;
     }
-    setOpen(false);
+    console.log("values", values);
+    try {
+      const response = await fetch(urlCreateMaterialType, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: JSON.stringify(values),
+      });
+      const responseData = await response.text();
+      if (response.ok && response.status === 200) {
+        Swal.fire({
+          icon: "success",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        Discount();
+        return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        Swal.fire({
+          icon: "error",
+          title: responseData,
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        return 0;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
   };
 
   const defaultCheckedList = columns.map((item) => item.key);
@@ -352,8 +380,10 @@ const ManagementDiscountContent = () => {
 };
 
 const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   const [form] = Form.useForm();
   const [componentDisabled, setComponentDisabled] = useState(0);
+  const [createLoading, setCreateLoading] = useState(false);
   console.log(componentDisabled);
 
   const handleDisable = (value) => {
@@ -377,26 +407,54 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
     <Modal
       open={open}
       style={{ top: 40 }}
-      title="Thêm mới mã giảm giá"
+      title="Thêm mới chương trình giảm giá"
       okText="Tạo mới"
       cancelText="Hủy bỏ"
       onCancel={() => {
         form.resetFields();
         setComponentDisabled(0);
         onCancel();
+        setCreateLoading(false);
       }}
       onOk={() => {
         form
           .validateFields()
-          .then((values) => {
-            form.resetFields();
-            setComponentDisabled(0);
-            onCreate(values);
+          .then(async (values) => {
+            setCreateLoading(true);
+            const startDateConvert = new Date(values.startDate.$d);
+            const endDateConvert = new Date(values.endDate.$d);
+
+            const dataBackend = {
+              name: values?.name,
+              startDate: startDateConvert,
+              endDate: endDateConvert,
+              discountPercent:
+                values?.discountPercent && values?.discountPercent,
+              discountPrice: values?.discountPrice && values?.discountPrice,
+              conditionPriceMin:
+                values?.conditionPriceMin && values?.conditionPriceMin,
+              conditionPriceMax:
+                values?.conditionPriceMax && values?.conditionPriceMax,
+              conditionProductMin:
+                values?.conditionProductMin && values?.conditionProductMin,
+            };
+            const check = await onCreate(
+              dataBackend,
+              values.startDate,
+              values.endDate
+            );
+            if (check === 1) {
+              form.resetFields();
+              setComponentDisabled(0);
+              onCancel();
+            }
           })
+          .then(() => setCreateLoading(false))
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
       }}
+      okButtonProps={{ loading: createLoading }}
     >
       <Form
         style={{
@@ -417,48 +475,15 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
           className="mt-2"
           hasFeedback
           name="name"
-          label="Tên mã"
+          label="Tên chương trình"
           rules={[
             {
               required: true,
-              message: "Tên không được để trống",
+              message: "Tên chương trình không được để trống",
             },
           ]}
         >
           <Input />
-        </Form.Item>
-        <Form.Item
-          className="mt-2"
-          hasFeedback
-          name="code"
-          label="Code"
-          rules={[
-            {
-              required: true,
-              message: "Code không được để trống",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          className="mt-2"
-          hasFeedback
-          label="Sản phẩm tối thiểu"
-          name="conditionProductMin"
-          rules={[
-            {
-              required: true,
-              message: "Sản phẩm tối thiểu không được để trống",
-            },
-            {
-              type: "number",
-              min: 1,
-              message: "Phải là một số lớn hơn hoặc bằng 1",
-            },
-          ]}
-        >
-          <InputNumber style={{ width: 472 }} />
         </Form.Item>
         <Row>
           <Col span={12}>
@@ -484,7 +509,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
                 }),
               ]}
             >
-              <DatePicker style={{ width: 220 }} />
+              <DatePicker style={{ width: 220 }} placeholder="Ngày bắt đầu" />
             </Form.Item>
           </Col>
           <Col span={12}>
@@ -514,7 +539,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
                 }),
               ]}
             >
-              <DatePicker style={{ width: 220 }} />
+              <DatePicker style={{ width: 220 }} placeholder="Ngày kết thúc" />
             </Form.Item>
           </Col>
         </Row>
@@ -556,48 +581,77 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
               </Form.Item>
             )}
           </Col>
-          {componentDisabled === 1 ? (
-            <Col span={12}>
-              <Form.Item className="mt-2 ml-4" hasFeedback label="Số tiền giảm">
-                <InputNumber style={{ width: 220 }} disabled={true} />
-              </Form.Item>
-            </Col>
-          ) : (
-            <Col span={12}>
-              <Form.Item
-                className="mt-2 ml-4"
-                hasFeedback
-                label="Số tiền giảm"
-                name="discountPrice"
-                onChange={(e) => handleDisable1(e.target.value)}
-                rules={[
-                  {
-                    required: true,
-                    message: "Số tiền giảm không được để trống",
+          <Col span={12}>
+            <Form.Item
+              className="mt-2 ml-4"
+              hasFeedback
+              label="Số tiền giảm tối đa"
+              name="conditionPriceMax"
+              rules={[
+                {
+                  type: "number",
+                  min: 1,
+                  message: "Phải là một số lớn hơn hoặc bằng 1",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value && getFieldValue("discountPercent")) {
+                      return Promise.reject(
+                        new Error("Số tiền giảm tối đa không được để trống")
+                      );
+                    }
+                    return Promise.resolve();
                   },
-                  {
-                    type: "number",
-                    min: 1,
-                    message: "Phải là một số lớn hơn hoặc bằng 1",
-                  },
-                ]}
-              >
-                <InputNumber style={{ width: 220 }} />
-              </Form.Item>
-            </Col>
-          )}
+                }),
+              ]}
+            >
+              <InputNumber style={{ width: 220 }} />
+            </Form.Item>
+          </Col>
         </Row>
+        {componentDisabled === 1 ? (
+          <Col span={12}>
+            {" "}
+            <Form.Item className="mt-2 " hasFeedback label="Số tiền giảm">
+              <InputNumber style={{ width: 220 }} disabled={true} />
+            </Form.Item>
+          </Col>
+        ) : (
+          <Col span={12}>
+            {" "}
+            <Form.Item
+              className="mt-2 "
+              hasFeedback
+              label="Số tiền giảm"
+              name="discountPrice"
+              onChange={(e) => handleDisable1(e.target.value)}
+              rules={[
+                {
+                  required: true,
+                  message: "Số tiền giảm không được để trống",
+                },
+                {
+                  type: "number",
+                  min: 1,
+                  message: "Phải là một số lớn hơn hoặc bằng 1",
+                },
+              ]}
+            >
+              <InputNumber style={{ width: 220 }} />
+            </Form.Item>
+          </Col>
+        )}
         <Row>
           <Col span={12}>
             <Form.Item
               className="mt-2"
               hasFeedback
-              label="Điều kiện giảm giá tối thiểu"
+              label="Số tiền tối thiểu"
               name="conditionPriceMin"
               rules={[
                 {
                   required: true,
-                  message: "Điều kiện giảm giá tối thiểu không được để trống",
+                  message: "Số tiền tối thiểu không được để trống",
                 },
                 {
                   type: "number",
@@ -613,9 +667,13 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
             <Form.Item
               className="mt-2 ml-4"
               hasFeedback
-              label="Điều kiện giảm giá tối đa"
-              name="conditionPriceMax"
+              label="Sản phẩm tối thiểu"
+              name="conditionProductMin"
               rules={[
+                {
+                  required: true,
+                  message: "Sản phẩm tối thiểu không được để trống",
+                },
                 {
                   type: "number",
                   min: 1,
@@ -633,6 +691,7 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
 };
 
 function ManagementDiscount() {
+  const manager = JSON.parse(localStorage.getItem("manager"));
   return (
     <div>
       <div

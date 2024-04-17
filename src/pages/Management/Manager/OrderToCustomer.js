@@ -41,6 +41,7 @@ import ChooseTemplate from "./ChooseTemplate.js";
 import StepOne from "./OrderStepsForCustomer/StepOne.js";
 import StepTwo from "./OrderStepsForCustomer/StepTwo.js";
 import StepThree from "./OrderStepsForCustomer/StepThree.js";
+import toast, { Toaster } from "react-hot-toast";
 
 const OrderToCustomerContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
@@ -206,27 +207,29 @@ const OrderToCustomerContent = () => {
   const [loadingStep2, setLoadingStep2] = useState(false);
   const handleDataOrderDetail = async () => {
     setLoadingStep2(true);
-    const urlOrderDetail = `https://e-tailorapi.azurewebsites.net/api/order/${saveOrderId}`;
-    try {
-      const response = await fetch(`${urlOrderDetail}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setOrderPaymentDetail(responseData);
-        return 1;
-      } else if (response.status === 401) {
-        localStorage.removeItem("manager");
-        navigate("/management/login");
+    if (saveOrderId) {
+      const urlOrderDetail = `https://e-tailorapi.azurewebsites.net/api/order/${saveOrderId}`;
+      try {
+        const response = await fetch(`${urlOrderDetail}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setOrderPaymentDetail(responseData);
+          return 1;
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      } finally {
+        setLoadingStep2(false);
       }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    } finally {
-      setLoadingStep2(false);
     }
   };
 
@@ -544,6 +547,7 @@ const OrderToCustomerContent = () => {
       content: (
         <>
           <StepOne
+            saveOrderId={saveOrderId}
             setSaveCustomer={setSaveCustomer}
             setSaveOrderId={setSaveOrderId}
             formInfoCustomer={formInfoCustomer}
@@ -607,19 +611,13 @@ const OrderToCustomerContent = () => {
 
   const next = async () => {
     if (current === 0) {
-      if (saveCustomer || saveOrderId) {
+      if (saveCustomer && saveOrderId) {
         const check = await handleDataOrderDetail();
         if (check === 1) {
           setCurrent(current + 1);
         }
       } else {
-        Swal.fire({
-          icon: "error",
-          title: "Vui lòng chọn khách hàng",
-          showConfirmButton: false,
-          timer: 4500,
-          zIndex: 1000,
-        });
+        toast.error("Vui lòng chọn khách hàng");
       }
     } else if (current === 1) {
       handleDelayNext();
@@ -637,6 +635,7 @@ const OrderToCustomerContent = () => {
 
   return (
     <>
+      <Toaster />
       <Steps current={current} items={items} />
       <div>{steps[current]?.content}</div>
       <div
@@ -647,7 +646,13 @@ const OrderToCustomerContent = () => {
         }}
       >
         {current < steps.length - 1 && current === 0 && (
-          <Button type="primary" onClick={() => next()} loading={loadingStep2}>
+          <Button
+            type="primary"
+            onClick={() => next()}
+            loading={loadingStep2}
+            disabled={!saveOrderId}
+            style={{ color: "white" }}
+          >
             Tiếp theo
           </Button>
         )}

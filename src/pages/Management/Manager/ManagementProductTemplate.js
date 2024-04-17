@@ -15,6 +15,7 @@ import {
   CloseCircleOutlined,
   FileTextOutlined,
   SearchOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel } from "antd";
 import "./index.css";
@@ -48,6 +49,7 @@ import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
@@ -679,6 +681,38 @@ export const ManagementCreateProductTemplate = () => {
     handleGetComponentTypesCategory();
   }, [saveCategoryId]);
 
+  //----------------------------------------------------------Xử lý Export Import file Excel ở bước 2--------
+  const [exportFileLoading, setExportFileLoading] = useState(false);
+  const handleDownloadExportFile = async () => {
+    if (saveProductTemplateId) {
+      const getlUrl = `https://e-tailorapi.azurewebsites.net/api/test/DownloadExportFile?templateId=${saveProductTemplateId}`;
+      setExportFileLoading(true);
+      const response = await fetch(getlUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      })
+        .then((response) => response.blob()) // Convert the response to a blob
+        .then((blob) => {
+          // Create a URL for the blob
+          const fileUrl = window.URL.createObjectURL(blob);
+          // Create a temporary anchor element and trigger a download
+          const a = document.createElement("a");
+          a.href = fileUrl;
+          a.download = "Output.xlsx"; // Suggest a filename
+          document.body.appendChild(a); // Required for this to work in FireFox
+          a.click(); // Trigger the download
+          a.remove(); // Clean up
+          setExportFileLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error downloading the file:", error);
+        });
+    }
+  };
+
   const steps = [
     {
       title: "Khởi tạo bản mẫu",
@@ -964,15 +998,14 @@ export const ManagementCreateProductTemplate = () => {
               marginTop: 15,
             }}
           >
-            <Title level={4} style={{ margin: 0 }}>
-              Nhập từ file excel
-            </Title>
             <Button
               type="primary"
-              icon={<PlusCircleOutlined />}
+              icon={<DownloadOutlined />}
               style={{ marginLeft: "20px" }}
+              onClick={() => handleDownloadExportFile()}
+              loading={exportFileLoading}
             >
-              Nhập file
+              Xuất file mẫu
             </Button>
           </div>
           {categoryDetailData &&
@@ -1337,6 +1370,7 @@ export const ManagementCreateProductTemplate = () => {
 
   return (
     <div>
+      <Toaster />
       <div
         style={{
           padding: "20px 20px",

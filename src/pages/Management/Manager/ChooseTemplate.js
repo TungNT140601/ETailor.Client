@@ -48,22 +48,24 @@ const ChooseTemplate = ({ open, onCancel, handleChooseTemplate }) => {
 
   const handleSelected = async () => {
     setSelectedLoading(true);
-    const url = `https://e-tailorapi.azurewebsites.net/api/template-management/category/${selected}`;
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setDetailProduct(responseData);
-        setSelectedLoading(false);
+    if (selected) {
+      const url = `https://e-tailorapi.azurewebsites.net/api/template-management/category/${selected}`;
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setDetailProduct(responseData);
+          setSelectedLoading(false);
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
       }
-    } catch (error) {
-      console.error("Error calling API:", error);
     }
   };
   useEffect(() => {
