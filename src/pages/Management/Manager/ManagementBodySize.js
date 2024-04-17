@@ -161,7 +161,7 @@ const ManagementBodySizeContent = () => {
       ),
     },
     {
-      title: "Số đo từng bộ phận",
+      title: "Số đo của bộ phận",
       dataIndex: "BodyPart",
       key: "1",
       width: 150,
@@ -548,13 +548,13 @@ const CollectionCreateForm = ({ open, onCreate, onCancel }) => {
           <Col span={12}>
             <div>
               <Form.Item
-                label="Số đo từng bộ phận"
+                label="Số đo của bộ phận"
                 name="bodyPart"
                 hasFeedback
                 rules={[
                   {
                     required: true,
-                    message: "Số đo từng bộ phận không được để trống",
+                    message: "Số đo của bộ phận không được để trống",
                   },
                 ]}
               >
@@ -880,17 +880,17 @@ const CollectionUpdateForm = ({
             <Col span={12}>
               <div>
                 <Form.Item
-                  label="Số đo từng bộ phận"
+                  label="Số đo của bộ phận"
                   name="bodyPart"
                   hasFeedback
                   rules={[
                     {
                       required: true,
-                      message: "Số đo từng bộ phận không được để trống",
+                      message: "Số đo của bộ phận không được để trống",
                     },
                   ]}
                 >
-                  <Select>
+                  <Select disabled>
                     <Select.Option value="Đầu">Đầu</Select.Option>
                     <Select.Option value="Thân">Thân</Select.Option>
                     <Select.Option value="Chân">Chân</Select.Option>

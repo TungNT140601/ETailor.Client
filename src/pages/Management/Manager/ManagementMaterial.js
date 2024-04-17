@@ -190,7 +190,7 @@ const ManagementMaterialContent = () => {
       ),
     },
     {
-      title: "Tên nguyên liệu",
+      title: "Nguyên phụ liệu",
       dataIndex: "name",
       key: "1",
       width: "7%",
@@ -641,12 +641,12 @@ const UpdateMaterial = ({
                 <div>
                   <Form.Item
                     name="name"
-                    label="Tên nguyên liệu"
+                    label="Nguyên phụ liệu"
                     hasFeedback
                     rules={[
                       {
                         required: true,
-                        message: "Tên nguyên liệu không được để trống",
+                        message: "Nguyên phụ liệu không được để trống",
                       },
                     ]}
                   >
@@ -842,12 +842,12 @@ const CreateMaterial = ({
             <div>
               <Form.Item
                 name="name"
-                label="Tên nguyên liệu"
+                label="Nguyên phụ liệu"
                 hasFeedback
                 rules={[
                   {
                     required: true,
-                    message: "Tên nguyên liệu không được để trống",
+                    message: "Nguyên phụ liệu không được để trống",
                   },
                 ]}
               >
@@ -1254,12 +1254,12 @@ const CreateMaterialType = ({ open, onCreateMaterialType, onCancel }) => {
         <div>
           <Form.Item
             name="name"
-            label="Tên nguyên liệu"
+            label="Nguyên phụ liệu"
             hasFeedback
             rules={[
               {
                 required: true,
-                message: "Tên nguyên liệu không được để trống",
+                message: "Nguyên phụ liệu không được để trống",
               },
             ]}
           >
@@ -1390,12 +1390,12 @@ const UpdateMaterialType = ({
           <div>
             <Form.Item
               name="name"
-              label="Tên nguyên liệu"
+              label="Nguyên phụ liệu"
               hasFeedback
               rules={[
                 {
                   required: true,
-                  message: "Tên nguyên liệu không được để trống",
+                  message: "Nguyên phụ liệu không được để trống",
                 },
               ]}
             >

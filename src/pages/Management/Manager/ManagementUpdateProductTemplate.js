@@ -14,6 +14,7 @@ import {
   UploadOutlined,
   LoadingOutlined,
   CloseCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel } from "antd";
 import "./index.css";
@@ -983,6 +984,37 @@ const ManagementUpdateProductTemplateContent = () => {
     }
   }, [dataDetailForUpdate]);
 
+  const [exportFileLoading, setExportFileLoading] = useState(false);
+  const handleDownloadExportFile = async () => {
+    if (id) {
+      const getlUrl = `https://e-tailorapi.azurewebsites.net/api/test/DownloadExportFile?templateId=${id}`;
+      setExportFileLoading(true);
+      const response = await fetch(getlUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      })
+        .then((response) => response.blob()) // Convert the response to a blob
+        .then((blob) => {
+          // Create a URL for the blob
+          const fileUrl = window.URL.createObjectURL(blob);
+          // Create a temporary anchor element and trigger a download
+          const a = document.createElement("a");
+          a.href = fileUrl;
+          a.download = "Output.xlsx"; // Suggest a filename
+          document.body.appendChild(a); // Required for this to work in FireFox
+          a.click(); // Trigger the download
+          a.remove(); // Clean up
+          setExportFileLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error downloading the file:", error);
+        });
+    }
+  };
+
   const steps = [
     {
       title: "Khởi tạo bản mẫu",
@@ -1342,6 +1374,24 @@ const ManagementUpdateProductTemplateContent = () => {
       title: "Thông tin cơ bản",
       content: (
         <>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 15,
+            }}
+          >
+            <Button
+              type="primary"
+              icon={<DownloadOutlined />}
+              style={{ marginLeft: "20px" }}
+              onClick={() => handleDownloadExportFile()}
+              loading={exportFileLoading}
+            >
+              Xuất file mẫu
+            </Button>
+          </div>
           {categoryDetailData &&
             categoryDetailData?.componentTypes?.map((data, index) => {
               return (

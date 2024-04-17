@@ -109,9 +109,7 @@ export const ManagerSidebar = () => {
             {
               key: "/manager/tasks-management-by-order",
               label: (
-                <Link to="/manager/tasks-management-by-order">
-                  Công đoạn
-                </Link>
+                <Link to="/manager/tasks-management-by-order">Công đoạn</Link>
               ),
               icon: <ControlOutlined />,
             },
@@ -150,7 +148,7 @@ export const ManagerSidebar = () => {
           ],
         },
         {
-          label: "Nguyên liệu",
+          label: "Phụ liệu may mặc",
           icon: <FactCheckIcon />,
           children: [
             {
@@ -172,7 +170,7 @@ export const ManagerSidebar = () => {
         },
         {
           key: "/manager/discount",
-          label: <Link to="/manager/discount">Mã giảm giá</Link>,
+          label: <Link to="/manager/discount">Chương trình giảm giá</Link>,
           icon: <DiscountIcon />,
         },
         {

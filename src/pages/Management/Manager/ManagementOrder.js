@@ -305,7 +305,7 @@ const ManagementOrderContent = () => {
       title: "Tiền đặt cọc đã trả",
       dataIndex: "payDeposit",
       key: "8",
-      width: 100,
+      width: 120,
       render: (_, record) =>
         record.payDeposit ? (
           <Text>

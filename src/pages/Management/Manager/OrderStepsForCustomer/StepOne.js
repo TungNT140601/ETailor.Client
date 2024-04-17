@@ -5,6 +5,7 @@ import { Typography, Button, Card, Row, Col, Form, Input, Select } from "antd";
 import "../index.css";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import toast, { Toaster } from "react-hot-toast";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
@@ -20,6 +21,7 @@ function StepOne({
   setProductComponent,
   form,
   saveCustomer,
+  saveOrderId,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [searchResult, setSearchResult] = useState([]);
@@ -124,208 +126,206 @@ function StepOne({
     return () => clearTimeout(timer);
   }, [searchInfo]);
   return (
-    <div
-      style={{
-        height: "100%",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        position: "relative",
-      }}
-    >
-      <div>
-        <div
-          style={{
-            width: 800,
-            padding: 30,
-            borderRadius: "10px",
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          <div>
-            <Title level={4}>
-              <FileSearchOutlined /> Tìm kiếm thông tin khách hàng
-            </Title>
-            <Text>
-              Nhập email hoặc số điện thoại để tìm kiếm thông tin khách hàng
-            </Text>
-            <div style={{ marginTop: 10 }}>
-              <div style={{ position: "relative" }}>
-                <Select
-                  showSearch
-                  value={searchInfo}
-                  style={{ width: 450 }}
-                  defaultActiveFirstOption={false}
-                  showArrow={false}
-                  filterOption={false}
-                  onChange={async (value) => {
-                    const urlGetDetail = `https://e-tailorapi.azurewebsites.net/api/customer-management/info/${value}`;
-                    try {
-                      const response = await fetch(urlGetDetail, {
-                        method: "GET",
-                        headers: {
-                          "Content-Type": "application/json",
-                          Authorization: `Bearer ${manager?.token}`,
-                        },
-                      });
-                      if (response.ok && response.status === 200) {
-                        const responseData = await response.json();
-                        if (responseData.length === 0) {
-                          setSaveCustomer(null);
-                          setSaveOrderId(null);
-                        }
-                        setSaveCustomer((prev) => {
-                          if (prev && prev.id !== responseData.id) {
+    <>
+      <Toaster />
+      <div
+        style={{
+          height: "100%",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "relative",
+        }}
+      >
+        <div>
+          <div
+            style={{
+              width: 800,
+              padding: 30,
+              borderRadius: "10px",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <div>
+              <Title level={4}>
+                <FileSearchOutlined /> Tìm kiếm thông tin khách hàng
+              </Title>
+              <Text>
+                Nhập email hoặc số điện thoại để tìm kiếm thông tin khách hàng
+              </Text>
+              <div style={{ marginTop: 10 }}>
+                <div style={{ position: "relative" }}>
+                  <Select
+                    showSearch
+                    value={searchInfo}
+                    style={{ width: 450 }}
+                    defaultActiveFirstOption={false}
+                    showArrow={false}
+                    filterOption={false}
+                    onChange={async (value) => {
+                      const urlGetDetail = `https://e-tailorapi.azurewebsites.net/api/customer-management/info/${value}`;
+                      try {
+                        const response = await fetch(urlGetDetail, {
+                          method: "GET",
+                          headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${manager?.token}`,
+                          },
+                        });
+                        if (response.ok && response.status === 200) {
+                          const responseData = await response.json();
+                          if (responseData.length === 0) {
+                            setSaveCustomer(null);
                             setSaveOrderId(null);
-                            setGetDetailDataProfileCustomer(null);
-                            setChooseProductTemplate(null);
-                            setProductComponent(null);
-                            form.resetFields();
-                            return responseData;
-                          } else {
-                            return responseData;
+                            toast.error("Không tìm thấy khách hàng");
                           }
-                        });
-                        await Swal.fire({
-                          position: "top-center",
-                          icon: "success",
-                          title: "Đã xác nhận khách hàng!",
-                          showConfirmButton: false,
-                          timer: 1500,
-                        });
-                        setSearchInfo(responseData.fullname);
-                      } else if (response.status === 401) {
-                        localStorage.removeItem("manager");
-                        navigate("/management/login");
+                          setSaveCustomer((prev) => {
+                            if (prev && prev.id !== responseData.id) {
+                              setSaveOrderId(null);
+                              setGetDetailDataProfileCustomer(null);
+                              setChooseProductTemplate(null);
+                              setProductComponent(null);
+                              form.resetFields();
+                              return responseData;
+                            } else {
+                              return responseData;
+                            }
+                          });
+                          toast.success("Đã xác nhận khách hàng");
+                          setSearchInfo(responseData.fullname);
+                        } else if (response.status === 401) {
+                          localStorage.removeItem("manager");
+                          navigate("/management/login");
+                        }
+                      } catch (error) {
+                        console.error("Error calling API:", error);
                       }
-                    } catch (error) {
-                      console.error("Error calling API:", error);
-                    }
-                  }}
-                  onSearch={(value) => handleSearchInfoCustomer(value)}
-                  notFoundContent={null}
-                  options={(searchResult || []).map((d) => ({
-                    value: d.id,
-                    label: `${d.fullname} - ${d.phone}`,
-                  }))}
-                />
-                <SearchOutlined
-                  style={{
-                    fontSize: 18,
-                    position: "absolute",
-                    right: 20,
-                    top: 7,
-                    cursor: "pointer",
-                  }}
-                />
+                    }}
+                    onSearch={(value) => handleSearchInfoCustomer(value)}
+                    notFoundContent={null}
+                    options={(searchResult || []).map((d) => ({
+                      value: d.id,
+                      label: `${d.fullname} - ${d.phone}`,
+                    }))}
+                  />
+                  <SearchOutlined
+                    style={{
+                      fontSize: 18,
+                      position: "absolute",
+                      right: 20,
+                      top: 7,
+                      cursor: "pointer",
+                    }}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            border: "1px solid #9F78FF",
-            width: 800,
-            height: 400,
-            padding: 10,
-            borderRadius: 10,
-            alignItems: "center",
-          }}
-        >
-          <Form
-            layout="vertical"
-            form={formInfoCustomer}
-            name="create_customer"
-            initialValues={{ modifier: "create_customer" }}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              border: "1px solid #9F78FF",
+              width: 800,
+              height: 400,
+              padding: 10,
+              borderRadius: 10,
+              alignItems: "center",
+            }}
           >
-            <Form.Item
-              name="fullname"
-              label="Họ và tên"
-              rules={[
-                {
-                  required: true,
-                  message: "Họ và tên không được để trống",
-                },
-              ]}
-              style={{ width: 700 }}
+            <Form
+              layout="vertical"
+              form={formInfoCustomer}
+              name="create_customer"
+              initialValues={{ modifier: "create_customer" }}
             >
-              <Input
-                placeholder={"Nhập họ và tên"}
-                readOnly={saveCustomer ? true : false}
-              />
-            </Form.Item>
-            <Form.Item
-              name="address"
-              label="Địa chỉ"
-              rules={[
-                {
-                  required: true,
-                  message: "Địa chỉ không được để trống",
-                },
-              ]}
-              style={{ width: 700 }}
-            >
-              <Input
-                placeholder={"Nhập địa chỉ"}
-                readOnly={saveCustomer ? true : false}
-              />
-            </Form.Item>
-            <Row>
-              <Col span={11}>
-                <Form.Item
-                  name="email"
-                  label="Email"
-                  style={{ width: 320 }}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Email không được để trống",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder={"Nhập email"}
-                    readOnly={saveCustomer ? true : false}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={11} push={2}>
-                <Form.Item
-                  name="phone"
-                  label="Số điện thoại"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Số điện thoại không được để trống",
-                    },
-                  ]}
-                  style={{ width: 320 }}
-                >
-                  <Input
-                    placeholder={"Nhập số điện thoại"}
-                    readOnly={saveCustomer ? true : false}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            {!saveCustomer && (
-              <Form.Item style={{ textAlign: "center" }}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  onClick={() => handleCreateInfoCustomer()}
-                >
-                  Tạo mới
-                </Button>
+              <Form.Item
+                name="fullname"
+                label="Họ và tên"
+                rules={[
+                  {
+                    required: true,
+                    message: "Họ và tên không được để trống",
+                  },
+                ]}
+                style={{ width: 700 }}
+              >
+                <Input
+                  placeholder={"Nhập họ và tên"}
+                  readOnly={saveCustomer ? true : false}
+                />
               </Form.Item>
-            )}
-          </Form>
+              <Form.Item
+                name="address"
+                label="Địa chỉ"
+                rules={[
+                  {
+                    required: true,
+                    message: "Địa chỉ không được để trống",
+                  },
+                ]}
+                style={{ width: 700 }}
+              >
+                <Input
+                  placeholder={"Nhập địa chỉ"}
+                  readOnly={saveCustomer ? true : false}
+                />
+              </Form.Item>
+              <Row>
+                <Col span={11}>
+                  <Form.Item
+                    name="email"
+                    label="Email"
+                    style={{ width: 320 }}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Email không được để trống",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder={"Nhập email"}
+                      readOnly={saveCustomer ? true : false}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={11} push={2}>
+                  <Form.Item
+                    name="phone"
+                    label="Số điện thoại"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Số điện thoại không được để trống",
+                      },
+                    ]}
+                    style={{ width: 320 }}
+                  >
+                    <Input
+                      placeholder={"Nhập số điện thoại"}
+                      readOnly={saveCustomer ? true : false}
+                    />
+                  </Form.Item>
+                </Col>
+              </Row>
+              {!saveCustomer && (
+                <Form.Item style={{ textAlign: "center" }}>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    onClick={() => handleCreateInfoCustomer()}
+                  >
+                    Tạo mới
+                  </Button>
+                </Form.Item>
+              )}
+            </Form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
