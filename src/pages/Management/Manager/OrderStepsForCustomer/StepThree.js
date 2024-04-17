@@ -34,6 +34,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 import ChooseTemplate from "../ChooseTemplate.js";
+import toast, { Toaster } from "react-hot-toast";
 
 const { Title, Paragraph } = Typography;
 const { Meta } = Card;
@@ -62,6 +63,7 @@ function StepThree({
   getAllBodySize,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
+  console.log("profileCustomer ben step three", profileCustomer);
   const [formUpdateProfile] = Form.useForm();
   const navigate = useNavigate();
   const [openChooseProductTemplate, setOpenChooseProductTemplate] =
@@ -123,27 +125,29 @@ function StepThree({
     }).then((response) => response.json())
   );
   const getDetailProfileCustomer = async (id) => {
-    setGetDetailDataProfileCustomerLoading(true);
-    const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
-    try {
-      const response = await fetch(`${urlProfile}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setGetDetailDataProfileCustomer(responseData);
-      } else if (response.status === 401) {
-        localStorage.removeItem("manager");
-        navigate("/management/login");
+    if (id) {
+      setGetDetailDataProfileCustomerLoading(true);
+      const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
+      try {
+        const response = await fetch(`${urlProfile}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setGetDetailDataProfileCustomer(responseData);
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      } finally {
+        setGetDetailDataProfileCustomerLoading(false);
       }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    } finally {
-      setGetDetailDataProfileCustomerLoading(false);
     }
   };
   const handleUpdateProfileBody = async () => {
@@ -177,25 +181,16 @@ function StepThree({
         });
         if (response.ok && response.status === 200) {
           const responseData = await response.text();
-          await Swal.fire({
-            position: "top-center",
-            icon: "success",
-            title: responseData,
-            showConfirmButton: false,
-            timer: 1500,
-            zIndex: 1000,
+          toast.success(responseData, {
+            duration: 3000,
           });
           await fetchDataProfileBody(saveCustomer.id);
+          await getDetailProfileCustomer(getDetailDataProfileCustomer.id);
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();
-          Swal.fire({
-            position: "top-center",
-            icon: "error",
-            title: responseData,
-            showConfirmButton: false,
-            timer: 4500,
-            zIndex: 1000,
+          toast.error(responseData, {
+            duration: 3000,
           });
           return 0;
         } else if (response.status === 401) {
@@ -303,26 +298,16 @@ function StepThree({
         });
         if (response.ok && response.status === 200) {
           const responseData = await response.text();
-          await Swal.fire({
-            position: "top-center",
-            icon: "success",
-            title: responseData,
-            showConfirmButton: false,
-            timer: 1500,
-            zIndex: 1000,
+          toast.success(responseData, {
+            duration: 3000,
           });
           await fetchDataProfileBody(saveCustomer.id);
           formProfileBody.resetFields();
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();
-          Swal.fire({
-            position: "top-center",
-            icon: "error",
-            title: responseData,
-            showConfirmButton: false,
-            timer: 4500,
-            zIndex: 1000,
+          toast.error(responseData, {
+            duration: 3000,
           });
           return 0;
         } else if (response.status === 401) {
@@ -344,26 +329,29 @@ function StepThree({
       .includes(input.toLowerCase());
   const handleChooseTemplate = async (id, data) => {
     setChooseProductTemplate(data);
-    const url = `https://e-tailorapi.azurewebsites.net/api/template/${id}/component-types`;
-    try {
-      const response = await fetch(`${url}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok) {
-        const responseData = await response.json();
-        setProductComponent(responseData);
-        return 1;
+    if (id) {
+      const url = `https://e-tailorapi.azurewebsites.net/api/template/${id}/component-types`;
+      try {
+        const response = await fetch(`${url}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok) {
+          const responseData = await response.json();
+          setProductComponent(responseData);
+          return 1;
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
       }
-    } catch (error) {
-      console.error("Error calling API:", error);
     }
   };
   return (
     <>
+      <Toaster />
       {!openUpdate ? (
         <Row>
           <Col

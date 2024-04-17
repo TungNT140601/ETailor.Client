@@ -1,39 +1,9 @@
 import React, { useState, useEffect } from "react";
-import OrderUpdate from "./OrderUpdate.js";
 import { VnPay } from "../../../components/RealTime/index.js";
-import { InputNumber } from "antd";
-import {
-  FileSearchOutlined,
-  SearchOutlined,
-  CloseCircleOutlined,
-  PlusOutlined,
-  EditOutlined,
-  LeftOutlined,
-  RightOutlined,
-} from "@ant-design/icons";
-import {
-  Typography,
-  Button,
-  Steps,
-  Divider,
-  Card,
-  Row,
-  Col,
-  Form,
-  Input,
-  Select,
-  Image,
-  Table,
-  Space,
-  Upload,
-  Carousel,
-  Radio,
-} from "antd";
+
+import { Button, Steps, Form } from "antd";
 import "./index.css";
-import CircularProgress from "@mui/material/CircularProgress";
-import paymenVnpay from "../../../assets/payment-method-vnpay.png";
-import paymenCash from "../../../assets/money.png";
-import paymenDeposit from "../../../assets/deposit.png";
+
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
@@ -189,8 +159,10 @@ const OrderToCustomerContent = () => {
             },
           });
           if (response.ok && response.status === 200) {
-            await handleDataOrderDetail();
-            Swal.fire("Đã xóa sản phẩm!", "", "success");
+            const check = await handleDataOrderDetail();
+            if (check === 1) {
+              toast.success("Đã xóa sản phẩm!");
+            }
           } else if (response.status === 401) {
             localStorage.removeItem("manager");
             navigate("/management/login");
@@ -299,14 +271,7 @@ const OrderToCustomerContent = () => {
       });
 
       if (response.ok && response.status === 200) {
-        await Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: "Tạo mới thành công",
-          showConfirmButton: false,
-          timer: 1500,
-          zIndex: 1000,
-        });
+        toast.success("Tạo mới thành công");
         const loadingData = await handleDataOrderDetail();
         if (loadingData === 1) {
           setCurrent(1);
@@ -314,14 +279,7 @@ const OrderToCustomerContent = () => {
         return 1;
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "error",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 4500,
-          zIndex: 1000,
-        });
+        toast.error(responseData);
         return 0;
       } else if (response.status === 401) {
         localStorage.removeItem("manager");
@@ -359,12 +317,8 @@ const OrderToCustomerContent = () => {
   const onFinish = async () => {
     setOnFinishLoading(true);
     if (!chooseProductTemplate) {
-      Swal.fire({
-        icon: "error",
-        title: "Chọn loại bản mẫu trước",
-        showConfirmButton: false,
-        timer: 4500,
-        zIndex: 1000,
+      toast.error("Chọn loại bản mẫu trước", {
+        duration: 5000,
       });
       setOnFinishLoading(false);
     } else if (getDetailDataProfileCustomer) {
@@ -413,12 +367,8 @@ const OrderToCustomerContent = () => {
         setOnFinishLoading(false);
       }
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Chọn hồ sơ số đo phù hợp cho sản phẩm",
-        showConfirmButton: false,
-        timer: 4500,
-        zIndex: 1000,
+      toast.error("Chọn hồ sơ số đo phù hợp cho sản phẩm", {
+        duration: 4000,
       });
       setOnFinishLoading(false);
     }
@@ -491,25 +441,11 @@ const OrderToCustomerContent = () => {
             body: JSON.stringify(backendData),
           });
           if (response.ok && response.status === 200) {
-            await Swal.fire({
-              position: "top-center",
-              icon: "success",
-              title: "Cập nhật thành công",
-              showConfirmButton: false,
-              timer: 1500,
-              zIndex: 1000,
-            });
+            toast.success("Cập nhật thành công");
             return 1;
           } else if (response.status === 400 || response.status === 500) {
             const responseData = await response.text();
-            Swal.fire({
-              position: "top-center",
-              icon: "error",
-              title: responseData,
-              showConfirmButton: false,
-              timer: 4500,
-              zIndex: 1000,
-            });
+            toast.error(responseData);
             return 0;
           } else if (response.status === 401) {
             localStorage.removeItem("manager");
@@ -530,12 +466,8 @@ const OrderToCustomerContent = () => {
         setOnFinishLoading(false);
       }
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Chọn hồ sơ số đo phù hợp cho sản phẩm",
-        showConfirmButton: false,
-        timer: 4500,
-        zIndex: 1000,
+      toast.error("Chọn hồ sơ số đo phù hợp cho sản phẩm", {
+        duration: 2000,
       });
       setOnFinishLoading(false);
     }

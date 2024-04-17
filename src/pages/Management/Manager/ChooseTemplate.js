@@ -6,6 +6,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Swal from "sweetalert2";
 
 import chooseTemplate from "../../../assets/dress.png";
+import toast from "react-hot-toast";
 
 const { Title } = Typography;
 const { Meta } = Card;
@@ -118,13 +119,8 @@ const ChooseTemplate = ({ open, onCancel, handleChooseTemplate }) => {
               }
               setConfirmLoading(false);
             } else {
-              await Swal.fire({
-                position: "top-center",
-                icon: "warning",
-                title: "Chọn loại bản mẫu thì phải chọn bản mẫu",
-                showConfirmButton: false,
-                timer: 2500,
-                zIndex: 1000,
+              toast.error("Chọn loại bản mẫu thì phải chọn bản mẫu", {
+                duration: 4000,
               });
               setConfirmLoading(false);
             }

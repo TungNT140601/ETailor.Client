@@ -45,25 +45,15 @@ function StepOne({
         });
         if (response.ok && response.status === 200) {
           const responseData = await response.text();
-          await Swal.fire({
-            position: "top-center",
-            icon: "success",
-            title: responseData,
-            showConfirmButton: false,
-            timer: 1500,
-            zIndex: 1000,
+          toast.success(responseData, {
+            duration: 3000,
           });
           formInfoCustomer.resetFields();
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();
-          Swal.fire({
-            position: "top-center",
-            icon: "error",
-            title: responseData,
-            showConfirmButton: false,
-            timer: 4500,
-            zIndex: 1000,
+          toast.error(responseData, {
+            duration: 3000,
           });
           return 0;
         } else if (response.status === 401) {
