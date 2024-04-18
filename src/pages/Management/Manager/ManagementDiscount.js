@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
@@ -40,6 +40,7 @@ import {
   Upload,
   Radio,
 } from "antd";
+import toast, { Toaster } from "react-hot-toast";
 
 import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
@@ -206,7 +207,7 @@ const ManagementDiscountContent = () => {
       key: "10",
       width: 100,
       fixed: "right",
-      render: () => (
+      render: (_, record) => (
         <Row justify="start">
           <Col span={4}>
             <DeleteOutlined
@@ -218,6 +219,7 @@ const ManagementDiscountContent = () => {
                 fontSize: 15,
                 cursor: "pointer",
               }}
+              onClick={() => onDeleteDiscount(record.id)}
             />
           </Col>
           <Col span={4} offset={8}>
@@ -230,6 +232,7 @@ const ManagementDiscountContent = () => {
                 fontSize: 15,
                 cursor: "pointer",
               }}
+              onClick={() => handleOpenUpdate(record.id)}
             />
           </Col>
         </Row>
@@ -275,26 +278,93 @@ const ManagementDiscountContent = () => {
       });
       const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        Swal.fire({
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        toast.success(responseData);
         Discount();
         return 1;
       } else if (response.status === 400 || response.status === 500) {
-        Swal.fire({
-          icon: "error",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        toast.error(responseData);
         return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
     }
+  };
+  //------------------------------------------------------------Modal Update-------------------------------------------------------
+  const [openUpdate, setOpenUpdate] = useState(false);
+  const [saveDiscountId, setSaveDiscountId] = useState(null);
+  const [errorUpdate, setErrorUpdate] = useState("");
+
+  const handleOpenUpdate = (id) => {
+    setSaveDiscountId(id);
+    setOpenUpdate(true);
+  };
+  const onUpdate = async (values, startDate, endDate) => {
+    const url = `https://e-tailorapi.azurewebsites.net/api/discount`;
+    if (startDate.isAfter(endDate)) {
+      setErrorUpdate("Ngày bắt đầu không được lớn hơn ngày kết thúc");
+      return;
+    } else if (endDate.isBefore(startDate)) {
+      setErrorUpdate("Ngày kết thúc không được bé hơn ngày bắt đầu");
+      return;
+    }
+    console.log("values", values);
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: JSON.stringify(values),
+      });
+      const responseData = await response.text();
+      if (response.ok && response.status === 200) {
+        toast.success(responseData);
+        Discount();
+        return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        toast.error(responseData);
+        return 0;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+
+  //----------------------------------------------------------------------------------------------------------------
+  const onDeleteDiscount = (id) => {
+    const url = `https://e-tailorapi.azurewebsites.net/api/discount/${id}`;
+    Swal.fire({
+      title: "Bạn có muốn xóa chương trình giảm giá này?",
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(url, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${manager?.token}`,
+            },
+          });
+          const responseData = await response.text();
+          if (response.ok && response.status === 200) {
+            toast.success(responseData);
+            Discount();
+            return 1;
+          } else if (response.status === 400 || response.status === 500) {
+            toast.error(responseData);
+            return 0;
+          }
+        } catch (error) {
+          console.error("Error calling API:", error);
+        }
+      } else if (result.isDenied) {
+        Swal.fire("Hủy bỏ xóa nguyên liệu", "", "info");
+      }
+    });
   };
 
   const defaultCheckedList = columns.map((item) => item.key);
@@ -309,6 +379,7 @@ const ManagementDiscountContent = () => {
   }));
   return (
     <div>
+      <Toaster />
       <div
         style={{
           display: "flex",
@@ -375,6 +446,14 @@ const ManagementDiscountContent = () => {
           }}
         />
       )}
+      <CollectionUpdateForm
+        open={openUpdate}
+        onCancel={() => setErrorUpdate(false)}
+        error={errorUpdate}
+        saveDiscountId={saveDiscountId}
+        setSaveDiscountId={setSaveDiscountId}
+        onUpdate={onUpdate}
+      />
     </div>
   );
 };
@@ -686,6 +765,351 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
           </Col>
         </Row>
       </Form>
+    </Modal>
+  );
+};
+const CollectionUpdateForm = ({
+  open,
+  onUpdate,
+  onCancel,
+  setSaveDiscountId,
+  saveDiscountId,
+  error,
+}) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
+  const [discountDetail, setSaveDiscountDetail] = useState(null);
+  const [componentDisabled, setComponentDisabled] = useState(0);
+
+  const handleDisable = (value) => {
+    console.log(value);
+    if (value !== "") {
+      setComponentDisabled(1);
+    } else {
+      setComponentDisabled(0);
+    }
+  };
+  const handleDisable1 = (value) => {
+    console.log(value);
+    if (value !== "") {
+      setComponentDisabled(2);
+    } else {
+      setComponentDisabled(0);
+    }
+  };
+
+  useEffect(() => {
+    const handleDataDetail = async () => {
+      setLoading(true);
+      const urlDetail = `https://e-tailorapi.azurewebsites.net/api/discount/${saveDiscountId}`;
+      try {
+        const response = await fetch(urlDetail, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setLoading(false);
+          setSaveDiscountDetail(responseData);
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    };
+    handleDataDetail();
+  }, [saveDiscountId]);
+
+  useEffect(() => {
+    if (discountDetail) {
+      form.setFieldsValue({
+        modifier: "public",
+      });
+    }
+  }, [discountDetail]);
+
+  return (
+    <Modal
+      open={open}
+      style={{ top: 95 }}
+      title="Cập nhật chương trình giảm giá"
+      okText="Cập nhật"
+      cancelText="Hủy bỏ"
+      onCancel={() => {
+        form.resetFields();
+        onCancel();
+        setSaveDiscountId(null);
+      }}
+      onOk={() => {
+        form
+          .validateFields()
+          .then(async (values) => {
+            setLoadingUpdate(true);
+
+            const check = await onUpdate();
+            if (check === 1) {
+              form.resetFields();
+              onCancel();
+              setSaveDiscountId(null);
+            }
+            setLoadingUpdate(false);
+          })
+          .catch((info) => {
+            console.log("Validate Failed:", info);
+          });
+      }}
+      okButtonProps={{ loading: loadingUpdate }}
+    >
+      {loading ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "350px",
+          }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
+        <Form
+          style={{
+            height: 530,
+            overflowY: "scroll",
+            scrollbarWidth: "none",
+            WebkitScrollbar: "none",
+            marginTop: 24,
+          }}
+          form={form}
+          layout="vertical"
+          name="form_in_modal"
+          initialValues={{
+            modifier: "public",
+          }}
+        >
+          <Form.Item
+            className="mt-2"
+            hasFeedback
+            name="name"
+            label="Tên chương trình"
+            rules={[
+              {
+                required: true,
+                message: "Tên chương trình không được để trống",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Row>
+            <Col span={12}>
+              <Form.Item
+                className="mt-2"
+                label="Ngày bắt đầu"
+                name="startDate"
+                rules={[
+                  {
+                    required: true,
+                    message: "Ngày bắt đầu không được để trống",
+                  },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const endDate = getFieldValue("endDate");
+                      if (!endDate || value.isBefore(endDate)) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject(
+                        "Ngày bắt đầu phải trước ngày kết thúc"
+                      );
+                    },
+                  }),
+                ]}
+              >
+                <DatePicker style={{ width: 220 }} placeholder="Ngày bắt đầu" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                className="mt-2 ml-4"
+                label="Ngày kết thúc"
+                name="endDate"
+                rules={[
+                  {
+                    required: true,
+                    message: "Ngày kết thúc không được để trống",
+                  },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      const startDate = getFieldValue("startDate");
+                      if (startDate && value.isBefore(startDate)) {
+                        return Promise.reject(
+                          "Ngày kết thúc phải sau ngày bắt đầu"
+                        );
+                      } else if (startDate && value.isSame(startDate, "day")) {
+                        return Promise.reject(
+                          "Ngày kết thúc không được trùng với ngày bắt đầu"
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
+                <DatePicker
+                  style={{ width: 220 }}
+                  placeholder="Ngày kết thúc"
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+
+          <Row>
+            <Col span={12}>
+              {componentDisabled === 2 ? (
+                <Form.Item
+                  hasFeedback
+                  className="mt-2"
+                  label="Giảm giá theo % (10-50)"
+                >
+                  <InputNumber style={{ width: 220 }} disabled={true} />
+                </Form.Item>
+              ) : (
+                <Form.Item
+                  hasFeedback
+                  className="mt-2"
+                  label="Giảm giá theo % (10-50)"
+                  name="discountPercent"
+                  onChange={(e) => handleDisable(e.target.value)}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Giảm giá theo % không được để trống",
+                    },
+                    {
+                      type: "number",
+                      min: 10,
+                      max: 50,
+                      step: 0.5,
+                      message:
+                        "Giảm giá phải là số nguyên và trong khoảng từ 10 - 50%",
+                    },
+                  ]}
+                >
+                  <InputNumber style={{ width: 220 }} />
+                </Form.Item>
+              )}
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                className="mt-2 ml-4"
+                hasFeedback
+                label="Số tiền giảm tối đa"
+                name="conditionPriceMax"
+                rules={[
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Phải là một số lớn hơn hoặc bằng 1",
+                  },
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value && getFieldValue("discountPercent")) {
+                        return Promise.reject(
+                          new Error("Số tiền giảm tối đa không được để trống")
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
+                <InputNumber style={{ width: 220 }} />
+              </Form.Item>
+            </Col>
+          </Row>
+          {componentDisabled === 1 ? (
+            <Col span={12}>
+              {" "}
+              <Form.Item className="mt-2 " hasFeedback label="Số tiền giảm">
+                <InputNumber style={{ width: 220 }} disabled={true} />
+              </Form.Item>
+            </Col>
+          ) : (
+            <Col span={12}>
+              {" "}
+              <Form.Item
+                className="mt-2 "
+                hasFeedback
+                label="Số tiền giảm"
+                name="discountPrice"
+                onChange={(e) => handleDisable1(e.target.value)}
+                rules={[
+                  {
+                    required: true,
+                    message: "Số tiền giảm không được để trống",
+                  },
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Phải là một số lớn hơn hoặc bằng 1",
+                  },
+                ]}
+              >
+                <InputNumber style={{ width: 220 }} />
+              </Form.Item>
+            </Col>
+          )}
+          <Row>
+            <Col span={12}>
+              <Form.Item
+                className="mt-2"
+                hasFeedback
+                label="Số tiền tối thiểu"
+                name="conditionPriceMin"
+                rules={[
+                  {
+                    required: true,
+                    message: "Số tiền tối thiểu không được để trống",
+                  },
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Phải là một số lớn hơn hoặc bằng 1",
+                  },
+                ]}
+              >
+                <InputNumber style={{ width: 220 }} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                className="mt-2 ml-4"
+                hasFeedback
+                label="Sản phẩm tối thiểu"
+                name="conditionProductMin"
+                rules={[
+                  {
+                    required: true,
+                    message: "Sản phẩm tối thiểu không được để trống",
+                  },
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Phải là một số lớn hơn hoặc bằng 1",
+                  },
+                ]}
+              >
+                <InputNumber style={{ width: 220 }} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      )}
     </Modal>
   );
 };
