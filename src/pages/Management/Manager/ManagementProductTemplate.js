@@ -16,6 +16,7 @@ import {
   FileTextOutlined,
   SearchOutlined,
   DownloadOutlined,
+  VerticalAlignTopOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel } from "antd";
 import "./index.css";
@@ -685,7 +686,7 @@ export const ManagementCreateProductTemplate = () => {
   const [exportFileLoading, setExportFileLoading] = useState(false);
   const handleDownloadExportFile = async () => {
     if (saveProductTemplateId) {
-      const getlUrl = `https://e-tailorapi.azurewebsites.net/api/test/DownloadExportFile?templateId=${saveProductTemplateId}`;
+      const getlUrl = `https://e-tailorapi.azurewebsites.net/api/Component/export/template/${saveProductTemplateId}`;
       setExportFileLoading(true);
       const response = await fetch(getlUrl, {
         method: "GET",
@@ -710,6 +711,59 @@ export const ManagementCreateProductTemplate = () => {
         .catch((error) => {
           console.error("Error downloading the file:", error);
         });
+    }
+  };
+  const [importFileLoading, setImportFileLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
+  const handleDeleteFile = () => {
+    setSelectedFile(null);
+    fileInputRef.current.value = null;
+  };
+  const handleImportFile = async (event) => {
+    try {
+      setImportFileLoading(true);
+      const file = event.target.files[0];
+      if (!file) {
+        throw new Error("Vui lòng chọn một file để nhập.");
+      }
+      console.log("file", file);
+      setSelectedFile(file);
+      await uploadFile(file);
+    } catch (error) {
+      console.error("Error:", error);
+      message.error(error.message);
+    } finally {
+      setImportFileLoading(false);
+    }
+  };
+  const uploadFile = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(
+        `https://e-tailorapi.azurewebsites.net/api/Component/import/template/${saveProductTemplateId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${manager?.token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (response.status === 200 && response.ok) {
+        const responseData = await response.text();
+        console.log("Upload successful:", responseData);
+        handleGetComponentType();
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        toast.error(responseData);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      message.error(error.message);
     }
   };
 
@@ -1007,6 +1061,37 @@ export const ManagementCreateProductTemplate = () => {
             >
               Xuất file mẫu
             </Button>
+            <Button
+              type="primary"
+              icon={<VerticalAlignTopOutlined />}
+              style={{ marginLeft: "20px" }}
+              onClick={() => fileInputRef.current.click()}
+              loading={importFileLoading}
+            >
+              Nhập file mẫu
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleImportFile}
+              accept=".xlsx,.xls"
+            />
+          </div>
+          <div>
+            {selectedFile && (
+              <div style={{ marginTop: 10, textAlign: "center" }}>
+                <strong>{selectedFile.name}</strong> ({selectedFile.size} bytes)
+                <Button
+                  type="link"
+                  icon={<DeleteOutlined />}
+                  onClick={handleDeleteFile}
+                  style={{ marginLeft: 10 }}
+                >
+                  Xóa
+                </Button>
+              </div>
+            )}
           </div>
           {categoryDetailData &&
             categoryDetailData?.componentTypes?.map((data, index) => {
