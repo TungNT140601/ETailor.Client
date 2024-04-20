@@ -590,7 +590,6 @@ export const ManagementCreateProductTemplate = () => {
       });
       if (response.ok && response.status === 200) {
         const responseData = await response.json();
-        console.log("DATA BODY SIZE :", responseData);
         setDataBodySize(responseData);
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
@@ -639,7 +638,9 @@ export const ManagementCreateProductTemplate = () => {
     const step4Check = form.getFieldValue(["items"]);
     const beData = step4Check?.map((stage) => ({
       name: stage.name,
-      componentTypeIds: stage.componentTypeIds.map((item) => item.value),
+      componentTypeIds: stage?.componentTypeIds
+        ? stage?.componentTypeIds?.map((item) => item.value)
+        : null,
     }));
     setLoadingStep4(true);
     const postlUrl = `https://e-tailorapi.azurewebsites.net/api/template-stage/template/${saveProductTemplateId}`;
@@ -830,6 +831,39 @@ export const ManagementCreateProductTemplate = () => {
                       );
                     })}
                 </Select>
+              </Form.Item>
+              <Form.Item
+                name="gender"
+                label="Phù hợp"
+                rules={[
+                  {
+                    required: true,
+                    message: "Phù hợp của 1 bản mẫu không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Bản mẫu này phù hợp với" defaultValue="-1">
+                  <Option value="-1">Nam và Nữ</Option>
+                  <Option value="1">Nam</Option>
+                  <Option value="2">Nữ</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="deadline"
+                label="Ngày hoàn thành"
+                rules={[
+                  {
+                    required: true,
+                    message: "Ngày hoàn thành của bản mẫu không được để trống",
+                  },
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Ngày hoàn thành phải lớn hơn hoặc bằng 1",
+                  },
+                ]}
+              >
+                <InputNumber style={{ width: "100%" }} />
               </Form.Item>
               <Form.Item
                 className="mt-2"
@@ -1087,6 +1121,7 @@ export const ManagementCreateProductTemplate = () => {
                   icon={<DeleteOutlined />}
                   onClick={handleDeleteFile}
                   style={{ marginLeft: 10 }}
+                  disabled={importFileLoading}
                 >
                   Xóa
                 </Button>

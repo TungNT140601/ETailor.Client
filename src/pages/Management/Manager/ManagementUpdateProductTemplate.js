@@ -15,6 +15,7 @@ import {
   LoadingOutlined,
   CloseCircleOutlined,
   DownloadOutlined,
+  VerticalAlignTopOutlined,
 } from "@ant-design/icons";
 import { Typography, Carousel } from "antd";
 import "./index.css";
@@ -47,6 +48,7 @@ import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
 
 const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
@@ -446,7 +448,7 @@ const ManagementUpdateProductTemplateContent = () => {
         Swal.fire({
           position: "top-center",
           icon: "warning",
-          title: "Mày có điền không ????",
+          title: "Vui lòng điền ít nhất 1 kiểu cho mỗi bộ phận",
           showConfirmButton: false,
           timer: 1500,
         });
@@ -669,7 +671,7 @@ const ManagementUpdateProductTemplateContent = () => {
         Swal.fire({
           position: "top-center",
           icon: "success",
-          title: "Cập nhật được bước đầu rồi yeah!",
+          title: "Cập nhật thông tin sản phẩm thành công!",
           showConfirmButton: false,
           timer: 1500,
         });
@@ -1014,6 +1016,59 @@ const ManagementUpdateProductTemplateContent = () => {
         });
     }
   };
+  const [importFileLoading, setImportFileLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
+  const handleDeleteFile = () => {
+    setSelectedFile(null);
+    fileInputRef.current.value = null;
+  };
+  const handleImportFile = async (event) => {
+    try {
+      setImportFileLoading(true);
+      const file = event.target.files[0];
+      if (!file) {
+        throw new Error("Vui lòng chọn một file để nhập.");
+      }
+      console.log("file", file);
+      setSelectedFile(file);
+      await uploadFile(file);
+    } catch (error) {
+      console.error("Error:", error);
+      message.error(error.message);
+    } finally {
+      setImportFileLoading(false);
+    }
+  };
+  const uploadFile = async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(
+        `https://e-tailorapi.azurewebsites.net/api/Component/import/template/${id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${manager?.token}`,
+          },
+          body: formData,
+        }
+      );
+
+      if (response.status === 200 && response.ok) {
+        const responseData = await response.text();
+        console.log("Upload successful:", responseData);
+        handleGetComponentType();
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        toast.error(responseData);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      message.error(error.message);
+    }
+  };
 
   const steps = [
     {
@@ -1086,6 +1141,39 @@ const ManagementUpdateProductTemplateContent = () => {
                       );
                     })}
                 </Select>
+              </Form.Item>
+              <Form.Item
+                name="gender"
+                label="Phù hợp"
+                rules={[
+                  {
+                    required: true,
+                    message: "Phù hợp của 1 bản mẫu không được để trống",
+                  },
+                ]}
+              >
+                <Select placeholder="Bản mẫu này phù hợp với" defaultValue="-1">
+                  <Option value="-1">Nam và Nữ</Option>
+                  <Option value="1">Nam</Option>
+                  <Option value="2">Nữ</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="deadline"
+                label="Ngày hoàn thành"
+                rules={[
+                  {
+                    required: true,
+                    message: "Ngày hoàn thành của bản mẫu không được để trống",
+                  },
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Ngày hoàn thành phải lớn hơn hoặc bằng 1",
+                  },
+                ]}
+              >
+                <InputNumber style={{ width: "100%" }} />
               </Form.Item>
               <Form.Item
                 className="mt-2"
@@ -1391,6 +1479,38 @@ const ManagementUpdateProductTemplateContent = () => {
             >
               Xuất file mẫu
             </Button>
+            <Button
+              type="primary"
+              icon={<VerticalAlignTopOutlined />}
+              style={{ marginLeft: "20px" }}
+              onClick={() => fileInputRef.current.click()}
+              loading={importFileLoading}
+            >
+              Nhập file mẫu
+            </Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleImportFile}
+              accept=".xlsx,.xls"
+            />
+          </div>
+          <div>
+            {selectedFile && (
+              <div style={{ marginTop: 10, textAlign: "center" }}>
+                <strong>{selectedFile.name}</strong> ({selectedFile.size} bytes)
+                <Button
+                  type="link"
+                  icon={<DeleteOutlined />}
+                  onClick={handleDeleteFile}
+                  style={{ marginLeft: 10 }}
+                  disabled={importFileLoading}
+                >
+                  Xóa
+                </Button>
+              </div>
+            )}
           </div>
           {categoryDetailData &&
             categoryDetailData?.componentTypes?.map((data, index) => {
