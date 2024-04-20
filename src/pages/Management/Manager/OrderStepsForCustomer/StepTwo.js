@@ -18,6 +18,7 @@ import {
   Image,
   Table,
   Radio,
+  Select,
 } from "antd";
 import "../index.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -41,12 +42,16 @@ function StepTwo({
   formatCurrency,
   handleDeleteProduct,
   handleCheckUpdateProduct,
+  discountForOrder,
+  loadingDiscount,
+  saveDiscount,
+  handleCheckDiscount,
 }) {
   const [changePrice, setChangePrice] = useState(false);
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [inputValue, setInputValue] = useState(null);
   const navigate = useNavigate();
-  const [loadingDiscount, setLoadingDiscount] = useState(false);
+
   const [active, setActive] = useState(0);
   const [formMaterial] = Form.useForm();
 
@@ -128,37 +133,7 @@ function StepTwo({
       }
     }
   };
-  const handleCheckDiscount = async (value) => {
-    const urlOrderDetail = `https://e-tailorapi.azurewebsites.net/api/discount/order/${saveOrderId}/discount/${value}`;
-    setLoadingDiscount(true);
-    try {
-      const response = await fetch(`${urlOrderDetail}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      const responseData = await response.text();
-      if (response.ok && response.status === 200) {
-        toast.success(responseData, {
-          duration: 3000,
-        });
-        setLoadingDiscount(false);
-        handleDataOrderDetail();
-      } else if (response.status === 400 || response.status === 500) {
-        toast.error(responseData, {
-          duration: 3000,
-        });
-        setLoadingDiscount(false);
-      } else if (response.status === 401) {
-        localStorage.removeItem("manager");
-        navigate("/management/login");
-      }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
-  };
+
   const handleCreatePayCash = async (amount, payType, platform) => {
     const getFieldMaterial = formMaterial.getFieldsValue(["itemsMaterial"]);
     console.log("getFieldMaterial", getFieldMaterial);
@@ -656,17 +631,40 @@ function StepTwo({
                   </Title>
                 </div>
               ) : (
-                <div style={{ position: "relative" }}>
+                <div
+                  style={{
+                    position: "relative",
+                  }}
+                >
                   <Divider />
+                  {console.log("saveDiscount", saveDiscount)}
                   <div>
                     <Title level={5}>III/ Chương trình giảm giá</Title>
                     <div style={{ marginTop: 10 }}>
-                      <Search
+                      <Select
+                        key={
+                          discountForOrder &&
+                          discountForOrder?.map((id) => id.id)
+                        }
+                        style={{
+                          width: "100%",
+                        }}
+                        defaultValue={() => {
+                          if (saveDiscount) {
+                            return saveDiscount;
+                          }
+                        }}
                         placeholder="Chương trình giảm giá"
                         allowClear
-                        enterButton="Tìm kiếm"
-                        onSearch={(value) => handleCheckDiscount(value)}
+                        onSelect={(value) => handleCheckDiscount(value)}
                         loading={loadingDiscount}
+                        options={
+                          discountForOrder &&
+                          discountForOrder?.map((discount) => ({
+                            value: discount.id,
+                            label: discount.name,
+                          }))
+                        }
                       />
                     </div>
                   </div>
@@ -900,28 +898,49 @@ function StepTwo({
                     </Text>
                   </div>
                   <Divider />
-                  <div style={{ height: "100%" }}>
+                  <div
+                    style={{
+                      position: "sticky",
+                      bottom: 0,
+                      left: 0,
+                      backgroundColor: "white",
+                      border: "1px solid #9F78FF",
+                      padding: 10,
+                      borderRadius: 10,
+                      width: "100%",
+                      zIndex: 1000,
+                    }}
+                  >
                     {orderPaymentDetail?.discountCode !== "" ? (
                       <>
+                        {orderPaymentDetail?.discountPrice && (
+                          <div style={{ marginTop: 5 }}>
+                            <Text
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              Số tiền giảm: &nbsp;
+                              <b>
+                                -
+                                {formatCurrency(
+                                  orderPaymentDetail?.discountPrice
+                                )}
+                              </b>
+                            </Text>
+                          </div>
+                        )}
+
                         <div style={{ marginTop: 5 }}>
-                          <Text>
-                            Mã áp dụng: &nbsp;{" "}
-                            <b>{orderPaymentDetail?.discountCode}</b>
-                          </Text>
-                        </div>
-                        <div style={{ marginTop: 5 }}>
-                          <Text>
-                            Số tiền giảm: &nbsp;
-                            <b>
-                              -
-                              {formatCurrency(
-                                orderPaymentDetail?.discountPrice
-                              )}
-                            </b>
-                          </Text>
-                        </div>
-                        <div style={{ marginTop: 5 }}>
-                          <Text level={4}>
+                          <Text
+                            level={4}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
                             Số tiền sau khi giảm: &nbsp;
                             <b>
                               <Text delete>
@@ -941,44 +960,29 @@ function StepTwo({
                             style={{
                               display: "flex",
                               justifyContent: "space-between",
+                              alignItems: "center",
                             }}
                           >
-                            <b>Tổng cộng: &nbsp;</b>
+                            <b style={{ fontSize: 20 }}>Tổng cộng: &nbsp;</b>
                             &nbsp;{" "}
-                            <p>
+                            <p style={{ margin: 0, fontSize: 20 }}>
                               {formatCurrency(orderPaymentDetail?.totalPrice)}
                             </p>
                           </Text>
                         </div>
                       </>
                     ) : (
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                          width: 368,
-                          height: 50,
-                          position: "fixed",
-                          bottom: 119,
-                          right: 50,
-                          zIndex: 1000,
-                          backgroundColor: "white",
-                          border: "1px solid #9F78FF",
-                          borderLeft: "none",
-                          borderRight: "none",
-                        }}
-                      >
-                        {" "}
+                      <div>
                         <Title
                           level={4}
                           style={{
-                            width: 250,
                             display: "flex",
                             justifyContent: "space-between",
+                            alignItems: "center",
+                            margin: "0px 0px 6px",
                           }}
                         >
-                          Tổng cộng: &nbsp;
+                          <b>Tổng cộng:</b> &nbsp;
                           <b>
                             {formatCurrency(orderPaymentDetail?.totalPrice)}
                           </b>

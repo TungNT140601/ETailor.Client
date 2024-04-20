@@ -46,6 +46,7 @@ import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
+import dayjs from "dayjs";
 
 const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
@@ -170,7 +171,13 @@ const ManagementDiscountContent = () => {
       dataIndex: "discountpercent",
       key: "5",
       width: 150,
-      render: (_, record) => <Text>{`${record.discountpercent}%`}</Text>,
+      render: (_, record) => (
+        <Text>
+          {record.discountpercent === null
+            ? "0%"
+            : `${record.discountpercent}%`}
+        </Text>
+      ),
     },
     {
       title: "Số tiền giảm",
@@ -179,7 +186,9 @@ const ManagementDiscountContent = () => {
       width: 150,
       render: (_, record) => (
         <Text>
-          {`${record.discountprice}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          {record.discountprice === null
+            ? "0đ"
+            : `${record.discountprice}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
         </Text>
       ),
     },
@@ -188,12 +197,32 @@ const ManagementDiscountContent = () => {
       dataIndex: "conditionPriceMin",
       key: "7",
       width: 220,
+      render: (_, record) => (
+        <Text>
+          {record.conditionPriceMin === null
+            ? "0đ"
+            : `${record.conditionPriceMin}đ`.replace(
+                /\B(?=(\d{3})+(?!\d))/g,
+                ","
+              )}
+        </Text>
+      ),
     },
     {
       title: "Số tiền giảm tối đa",
       dataIndex: "conditionPriceMax",
       key: "8",
       width: 200,
+      render: (_, record) => (
+        <Text>
+          {record.conditionPriceMax === null
+            ? "0đ"
+            : `${record.conditionPriceMax}đ`.replace(
+                /\B(?=(\d{3})+(?!\d))/g,
+                ","
+              )}
+        </Text>
+      ),
     },
     {
       title: "Sản phẩm tối thiểu",
@@ -266,7 +295,6 @@ const ManagementDiscountContent = () => {
       setError("Ngày kết thúc không được bé hơn ngày bắt đầu");
       return;
     }
-    console.log("values", values);
     try {
       const response = await fetch(urlCreateMaterialType, {
         method: "POST",
@@ -299,7 +327,7 @@ const ManagementDiscountContent = () => {
     setOpenUpdate(true);
   };
   const onUpdate = async (values, startDate, endDate) => {
-    const url = `https://e-tailorapi.azurewebsites.net/api/discount`;
+    const url = `https://e-tailorapi.azurewebsites.net/api/discount/${saveDiscountId}`;
     if (startDate.isAfter(endDate)) {
       setErrorUpdate("Ngày bắt đầu không được lớn hơn ngày kết thúc");
       return;
@@ -307,7 +335,7 @@ const ManagementDiscountContent = () => {
       setErrorUpdate("Ngày kết thúc không được bé hơn ngày bắt đầu");
       return;
     }
-    console.log("values", values);
+    console.log("values PUT", values);
     try {
       const response = await fetch(url, {
         method: "PUT",
@@ -362,7 +390,7 @@ const ManagementDiscountContent = () => {
           console.error("Error calling API:", error);
         }
       } else if (result.isDenied) {
-        Swal.fire("Hủy bỏ xóa nguyên liệu", "", "info");
+        Swal.fire("Hủy bỏ xóa chương trình giảm giá", "", "info");
       }
     });
   };
@@ -448,7 +476,7 @@ const ManagementDiscountContent = () => {
       )}
       <CollectionUpdateForm
         open={openUpdate}
-        onCancel={() => setErrorUpdate(false)}
+        onCancel={() => setOpenUpdate(false)}
         error={errorUpdate}
         saveDiscountId={saveDiscountId}
         setSaveDiscountId={setSaveDiscountId}
@@ -507,13 +535,17 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
               name: values?.name,
               startDate: startDateConvert,
               endDate: endDateConvert,
-              discountPercent:
-                values?.discountPercent && values?.discountPercent,
-              discountPrice: values?.discountPrice && values?.discountPrice,
+              discountPercent: values?.discountPercent
+                ? values?.discountPercent
+                : null,
+              discountPrice: values?.discountPrice
+                ? values?.discountPrice
+                : null,
               conditionPriceMin:
                 values?.conditionPriceMin && values?.conditionPriceMin,
-              conditionPriceMax:
-                values?.conditionPriceMax && values?.conditionPriceMax,
+              conditionPriceMax: values?.conditionPriceMax
+                ? values?.conditionPriceMax
+                : null,
               conditionProductMin:
                 values?.conditionProductMin && values?.conditionProductMin,
             };
@@ -656,36 +688,58 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
                   },
                 ]}
               >
-                <InputNumber style={{ width: 220 }} />
+                <InputNumber
+                  style={{ width: 220 }}
+                  formatter={(value) =>
+                    `${value}%`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value.replace(/%\s?|(,*)/g, "")}
+                />
               </Form.Item>
             )}
           </Col>
           <Col span={12}>
-            <Form.Item
-              className="mt-2 ml-4"
-              hasFeedback
-              label="Số tiền giảm tối đa"
-              name="conditionPriceMax"
-              rules={[
-                {
-                  type: "number",
-                  min: 1,
-                  message: "Phải là một số lớn hơn hoặc bằng 1",
-                },
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value && getFieldValue("discountPercent")) {
-                      return Promise.reject(
-                        new Error("Số tiền giảm tối đa không được để trống")
-                      );
-                    }
-                    return Promise.resolve();
+            {componentDisabled === 2 ? (
+              <Form.Item
+                className="mt-2 ml-4"
+                hasFeedback
+                label="Số tiền giảm tối đa"
+              >
+                <InputNumber style={{ width: 220 }} disabled={true} />
+              </Form.Item>
+            ) : (
+              <Form.Item
+                className="mt-2 ml-4"
+                hasFeedback
+                label="Số tiền giảm tối đa"
+                name="conditionPriceMax"
+                rules={[
+                  {
+                    type: "number",
+                    min: 1,
+                    message: "Phải là một số lớn hơn hoặc bằng 1",
                   },
-                }),
-              ]}
-            >
-              <InputNumber style={{ width: 220 }} />
-            </Form.Item>
+                  ({ getFieldValue }) => ({
+                    validator(_, value) {
+                      if (!value && getFieldValue("discountPercent")) {
+                        return Promise.reject(
+                          new Error("Số tiền giảm tối đa không được để trống")
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  }),
+                ]}
+              >
+                <InputNumber
+                  style={{ width: 220 }}
+                  formatter={(value) =>
+                    `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+                />
+              </Form.Item>
+            )}
           </Col>
         </Row>
         {componentDisabled === 1 ? (
@@ -716,7 +770,13 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
                 },
               ]}
             >
-              <InputNumber style={{ width: 220 }} />
+              <InputNumber
+                style={{ width: 220 }}
+                formatter={(value) =>
+                  `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+                parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+              />
             </Form.Item>
           </Col>
         )}
@@ -725,12 +785,12 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
             <Form.Item
               className="mt-2"
               hasFeedback
-              label="Số tiền tối thiểu"
+              label="Số tiền hóa đơn tối thiểu"
               name="conditionPriceMin"
               rules={[
                 {
                   required: true,
-                  message: "Số tiền tối thiểu không được để trống",
+                  message: "Số tiền hóa đơn tối thiểu không được để trống",
                 },
                 {
                   type: "number",
@@ -739,19 +799,25 @@ const CollectionCreateForm = ({ open, onCreate, onCancel, error }) => {
                 },
               ]}
             >
-              <InputNumber style={{ width: 220 }} />
+              <InputNumber
+                style={{ width: 220 }}
+                formatter={(value) =>
+                  `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+                parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+              />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
               className="mt-2 ml-4"
               hasFeedback
-              label="Sản phẩm tối thiểu"
+              label="Sản phẩm hóa đơn tối thiểu"
               name="conditionProductMin"
               rules={[
                 {
                   required: true,
-                  message: "Sản phẩm tối thiểu không được để trống",
+                  message: "Sản phẩm hóa đơn tối thiểu không được để trống",
                 },
                 {
                   type: "number",
@@ -821,13 +887,28 @@ const CollectionUpdateForm = ({
         console.error("Error calling API:", error);
       }
     };
-    handleDataDetail();
+    if (saveDiscountId) {
+      handleDataDetail();
+    }
   }, [saveDiscountId]);
-
+  console.log("Discount detail: ", discountDetail);
   useEffect(() => {
     if (discountDetail) {
       form.setFieldsValue({
         modifier: "public",
+        name: discountDetail.name,
+        discountPrice: discountDetail.discountPrice
+          ? discountDetail.discountPrice
+          : setComponentDisabled(1),
+        startDate: dayjs(discountDetail.startDate),
+        endDate: dayjs(discountDetail.endDate),
+        discountPercent:
+          discountDetail.discountPercent && discountDetail.conditionPriceMax
+            ? discountDetail.discountPercent
+            : setComponentDisabled(2),
+        conditionPriceMax: discountDetail.conditionPriceMax,
+        conditionPriceMin: discountDetail.conditionPriceMin,
+        conditionProductMin: discountDetail.conditionProductMin,
       });
     }
   }, [discountDetail]);
@@ -835,7 +916,7 @@ const CollectionUpdateForm = ({
   return (
     <Modal
       open={open}
-      style={{ top: 95 }}
+      style={{ top: 65 }}
       title="Cập nhật chương trình giảm giá"
       okText="Cập nhật"
       cancelText="Hủy bỏ"
@@ -850,14 +931,40 @@ const CollectionUpdateForm = ({
           .then(async (values) => {
             setLoadingUpdate(true);
 
-            const check = await onUpdate();
+            const startDateConvert = new Date(values.startDate.$d);
+            const endDateConvert = new Date(values.endDate.$d);
+
+            const dataBackend = {
+              id: saveDiscountId,
+              name: values?.name,
+              startDate: startDateConvert,
+              endDate: endDateConvert,
+              discountPercent: values?.discountPercent
+                ? values?.discountPercent
+                : null,
+              discountPrice: values?.discountPrice
+                ? values?.discountPrice
+                : null,
+              conditionPriceMin:
+                values?.conditionPriceMin && values?.conditionPriceMin,
+              conditionPriceMax: values?.conditionPriceMax
+                ? values?.conditionPriceMax
+                : null,
+              conditionProductMin:
+                values?.conditionProductMin && values?.conditionProductMin,
+            };
+            const check = await onUpdate(
+              dataBackend,
+              values.startDate,
+              values.endDate
+            );
             if (check === 1) {
               form.resetFields();
               onCancel();
               setSaveDiscountId(null);
             }
-            setLoadingUpdate(false);
           })
+          .then(() => setLoadingUpdate(false))
           .catch((info) => {
             console.log("Validate Failed:", info);
           });
@@ -1000,43 +1107,72 @@ const CollectionUpdateForm = ({
                     },
                   ]}
                 >
-                  <InputNumber style={{ width: 220 }} />
+                  <InputNumber
+                    style={{ width: 220 }}
+                    formatter={(value) =>
+                      `${value}%`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    }
+                    parser={(value) => value.replace(/%\s?|(,*)/g, "")}
+                  />
                 </Form.Item>
               )}
             </Col>
             <Col span={12}>
-              <Form.Item
-                className="mt-2 ml-4"
-                hasFeedback
-                label="Số tiền giảm tối đa"
-                name="conditionPriceMax"
-                rules={[
-                  {
-                    type: "number",
-                    min: 1,
-                    message: "Phải là một số lớn hơn hoặc bằng 1",
-                  },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value && getFieldValue("discountPercent")) {
-                        return Promise.reject(
-                          new Error("Số tiền giảm tối đa không được để trống")
-                        );
-                      }
-                      return Promise.resolve();
+              {componentDisabled === 2 ? (
+                <Form.Item
+                  className="mt-2 ml-4"
+                  hasFeedback
+                  label="Số tiền giảm tối đa"
+                >
+                  <InputNumber style={{ width: 220 }} disabled={true} />
+                </Form.Item>
+              ) : (
+                <Form.Item
+                  className="mt-2 ml-4"
+                  hasFeedback
+                  label="Số tiền giảm tối đa"
+                  name="conditionPriceMax"
+                  rules={[
+                    {
+                      type: "number",
+                      min: 1,
+                      message: "Phải là một số lớn hơn hoặc bằng 1",
                     },
-                  }),
-                ]}
-              >
-                <InputNumber style={{ width: 220 }} />
-              </Form.Item>
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value && getFieldValue("discountPercent")) {
+                          return Promise.reject(
+                            new Error("Số tiền giảm tối đa không được để trống")
+                          );
+                        }
+                        return Promise.resolve();
+                      },
+                    }),
+                  ]}
+                >
+                  <InputNumber
+                    style={{ width: 220 }}
+                    formatter={(value) =>
+                      `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                    }
+                    parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+                  />
+                </Form.Item>
+              )}
             </Col>
           </Row>
           {componentDisabled === 1 ? (
             <Col span={12}>
               {" "}
               <Form.Item className="mt-2 " hasFeedback label="Số tiền giảm">
-                <InputNumber style={{ width: 220 }} disabled={true} />
+                <InputNumber
+                  style={{ width: 220 }}
+                  disabled={true}
+                  formatter={(value) =>
+                    `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+                />
               </Form.Item>
             </Col>
           ) : (
@@ -1060,7 +1196,13 @@ const CollectionUpdateForm = ({
                   },
                 ]}
               >
-                <InputNumber style={{ width: 220 }} />
+                <InputNumber
+                  style={{ width: 220 }}
+                  formatter={(value) =>
+                    `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+                />
               </Form.Item>
             </Col>
           )}
@@ -1083,7 +1225,13 @@ const CollectionUpdateForm = ({
                   },
                 ]}
               >
-                <InputNumber style={{ width: 220 }} />
+                <InputNumber
+                  style={{ width: 220 }}
+                  formatter={(value) =>
+                    `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                  }
+                  parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>

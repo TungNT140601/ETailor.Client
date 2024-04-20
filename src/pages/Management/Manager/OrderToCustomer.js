@@ -51,8 +51,33 @@ const OrderToCustomerContent = () => {
   //---------------------------------------------------Lưu orderId-----------------------------------------------------------------
   const [saveCustomer, setSaveCustomer] = useState(null);
   const [saveOrderId, setSaveOrderId] = useState(null);
+  const [discountForOrder, setDiscountForOrder] = useState(null);
 
   const [createOrderLoading, setCreateOrderLoading] = useState(false);
+
+  const getDiscountForOrder = async () => {
+    if (saveOrderId) {
+      const url = `https://e-tailorapi.azurewebsites.net/api/discount/order/${saveOrderId}`;
+      try {
+        const response = await fetch(`${url}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setDiscountForOrder(responseData);
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      }
+    }
+  };
 
   const handleSaveOrder = () => {
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/order`;
@@ -271,11 +296,12 @@ const OrderToCustomerContent = () => {
       });
 
       if (response.ok && response.status === 200) {
-        toast.success("Tạo mới thành công");
+        getDiscountForOrder();
         const loadingData = await handleDataOrderDetail();
         if (loadingData === 1) {
           setCurrent(1);
         }
+        toast.success("Tạo mới thành công");
         return 1;
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
@@ -458,6 +484,7 @@ const OrderToCustomerContent = () => {
       if (checkResult === 1) {
         setCurrent(1);
         formUpdate.resetFields();
+        getDiscountForOrder();
         const check = await handleDataOrderDetail();
         if (check === 1) {
           setOnFinishLoading(false);
@@ -470,6 +497,40 @@ const OrderToCustomerContent = () => {
         duration: 2000,
       });
       setOnFinishLoading(false);
+    }
+  };
+  const [loadingDiscount, setLoadingDiscount] = useState(false);
+  const [saveDiscount, setSaveDiscount] = useState(null);
+  const handleCheckDiscount = async (value) => {
+    const urlOrderDetail = `https://e-tailorapi.azurewebsites.net/api/discount/order/${saveOrderId}/discount?code=${value}`;
+    setLoadingDiscount(true);
+    try {
+      const response = await fetch(`${urlOrderDetail}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      const responseData = await response.text();
+      if (response.ok && response.status === 200) {
+        toast.success(responseData, {
+          duration: 3000,
+        });
+        setLoadingDiscount(false);
+        handleDataOrderDetail();
+        setSaveDiscount(value);
+      } else if (response.status === 400 || response.status === 500) {
+        toast.error(responseData, {
+          duration: 3000,
+        });
+        setLoadingDiscount(false);
+      } else if (response.status === 401) {
+        localStorage.removeItem("manager");
+        navigate("/management/login");
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
     }
   };
 
@@ -506,6 +567,10 @@ const OrderToCustomerContent = () => {
             formatCurrency={formatCurrency}
             handleDeleteProduct={handleDeleteProduct}
             handleCheckUpdateProduct={handleCheckUpdateProduct}
+            discountForOrder={discountForOrder}
+            loadingDiscount={loadingDiscount}
+            saveDiscount={saveDiscount}
+            handleCheckDiscount={handleCheckDiscount}
           />
         </>
       ),
