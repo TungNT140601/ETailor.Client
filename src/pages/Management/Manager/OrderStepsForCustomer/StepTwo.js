@@ -19,6 +19,7 @@ import {
   Table,
   Radio,
   Select,
+  Spin,
 } from "antd";
 import "../index.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -133,8 +134,10 @@ function StepTwo({
       }
     }
   };
+  const [paymentLoading, setPaymentLoading] = useState(false);
 
   const handleCreatePayCash = async (amount, payType, platform) => {
+    setPaymentLoading(true);
     const getFieldMaterial = formMaterial.getFieldsValue(["itemsMaterial"]);
     console.log("getFieldMaterial", getFieldMaterial);
 
@@ -163,6 +166,8 @@ function StepTwo({
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setPaymentLoading(false);
     }
   };
   const columns = [
@@ -297,7 +302,7 @@ function StepTwo({
     },
   ];
   const dataForProduct = orderPaymentDetail?.products?.map((item, index) => ({
-    index: index,
+    index: index + 1,
     name: item.name,
     templateName: item.templateName,
     templateThumnailImage: item.templateThumnailImage,
@@ -307,7 +312,7 @@ function StepTwo({
   const dataOrderMaterials = orderPaymentDetail?.orderMaterials?.map(
     (item, index) => ({
       id: item.materialId,
-      index: index,
+      index: index + 1,
       name: item.material.name,
       image: item.material.image,
     })
@@ -315,6 +320,7 @@ function StepTwo({
   return (
     <>
       <Toaster />
+      <Spin spinning={paymentLoading} fullscreen />
       <Row style={{ marginTop: 24 }}>
         <Col
           span={16}
@@ -445,7 +451,7 @@ function StepTwo({
                               ),
                             },
                             {
-                              title: "Số met vải yêu cầu",
+                              title: "Số met vải cần thiết",
                               dataIndex: "value",
                               key: "value",
                               render: (text, record, index) => (
@@ -913,7 +919,7 @@ function StepTwo({
                   >
                     {orderPaymentDetail?.discountCode !== "" ? (
                       <>
-                        {orderPaymentDetail?.discountPrice && (
+                        {orderPaymentDetail?.discountPrice !== 0 && (
                           <div style={{ marginTop: 5 }}>
                             <Text
                               style={{
@@ -966,7 +972,9 @@ function StepTwo({
                             <b style={{ fontSize: 20 }}>Tổng cộng: &nbsp;</b>
                             &nbsp;{" "}
                             <p style={{ margin: 0, fontSize: 20 }}>
-                              {formatCurrency(orderPaymentDetail?.totalPrice)}
+                              {formatCurrency(
+                                orderPaymentDetail?.afterDiscountPrice
+                              )}
                             </p>
                           </Text>
                         </div>
