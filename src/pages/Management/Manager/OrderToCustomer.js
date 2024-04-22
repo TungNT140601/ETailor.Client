@@ -283,8 +283,8 @@ const OrderToCustomerContent = () => {
     getAllBodySize();
   }, []);
 
-  const onCreateNewProduct = async (values) => {
-    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}`;
+  const onCreateNewProduct = async (values, quantity) => {
+    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}?quantity=${quantity}`;
     try {
       const response = await fetch(`${urlCreateNew}`, {
         method: "POST",
@@ -349,6 +349,8 @@ const OrderToCustomerContent = () => {
       setOnFinishLoading(false);
     } else if (getDetailDataProfileCustomer) {
       const allValues = form.getFieldsValue();
+      const quantityParams = allValues.quantity;
+      console.log("quantityParams", quantityParams);
       const backendData = {
         orderId: saveOrderId,
         name: allValues.name,
@@ -380,7 +382,7 @@ const OrderToCustomerContent = () => {
         profileId: getDetailDataProfileCustomer.id,
         note: allValues.note ? allValues.note : "",
       };
-      const checkResult = await onCreateNewProduct(backendData);
+      const checkResult = await onCreateNewProduct(backendData, quantityParams);
       if (checkResult === 1) {
         setProductComponent(null);
         form.resetFields();
