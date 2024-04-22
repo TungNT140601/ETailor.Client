@@ -27,6 +27,7 @@ import {
   Upload,
   Carousel,
   Radio,
+  Slider,
 } from "antd";
 import "../index.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -509,6 +510,19 @@ function StepThree({
                                 </Select.Option>
                               ))}
                             </Select>
+                          </Form.Item>
+                          <Form.Item
+                            label="Số lượng"
+                            hasFeedback
+                            name="quantity"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Số lượng không được để trống!",
+                              },
+                            ]}
+                          >
+                            <Slider min={1} max={20} />
                           </Form.Item>
                           <Form.Item label="Ghi chú" name="note" hasFeedback>
                             <Input.TextArea />
