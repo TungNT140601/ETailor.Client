@@ -62,6 +62,9 @@ function StepThree({
   getProfileUpdateCustomer,
   setGetProfileUpdateCustomer,
   getAllBodySize,
+  inputValue,
+  setInputValue,
+  onChange,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
   console.log("profileCustomer ben step three", profileCustomer);
@@ -350,6 +353,7 @@ function StepThree({
       }
     }
   };
+
   return (
     <>
       <Toaster />
@@ -522,7 +526,31 @@ function StepThree({
                               },
                             ]}
                           >
-                            <Slider min={1} max={20} />
+                            <Row>
+                              <Col span={19}>
+                                <Slider
+                                  min={1}
+                                  max={20}
+                                  onChange={onChange}
+                                  value={
+                                    typeof inputValue === "number"
+                                      ? inputValue
+                                      : 0
+                                  }
+                                />
+                              </Col>
+                              <Col span={4}>
+                                <InputNumber
+                                  min={1}
+                                  max={20}
+                                  style={{
+                                    margin: "0 16px",
+                                  }}
+                                  value={inputValue}
+                                  onChange={onChange}
+                                />
+                              </Col>
+                            </Row>
                           </Form.Item>
                           <Form.Item label="Ghi chú" name="note" hasFeedback>
                             <Input.TextArea />

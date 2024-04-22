@@ -282,9 +282,12 @@ const OrderToCustomerContent = () => {
   useEffect(() => {
     getAllBodySize();
   }, []);
-
-  const onCreateNewProduct = async (values, quantity) => {
-    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}?quantity=${quantity}`;
+  const [inputValue, setInputValue] = useState(1);
+  const onChange = (newValue) => {
+    setInputValue(newValue);
+  };
+  const onCreateNewProduct = async (values) => {
+    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}?quantity=${inputValue}`;
     try {
       const response = await fetch(`${urlCreateNew}`, {
         method: "POST",
@@ -349,8 +352,7 @@ const OrderToCustomerContent = () => {
       setOnFinishLoading(false);
     } else if (getDetailDataProfileCustomer) {
       const allValues = form.getFieldsValue();
-      const quantityParams = allValues.quantity;
-      console.log("quantityParams", quantityParams);
+
       const backendData = {
         orderId: saveOrderId,
         name: allValues.name,
@@ -382,7 +384,7 @@ const OrderToCustomerContent = () => {
         profileId: getDetailDataProfileCustomer.id,
         note: allValues.note ? allValues.note : "",
       };
-      const checkResult = await onCreateNewProduct(backendData, quantityParams);
+      const checkResult = await onCreateNewProduct(backendData);
       if (checkResult === 1) {
         setProductComponent(null);
         form.resetFields();
@@ -391,6 +393,7 @@ const OrderToCustomerContent = () => {
         setChooseProductTemplate(null);
         setProductComponent(null);
         setOnFinishLoading(false);
+        setInputValue(1);
       } else {
         setOnFinishLoading(false);
       }
@@ -602,6 +605,9 @@ const OrderToCustomerContent = () => {
             getProfileUpdateCustomer={getProfileUpdateCustomer}
             setGetProfileUpdateCustomer={setGetProfileUpdateCustomer}
             getAllBodySize={getAllBodySize}
+            inputValue={inputValue}
+            setInputValue={setInputValue}
+            onChange={onChange}
           />
         </>
       ),

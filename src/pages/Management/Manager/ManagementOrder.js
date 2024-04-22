@@ -161,12 +161,17 @@ const ManagementOrderContent = () => {
   const [saveIdOrder, setSaveIdOrder] = useState(null);
 
   const [checkStatus, setCheckStatus] = useState(null);
+
+  const [cancelOrderLoading, setCancelOrderLoading] = useState(false);
+
+  const [approveOrderLoading, setApproveOrderLoading] = useState(false);
   const showModal = async (id, status) => {
     await setSaveIdOrder(id);
     await setCheckStatus(status);
     setIsModalOpen(true);
   };
   const handleApproveOrder = async (id) => {
+    setApproveOrderLoading(true);
     const getUrl = `https://e-tailorapi.azurewebsites.net/api/order/approve/${id}`;
     try {
       const response = await fetch(getUrl, {
@@ -200,12 +205,15 @@ const ManagementOrderContent = () => {
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setApproveOrderLoading(false);
     }
   };
   const handleCancel = () => {
     setIsModalOpen(false);
   };
   const handleCancelOrder = async (id) => {
+    setCancelOrderLoading(true);
     const getUrl = `https://e-tailorapi.azurewebsites.net/api/order/cancel/${id}`;
     try {
       const response = await fetch(getUrl, {
@@ -239,6 +247,8 @@ const ManagementOrderContent = () => {
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setCancelOrderLoading(false);
     }
   };
 
@@ -452,6 +462,8 @@ const ManagementOrderContent = () => {
         setSaveIdOrder={setSaveIdOrder}
         checkStatus={checkStatus}
         handleCancelOrder={handleCancelOrder}
+        cancelOrderLoading={cancelOrderLoading}
+        approveOrderLoading={approveOrderLoading}
       />
     </div>
   );
@@ -465,6 +477,8 @@ const ViewDetailOrder = ({
   setSaveIdOrder,
   checkStatus,
   handleCancelOrder,
+  cancelOrderLoading,
+  approveOrderLoading,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const getUrl = "https://e-tailorapi.azurewebsites.net/api/order";
@@ -624,7 +638,7 @@ const ViewDetailOrder = ({
       dataIndex: "index",
       key: "index",
       width: 60,
-      render: (_, record, index) => <span>{index}</span>,
+      render: (_, record, index) => <span>{index + 1}</span>,
     },
     {
       title: "Tên sản phẩm",
@@ -707,6 +721,31 @@ const ViewDetailOrder = ({
             >
               Đóng
             </Button>
+            {checkStatus >= 1 && checkStatus <= 4 && (
+              <Button
+                key="submit"
+                type="primary"
+                onClick={() => handleCancelOrder(saveIdOrder)}
+                danger
+                style={{ marginLeft: 15 }}
+                loading={cancelOrderLoading}
+              >
+                Hủy đơn hàng
+              </Button>
+            )}
+            {checkStatus === 1 && (
+              <>
+                <Button
+                  key="submit"
+                  type="primary"
+                  onClick={() => handleApproveOrder(saveIdOrder)}
+                  style={{ marginLeft: 15 }}
+                  loading={approveOrderLoading}
+                >
+                  Xác nhận đơn hàng
+                </Button>
+              </>
+            )}
             {checkStatus && (
               <Button
                 key="submit"
@@ -717,29 +756,6 @@ const ViewDetailOrder = ({
                 Trò chuyện với khách hàng
               </Button>
             )}
-            {checkStatus === 1 && (
-              <>
-                <Button
-                  key="submit"
-                  type="primary"
-                  onClick={() => handleCancelOrder(saveIdOrder)}
-                  danger
-                  style={{ marginLeft: 15 }}
-                >
-                  Hủy đơn hàng
-                </Button>
-                <Button
-                  key="submit"
-                  type="primary"
-                  onClick={() => handleApproveOrder(saveIdOrder)}
-                  style={{ marginLeft: 15 }}
-                >
-                  Xác nhận đơn hàng
-                </Button>
-              </>
-            )}
-
-            {}
           </div>,
         ]}
       >
