@@ -26,6 +26,8 @@ import {
 } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ChatRealTimeManager } from "./ChatRealTimeManager";
+import toast, { Toaster } from "react-hot-toast";
+import { VnPay } from "../../../components/RealTime/index.js";
 
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -464,6 +466,7 @@ const ManagementOrderContent = () => {
         handleCancelOrder={handleCancelOrder}
         cancelOrderLoading={cancelOrderLoading}
         approveOrderLoading={approveOrderLoading}
+        handleDataOrderContent={handleDataOrder}
       />
     </div>
   );
@@ -479,6 +482,7 @@ const ViewDetailOrder = ({
   handleCancelOrder,
   cancelOrderLoading,
   approveOrderLoading,
+  handleDataOrderContent,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const getUrl = "https://e-tailorapi.azurewebsites.net/api/order";
@@ -490,6 +494,7 @@ const ViewDetailOrder = ({
   const [dataProfileBodyDetail, setDataProfileBodyDetail] = useState(null);
   const [chatWithCustomer, setChatWithCustomer] = useState(false);
   const [badgeChatCount, setBadgeChatCount] = useState(0);
+  const vnpayNotification = VnPay();
 
   const chatNotification = ChatRealTimeManager();
   const { messageReturn, resetMessageReturn } = chatNotification;
@@ -501,6 +506,32 @@ const ViewDetailOrder = ({
       setBadgeChatCount((prev) => prev + 1);
     }
   }, [messageReturn, resetMessageReturn]);
+  useEffect(() => {
+    if (
+      vnpayNotification !== null &&
+      vnpayNotification !== undefined &&
+      vnpayNotification !== ""
+    ) {
+      if (vnpayNotification === "False") {
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: "Thanh toán VnPay thất bại!",
+          showConfirmButton: false,
+        });
+      } else if (vnpayNotification === "True") {
+        console.log("Thanh toan vp pay thanh cong");
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: "Thanh toán VnPay thành công!",
+          showConfirmButton: false,
+        });
+        handleDataOrderContent();
+        handleDataOrder();
+      }
+    }
+  }, [vnpayNotification]);
 
   const handleGetDetailMaterial = async (id) => {
     const detailUrl = `https://e-tailorapi.azurewebsites.net/api/material/${id}`;
@@ -565,7 +596,6 @@ const ViewDetailOrder = ({
   };
 
   const [getAllChat, setGetAllChat] = useState([]);
-  console.log("Get all chat", getAllChat);
   const fetchChat = async () => {
     const GET_CHAT_API = `https://e-tailorapi.azurewebsites.net/api/chat/order/${saveIdOrder}`;
     try {
@@ -582,7 +612,6 @@ const ViewDetailOrder = ({
       console.error("Error fetching order details:", error);
     }
   };
-  console.log("getAllChat", getAllChat);
 
   const handleDataOrder = async () => {
     setLoading(true);
@@ -689,6 +718,41 @@ const ViewDetailOrder = ({
     },
   ];
 
+  const [paymentLoading, setPaymentLoading] = useState(false);
+
+  const handleCreatePayCash = async (amount, payType, platform) => {
+    setPaymentLoading(true);
+    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/payment/${saveIdOrder}?amount=${amount}&payType=${payType}&platform=${platform}`;
+    try {
+      const response = await fetch(`${urlCreateNew}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        if (platform === "VN Pay") {
+          const responseData = await response.json();
+          window.open(responseData.link);
+        } else {
+          await handleDataOrder();
+          await handleDataOrderContent();
+          return 1;
+        }
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        toast.error(responseData, {
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   return (
     <div>
       <Modal
@@ -711,19 +775,9 @@ const ViewDetailOrder = ({
               margin: "0 20px",
             }}
           >
-            <Button
-              key="back"
-              onClick={() => {
-                handleCancel();
-                setChatWithCustomer(false);
-                setSaveIdOrder(null);
-              }}
-            >
-              Đóng
-            </Button>
             {checkStatus >= 1 && checkStatus <= 4 && (
               <Button
-                key="submit"
+                key="cancel"
                 type="primary"
                 onClick={() => handleCancelOrder(saveIdOrder)}
                 danger
@@ -736,7 +790,7 @@ const ViewDetailOrder = ({
             {checkStatus === 1 && (
               <>
                 <Button
-                  key="submit"
+                  key="approve"
                   type="primary"
                   onClick={() => handleApproveOrder(saveIdOrder)}
                   style={{ marginLeft: 15 }}
@@ -748,7 +802,7 @@ const ViewDetailOrder = ({
             )}
             {checkStatus && (
               <Button
-                key="submit"
+                key="chat"
                 type="primary"
                 style={{ marginLeft: 15 }}
                 onClick={() => setChatWithCustomer(true)}
@@ -1346,6 +1400,69 @@ const ViewDetailOrder = ({
                       : "0đ"}
                   </Text>
                 </div>
+                {dataOrderDetail?.unPaidMoney > 0 && (
+                  <div
+                    style={{
+                      width: "100%",
+                      textAlign: "center",
+                      marginTop: 30,
+                    }}
+                  >
+                    <Button
+                      loading={paymentLoading}
+                      key="payment"
+                      type="primary"
+                      onClick={() => {
+                        Swal.fire({
+                          title: `Xác nhận trả tiền cọc ${formatCurrency(
+                            dataOrderDetail?.unPaidMoney
+                          )} ?`,
+                          showCancelButton: true,
+                          confirmButtonText: "Thanh toán trực tiếp",
+                          showDenyButton: true,
+                          denyButtonText: "Thanh toán Vn Pay",
+                          cancelButtonText: `Hủy`,
+                          denyButtonColor: "#7066e0",
+                          cancelButtonColor: "red",
+                        }).then(async (result) => {
+                          if (result.isConfirmed) {
+                            const check = await handleCreatePayCash(
+                              dataOrderDetail?.unPaidMoney,
+                              0,
+                              "Offline"
+                            );
+                            if (check === 1) {
+                              Swal.fire({
+                                position: "top-center",
+                                icon: "success",
+                                title: "Thanh toán thành công",
+                                showConfirmButton: false,
+                                timer: 4000,
+                              });
+                            }
+                          } else if (result.isDenied) {
+                            await handleCreatePayCash(
+                              dataOrderDetail?.unPaidMoney,
+                              0,
+                              "VN Pay"
+                            );
+                            Swal.fire({
+                              position: "top-center",
+                              icon: "warning",
+                              title: "Chờ xác nhận",
+                              showConfirmButton: false,
+                              timer: 4000,
+                            });
+                          } else if (result.dismiss) {
+                            Swal.fire("Hủy chọn", "", "info");
+                          }
+                        });
+                      }}
+                    >
+                      Thanh toán phần còn lại
+                    </Button>
+                  </div>
+                )}
               </div>
             </Col>
           </Row>
