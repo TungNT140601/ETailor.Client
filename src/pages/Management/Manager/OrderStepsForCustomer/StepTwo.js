@@ -5,6 +5,7 @@ import {
   DeleteOutlined,
   DollarOutlined,
   EditOutlined,
+  CheckOutlined,
 } from "@ant-design/icons";
 import {
   Typography,
@@ -20,6 +21,7 @@ import {
   Radio,
   Select,
   Spin,
+  Popover,
 } from "antd";
 import "../index.css";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -55,6 +57,7 @@ function StepTwo({
 
   const [active, setActive] = useState(0);
   const [formMaterial] = Form.useForm();
+  const [materialLoading, setMaterialLoading] = useState(false);
 
   const onConfirmMaterial = async () => {
     const getFieldMaterial = formMaterial.getFieldsValue();
@@ -68,6 +71,7 @@ function StepTwo({
           orderId: saveOrderId,
         };
       });
+      setMaterialLoading(true);
       const url = `https://e-tailorapi.azurewebsites.net/order/${saveOrderId}`;
       try {
         const response = await fetch(`${url}`, {
@@ -97,6 +101,8 @@ function StepTwo({
         }
       } catch (error) {
         console.error("Error calling API:", error);
+      } finally {
+        setMaterialLoading(false);
       }
     }
   };
@@ -156,6 +162,7 @@ function StepTwo({
           window.open(responseData.link);
         } else {
           await handleDataOrderDetail();
+          return 1;
         }
         setActive(0);
       } else if (response.status === 400 || response.status === 500) {
@@ -181,27 +188,32 @@ function StepTwo({
     {
       title: "Tên sản phẩm",
       dataIndex: "name",
+      width: 150,
       key: "name",
+      ellipsis: true,
     },
     {
       title: "Tên bản mẫu",
       dataIndex: "templateName",
       key: "templateName",
+      width: 150,
+      ellipsis: true,
     },
-    {
-      title: "Hình ảnh bản mẫu",
-      dataIndex: "templateThumnailImage",
-      key: "templateThumnailImage",
-      render: (text) => (
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <Image width={40} src={text} />
-        </div>
-      ),
-    },
+    // {
+    //   title: "Hình ảnh bản mẫu",
+    //   dataIndex: "templateThumnailImage",
+    //   key: "templateThumnailImage",
+    //   render: (text) => (
+    //     <div style={{ display: "flex", alignItems: "center" }}>
+    //       <Image width={40} src={text} />
+    //     </div>
+    //   ),
+    // },
     {
       title: "Giá tiền",
       dataIndex: "price",
       key: "price",
+      width: 150,
       render: (_, record) =>
         changePrice ? (
           <InputNumber
@@ -370,7 +382,6 @@ function StepTwo({
                   pagination={false}
                   scroll={{
                     y: 200,
-                    x: 1000,
                   }}
                 />
               </div>
@@ -430,6 +441,7 @@ function StepTwo({
                                     name={[index, "materialConfirm"]}
                                     key={`${record.id}-materialConfirm`}
                                     noStyle
+                                    initialValue={false}
                                   >
                                     <Radio.Group
                                       disabled={
@@ -461,6 +473,7 @@ function StepTwo({
                                     name={[index, "value"]}
                                     key={`${record.id}-value`}
                                     noStyle
+                                    initialValue={0}
                                   >
                                     <InputNumber
                                       disabled={
@@ -504,6 +517,7 @@ function StepTwo({
                             onClick={() => onConfirmMaterial()}
                             block
                             style={{ width: 200, marginTop: 10 }}
+                            loading={materialLoading}
                           >
                             Lưu thay đổi
                           </Button>
@@ -643,11 +657,11 @@ function StepTwo({
                   }}
                 >
                   <Divider />
-                  {console.log("saveDiscount", saveDiscount)}
                   <div>
                     <Title level={5}>III/ Chương trình giảm giá</Title>
                     <div style={{ marginTop: 10 }}>
                       <Select
+                        disabled={orderPaymentDetail?.paidMoney > 0}
                         key={
                           discountForOrder &&
                           discountForOrder?.map((id) => id.id)
@@ -669,8 +683,62 @@ function StepTwo({
                           discountForOrder?.map((discount) => ({
                             value: discount.id,
                             label: discount.name,
+                            desc: {
+                              conditionPriceMin: discount.conditionPriceMin,
+                              conditionProductMin: discount.conditionProductMin,
+                            },
                           }))
                         }
+                        optionRender={(option) => (
+                          <Popover
+                            content={
+                              <>
+                                <div>
+                                  <CheckOutlined
+                                    style={{
+                                      backgroundColor: "rgb(128, 237, 153)",
+                                      color: "white",
+                                      borderRadius: "50%",
+                                      padding: 2,
+                                    }}
+                                  />{" "}
+                                  {option.data.desc.conditionPriceMin && (
+                                    <Text>
+                                      Số tiền giảm tối thiểu:{" "}
+                                      {formatCurrency(
+                                        option.data.desc.conditionPriceMin
+                                      )}
+                                    </Text>
+                                  )}
+                                </div>
+                                <div>
+                                  <CheckOutlined
+                                    style={{
+                                      backgroundColor: "rgb(128, 237, 153)",
+                                      color: "white",
+                                      borderRadius: "50%",
+                                      padding: 2,
+                                    }}
+                                  />{" "}
+                                  {option.data.desc.conditionProductMin && (
+                                    <Text>
+                                      Sản phẩm tối thiểu:{" "}
+                                      {option.data.desc.conditionProductMin} sản
+                                      phẩm
+                                    </Text>
+                                  )}
+                                </div>
+                              </>
+                            }
+                            style={{ marginRight: 100 }}
+                            overlayStyle={{ zIndex: 2000000 }}
+                          >
+                            <Text>
+                              {option.label}
+                              {console.log("option", option)}
+                            </Text>
+                          </Popover>
+                        )}
                       />
                     </div>
                   </div>
@@ -697,6 +765,7 @@ function StepTwo({
                               showCancelButton: true,
                               confirmButtonText: "Xác nhận",
                               cancelButtonText: `Hủy`,
+                              cancelButtonColor: "red",
                             }).then(async (result) => {
                               if (result.isConfirmed) {
                                 await handleCreatePayCash(
@@ -709,7 +778,7 @@ function StepTwo({
                                   icon: "warning",
                                   title: "Chờ xác nhận",
                                   showConfirmButton: false,
-                                  timer: 1500,
+                                  timer: 4000,
                                 });
                               } else if (result.dismiss) {
                                 setActive(0);
@@ -752,18 +821,23 @@ function StepTwo({
                               showCancelButton: true,
                               confirmButtonText: "Xác nhận",
                               cancelButtonText: `Hủy`,
+                              cancelButtonColor: "red",
                             }).then(async (result) => {
                               if (result.isConfirmed) {
-                                await handleCreatePayCash(
+                                const check = await handleCreatePayCash(
                                   orderPaymentDetail?.unPaidMoney,
                                   0,
                                   "Offline"
                                 );
-                                Swal.fire(
-                                  "Thanh toán thành công",
-                                  "",
-                                  "success"
-                                );
+                                if (check === 1) {
+                                  Swal.fire({
+                                    position: "top-center",
+                                    icon: "success",
+                                    title: "Thanh toán thành công",
+                                    showConfirmButton: false,
+                                    timer: 4000,
+                                  });
+                                }
                               } else if (result.dismiss) {
                                 setActive(0);
                                 Swal.fire("Hủy chọn", "", "info");
@@ -794,6 +868,7 @@ function StepTwo({
                               border: active === 3 ? "1px solid #9F78FF" : "",
                               cursor: "pointer",
                               color: active === 3 ? "white" : "",
+
                               textAlign: "center",
                               marginTop: 15,
                             }}
@@ -805,20 +880,41 @@ function StepTwo({
                                   orderPaymentDetail?.unPaidMoney
                                 )} ?`,
                                 showCancelButton: true,
-                                confirmButtonText: "Xác nhận",
+                                confirmButtonText: "Thanh toán trực tiếp",
+                                showDenyButton: true,
+                                denyButtonText: "Thanh toán Vn Pay",
                                 cancelButtonText: `Hủy`,
+                                denyButtonColor: "#7066e0",
+                                cancelButtonColor: "red",
                               }).then(async (result) => {
                                 if (result.isConfirmed) {
-                                  await handleCreatePayCash(
+                                  const check = await handleCreatePayCash(
                                     orderPaymentDetail?.unPaidMoney,
                                     1,
                                     "Offline"
                                   );
-                                  Swal.fire(
-                                    "Thanh toán trả tiền cọc thành công",
-                                    "",
-                                    "success"
+                                  if (check === 1) {
+                                    Swal.fire({
+                                      position: "top-center",
+                                      icon: "success",
+                                      title: "Thanh toán thành công",
+                                      showConfirmButton: false,
+                                      timer: 4000,
+                                    });
+                                  }
+                                } else if (result.isDenied) {
+                                  await handleCreatePayCash(
+                                    orderPaymentDetail?.unPaidMoney,
+                                    1,
+                                    "VN Pay"
                                   );
+                                  Swal.fire({
+                                    position: "top-center",
+                                    icon: "warning",
+                                    title: "Chờ xác nhận",
+                                    showConfirmButton: false,
+                                    timer: 4000,
+                                  });
                                 } else if (result.dismiss) {
                                   setActive(0);
                                   Swal.fire("Hủy chọn", "", "info");

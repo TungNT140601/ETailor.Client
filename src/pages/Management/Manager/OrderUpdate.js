@@ -41,17 +41,14 @@ function OrderUpdate({
   saveOrderId,
   filterOptionForMaterial,
   materialId,
-  productComponent,
   settings,
   profileCustomer,
   dataBodySize,
-  handleChooseTemplate,
   formUpdate,
   formUpdateProfile,
   getDetailDataProfileCustomer,
   setGetDetailDataProfileCustomer,
   saveCustomer,
-  getAllBodySize,
   fetchDataProfileBody,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
@@ -71,27 +68,29 @@ function OrderUpdate({
   const productComponenetInitialValues = {};
 
   const getDetailProfileCustomer = async (id) => {
-    setGetDetailDataProfileCustomerLoading(true);
-    const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
-    try {
-      const response = await fetch(`${urlProfile}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
+    if (id) {
+      setGetDetailDataProfileCustomerLoading(true);
+      const urlProfile = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
+      try {
+        const response = await fetch(`${urlProfile}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        });
 
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setGetDetailDataProfileCustomer(responseData);
-        setGetDetailDataProfileCustomerLoading(false);
-      } else if (response.status === 401) {
-        localStorage.removeItem("manager");
-        navigate("/management/login");
+        if (response.ok && response.status === 200) {
+          const responseData = await response.json();
+          setGetDetailDataProfileCustomer(responseData);
+          setGetDetailDataProfileCustomerLoading(false);
+        } else if (response.status === 401) {
+          localStorage.removeItem("manager");
+          navigate("/management/login");
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
       }
-    } catch (error) {
-      console.error("Error calling API:", error);
     }
   };
 
@@ -223,8 +222,6 @@ function OrderUpdate({
       ...componentInitialValues,
       ...productComponenetInitialValues,
     });
-
-    handleChooseTemplate(dataDetailForUpdate?.productTemplateId);
     getDetailProfileCustomer(dataDetailForUpdate?.profileId);
   }, [dataDetailForUpdate]);
   useEffect(() => {
@@ -504,177 +501,180 @@ function OrderUpdate({
                           <Form.Item label="Ghi chú" name="note" hasFeedback>
                             <Input.TextArea />
                           </Form.Item>
-                          {productComponent &&
-                            productComponent?.map((product) => {
-                              return (
-                                <>
-                                  <Form.Item
-                                    hasFeedback
-                                    label={`Chọn ${product.name}`}
-                                    name={`component_${product.id}`}
-                                    rules={[
-                                      product && {
-                                        required: true,
-                                        message:
-                                          "Chọn bản mẫu không được để trống!",
-                                      },
-                                    ]}
-                                  >
-                                    <Select style={{ height: 45 }}>
-                                      {product?.components?.map((item) => {
-                                        return (
-                                          <>
-                                            <Option value={item.id}>
-                                              <div
+                          {dataDetailForUpdate &&
+                            dataDetailForUpdate?.componentTypeOrders?.map(
+                              (product) => {
+                                return (
+                                  <>
+                                    <Form.Item
+                                      hasFeedback
+                                      label={`Chọn ${product.name}`}
+                                      name={`component_${product.id}`}
+                                      rules={[
+                                        product && {
+                                          required: true,
+                                          message:
+                                            "Chọn bản mẫu không được để trống!",
+                                        },
+                                      ]}
+                                    >
+                                      <Select style={{ height: 45 }}>
+                                        {product?.components?.map((item) => {
+                                          return (
+                                            <>
+                                              <Option value={item.id}>
+                                                <div
+                                                  style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                  }}
+                                                >
+                                                  <Image
+                                                    width={35}
+                                                    src={item.image}
+                                                    height={35}
+                                                  />
+                                                  &nbsp; &nbsp;
+                                                  <Title
+                                                    level={5}
+                                                    style={{ marginTop: 6 }}
+                                                  >
+                                                    {item.name}
+                                                  </Title>
+                                                </div>
+                                              </Option>
+                                            </>
+                                          );
+                                        })}
+                                      </Select>
+                                    </Form.Item>
+                                    <Form.List
+                                      name={`productComponent_${product.id}`}
+                                    >
+                                      {(fields, { add, remove }) => (
+                                        <>
+                                          {fields?.map(
+                                            ({ key, name, ...restField }) => (
+                                              <Space
+                                                key={key}
                                                 style={{
                                                   display: "flex",
-                                                  alignItems: "center",
+                                                  marginBottom: 8,
+                                                  position: "relative",
                                                 }}
+                                                align="baseline"
                                               >
-                                                <Image
-                                                  width={35}
-                                                  src={item.image}
-                                                  height={35}
-                                                />
-                                                &nbsp; &nbsp;
-                                                <Title
-                                                  level={5}
-                                                  style={{ marginTop: 6 }}
-                                                >
-                                                  {item.name}
-                                                </Title>
-                                              </div>
-                                            </Option>
-                                          </>
-                                        );
-                                      })}
-                                    </Select>
-                                  </Form.Item>
-                                  <Form.List
-                                    name={`productComponent_${product.id}`}
-                                  >
-                                    {(fields, { add, remove }) => (
-                                      <>
-                                        {fields?.map(
-                                          ({ key, name, ...restField }) => (
-                                            <Space
-                                              key={key}
-                                              style={{
-                                                display: "flex",
-                                                marginBottom: 8,
-                                                position: "relative",
-                                              }}
-                                              align="baseline"
-                                            >
-                                              <div>
-                                                <Form.Item
-                                                  {...restField}
-                                                  name={[name, "image"]}
-                                                  rules={[
-                                                    {
-                                                      required: true,
-                                                      message:
-                                                        "Ảnh của kiểu không được để trống!",
-                                                    },
-                                                  ]}
-                                                >
-                                                  <Upload
-                                                    defaultFileList={
-                                                      formUpdate.getFieldValue(
-                                                        `productComponent_${product.id}`
-                                                      ) &&
-                                                      formUpdate.getFieldValue(
-                                                        `productComponent_${product.id}`
-                                                      )[0]?.image
-                                                    }
-                                                    multiple
-                                                    listType="picture"
-                                                    accept=".png,.jpeg,.jpg"
-                                                    beforeUpload={(file) => {
-                                                      return false;
-                                                    }}
-                                                    itemRender={(
-                                                      originNode,
-                                                      file,
-                                                      fileList
-                                                    ) => (
-                                                      <div
-                                                        style={{
-                                                          width: "500px", // Adjust the width as needed
-                                                          overflow: "hidden",
-                                                          whiteSpace: "nowrap",
-                                                          textOverflow:
-                                                            "ellipsis",
-                                                        }}
-                                                        title={file.name}
-                                                      >
-                                                        {originNode}
-                                                      </div>
-                                                    )}
+                                                <div>
+                                                  <Form.Item
+                                                    {...restField}
+                                                    name={[name, "image"]}
+                                                    rules={[
+                                                      {
+                                                        required: true,
+                                                        message:
+                                                          "Ảnh của kiểu không được để trống!",
+                                                      },
+                                                    ]}
                                                   >
-                                                    <button
-                                                      style={{
-                                                        width: 100,
-                                                        height: 40,
-                                                        borderRadius: 10,
-                                                        color: "white",
-                                                        fontWeight: "bold",
-                                                        backgroundColor:
-                                                          "#9F78FF",
-                                                        border:
-                                                          "1px solid #9F78FF",
-                                                        display: "flex",
-                                                        justifyContent:
-                                                          "center",
-                                                        alignItems: "center",
-                                                        cursor: "pointer",
+                                                    <Upload
+                                                      defaultFileList={
+                                                        formUpdate.getFieldValue(
+                                                          `productComponent_${product.id}`
+                                                        ) &&
+                                                        formUpdate.getFieldValue(
+                                                          `productComponent_${product.id}`
+                                                        )[0]?.image
+                                                      }
+                                                      multiple
+                                                      listType="picture"
+                                                      accept=".png,.jpeg,.jpg"
+                                                      beforeUpload={(file) => {
+                                                        return false;
                                                       }}
-                                                      type="button"
+                                                      itemRender={(
+                                                        originNode,
+                                                        file,
+                                                        fileList
+                                                      ) => (
+                                                        <div
+                                                          style={{
+                                                            width: "500px", // Adjust the width as needed
+                                                            overflow: "hidden",
+                                                            whiteSpace:
+                                                              "nowrap",
+                                                            textOverflow:
+                                                              "ellipsis",
+                                                          }}
+                                                          title={file.name}
+                                                        >
+                                                          {originNode}
+                                                        </div>
+                                                      )}
                                                     >
-                                                      <div>Thêm ảnh</div>
-                                                    </button>
-                                                  </Upload>
-                                                </Form.Item>
-                                                <Form.Item
-                                                  style={{ width: 500 }}
-                                                  {...restField}
-                                                  name={[name, "note"]}
-                                                >
-                                                  <Input.TextArea placeholder="Ghi chú" />
-                                                </Form.Item>
-                                              </div>
-                                              <CloseCircleOutlined
-                                                style={{
-                                                  fontSize: 18,
-                                                  position: "absolute",
-                                                  top: 10,
-                                                  right: 10,
-                                                }}
-                                                onClick={() => remove(name)}
-                                              />
-                                            </Space>
-                                          )
-                                        )}
-                                        {fields?.length >= 1 ? (
-                                          ""
-                                        ) : (
-                                          <Form.Item>
-                                            <Button
-                                              type="dashed"
-                                              onClick={() => add()}
-                                              block
-                                              icon={<PlusOutlined />}
-                                            >
-                                              Lựa chọn khác
-                                            </Button>
-                                          </Form.Item>
-                                        )}
-                                      </>
-                                    )}
-                                  </Form.List>
-                                </>
-                              );
-                            })}
+                                                      <button
+                                                        style={{
+                                                          width: 100,
+                                                          height: 40,
+                                                          borderRadius: 10,
+                                                          color: "white",
+                                                          fontWeight: "bold",
+                                                          backgroundColor:
+                                                            "#9F78FF",
+                                                          border:
+                                                            "1px solid #9F78FF",
+                                                          display: "flex",
+                                                          justifyContent:
+                                                            "center",
+                                                          alignItems: "center",
+                                                          cursor: "pointer",
+                                                        }}
+                                                        type="button"
+                                                      >
+                                                        <div>Thêm ảnh</div>
+                                                      </button>
+                                                    </Upload>
+                                                  </Form.Item>
+                                                  <Form.Item
+                                                    style={{ width: 500 }}
+                                                    {...restField}
+                                                    name={[name, "note"]}
+                                                  >
+                                                    <Input.TextArea placeholder="Ghi chú" />
+                                                  </Form.Item>
+                                                </div>
+                                                <CloseCircleOutlined
+                                                  style={{
+                                                    fontSize: 18,
+                                                    position: "absolute",
+                                                    top: 10,
+                                                    right: 10,
+                                                  }}
+                                                  onClick={() => remove(name)}
+                                                />
+                                              </Space>
+                                            )
+                                          )}
+                                          {fields?.length >= 1 ? (
+                                            ""
+                                          ) : (
+                                            <Form.Item>
+                                              <Button
+                                                type="dashed"
+                                                onClick={() => add()}
+                                                block
+                                                icon={<PlusOutlined />}
+                                              >
+                                                Lựa chọn khác
+                                              </Button>
+                                            </Form.Item>
+                                          )}
+                                        </>
+                                      )}
+                                    </Form.List>
+                                  </>
+                                );
+                              }
+                            )}
                         </Form>
                       </div>
                     </div>

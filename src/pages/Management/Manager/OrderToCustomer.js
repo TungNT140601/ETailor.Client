@@ -36,6 +36,7 @@ const OrderToCustomerContent = () => {
           showConfirmButton: false,
         });
       } else if (vnpayNotification === "True") {
+        console.log("Thanh toan vp pay thanh cong");
         Swal.fire({
           position: "top-center",
           icon: "success",
