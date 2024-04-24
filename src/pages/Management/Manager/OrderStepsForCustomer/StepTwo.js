@@ -6,6 +6,7 @@ import {
   DollarOutlined,
   EditOutlined,
   CheckOutlined,
+  EyeOutlined,
 } from "@ant-design/icons";
 import {
   Typography,
@@ -50,7 +51,7 @@ function StepTwo({
   saveDiscount,
   handleCheckDiscount,
 }) {
-  const [changePrice, setChangePrice] = useState(false);
+  const [productChangePrice, setProductChangePrice] = useState({});
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [inputValue, setInputValue] = useState(null);
   const navigate = useNavigate();
@@ -123,7 +124,7 @@ function StepTwo({
             duration: 3000,
           });
           await handleDataOrderDetail();
-          setChangePrice(false);
+          setProductChangePrice({});
           return 1;
         } else if (response.status === 400 || response.status === 500) {
           const responseData = await response.text();
@@ -177,6 +178,32 @@ function StepTwo({
       setPaymentLoading(false);
     }
   };
+  const handleToggleChangePrice = (productId) => {
+    // setProductChangePrice((prevProductChangePrice) => ({
+    //   ...prevProductChangePrice,
+    //   [productId]: !prevProductChangePrice[productId],
+    // }));
+    setProductChangePrice((prevProductChangePrice) => {
+      if (prevProductChangePrice.hasOwnProperty(productId)) {
+        delete prevProductChangePrice[productId];
+        console.log("{ ...prevProductChangePrice }", {
+          ...prevProductChangePrice,
+        });
+        return { ...prevProductChangePrice };
+      } else {
+        return {
+          ...prevProductChangePrice,
+          [productId]: productId,
+        };
+      }
+    });
+  };
+  const [openViewDetail, setOpenViewDetail] = useState(false);
+  const [saveIdDetailProduct, setSaveIdDetailProduct] = useState(null);
+  const viewDetailProduct = (id) => {
+    setSaveIdDetailProduct(id);
+    setOpenViewDetail(true);
+  };
   const columns = [
     {
       title: "STT",
@@ -215,7 +242,7 @@ function StepTwo({
       key: "price",
       width: 150,
       render: (_, record) =>
-        changePrice ? (
+        productChangePrice[record.id] ? (
           <InputNumber
             style={{ width: "100%" }}
             formatter={(value) =>
@@ -226,43 +253,47 @@ function StepTwo({
             onPressEnter={() => {
               handleChangePrice(inputValue, record.id);
             }}
+            onBlur={() =>
+              orderPaymentDetail?.paidMoney > 0
+                ? ""
+                : handleToggleChangePrice(record.id)
+            }
           />
         ) : (
           <>
-            <Text>{formatCurrency(record.price)}</Text>
+            <Text
+              onClick={() =>
+                orderPaymentDetail?.paidMoney > 0
+                  ? ""
+                  : handleToggleChangePrice(record.id)
+              }
+            >
+              {formatCurrency(record.price)}
+            </Text>
           </>
         ),
     },
     {
-      title: "Thay đổi giá tiền",
-      dataIndex: "ChangePrice",
-      key: "ChangePrice",
+      title: "Chi tiết",
+      dataIndex: "DetailProduct",
+      key: "DetailProduct",
       width: 150,
       fixed: "right",
       render: (_, record) => (
         <>
           <Row justify="start">
             <Col span={4}>
-              <DollarOutlined
+              <EyeOutlined
+                title="Xem chi tiết"
                 style={{
-                  backgroundColor: "#80ed99",
+                  backgroundColor: "rgb(140, 173, 245)",
                   color: "white",
                   padding: 6,
                   borderRadius: "5px",
-                  fontSize: 17,
+                  fontSize: 15,
                   cursor: "pointer",
                 }}
-                onClick={() =>
-                  orderPaymentDetail?.paidMoney > 0
-                    ? ""
-                    : setChangePrice((prev) => {
-                        if (prev) {
-                          return false;
-                        } else {
-                          return true;
-                        }
-                      })
-                }
+                onClick={() => viewDetailProduct(record.id)}
               />
             </Col>
           </Row>

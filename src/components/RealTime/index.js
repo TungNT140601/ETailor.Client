@@ -3,7 +3,7 @@ import * as signalR from "@microsoft/signalr";
 import Swal from "sweetalert2";
 
 export const VnPay = () => {
-  const [messageReturn, setMessageReturn] = useState(null); // State to hold the message
+  const [message, setMessage] = useState(null); // State to hold the message
 
   useEffect(() => {
     let connection; // Declare the connection variable
@@ -20,7 +20,7 @@ export const VnPay = () => {
         .build();
 
       connection.on("VNPayResult", (message) => {
-        setMessageReturn(message);
+        setMessage(message);
         console.log("message", message);
       });
 
@@ -47,5 +47,9 @@ export const VnPay = () => {
     };
   }, []); // Empty dependency array ensures useEffect runs only once
 
-  return messageReturn;
+  const resetMessage = () => {
+    setMessage(null);
+  };
+
+  return { resetMessage, message };
 };
