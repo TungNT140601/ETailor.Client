@@ -5,15 +5,6 @@ import { CloseOutlined } from "@ant-design/icons";
 import Swal from "sweetalert2";
 
 function PaymentFailed() {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      window.history.back(); // Navigate back
-      // window.close();  // Uncomment this to try closing the window instead
-    }, 3000); // Close after 3000 ms (3 seconds)
-
-    return () => clearTimeout(timer); // Clean up the timer
-  }, []);
-  console.log("window", window.location.href);
   return (
     <div
       style={{

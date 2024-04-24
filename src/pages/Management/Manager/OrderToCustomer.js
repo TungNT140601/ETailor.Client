@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { VnPay } from "../../../components/RealTime/index.js";
+
 
 import { Button, Steps, Form } from "antd";
 import "./index.css";
@@ -16,35 +16,13 @@ import toast, { Toaster } from "react-hot-toast";
 const OrderToCustomerContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const navigate = useNavigate();
-  const vnpayNotification = VnPay();
-  const { resetMessage, message } = vnpayNotification;
+ 
   const [form] = Form.useForm();
   const [formProfileBody] = Form.useForm();
   const [formInfoCustomer] = Form.useForm();
 
   const [current, setCurrent] = useState(0);
-  useEffect(() => {
-    if (message !== null && message !== undefined && message !== "") {
-      if (message === "False") {
-        Swal.fire({
-          position: "top-center",
-          icon: "error",
-          title: "Thanh toán VnPay thất bại!",
-          showConfirmButton: false,
-        });
-        resetMessage();
-      } else if (message === "True") {
-        console.log("Thanh toan vp pay thanh cong");
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: "Thanh toán VnPay thành công!",
-          showConfirmButton: false,
-        });
-        handleDataOrderDetail();
-      }
-    }
-  }, [message]);
+ 
   //-----------------------------------------Thử làm cách mới--------------------------------------------------
 
   //---------------------------------------------------Lưu orderId-----------------------------------------------------------------
