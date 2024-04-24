@@ -32,6 +32,7 @@ import paymenDeposit from "../../../../assets/deposit.png";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import { VnPay } from "../../../../components/RealTime/index.js";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
@@ -59,6 +60,32 @@ function StepTwo({
   const [active, setActive] = useState(0);
   const [formMaterial] = Form.useForm();
   const [materialLoading, setMaterialLoading] = useState(false);
+
+  const vnpayNotification = VnPay();
+  const { resetMessage, message } = vnpayNotification;
+
+  useEffect(() => {
+    if (message !== null && message !== undefined && message !== "") {
+      if (message === "False") {
+        Swal.fire({
+          position: "top-center",
+          icon: "error",
+          title: "Thanh toán VnPay thất bại!",
+          showConfirmButton: false,
+        });
+        resetMessage();
+      } else if (message === "True") {
+        console.log("Thanh toan vp pay thanh cong");
+        Swal.fire({
+          position: "top-center",
+          icon: "success",
+          title: "Thanh toán VnPay thành công!",
+          showConfirmButton: false,
+        });
+        handleDataOrderDetail();
+      }
+    }
+  }, [message]);
 
   const onConfirmMaterial = async () => {
     const getFieldMaterial = formMaterial.getFieldsValue();
@@ -145,18 +172,20 @@ function StepTwo({
 
   const handleCreatePayCash = async (amount, payType, platform) => {
     setPaymentLoading(true);
-    const getFieldMaterial = formMaterial.getFieldsValue(["itemsMaterial"]);
-    console.log("getFieldMaterial", getFieldMaterial);
 
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/payment/${saveOrderId}?amount=${amount}&payType=${payType}&platform=${platform}`;
+    const urlDeposit = `https://e-tailorapi.azurewebsites.net/api/payment/${saveOrderId}?payType=${payType}&platform=${platform}`;
     try {
-      const response = await fetch(`${urlCreateNew}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
+      const response = await fetch(
+        `${amount === 0 ? urlDeposit : urlCreateNew}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+        }
+      );
       if (response.ok && response.status === 200) {
         if (platform === "VN Pay") {
           const responseData = await response.json();
@@ -920,7 +949,7 @@ function StepTwo({
                               }).then(async (result) => {
                                 if (result.isConfirmed) {
                                   const check = await handleCreatePayCash(
-                                    orderPaymentDetail?.unPaidMoney,
+                                    0,
                                     1,
                                     "Offline"
                                   );
@@ -934,11 +963,7 @@ function StepTwo({
                                     });
                                   }
                                 } else if (result.isDenied) {
-                                  await handleCreatePayCash(
-                                    orderPaymentDetail?.unPaidMoney,
-                                    1,
-                                    "VN Pay"
-                                  );
+                                  await handleCreatePayCash(0, 1, "VN Pay");
                                   Swal.fire({
                                     position: "top-center",
                                     icon: "warning",

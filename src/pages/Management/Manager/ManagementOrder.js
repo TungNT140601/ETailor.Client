@@ -719,6 +719,8 @@ const ViewDetailOrder = ({
 
   const [paymentLoading, setPaymentLoading] = useState(false);
 
+  console.log("Chay ben order");
+
   const handleCreatePayCash = async (amount, payType, platform) => {
     setPaymentLoading(true);
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/payment/${saveIdOrder}?amount=${amount}&payType=${payType}&platform=${platform}`;
