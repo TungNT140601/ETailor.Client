@@ -33,6 +33,7 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { VnPay } from "../../../../components/RealTime/index.js";
+import DetailProduct from "../DetailProductOrderToCustomer/DetailProduct.js";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
@@ -391,6 +392,15 @@ function StepTwo({
   );
   return (
     <>
+      {openViewDetail && saveIdDetailProduct && (
+        <DetailProduct
+          open={openViewDetail}
+          onCancel={() => setOpenViewDetail(false)}
+          saveOrderId={saveOrderId}
+          saveIdDetailProduct={saveIdDetailProduct}
+          setSaveIdDetailProduct={setSaveIdDetailProduct}
+        />
+      )}
       <Toaster />
       <Spin spinning={paymentLoading} fullscreen />
       <Row style={{ marginTop: 24 }}>
