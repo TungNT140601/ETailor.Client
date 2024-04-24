@@ -3,15 +3,6 @@ import "./index.css";
 import logo from "../../assets/logo.png";
 
 function PaymentSuccess() {
-  useEffect(() => {
-    const customWindow = window.open("", "_blank", "");
-
-    setTimeout(() => {
-      if (customWindow) {
-        customWindow.close();
-      }
-    }, 100);
-  }, []);
   return (
     <div
       style={{

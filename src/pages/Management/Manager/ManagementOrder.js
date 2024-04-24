@@ -495,6 +495,7 @@ const ViewDetailOrder = ({
   const [chatWithCustomer, setChatWithCustomer] = useState(false);
   const [badgeChatCount, setBadgeChatCount] = useState(0);
   const vnpayNotification = VnPay();
+  const { resetMessage, message } = vnpayNotification;
 
   const chatNotification = ChatRealTimeManager();
   const { messageReturn, resetMessageReturn } = chatNotification;
@@ -507,20 +508,16 @@ const ViewDetailOrder = ({
     }
   }, [messageReturn, resetMessageReturn]);
   useEffect(() => {
-    if (
-      vnpayNotification !== null &&
-      vnpayNotification !== undefined &&
-      vnpayNotification !== ""
-    ) {
-      if (vnpayNotification === "False") {
+    if (message !== null && message !== undefined && message !== "") {
+      if (message === "False") {
         Swal.fire({
           position: "top-center",
           icon: "error",
           title: "Thanh toán VnPay thất bại!",
           showConfirmButton: false,
         });
-      } else if (vnpayNotification === "True") {
-        console.log("Thanh toan vp pay thanh cong");
+        resetMessage();
+      } else if (message === "True") {
         Swal.fire({
           position: "top-center",
           icon: "success",
@@ -531,7 +528,7 @@ const ViewDetailOrder = ({
         handleDataOrder();
       }
     }
-  }, [vnpayNotification]);
+  }, [message]);
 
   const handleGetDetailMaterial = async (id) => {
     const detailUrl = `https://e-tailorapi.azurewebsites.net/api/material/${id}`;

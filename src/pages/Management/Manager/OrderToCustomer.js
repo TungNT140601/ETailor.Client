@@ -17,25 +17,23 @@ const OrderToCustomerContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const navigate = useNavigate();
   const vnpayNotification = VnPay();
+  const { resetMessage, message } = vnpayNotification;
   const [form] = Form.useForm();
   const [formProfileBody] = Form.useForm();
   const [formInfoCustomer] = Form.useForm();
 
   const [current, setCurrent] = useState(0);
   useEffect(() => {
-    if (
-      vnpayNotification !== null &&
-      vnpayNotification !== undefined &&
-      vnpayNotification !== ""
-    ) {
-      if (vnpayNotification === "False") {
+    if (message !== null && message !== undefined && message !== "") {
+      if (message === "False") {
         Swal.fire({
           position: "top-center",
           icon: "error",
           title: "Thanh toán VnPay thất bại!",
           showConfirmButton: false,
         });
-      } else if (vnpayNotification === "True") {
+        resetMessage();
+      } else if (message === "True") {
         console.log("Thanh toan vp pay thanh cong");
         Swal.fire({
           position: "top-center",
@@ -46,7 +44,7 @@ const OrderToCustomerContent = () => {
         handleDataOrderDetail();
       }
     }
-  }, [vnpayNotification]);
+  }, [message]);
   //-----------------------------------------Thử làm cách mới--------------------------------------------------
 
   //---------------------------------------------------Lưu orderId-----------------------------------------------------------------
