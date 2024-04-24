@@ -456,18 +456,20 @@ const ManagementOrderContent = () => {
           scroll={{ x: 1000, y: 410 }}
         />
       )}
-      <ViewDetailOrder
-        isModalOpen={isModalOpen}
-        handleApproveOrder={handleApproveOrder}
-        handleCancel={handleCancel}
-        saveIdOrder={saveIdOrder}
-        setSaveIdOrder={setSaveIdOrder}
-        checkStatus={checkStatus}
-        handleCancelOrder={handleCancelOrder}
-        cancelOrderLoading={cancelOrderLoading}
-        approveOrderLoading={approveOrderLoading}
-        handleDataOrderContent={handleDataOrder}
-      />
+      {isModalOpen && saveIdOrder && checkStatus && (
+        <ViewDetailOrder
+          isModalOpen={isModalOpen}
+          handleApproveOrder={handleApproveOrder}
+          handleCancel={handleCancel}
+          saveIdOrder={saveIdOrder}
+          setSaveIdOrder={setSaveIdOrder}
+          checkStatus={checkStatus}
+          handleCancelOrder={handleCancelOrder}
+          cancelOrderLoading={cancelOrderLoading}
+          approveOrderLoading={approveOrderLoading}
+          handleDataOrderContent={handleDataOrder}
+        />
+      )}
     </div>
   );
 };
