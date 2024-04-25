@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 
 import { FileSearchOutlined, SearchOutlined } from "@ant-design/icons";
 import { Typography, Button, Card, Row, Col, Form, Input, Select } from "antd";
@@ -28,6 +28,7 @@ function StepOne({
   const [searchInfo, setSearchInfo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  console.log("saveCustomer", saveCustomer);
   const [createCustomerLoading, setCreateCustomerLoading] = useState(false);
   const handleCreateInfoCustomer = () => {
     formInfoCustomer.validateFields().then(async () => {
@@ -319,4 +320,4 @@ function StepOne({
   );
 }
 
-export default StepOne;
+export default memo(StepOne);

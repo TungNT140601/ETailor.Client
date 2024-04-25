@@ -634,6 +634,7 @@ const ManagementUpdateProductTemplateContent = () => {
     formData.append("Name", values.Name);
     formData.append("Description", values.Description);
     formData.append("Price", values.Price);
+    formData.append("AveDateForComplete", values.deadline);
     formData.append("ThumbnailImageFile", postThumbnailUrl);
     if (postImageUrl?.length >= 1) {
       postImageUrl.map((item) => formData.append("ImageFiles", item));
@@ -946,6 +947,7 @@ const ManagementUpdateProductTemplateContent = () => {
       CategoryId: dataDetailForUpdate?.category?.id,
       Price: dataDetailForUpdate?.price,
       Description: dataDetailForUpdate?.description,
+      deadline: dataDetailForUpdate?.aveDateForComplete,
       ThumbnailImageFile: dataDetailForUpdate?.thumbnailImage
         ? [
             {

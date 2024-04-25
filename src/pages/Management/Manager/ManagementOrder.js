@@ -552,7 +552,7 @@ const ViewDetailOrder = ({
   };
 
   const handleGetDetailProfileBody = async (id) => {
-    const detailUrl = `https://e-tailorapi.azurewebsites.net/api/profile-body/${id}`;
+    const detailUrl = `https://e-tailorapi.azurewebsites.net/api/product/${id}/order/${saveIdOrder}/bodySize`;
     try {
       const response = await fetch(`${detailUrl}`, {
         method: "GET",
@@ -585,7 +585,7 @@ const ViewDetailOrder = ({
         setViewDetailProduct(true);
         if (responseData.materialId && responseData.profileId) {
           handleGetDetailMaterial(responseData.materialId);
-          handleGetDetailProfileBody(responseData.profileId);
+          handleGetDetailProfileBody(responseData.id);
         }
         setDetailProductData(responseData);
       }
@@ -718,8 +718,6 @@ const ViewDetailOrder = ({
   ];
 
   const [paymentLoading, setPaymentLoading] = useState(false);
-
-  console.log("Chay ben order");
 
   const handleCreatePayCash = async (amount, payType, platform) => {
     setPaymentLoading(true);
@@ -903,13 +901,14 @@ const ViewDetailOrder = ({
                         <Col span={12}>
                           <Title level={2}>{detailProductData?.name}</Title>
                           <div>
-                            <Text style={{ fontSize: 18 }}>
-                              Bản mẫu: {detailProductData?.productTemplateName}
+                            <Title level={4}>Bản mẫu:</Title>
+                            <Text>
+                              {detailProductData?.productTemplateName}
                             </Text>
                           </div>
                           <div style={{ marginTop: 10 }}>
-                            <Text style={{ fontSize: 18 }}>
-                              Nguyên phụ liệu sử dụng:{" "}
+                            <Title level={4}>Nguyên phụ liệu sử dụng:</Title>
+                            <Text>
                               <div
                                 style={{
                                   display: "flex",
@@ -921,19 +920,34 @@ const ViewDetailOrder = ({
                                   src={dataMaterialDetail?.image}
                                   style={{ height: "50px" }}
                                 />
-                                <Text style={{ marginLeft: 10, fontSize: 18 }}>
+                                <Text style={{ marginLeft: 10 }}>
                                   {dataMaterialDetail?.name}
                                 </Text>
                               </div>
                             </Text>
                           </div>
-                          <div style={{ marginTop: 10 }}>
-                            <Text style={{ fontSize: 18 }}>
-                              Ghi chú: {detailProductData?.note}
-                            </Text>
+                          <div
+                            style={{
+                              marginTop: 10,
+                            }}
+                          >
+                            <Title level={4}>Ghi chú:</Title>
+                            <div
+                              style={{
+                                height: "100px",
+                                overflowY: "scroll",
+                                scrollbarWidth: "none",
+                              }}
+                            >
+                              <Text>
+                                {viewDetailProduct?.note
+                                  ? viewDetailProduct?.note
+                                  : "Chưa có ghi chú cho sản phẩm này."}
+                              </Text>
+                            </div>
                           </div>
                         </Col>
-                        <div style={{ marginTop: 20 }}>
+                        <div style={{ marginTop: 20, width: "100%" }}>
                           <Title level={3} style={{ marginLeft: 40 }}>
                             Số đo cơ thể:
                           </Title>
@@ -944,22 +958,23 @@ const ViewDetailOrder = ({
                               border: "1px solid #9F78FF",
                               borderRadius: 10,
                               padding: 15,
+                              width: "100%",
                             }}
                           >
                             <Row gutter={[16, 24]} style={{ width: "100%" }}>
                               {dataProfileBodyDetail &&
-                                dataProfileBodyDetail?.bodyAttributes?.map(
-                                  (bodyAttribute) => {
-                                    return (
-                                      <Col span={8}>
-                                        <Text>
+                                dataProfileBodyDetail?.map((bodyAttribute) => {
+                                  return (
+                                    <Col span={8}>
+                                      <Text>
+                                        <b>
                                           {bodyAttribute?.bodySize?.name} :{" "}
-                                          {bodyAttribute?.value} cm
-                                        </Text>
-                                      </Col>
-                                    );
-                                  }
-                                )}
+                                        </b>
+                                        {bodyAttribute?.value} cm
+                                      </Text>
+                                    </Col>
+                                  );
+                                })}
                             </Row>
                           </div>
                         </div>
@@ -1060,68 +1075,73 @@ const ViewDetailOrder = ({
                                                   >
                                                     {selected?.name}
                                                   </Typography.Title>
-                                                  <br />
-                                                  <Popover
-                                                    title={"Lời dặn của khách"}
-                                                    content={
-                                                      <>
-                                                        <Text>Hình ảnh:</Text>
-                                                        <Row
-                                                          gutter={[16, 24]}
-                                                          style={{
-                                                            textAlign: "center",
-                                                          }}
-                                                        >
-                                                          <Col
-                                                            className="gutter-row"
-                                                            span={12}
-                                                          >
-                                                            <Image
-                                                              width={100}
-                                                              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                                                            />
-                                                          </Col>
-                                                          <Col
-                                                            className="gutter-row"
-                                                            span={12}
-                                                          >
-                                                            <Image
-                                                              width={100}
-                                                              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                                                            />
-                                                          </Col>
-                                                          <Col
-                                                            className="gutter-row"
-                                                            span={12}
-                                                          >
-                                                            <Image
-                                                              width={100}
-                                                              src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                                                            />
-                                                          </Col>
-                                                        </Row>
-                                                        <br></br>
-                                                        <Text>Ghi chú:</Text>
-                                                        <Paragraph
-                                                          style={{
-                                                            width: "300px",
-                                                          }}
-                                                        >
-                                                          Ghi chú khách hàng về
-                                                          sản phẩm Ghi chú khách
-                                                          hàng về sản phẩm Ghi
-                                                          chú khách hàng về sản
-                                                          phẩm Ghi chú khách
-                                                          hàng về sản phẩm Ghi
-                                                          chú khách hàng về sản
-                                                          phẩm Ghi chú khách
-                                                          hàng về sản phẩm
-                                                        </Paragraph>
-                                                      </>
-                                                    }
-                                                  >
-                                                    <Button>Nhấp để xem</Button>
-                                                  </Popover>
+                                                  {componentTypeOrder.noteObject && (
+                                                    <>
+                                                      <br />
+                                                      <Popover
+                                                        title={
+                                                          "Lời dặn của khách"
+                                                        }
+                                                        content={
+                                                          <>
+                                                            <Text>
+                                                              Hình ảnh:
+                                                            </Text>
+                                                            <Row
+                                                              gutter={[0, 24]}
+                                                              span={10}
+                                                              style={{
+                                                                marginTop: 5,
+                                                                textAlign:
+                                                                  "center",
+                                                              }}
+                                                            >
+                                                              {JSON.parse(
+                                                                componentTypeOrder
+                                                                  .noteObject
+                                                                  .noteImage
+                                                              ).map((image) => (
+                                                                <Col
+                                                                  className="gutter-row"
+                                                                  span={12}
+                                                                >
+                                                                  <Image
+                                                                    width={100}
+                                                                    src={image}
+                                                                    style={{
+                                                                      border:
+                                                                        "1px solid #9F78FF",
+                                                                      borderRadius: 5,
+                                                                      padding: 5,
+                                                                    }}
+                                                                  />
+                                                                </Col>
+                                                              ))}
+                                                            </Row>
+                                                            <br></br>
+                                                            <Text>
+                                                              Ghi chú:
+                                                            </Text>
+                                                            <Paragraph
+                                                              style={{
+                                                                width: "300px",
+                                                              }}
+                                                            >
+                                                              {
+                                                                componentTypeOrder
+                                                                  .noteObject
+                                                                  .note
+                                                              }
+                                                            </Paragraph>
+                                                          </>
+                                                        }
+                                                      >
+                                                        <Button>
+                                                          Lời nhắn từ khách
+                                                        </Button>
+                                                      </Popover>
+                                                    </>
+                                                  )}
                                                 </div>
                                               </Flex>
                                             </Flex>
