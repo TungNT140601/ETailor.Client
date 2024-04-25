@@ -774,7 +774,7 @@ function StepTwo({
                                   />{" "}
                                   {option.data.desc.conditionPriceMin && (
                                     <Text>
-                                      Số tiền giảm tối thiểu:{" "}
+                                      Số tiền hóa đơn tối thiểu:{" "}
                                       {formatCurrency(
                                         option.data.desc.conditionPriceMin
                                       )}

@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-
+import React, { useState, useEffect, useCallback } from "react";
 
 import { Button, Steps, Form } from "antd";
 import "./index.css";
@@ -16,13 +15,13 @@ import toast, { Toaster } from "react-hot-toast";
 const OrderToCustomerContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const navigate = useNavigate();
- 
+
   const [form] = Form.useForm();
   const [formProfileBody] = Form.useForm();
   const [formInfoCustomer] = Form.useForm();
 
   const [current, setCurrent] = useState(0);
- 
+
   //-----------------------------------------Thử làm cách mới--------------------------------------------------
 
   //---------------------------------------------------Lưu orderId-----------------------------------------------------------------
@@ -94,10 +93,9 @@ const OrderToCustomerContent = () => {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      await handleSaveOrder();
-    };
-    fetchData();
+    if (saveCustomer) {
+      handleSaveOrder();
+    }
   }, [saveCustomer, saveOrderId]);
   //---------------------------------------------------Xử lý logic bước 1----------------------------------------------------------
 
@@ -515,7 +513,7 @@ const OrderToCustomerContent = () => {
       console.error("Error calling API:", error);
     }
   };
-
+  console.log("thang cha");
   const steps = [
     {
       title: "Thông tin khách hàng",
