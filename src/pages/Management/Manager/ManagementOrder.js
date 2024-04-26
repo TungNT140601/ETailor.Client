@@ -32,6 +32,7 @@ import { VnPay } from "../../../components/RealTime/index.js";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import ManageChat from "./ManageChat";
+import Refund from "./RefundOrder/Refund.js";
 
 const { Search } = Input;
 const { Title, Text, Paragraph } = Typography;
@@ -167,6 +168,8 @@ const ManagementOrderContent = () => {
   const [cancelOrderLoading, setCancelOrderLoading] = useState(false);
 
   const [approveOrderLoading, setApproveOrderLoading] = useState(false);
+
+  const [openRefund, setOpenRefund] = useState(false);
   const showModal = async (id, status) => {
     await setSaveIdOrder(id);
     await setCheckStatus(status);
@@ -236,6 +239,7 @@ const ManagementOrderContent = () => {
         });
         handleDataOrder();
         setIsModalOpen(false);
+        return 1;
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
         Swal.fire({
@@ -246,11 +250,20 @@ const ManagementOrderContent = () => {
           timer: 4500,
           zIndex: 1000,
         });
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
     } finally {
       setCancelOrderLoading(false);
+    }
+  };
+
+  const handleConfirmRefund = (id, paidMoney) => {
+    if (paidMoney > 0) {
+      setOpenRefund(true);
+    } else {
+      handleCancelOrder(id);
     }
   };
 
@@ -468,6 +481,9 @@ const ManagementOrderContent = () => {
           cancelOrderLoading={cancelOrderLoading}
           approveOrderLoading={approveOrderLoading}
           handleDataOrderContent={handleDataOrder}
+          handleConfirmRefund={handleConfirmRefund}
+          openRefund={openRefund}
+          setOpenRefund={setOpenRefund}
         />
       )}
     </div>
@@ -485,6 +501,9 @@ const ViewDetailOrder = ({
   cancelOrderLoading,
   approveOrderLoading,
   handleDataOrderContent,
+  handleConfirmRefund,
+  openRefund,
+  setOpenRefund,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const getUrl = "https://e-tailorapi.azurewebsites.net/api/order";
@@ -754,6 +773,16 @@ const ViewDetailOrder = ({
 
   return (
     <div>
+      {openRefund && saveIdOrder && dataOrderDetail && (
+        <Refund
+          open={openRefund}
+          saveIdOrder={saveIdOrder}
+          onCancel={() => setOpenRefund(false)}
+          handleCancelOrder={handleCancelOrder}
+          dataOrderDetail={dataOrderDetail}
+          formatCurrency={formatCurrency}
+        />
+      )}
       <Modal
         title="Chi tiết đơn hàng"
         open={isModalOpen}
@@ -778,7 +807,14 @@ const ViewDetailOrder = ({
               <Button
                 key="cancel"
                 type="primary"
-                onClick={() => handleCancelOrder(saveIdOrder)}
+                onClick={() => {
+                  if (dataOrderDetail?.paidMoney) {
+                    handleConfirmRefund(
+                      saveIdOrder,
+                      dataOrderDetail?.paidMoney
+                    );
+                  }
+                }}
                 danger
                 style={{ marginLeft: 15 }}
                 loading={cancelOrderLoading}
