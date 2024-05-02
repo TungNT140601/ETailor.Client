@@ -259,11 +259,9 @@ const ManagementOrderContent = () => {
     }
   };
 
-  const handleConfirmRefund = (id, paidMoney) => {
+  const handleConfirmRefund = (paidMoney) => {
     if (paidMoney > 0) {
       setOpenRefund(true);
-    } else {
-      handleCancelOrder(id);
     }
   };
 
@@ -778,7 +776,6 @@ const ViewDetailOrder = ({
           open={openRefund}
           saveIdOrder={saveIdOrder}
           onCancel={() => setOpenRefund(false)}
-          handleCancelOrder={handleCancelOrder}
           dataOrderDetail={dataOrderDetail}
           formatCurrency={formatCurrency}
         />
@@ -808,18 +805,27 @@ const ViewDetailOrder = ({
                 key="cancel"
                 type="primary"
                 onClick={() => {
-                  if (dataOrderDetail?.paidMoney) {
-                    handleConfirmRefund(
-                      saveIdOrder,
-                      dataOrderDetail?.paidMoney
-                    );
-                  }
+                  handleCancelOrder(saveIdOrder);
                 }}
                 danger
                 style={{ marginLeft: 15 }}
                 loading={cancelOrderLoading}
               >
                 Hủy đơn hàng
+              </Button>
+            )}
+            {checkStatus >= 1 && checkStatus <= 4 && (
+              <Button
+                key="refund"
+                type="primary"
+                onClick={() => {
+                  if (dataOrderDetail?.paidMoney) {
+                    handleConfirmRefund(dataOrderDetail?.paidMoney);
+                  }
+                }}
+                style={{ marginLeft: 15 }}
+              >
+                Hoàn trả tiền và sản phẩm
               </Button>
             )}
             {checkStatus === 1 && (

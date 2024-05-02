@@ -177,6 +177,7 @@ const OrderToCustomerContent = () => {
   const [orderPaymentDetail, setOrderPaymentDetail] = useState(null);
 
   const [loadingStep2, setLoadingStep2] = useState(false);
+
   const handleDataOrderDetail = async () => {
     setLoadingStep2(true);
     if (saveOrderId) {

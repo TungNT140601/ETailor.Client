@@ -21,14 +21,13 @@ function StepOne({
   setProductComponent,
   form,
   saveCustomer,
-  saveOrderId,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [searchResult, setSearchResult] = useState([]);
   const [searchInfo, setSearchInfo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  console.log("saveCustomer", saveCustomer);
+  console.log("thang con step one");
   const [createCustomerLoading, setCreateCustomerLoading] = useState(false);
   const handleCreateInfoCustomer = () => {
     formInfoCustomer.validateFields().then(async () => {

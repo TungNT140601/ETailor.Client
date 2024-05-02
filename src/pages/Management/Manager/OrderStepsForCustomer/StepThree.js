@@ -67,7 +67,7 @@ function StepThree({
   onChange,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
-  console.log("profileCustomer ben step three", profileCustomer);
+  console.log("thang con step three");
   const [formUpdateProfile] = Form.useForm();
   const navigate = useNavigate();
   const [openChooseProductTemplate, setOpenChooseProductTemplate] =
