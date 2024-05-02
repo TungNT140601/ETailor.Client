@@ -164,7 +164,8 @@ const ManagementProductDetailContent = () => {
   const [loading, setLoading] = useState(false);
   const [templateStage, setTemplateStage] = useState(null);
   const navigate = useNavigate();
-
+  console.log("templateStage", templateStage);
+  console.log("dataDetail", dataDetail);
   useEffect(() => {
     const handleGetDetail = async () => {
       const urlProductDetail = `https://e-tailorapi.azurewebsites.net/api/template-management/detail/${id}`;
@@ -321,6 +322,11 @@ const ManagementProductDetailContent = () => {
                     <Tag color="purple" style={{ fontSize: 18 }}>
                       {dataDetail?.category?.name}
                     </Tag>
+                  </Text>
+                </div>
+                <div style={{ marginTop: 10 }}>
+                  <Text style={{ fontSize: 18 }}>
+                    Thời gian may: {dataDetail?.aveDateForComplete} ngày
                   </Text>
                 </div>
                 <div
