@@ -174,8 +174,8 @@ export default function Notification() {
                 className='notification-popover'
                 onOpenChange={handleOpenChange}
             >
-                <Button className="button is-rounded is-medium wrapper-shopping">
-                    <img src={NotificationBell} width={18} height={18}></img>
+                <Button className="wrapper-shopping">
+                    <img src={NotificationBell} width={22} height={22}></img>
                 </Button>
             </Popover>
 
