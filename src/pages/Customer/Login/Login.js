@@ -262,7 +262,7 @@ export default function Login({ openModal, closeModal }) {
                       autoFocus
                       startAdornment={
                         <InputAdornment>
-                          <img width={24} height={24} src={UserIcon}></img>
+                          <img width={18} height={18} src={UserIcon}></img>
                         </InputAdornment>
                       }
                       value={values.email}
@@ -280,7 +280,7 @@ export default function Login({ openModal, closeModal }) {
                       onChange={handleChange("login_password")}
                       startAdornment={
                         <InputAdornment>
-                          <img width={24} height={24} src={PasswordIcon}></img>
+                          <img width={18} height={18} src={PasswordIcon}></img>
                         </InputAdornment>
                       }
                       endAdornment={
