@@ -403,7 +403,6 @@ function StepTwo({
           setSaveIdDetailProduct={setSaveIdDetailProduct}
         />
       )}
-      <Toaster />
       <Spin spinning={paymentLoading} fullscreen />
       <Row style={{ marginTop: 24 }}>
         <Col

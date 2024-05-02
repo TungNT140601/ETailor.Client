@@ -67,7 +67,6 @@ function StepThree({
   onChange,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
-  console.log("thang con step three");
   const [formUpdateProfile] = Form.useForm();
   const navigate = useNavigate();
   const [openChooseProductTemplate, setOpenChooseProductTemplate] =
@@ -356,7 +355,6 @@ function StepThree({
 
   return (
     <>
-      <Toaster />
       {!openUpdate ? (
         <>
           <Row>
