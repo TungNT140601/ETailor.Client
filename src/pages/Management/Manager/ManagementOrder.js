@@ -33,6 +33,7 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import ManageChat from "./ManageChat";
 import Refund from "./RefundOrder/Refund.js";
+import { ConfirmCancelOrder } from "./ConfirmCancelOrder/ConfirmCancelOrder.js";
 
 const { Search } = Input;
 const { Title, Text, Paragraph } = Typography;
@@ -769,8 +770,27 @@ const ViewDetailOrder = ({
     }
   };
 
+  //-------------------------------------------------------------------------------------------------------------------------------
+  const [openConfirmCancel, setOpenConfirmCancel] = useState(false);
+
+  const handleConfirmCancel = (paidMoney) => {
+    if (paidMoney > 0) {
+      setOpenConfirmCancel(true);
+    }
+  };
+
   return (
     <div>
+      {openConfirmCancel && saveIdOrder && dataOrderDetail && (
+        <ConfirmCancelOrder
+          open={openConfirmCancel}
+          onCancel={() => setOpenConfirmCancel(false)}
+          dataOrderDetail={dataOrderDetail}
+          formatCurrency={formatCurrency}
+          handleCancelOrder={handleCancelOrder}
+          saveIdOrder={saveIdOrder}
+        />
+      )}
       {openRefund && saveIdOrder && dataOrderDetail && (
         <Refund
           open={openRefund}
@@ -805,7 +825,7 @@ const ViewDetailOrder = ({
                 key="cancel"
                 type="primary"
                 onClick={() => {
-                  handleCancelOrder(saveIdOrder);
+                  handleConfirmCancel(dataOrderDetail?.paidMoney);
                 }}
                 danger
                 style={{ marginLeft: 15 }}

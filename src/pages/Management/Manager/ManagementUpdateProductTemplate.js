@@ -636,6 +636,7 @@ const ManagementUpdateProductTemplateContent = () => {
     formData.append("Price", values.Price);
     formData.append("AveDateForComplete", values.deadline);
     formData.append("ThumbnailImageFile", postThumbnailUrl);
+    formData.append("Gender", values.gender);
     if (postImageUrl?.length >= 1) {
       postImageUrl.map((item) => formData.append("ImageFiles", item));
     }
@@ -948,6 +949,7 @@ const ManagementUpdateProductTemplateContent = () => {
       Price: dataDetailForUpdate?.price,
       Description: dataDetailForUpdate?.description,
       deadline: dataDetailForUpdate?.aveDateForComplete,
+      gender: dataDetailForUpdate?.gender,
       ThumbnailImageFile: dataDetailForUpdate?.thumbnailImage
         ? [
             {
