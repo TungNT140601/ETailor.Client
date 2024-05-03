@@ -397,7 +397,6 @@ const OrderToCustomerContent = () => {
     setOnFinishLoading(true);
     if (getProfileUpdateCustomer) {
       const allValues = formUpdate.getFieldsValue();
-      console.log("allValues", allValues);
       const backendData = {
         id: saveIdProduct,
         orderId: saveOrderId,
@@ -447,7 +446,6 @@ const OrderToCustomerContent = () => {
         profileId: getProfileUpdateCustomer.id,
         note: allValues.note ? allValues.note : "",
       };
-      console.log("backendData", backendData);
       const checkResult = await (async () => {
         try {
           const response = await fetch(`${urlUpdate}`, {

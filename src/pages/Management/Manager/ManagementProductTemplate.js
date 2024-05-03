@@ -403,6 +403,7 @@ export const ManagementCreateProductTemplate = () => {
     formData.append("Price", values.Price);
     formData.append("ThumbnailImageFile", postThumbnailUrl);
     formData.append("AveDateForComplete", values.deadline);
+    formData.append("Gender", values.gender);
     if (postImageUrl?.length >= 1) {
       postImageUrl.map((item) => formData.append("ImageFiles", item));
     }
