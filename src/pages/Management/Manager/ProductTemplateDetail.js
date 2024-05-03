@@ -87,7 +87,7 @@ const ManagementProductDetailTemplateHeader = () => {
               title: <HomeOutlined />,
             },
             {
-              href: "/manager",
+              href: "/manager/product-template",
               title: (
                 <>
                   <div
@@ -105,7 +105,6 @@ const ManagementProductDetailTemplateHeader = () => {
               ),
             },
             {
-              href: "/manager",
               title: (
                 <>
                   <div
@@ -117,7 +116,7 @@ const ManagementProductDetailTemplateHeader = () => {
                   >
                     <CheckroomIcon fontSize="small" />
                     &nbsp;
-                    <span>Bản mẫu</span>
+                    <span>Chi tiết bản mẫu</span>
                   </div>
                 </>
               ),
@@ -326,6 +325,22 @@ const ManagementProductDetailContent = () => {
                 </div>
                 <div style={{ marginTop: 10 }}>
                   <Text style={{ fontSize: 18 }}>
+                    Dành cho:{" "}
+                    {dataDetail?.gender &&
+                      (() => {
+                        switch (dataDetail.gender) {
+                          case 0:
+                            return "Nam giới";
+                          case 1:
+                            return "Nữ giới";
+                          default:
+                            return "Nam và Nữ";
+                        }
+                      })()}
+                  </Text>
+                </div>
+                <div style={{ marginTop: 10 }}>
+                  <Text style={{ fontSize: 18 }}>
                     Thời gian may: {dataDetail?.aveDateForComplete} ngày
                   </Text>
                 </div>
@@ -500,21 +515,29 @@ const ManagementProductDetailContent = () => {
                     return (
                       <>
                         <Title level={4} style={{ marginLeft: 50 }}>
-                          Bước {stage?.stageNum}:
+                          Bước {stage?.stageNum}: {stage?.name}
+                          {console.log("templateStage", templateStage)}
                         </Title>
                         <div style={{ marginLeft: 70 }}>
-                          {stage?.componentStages?.map((componenetStage) => {
-                            return (
-                              <Tag
-                                bordered={false}
-                                color="processing"
-                                key={componenetStage?.id}
-                                style={{ fontSize: 15 }}
-                              >
-                                {componenetStage?.componentType.name}
-                              </Tag>
-                            );
-                          })}
+                          {stage?.componentStages?.length > 0 ? (
+                            stage?.componentStages?.map((componenetStage) => {
+                              return (
+                                <Tag
+                                  bordered={false}
+                                  color="processing"
+                                  key={componenetStage?.id}
+                                  style={{ fontSize: 15 }}
+                                >
+                                  {componenetStage?.componentType.name}
+                                </Tag>
+                              );
+                            })
+                          ) : (
+                            <Text>
+                              Không có bộ phận nào được thực hiện trong bước
+                              này.
+                            </Text>
+                          )}
                         </div>
                       </>
                     );
