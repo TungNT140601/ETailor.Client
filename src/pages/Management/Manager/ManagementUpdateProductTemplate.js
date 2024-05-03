@@ -949,7 +949,7 @@ const ManagementUpdateProductTemplateContent = () => {
       Price: dataDetailForUpdate?.price,
       Description: dataDetailForUpdate?.description,
       deadline: dataDetailForUpdate?.aveDateForComplete,
-      gender: dataDetailForUpdate?.gender,
+      gender: dataDetailForUpdate?.gender.toString(),
       ThumbnailImageFile: dataDetailForUpdate?.thumbnailImage
         ? [
             {
@@ -1158,8 +1158,8 @@ const ManagementUpdateProductTemplateContent = () => {
               >
                 <Select placeholder="Bản mẫu này phù hợp với" defaultValue="-1">
                   <Option value="-1">Nam và Nữ</Option>
-                  <Option value="1">Nam</Option>
-                  <Option value="2">Nữ</Option>
+                  <Option value="0">Nam</Option>
+                  <Option value="1">Nữ</Option>
                 </Select>
               </Form.Item>
               <Form.Item
