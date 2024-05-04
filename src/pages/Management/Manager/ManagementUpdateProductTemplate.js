@@ -949,7 +949,7 @@ const ManagementUpdateProductTemplateContent = () => {
       Price: dataDetailForUpdate?.price,
       Description: dataDetailForUpdate?.description,
       deadline: dataDetailForUpdate?.aveDateForComplete,
-      gender: dataDetailForUpdate?.gender.toString(),
+      gender: dataDetailForUpdate?.gender?.toString(),
       ThumbnailImageFile: dataDetailForUpdate?.thumbnailImage
         ? [
             {

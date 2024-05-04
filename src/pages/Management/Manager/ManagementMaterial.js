@@ -970,7 +970,7 @@ function ManagementMaterialTypeContent() {
       width: "35%",
     },
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "3",
       width: "20%",
@@ -1500,13 +1500,13 @@ function ManagementMaterialCategoryContent() {
       ),
     },
     {
-      title: "Loại vải",
+      title: "Loại nguyên liệu",
       dataIndex: "materialTypeName",
       key: "3",
       width: "25%",
     },
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "4",
       width: "30%",
