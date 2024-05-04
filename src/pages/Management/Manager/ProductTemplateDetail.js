@@ -516,7 +516,6 @@ const ManagementProductDetailContent = () => {
                       <>
                         <Title level={4} style={{ marginLeft: 50 }}>
                           Bước {stage?.stageNum}: {stage?.name}
-                          {console.log("templateStage", templateStage)}
                         </Title>
                         <div style={{ marginLeft: 70 }}>
                           {stage?.componentStages?.length > 0 ? (
@@ -534,8 +533,7 @@ const ManagementProductDetailContent = () => {
                             })
                           ) : (
                             <Text>
-                              Không có bộ phận nào được thực hiện trong bước
-                              này.
+                              Không có bộ phận nào cần xử lý trong bước này.
                             </Text>
                           )}
                         </div>

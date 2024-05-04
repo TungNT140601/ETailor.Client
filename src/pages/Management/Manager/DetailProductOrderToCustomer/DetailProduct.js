@@ -308,6 +308,7 @@ function DetailProduct({
                                         item.id ===
                                         componentTypeOrder?.selected_Component_Id
                                     );
+
                                   return (
                                     <>
                                       <Col span={12}>

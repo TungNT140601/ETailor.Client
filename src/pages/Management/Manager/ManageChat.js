@@ -25,7 +25,6 @@ function ManageChat({
   checkStatus,
 }) {
   const [currentChatText, setCurrentChatText] = useState("");
-
   const [chat, setChat] = useState("");
   const [file, setFile] = useState(null);
   const [currentImage, setCurrentImage] = useState(null);
@@ -40,7 +39,6 @@ function ManageChat({
       resetMessageReturn();
     }
   }, [messageReturn, resetMessageReturn]);
-  console.log("CHat notification,", chatNotification);
   const handleSendChat = async (id) => {
     setCurrentChatText(chat);
     if (previewImageChat !== null) {
@@ -59,7 +57,6 @@ function ManageChat({
       //     formDta.append("MessageImages", file);
       // }
       if (imageFiles !== null) {
-        console.log("Có  Image file", imageFiles);
         imageFiles.map((file) => {
           formDta.append("MessageImages", file);
         });
@@ -79,7 +76,6 @@ function ManageChat({
         setPreviewImageChat(null);
         fetchChat();
         setBadgeChatCount(0);
-        console.log("success");
         scrollToBottom();
         setChat("");
         setFile(null);
@@ -99,7 +95,6 @@ function ManageChat({
     }
   };
   const handleChatChange = async (value) => {
-    console.log("Chat change", value);
     setChat(value);
   };
 
@@ -123,14 +118,9 @@ function ManageChat({
   };
 
   const [imageFiles, setImageFiles] = useState(null);
-  console.log("Image file 1", imageFiles);
 
-  console.log("Preview image chat", previewImageChat);
-  console.log("Current image", currentImage);
   const handleImageChange = async (e) => {
-    console.log("Image change", e.currentTarget.files);
     const files = Array.from(e.currentTarget.files); // Directly use the file objects
-    console.log("FILES:", files);
     setImageFiles(files);
     // setImageFiles((prevResults) => {
     //     if (prevResults === null) {
@@ -536,7 +526,7 @@ function ManageChat({
                 ))}
               </div>
             )}
-            {checkStatus === 0 || checkStatus === 7 ? (
+            {checkStatus === 0 || checkStatus === 8 ? (
               ""
             ) : (
               <div

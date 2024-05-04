@@ -213,7 +213,7 @@ const ManagementCategoryContent = () => {
       },
     },
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "Action",
       width: "10%",
