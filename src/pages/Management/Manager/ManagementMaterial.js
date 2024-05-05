@@ -8,6 +8,8 @@ import {
   DeleteOutlined,
   PlusOutlined,
   LoadingOutlined,
+  OrderedListOutlined,
+  AppstoreAddOutlined,
 } from "@ant-design/icons";
 import "./index.css";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
@@ -30,85 +32,12 @@ import {
 
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import ManagerHeader from "../../../components/ManagerHeader";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
-
-const ManagementMaterialHeader = () => {
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div>
-        <Breadcrumb
-          items={[
-            {
-              href: "#",
-              title: <HomeOutlined />,
-            },
-            {
-              href: "/manager/material",
-              title: (
-                <>
-                  <Link to="/manager/material">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        color: "#9F78FF",
-                      }}
-                    >
-                      <FactCheckIcon
-                        fontSize="small"
-                        style={{ fontSize: "18px" }}
-                      />
-                      &nbsp;
-                      <span>Nguyên liệu</span>
-                    </div>
-                  </Link>
-                </>
-              ),
-            },
-          ]}
-        />
-        <Title level={4}>Nguyên liệu</Title>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <Search
-            placeholder="Tìm kiếm"
-            onSearch={onSearch}
-            style={{
-              width: 250,
-            }}
-          />
-        </div>
-        &nbsp; &nbsp; &nbsp;
-        <div>
-          {manager?.avatar ? (
-            <Avatar src={manager?.avatar} />
-          ) : (
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-          )}
-          &nbsp; &nbsp;
-          <Text>{manager?.name}</Text>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const ManagementMaterialContent = () => {
   const [material, setMaterial] = useState([]);
@@ -2060,7 +1989,12 @@ export function ManagementMaterialCategory() {
         }}
         className="manager-header"
       >
-        <ManagementMaterialHeader />
+        <ManagerHeader
+          name={"Danh mục nguyên liệu"}
+          link={"/manager/material-category"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<AppstoreAddOutlined />}
+        />
       </div>
       <div
         className="manager-content"
@@ -2087,7 +2021,12 @@ export function ManagementMaterialType() {
         }}
         className="manager-header"
       >
-        <ManagementMaterialHeader />
+        <ManagerHeader
+          name={"Loại nguyên liệu"}
+          link={"/manager/material-type"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<OrderedListOutlined />}
+        />
       </div>
       <div
         className="manager-content"
@@ -2114,7 +2053,14 @@ function ManagementMaterial() {
         }}
         className="manager-header"
       >
-        <ManagementMaterialHeader />
+        <ManagerHeader
+          name={"Nguyên liệu"}
+          link={"/manager/material"}
+          iconHome={<HomeOutlined />}
+          iconRoute={
+            <FactCheckIcon fontSize="small" style={{ fontSize: "18px" }} />
+          }
+        />
       </div>
       <div
         className="manager-content"

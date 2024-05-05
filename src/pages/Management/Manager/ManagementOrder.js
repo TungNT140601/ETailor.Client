@@ -28,12 +28,14 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { ChatRealTimeManager } from "./ChatRealTimeManager";
 import toast, { Toaster } from "react-hot-toast";
 import { VnPay } from "../../../components/RealTime/index.js";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import ManageChat from "./ManageChat";
 import Refund from "./RefundOrder/Refund.js";
 import { ConfirmCancelOrder } from "./ConfirmCancelOrder/ConfirmCancelOrder.js";
+import ManagerHeader from "../../../components/ManagerHeader/index.js";
 
 const { Search } = Input;
 const { Title, Text, Paragraph } = Typography;
@@ -52,83 +54,6 @@ function formatCurrency(amount) {
   }
   return null;
 }
-
-const ManagementOrderHeader = () => {
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div>
-        <Breadcrumb
-          items={[
-            {
-              title: (
-                <Link to="/manager">
-                  <div>
-                    <HomeOutlined />
-                  </div>
-                </Link>
-              ),
-            },
-            {
-              href: "/manager/orders",
-              title: (
-                <>
-                  <Link to="/manager/orders">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        color: "#9F78FF",
-                      }}
-                    >
-                      <UserOutlined fontSize="small" />
-                      &nbsp;
-                      <span>Đơn hàng</span>
-                    </div>
-                  </Link>
-                </>
-              ),
-            },
-          ]}
-        />
-        <Title level={4}>Đơn hàng</Title>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <Search
-            placeholder="Tìm kiếm"
-            onSearch={onSearch}
-            style={{
-              width: 250,
-            }}
-          />
-        </div>
-        &nbsp; &nbsp; &nbsp;
-        <div>
-          {manager?.avatar ? (
-            <Avatar src={manager?.avatar} />
-          ) : (
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-          )}
-          &nbsp; &nbsp;
-          <Text>{manager?.name}</Text>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const ManagementOrderContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
@@ -1563,7 +1488,12 @@ function ManagementOrder() {
         }}
         className="manager-header"
       >
-        <ManagementOrderHeader />
+        <ManagerHeader
+          name={"Đơn hàng"}
+          link={"/manager/orders"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<ShoppingCartIcon style={{ fontSize: 15 }} />}
+        />
       </div>
       <div
         className="manager-content"
