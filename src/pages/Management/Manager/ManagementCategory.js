@@ -48,83 +48,12 @@ import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
+import ManagerHeader from "../../../components/ManagerHeader";
 
 const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
 const { Meta } = Card;
 const { Option } = Select;
-
-const ManagementCategoryHeader = () => {
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div>
-        <Breadcrumb
-          items={[
-            {
-              href: "#",
-              title: <HomeOutlined />,
-            },
-            {
-              href: "/manager/product-template/category",
-              title: (
-                <>
-                  <Link to="/manager/product-template/category">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        color: "#9F78FF",
-                      }}
-                    >
-                      <CategoryIcon fontSize="small" />
-                      &nbsp;
-                      <span>Loại bản mẫu</span>
-                    </div>
-                  </Link>
-                </>
-              ),
-            },
-          ]}
-        />
-        <Title level={4}>Loại bản mẫu</Title>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <Search
-            placeholder="Tìm kiếm"
-            onSearch={onSearch}
-            style={{
-              width: 250,
-            }}
-          />
-        </div>
-        &nbsp; &nbsp; &nbsp;
-        <div>
-          {manager?.avatar ? (
-            <Avatar src={manager?.avatar} />
-          ) : (
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-          )}
-          &nbsp; &nbsp;
-          <Text>{manager?.name}</Text>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const ManagementCategoryContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
@@ -805,120 +734,6 @@ const CollectionUpdateForm = ({
   );
 };
 
-// const CollectionUpdateComponenentForm = ({
-//   open,
-//   onUpdateComponents,
-//   onCancel,
-//   saveComponentId,
-//   setSaveComponentId,
-// }) => {
-//   const manager = JSON.parse(localStorage.getItem("manager"));
-//   const [form] = Form.useForm();
-//   const [dataDetail, setDataDetail] = useState(null);
-//   const [loading, setLoading] = useState(false);
-
-//   useEffect(() => {
-//     const handleDataDetail = async () => {
-//       setLoading(true);
-//       const urlDetail = `https://e-tailorapi.azurewebsites.net/api/component-type-management/${saveComponentId}`;
-//       try {
-//         const response = await fetch(urlDetail, {
-//           method: "GET",
-//           headers: {
-//             "Content-Type": "application/json",
-//             Authorization: `Bearer ${manager?.token}`,
-//           },
-//         });
-//         if (response.ok && response.status === 200) {
-//           const responseData = await response.json();
-//           setLoading(false);
-
-//           setDataDetail(responseData);
-//         }
-//       } catch (error) {
-//         console.error("Error calling API:", error);
-//       }
-//     };
-//     handleDataDetail();
-//   }, [saveComponentId]);
-
-//   useEffect(() => {
-//     form.setFieldsValue({
-//       modifier: "public",
-//       name: dataDetail?.name,
-//     });
-//   }, [dataDetail]);
-//   console.log(dataDetail);
-
-//   return (
-//     <Modal
-//       open={open}
-//       style={{ top: 220 }}
-//       title="Cập nhật loại bản mẫu"
-//       okText="Cập nhật"
-//       cancelText="Hủy bỏ"
-//       onCancel={() => {
-//         setSaveComponentId(null);
-//         onCancel();
-//       }}
-//       onOk={() => {
-//         form
-//           .validateFields()
-//           .then(async (values) => {
-//             const check = await onUpdateComponents(saveComponentId, values);
-//             if (check === 1) {
-//               setSaveComponentId(null);
-//               onCancel();
-//             }
-//           })
-//           .catch((info) => {
-//             console.log("Validate Failed:", info);
-//           });
-//       }}
-//     >
-//       {loading ? (
-//         <div
-//           style={{
-//             display: "flex",
-//             justifyContent: "center",
-//             alignItems: "center",
-//             height: "300px",
-//           }}
-//         >
-//           <CircularProgress />
-//         </div>
-//       ) : (
-//         <Form
-//           style={{
-//             marginTop: 24,
-//           }}
-//           form={form}
-//           layout="vertical"
-//           name="form_in_modal"
-//           initialValues={{
-//             modifier: "public",
-//           }}
-//         >
-//           <Form.Item
-//             className="mt-2"
-//             hasFeedback
-//             name="name"
-//             label="Bộ phận của danh mục"
-//             rules={[
-//               {
-//                 required: true,
-//                 message: "Bộ phận của danh mục không được để trống!",
-//               },
-//             ]}
-//           >
-//             <Input />
-//           </Form.Item>
-//         </Form>
-//       )}
-//     </Modal>
-//   );
-// };
-
 function ManagementCategory() {
   const manager = JSON.parse(localStorage.getItem("manager"));
   return (
@@ -931,7 +746,12 @@ function ManagementCategory() {
         }}
         className="manager-header"
       >
-        <ManagementCategoryHeader />
+        <ManagerHeader
+          name={"Loại bản mẫu"}
+          link={"/manager/product-template/category"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<CategoryIcon fontSize="small" />}
+        />
       </div>
       <div
         className="manager-content"

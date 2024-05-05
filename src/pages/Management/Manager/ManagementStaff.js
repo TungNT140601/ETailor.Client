@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Breadcrumb } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
@@ -8,14 +7,12 @@ import {
   PlusOutlined,
   LoadingOutlined,
 } from "@ant-design/icons";
-import { Typography, Table, Checkbox } from "antd";
+import { Table, Checkbox } from "antd";
 import "./index.css";
 
 import {
-  Avatar,
   Col,
   Row,
-  InputNumber,
   Image,
   Button,
   Input,
@@ -24,87 +21,9 @@ import {
   Upload,
   Select,
 } from "antd";
-
-import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import { useQuery } from "react-query";
 import CircularProgress from "@mui/material/CircularProgress";
-
-const { Search } = Input;
-const { Title, Text } = Typography;
-const { Option } = Select;
-
-const ManagementStaffHeader = () => {
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div>
-        <Breadcrumb
-          items={[
-            {
-              href: "#",
-              title: <HomeOutlined />,
-            },
-            {
-              href: "/manager/account/staffs",
-              title: (
-                <>
-                  <Link to="/manager/account/staffs">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        color: "#9F78FF",
-                      }}
-                    >
-                      <UserOutlined fontSize="small" />
-                      &nbsp;
-                      <span>Nhân viên</span>
-                    </div>
-                  </Link>
-                </>
-              ),
-            },
-          ]}
-        />
-        <Title level={4}>Nhân viên</Title>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <Search
-            placeholder="Tìm kiếm"
-            onSearch={onSearch}
-            style={{
-              width: 250,
-            }}
-          />
-        </div>
-        &nbsp; &nbsp; &nbsp;
-        <div>
-          {manager?.avatar ? (
-            <Avatar src={manager?.avatar} />
-          ) : (
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-          )}
-          &nbsp; &nbsp;
-          <Text>{manager?.name}</Text>
-        </div>
-      </div>
-    </div>
-  );
-};
+import ManagerHeader from "../../../components/ManagerHeader";
 
 const ManagementStaffContent = () => {
   const getStaffUrl = "https://e-tailorapi.azurewebsites.net/api/staff";
@@ -1086,7 +1005,12 @@ function ManagementStaff() {
         }}
         className="manager-header"
       >
-        <ManagementStaffHeader />
+        <ManagerHeader
+          name={"Nhân viên"}
+          link={"/manager/account/staffs"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<UserOutlined fontSize="small" />}
+        />
       </div>
       <div
         className="manager-content"
