@@ -362,7 +362,7 @@ export default function OrderDetail() {
                                     {previewImageChat && (
                                         <div style={{ display: "flex", overflowX: "scroll", scrollbarWidth: "thin" }}>
                                             {previewImageChat.map((image, index) => (
-                                                <div style={{ paddingLeft: 5, paddingTop: 5, borderRadius: 5 }}>
+                                                <div style={{ paddingLeft: 5, paddingTop: 5, borderRadius: 5 }} key={index}>
                                                     <Image
                                                         width={40}
                                                         height={40}

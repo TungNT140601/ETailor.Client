@@ -77,6 +77,7 @@ export default function Notification() {
                     const data = await response.json()
                     setAllNotification(data)
                     console.log("allNotification", allNotification)
+
                 }
 
             }
@@ -86,7 +87,7 @@ export default function Notification() {
         }
         fetchNotifications()
     }, [chatNotification])
-
+    console.log("length", allNotification)
     const NoticeInfo = () => {
         const [isModalOpen, setIsModalOpen] = useState(false);
         const [currentNotification, setCurrentNotification] = useState('')
@@ -103,7 +104,7 @@ export default function Notification() {
         return (
             <>
                 <div style={{ maxHeight: 400, overflowY: "scroll" }}>
-                    {allNotification.length > 0 ? allNotification?.map((notification) => (
+                    {allNotification?.data.length > 0 ? allNotification?.data.map((notification) => (
                         <>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} >
                                 <div style={{ height: "100%", borderLeft: `3px solid #bcdcfc`, margin: 10, paddingLeft: 20, alignItems: "center", width: "100%" }}>
@@ -111,9 +112,6 @@ export default function Notification() {
                                     <p>{getHoursDifference(new Date(notification?.sendTime))}</p>
 
                                 </div>
-
-
-
                                 <p style={{ fontSize: 50, color: "#9F78FF", paddingRight: 20 }}>&#x2022;</p>
                             </div>
                             <Divider style={{ margin: 0, }} />
@@ -148,7 +146,7 @@ export default function Notification() {
                         <p style={{ fontWeight: "bold", fontSize: 20, marginRight: 15, marginLeft: 10 }}>Tất cả thông báo</p>
 
                         <div style={{ backgroundColor: "#9F78FF", minWidth: 20, borderRadius: 5, textAlign: "center" }}>
-                            <p style={{ padding: "2px 10px 2px 10px", margin: 0, color: "#ffffff" }} >{allNotification.length}</p>
+                            <p style={{ padding: "2px 10px 2px 10px", margin: 0, color: "#ffffff" }} >{allNotification?.data.length}</p>
                         </div>
 
                     </div>
@@ -175,7 +173,7 @@ export default function Notification() {
                 onOpenChange={handleOpenChange}
             >
                 <Button className="wrapper-shopping">
-                    <img src={NotificationBell} width={22} height={22}></img>
+                    <img src={NotificationBell} width={18} height={18}></img>
                 </Button>
             </Popover>
 

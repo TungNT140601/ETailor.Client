@@ -92,6 +92,20 @@ const getStatusTextAndColor = (status) => {
     }
     return { color, text, backgroundColor, borderColor };
 };
+
+function getHoursDifference(deadline) {
+
+    const currentDateUTC = new Date();
+
+    const startMillis = new Date(deadline).getTime();
+    const currentMillisUTC7 = currentDateUTC.getTime();
+
+    const millisDiff = startMillis - currentMillisUTC7;
+    const hoursDiff = millisDiff / (1000 * 60 * 60);
+
+    return hoursDiff < 0 ? "Quá hạn" : hoursDiff < 24 ? `${Math.floor(hoursDiff)} giờ ` : `${Math.floor(hoursDiff / 24)} ngày`;
+}
+
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -99,6 +113,7 @@ const formatDate = (dateString) => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`
 };
+
 export default function ManagementTask() {
 
     const manager = JSON.parse(localStorage.getItem("manager"));
@@ -324,7 +339,7 @@ export default function ManagementTask() {
                                                         <div style={{ backgroundColor: "#f3f1fa", minHeight: 500, marginTop: 20, maxHeight: 600, overflowY: "scroll", scrollbarWidth: "none", }}>
                                                             {unAssignedTasks?.data.length > 0 && unAssignedTasks?.data.map((task, index) => (
                                                                 <Popover content={content} title="Title" trigger="click">
-                                                                    <Draggable key={task.id} draggableId={task.id} index={task?.à}>
+                                                                    <Draggable key={task.id} draggableId={task.id} index={task?.index}>
                                                                         {(provided, snapshot) => (
                                                                             <div
                                                                                 ref={provided.innerRef}
@@ -365,7 +380,7 @@ export default function ManagementTask() {
                                                                                     >
                                                                                         {task?.name}+{task?.index}
                                                                                     </h3>
-                                                                                    <p style={{ minHeight: "fit-content", color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.deadline ? formatDate(task?.deadline) : "Không có thời hạn"}</p>
+                                                                                    <p style={{ minHeight: "fit-content", color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.plannedTime ? getHoursDifference(task.plannedTime) : "Không có thời hạn"}</p>
                                                                                 </div>
                                                                                 {snapshot.hover && <Popover content={content} title="Title" />}
                                                                             </div>
@@ -459,7 +474,7 @@ export default function ManagementTask() {
                                                                                         textOverflow: "ellipsis",
                                                                                         maxWidth: "150px",
                                                                                     }}> <span style={{ fontSize: 15 }}>{index + 1}. </span>{task?.name}</h3>
-                                                                                    <p style={{ color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.deadline ? task?.deadline : "-"}</p>
+                                                                                    <p style={{ color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.plannedTime ? getHoursDifference(task?.plannedTime) : "Không có thời hạn"}</p>
 
                                                                                 </div>
                                                                             </div>

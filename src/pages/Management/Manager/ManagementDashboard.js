@@ -339,8 +339,47 @@ export default function ManagementDashboard() {
           </Row>
         </Col>
         <Col span={12}>
-          <Row>
-            <Col span={24} style={{ height: "230px", backgroundColor: "#ffffff", borderRadius: 10 }}>
+          <Row gutter={5}>
+            <Col span={12} style={{ height: "230px", backgroundColor: "#ffffff", borderRadius: 10 }}>
+
+              <div style={{ width: "100%", height: 200 }}>
+                <Pie options={{
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'right',
+                    },
+                    title: {
+                      display: true,
+                      text: `Biểu đồ tổng số đơn hàng ${searchMonth}/${searchYear}`,
+                    },
+                  }
+                }}
+
+                  data={{
+                    labels: ['Đã huỷ', 'Hoàn thiện', 'Đang thực hiện'],
+                    datasets: [
+                      {
+                        label: 'Số lượng',
+                        data: [totalForStatus0, totalForStatus7, totalForOtherStatuses],
+                        backgroundColor: [
+                          'rgba(255, 99, 132, 0.2)',
+                          '#f6ffed',
+                          'rgba(255, 206, 86, 0.2)',
+                        ],
+                        borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          '#389e0d',
+                          'rgba(255, 206, 86, 1)',
+                        ],
+                        borderWidth: 1,
+                      },
+                    ],
+                  }}
+                />
+              </div>
+            </Col>
+            <Col span={12} style={{ height: "230px", backgroundColor: "#ffffff", borderRadius: 10 }}>
 
               <div style={{ width: "100%", height: 200 }}>
                 <Pie options={{
@@ -791,6 +830,7 @@ export default function ManagementDashboard() {
         <div>
           <MaterialStatistic searchMonth={searchMonth} searchYear={searchYear} />
         </div>
+
         {/* <div style={{ marginTop: 20 }}>
           <OrderStatistic searchMonth={searchMonth} searchYear={searchYear} />
         </div> */}

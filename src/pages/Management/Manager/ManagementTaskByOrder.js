@@ -189,18 +189,15 @@ export default function ManagementTaskByOrder() {
         const utc = require('dayjs/plugin/utc');
         const timezone = require('dayjs/plugin/timezone');
 
-        // Extend dayjs with utc and timezone plugins
         dayjs.extend(utc);
         dayjs.extend(timezone);
 
-        // Set the timezone to Vietnam
         dayjs.tz.setDefault('Asia/Ho_Chi_Minh');
 
-        // Get the current date and time in Vietnam timezone
         const currentTimeVietnam = dayjs().format('YYYY-MM-DD HH:mm:ss');
         const milliseconds = dayjs(currentTimeVietnam).valueOf()
 
-        const [expanded, setExpanded] = useState(false);
+        const [expanded, setExpanded] = useState(true);
         const handleExpansion = (panel) => {
             setExpanded((prevExpanded) => ({
                 ...prevExpanded,
@@ -211,7 +208,6 @@ export default function ManagementTaskByOrder() {
             // console.log("Staff Image Hover", product.id)
         }
         const handleCloseAll = () => {
-            // console.log("Closing all accordions");
             const newExpandedState = {};
             Object.keys(expanded).forEach((panel) => {
                 newExpandedState[panel] = false;
@@ -404,7 +400,7 @@ export default function ManagementTaskByOrder() {
                         <p style={{ fontSize: 15, fontWeight: 600 }}>Ghi chú: <span style={{ fontWeight: 400 }}>{product?.note ? product.note : "Không có ghi chú"}</span> </p>
                         <p style={{ fontSize: 15, fontWeight: 600 }}>Giá trị đơn hàng: <span style={{ fontWeight: 400 }}>{formatCurrency(product?.price)}</span></p>
                         <p style={{ fontSize: 15, fontWeight: 600 }}>Ngày bắt đầu: <span style={{ fontWeight: 400 }}>{formatDate(product.createdTime)} </span></p>
-                        <p style={{ fontSize: 15, fontWeight: 600 }}>Hạn hoàn thành: <span style={{ fontWeight: 400 }}>{formatDate(product.productStages[0].deadline)}</span></p>
+                        <p style={{ fontSize: 15, fontWeight: 600 }}>Hạn hoàn thành: <span style={{ fontWeight: 400 }}>{product.plannedTime ? formatDate(product.plannedTime) : "Không có hạn hoàn thành"}</span></p>
 
                         <Button style={{ paddingTop: 5 }} type="primary" onClick={showModal}>
                             Xem chi tiết
@@ -441,9 +437,12 @@ export default function ManagementTaskByOrder() {
                                         </Col>
                                         <Col span={12}>
                                             <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Thời hạn:&nbsp;
-                                                <span style={{ fontWeight: 400 }}>
-                                                    <DatePicker
-                                                        value={product.productStages[0].deadline ? dayjs(product.productStages[0].deadline) : ''}
+
+                                                <span style={{ fontSize: 14, fontWeight: 400 }}>
+                                                    {formatDate(product?.plannedTime)}
+                                                </span>
+                                                {/* <DatePicker
+                                                        value={product.plannedTime ? dayjs(product.plannedTime) : ''}
                                                         showTime={{ format: 'HH:mm' }}
                                                         onChange={(value, dateString) => {
                                                             console.log('Selected Time: ', dateString);
@@ -455,9 +454,8 @@ export default function ManagementTaskByOrder() {
                                                             }
                                                         }}
 
-                                                    />
+                                                    /> */}
 
-                                                </span>
                                             </p>
                                             <div>
                                                 <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Màu vải:</p>
@@ -512,103 +510,6 @@ export default function ManagementTaskByOrder() {
                                             </div>
                                         ) : null
                                     }
-                                    {/* <div style={{ paddingTop: 20 }}>
-                                        <p style={{ fontSize: 15, fontWeight: 600, margin: 10 }}>Chọn nguyên liệu</p>
-                                        <Form
-                                            name="dynamic_form_nest_item"
-                                            style={{
-                                                maxWidth: 300,
-                                            }}
-                                            autoComplete="off"
-                                        >
-                                            <Form.List name="users">
-                                                {(fields, { add, remove }) => (
-                                                    <>
-                                                        {fields.map(({ key, name, ...restField }) => (
-                                                            <Space
-                                                                key={key}
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    marginBottom: 8,
-                                                                }}
-                                                                align="baseline"
-                                                            >
-                                                                <Form.Item
-                                                                    label=""
-                                                                    {...restField}
-                                                                    name={[name, 'name']}
-                                                                    rules={[
-                                                                        {
-                                                                            required: true,
-                                                                            message: 'Missing last name',
-                                                                        },
-                                                                    ]}
-                                                                >
-                                                                    <Select
-                                                                        showSearch
-                                                                        style={{ width: 280, marginTop: 10, height: 60 }}
-                                                                        placeholder="Chọn nguyên liệu"
-                                                                        optionFilterProp="children"
-                                                                        filterOption={(input, option) => {
-                                                                            if (!option || !option.props || !option.props.children || !option.props.children.props || !option.props.children.props.children) {
-                                                                                return false; // Return false if option or its properties are undefined
-                                                                            }
-                                                                            const materialName = option.props.children.props.children.name;
-                                                                            console.log("Material Name:", materialName);
-                                                                            // Checking if the material name is defined before calling toLowerCase()
-                                                                            if (materialName) {
-                                                                                console.log("Input:", input);
-                                                                                console.log("Match:", materialName.toLowerCase().includes(input.toLowerCase()));
-                                                                                return materialName.toLowerCase().includes(input.toLowerCase());
-                                                                            }
-                                                                            return false; // Return false if material name is undefined
-                                                                        }}
-
-
-
-                                                                    >
-                                                                        {materials && materials.map((material, index) => (
-                                                                            <Option key={material.id} value={material.id}>
-                                                                                <div>
-                                                                                    <div style={{ display: "flex", alignItems: "center" }}>
-                                                                                        <Avatar src={material.image} />
-                                                                                        <div>
-                                                                                            <p style={{ marginLeft: 10 }}>Tên: {material.name} - Loại: {material.materialCategory.name}</p>
-                                                                                            <p style={{ marginLeft: 10, marginTop: 0 }}>Kho: {material.quantity}</p>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </Option>
-                                                                        ))}
-                                                                    </Select>
-                                                                </Form.Item>
-
-                                                                <Form.Item
-                                                                    style={{ width: 100, marginLeft: 10 }}
-                                                                    {...restField}
-                                                                    name={[name, 'quantity']}
-                                                                    rules={[
-                                                                        {
-                                                                            required: true,
-                                                                            message: 'Missing last name',
-                                                                        },
-                                                                    ]}
-                                                                >
-                                                                    <Input placeholder="Số lượng" type='number' />
-                                                                </Form.Item>
-                                                                <MinusCircleOutlined onClick={() => remove(name)} />
-                                                            </Space>
-                                                        ))}
-                                                        <Form.Item>
-                                                            <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
-                                                                Add field
-                                                            </Button>
-                                                        </Form.Item>
-                                                    </>
-                                                )}
-                                            </Form.List>
-                                        </Form>
-                                    </div> */}
                                 </div >
                             )
                             }
@@ -652,13 +553,14 @@ export default function ManagementTaskByOrder() {
                                                     sx={{ backgroundColor: category.totalTask === 0 ? "rgba(217, 217, 217, 0.432)" : "#9F78FF" }}
                                                     expandIcon={<ExpandMoreIcon style={{ color: category.totalTask === 0 ? "#000000" : "#ffffff" }} />}
                                                     aria-controls="panel2-content"
+
                                                     id="panel2-header"
                                                 >
                                                     <p className='template-category-text' style={{ color: category.totalTask === 0 ? "#000000" : "#ffffff" }}> ( {category.totalTask} ) {category.name}</p>
                                                 </AccordionSummary>
                                                 {category?.productTemplates?.map((template, index) => (
                                                     <>
-                                                        <AccordionDetails sx={{ cursor: "pointer" }} onClick={() => handleChoseTemplate(template.id)} key={template.id}>
+                                                        <AccordionDetails expanded={expanded} sx={{ cursor: "pointer" }} onClick={() => handleChoseTemplate(template.id)} key={template.id}>
 
                                                             <p className='template-product-text' style={{ color: currentTemplate.id === template.id ? "#9F78FF" : "#000000" }}>
                                                                 {template.name} ({template?.products?.length})
@@ -676,7 +578,7 @@ export default function ManagementTaskByOrder() {
                             </div>
 
                         </div>
-                        <div style={{ border: "1px solid #9F78FF", width: "75%", height: "82vh", margin: "0px 10px 10px 30px", borderRadius: 10, alignItems: "center" }}>
+                        <div style={{ border: "1px solid #9F78FF", width: "75%", height: "82vh", margin: "0px 0px 10px 30px", borderRadius: 10, alignItems: "center" }}>
 
                             <div style={{ overflowX: "auto", scrollbarWidth: "thin", marginRight: 20, height: "80vh" }}>
                                 <div style={{ display: "grid", height: "70vh", gridTemplateColumns: " repeat(minmax(300px,300px))", gridAutoFlow: "column", paddingLeft: 20, paddingRight: 20, marginTop: 20 }}>
@@ -692,11 +594,14 @@ export default function ManagementTaskByOrder() {
                                                 {currentTemplate?.products && currentTemplate?.products.map((product, index) => {
                                                     if (product?.productStages[0]?.stageNum === stage?.stageNum) {
                                                         return (
+                                                            // color = "#8157c2";
+                                                            // borderColor = "#d3adf7";
+                                                            // backgroundColor = "#f9f0ff";
                                                             <div
                                                                 style={{
-                                                                    border: `2px solid ${getStatusTextAndColor(stage?.stageNum).borderColor}`,
+                                                                    border: `2px solid #d3adf7`,
                                                                     borderRadius: 5,
-                                                                    backgroundColor: `${getStatusTextAndColor(stage?.stageNum).backgroundColor}`,
+                                                                    backgroundColor: `#f9f0ff`,
                                                                     width: "250px",
                                                                     margin: "auto",
                                                                     marginBottom: 20,
@@ -709,26 +614,26 @@ export default function ManagementTaskByOrder() {
                                                             >
                                                                 <div style={{ textAlign: "start", paddingLeft: 10, paddingRight: 10, height: '100%', position: "relative" }}>
                                                                     <Popover placement={stage.stageNum === 5 ? "leftTop" : "rightTop"} content={() => <Content product={product} stage={stage} materials={allMaterials} />} >
-                                                                        <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Tên sản phẩm:<span style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, }}> {product?.name}</span> </h3>
-                                                                        <h3 style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn: <span style={{ fontSize: 14, fontWeight: 400 }}>{product?.orderId}</span></h3>
-                                                                        {product?.productStages[0].deadline ? (
+                                                                        <h3 style={{ color: `#8157c2`, fontWeight: "600", fontSize: 15, alignContent: "start" }}><span style={{ color: `#8157c2`, }}> {product?.name}</span> </h3>
+                                                                        <h3 style={{ color: `#8157c2`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Mã đơn: <span style={{ fontSize: 14, fontWeight: 400 }}>{product?.orderId}</span></h3>
+                                                                        {product?.plannedTime ? (
                                                                             <h3
                                                                                 style={{
-                                                                                    color: `${getStatusTextAndColor(stage?.stageNum).color}`,
+                                                                                    color: `#8157c2`,
                                                                                     fontWeight: "600",
                                                                                     fontSize: 15,
                                                                                     alignContent: "start"
                                                                                 }}
                                                                             >Thời hạn: &nbsp;
                                                                                 <span style={{ fontSize: 14, fontWeight: 400 }}>
-                                                                                    {formatDate(product?.productStages[0].deadline)}
+                                                                                    {formatDate(product?.plannedTime)}
                                                                                 </span>
                                                                             </h3>
                                                                         ) : ""}
-
-                                                                        <p style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }}>
-                                                                            {product.productStages[0]?.deadline ? (
-                                                                                getHoursDifference(product.productStages[0]?.deadline) === "Quá hạn" ? (
+                                                                        <p style={{ color: `#8157c2`, fontWeight: "600", fontSize: 15, alignContent: "start" }}>Hoàn thiện: <span style={{ fontWeight: 400 }}>{product.productStages[0].stageNum}/{currentTemplate?.templateStages?.length}</span></p>
+                                                                        <p style={{ color: `#8157c2` }}>
+                                                                            {product.plannedTime ? (
+                                                                                getHoursDifference(product.plannedTime) === "Quá hạn" ? (
                                                                                     <>
                                                                                         <div style={{ display: "flex", alignItems: "center" }}>
                                                                                             <WarningOutlined style={{ color: "red" }} />
@@ -738,8 +643,8 @@ export default function ManagementTaskByOrder() {
                                                                                     </>
                                                                                 ) : (
                                                                                     <>
-                                                                                        <ClockCircleOutlined style={{ color: `${getStatusTextAndColor(stage?.stageNum).color}` }} />
-                                                                                        &nbsp;{getHoursDifference(product.productStages[0]?.deadline)}
+                                                                                        <ClockCircleOutlined style={{ color: `#8157c2` }} />
+                                                                                        &nbsp;{getHoursDifference(product.plannedTime)}
                                                                                     </>
                                                                                 )
 

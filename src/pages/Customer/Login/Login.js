@@ -167,6 +167,12 @@ export default function Login({ openModal, closeModal }) {
         closeModal();
         localStorage.setItem("customer", JSON.stringify(data));
       }
+      else {
+        const errorText = await response.text();
+        console.log("error at login:", errorText)
+
+        setError(() => ({ ...error, email_err: errorText }));
+      }
     } catch (error) {
       console.error("Error:", error);
       setLoading(false);
@@ -185,6 +191,7 @@ export default function Login({ openModal, closeModal }) {
 
   const handleChange = (prop) => (event) => {
     setValues({ ...values, [prop]: event.target.value });
+    setError(() => ({ ...error, email_err: "" }));
     if (prop === "regis_email") {
       setError(() => ({ ...error, email_err: "" }));
       setLoadingSendMail(false);
@@ -262,7 +269,7 @@ export default function Login({ openModal, closeModal }) {
                       autoFocus
                       startAdornment={
                         <InputAdornment>
-                          <img width={18} height={18} src={UserIcon}></img>
+                          <img width={24} height={24} src={UserIcon}></img>
                         </InputAdornment>
                       }
                       value={values.email}
@@ -280,7 +287,7 @@ export default function Login({ openModal, closeModal }) {
                       onChange={handleChange("login_password")}
                       startAdornment={
                         <InputAdornment>
-                          <img width={18} height={18} src={PasswordIcon}></img>
+                          <img width={24} height={24} src={PasswordIcon}></img>
                         </InputAdornment>
                       }
                       endAdornment={
@@ -301,6 +308,17 @@ export default function Login({ openModal, closeModal }) {
                       }
                     />
                   </div>
+                  {error.email_err.length > 0 && (
+                    <span
+                      style={{
+                        color: "red",
+                        fontSize: "12px",
+                        paddingLeft: "5px",
+                      }}
+                    >
+                      {error.email_err}
+                    </span>
+                  )}
                   <div className="remember-user" style={{ paddingTop: "10px" }}>
                     <label className="checkbox">
                       <input type="checkbox"></input> Ghi nhớ đăng nhập
@@ -677,8 +695,7 @@ const InputRoot = styled("div")(
     color: ${theme.palette.mode === "dark" ? grey[300] : grey[500]};
     background: ${theme.palette.mode === "dark" ? grey[900] : "#fff"};
     border: 1px solid ${theme.palette.mode === "dark" ? grey[700] : grey[200]};
-    box-shadow: 0px 2px 4px ${
-      theme.palette.mode === "dark" ? "rgba(0,0,0, 0.5)" : "rgba(0,0,0, 0.05)"
+    box-shadow: 0px 2px 4px ${theme.palette.mode === "dark" ? "rgba(0,0,0, 0.5)" : "rgba(0,0,0, 0.05)"
     };
     display: flex;
     align-items: center;
@@ -688,9 +705,8 @@ const InputRoot = styled("div")(
   
     &.${inputClasses.focused} {
       border-color: ${blue[400]};
-      box-shadow: 0 0 0 3px ${
-        theme.palette.mode === "dark" ? blue[600] : blue[200]
-      };
+      box-shadow: 0 0 0 3px ${theme.palette.mode === "dark" ? blue[600] : blue[200]
+    };
     }
   
     &:hover {
