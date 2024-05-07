@@ -56,6 +56,7 @@ const OrderToCustomerContent = () => {
   };
 
   const handleSaveOrder = () => {
+    console.log("saveCustomer", saveCustomer);
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/order`;
     try {
       fetch(urlCreateNew, {
@@ -94,7 +95,9 @@ const OrderToCustomerContent = () => {
 
   useEffect(() => {
     if (saveCustomer) {
-      handleSaveOrder();
+      setTimeout(() => {
+        handleSaveOrder();
+      }, 1000);
     }
   }, [saveCustomer, saveOrderId]);
   //---------------------------------------------------Xử lý logic bước 1----------------------------------------------------------
@@ -524,7 +527,6 @@ const OrderToCustomerContent = () => {
       console.error("Error calling API:", error);
     }
   };
-  console.log("thang cha");
   const steps = [
     {
       title: "Thông tin khách hàng",
