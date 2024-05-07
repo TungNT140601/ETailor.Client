@@ -637,11 +637,11 @@ function StepTwo({
                       }}
                     >
                       <b>Họ và tên:</b>
-                      &nbsp; {orderPaymentDetail?.customer?.fullname}
+                      &nbsp; {orderPaymentDetail?.cusName}
                     </Text>
                   </div>
                   <div style={{ marginTop: 5 }}>
-                    {orderPaymentDetail?.customer?.phone !== null ? (
+                    {orderPaymentDetail?.cusPhone !== null ? (
                       <Text
                         style={{
                           display: "flex",
@@ -649,7 +649,7 @@ function StepTwo({
                         }}
                       >
                         <b>Số điện thoại:</b>
-                        &nbsp; {orderPaymentDetail?.customer?.phone}
+                        &nbsp; {orderPaymentDetail?.cusPhone}
                       </Text>
                     ) : (
                       <Text
@@ -659,7 +659,7 @@ function StepTwo({
                         }}
                       >
                         <b>Email:</b>
-                        &nbsp; {orderPaymentDetail?.customer?.email}
+                        &nbsp; {orderPaymentDetail?.cusEmail}
                       </Text>
                     )}
                   </div>
