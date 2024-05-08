@@ -83,31 +83,61 @@ export const ConfirmCancelOrder = ({
   //     children: dataOrderDetail && dataOrderDetail?.totalProduct + " sản phẩm",
   //   },
   // ];
-
+  const handleCheckStatus = (status) => {
+    switch (status) {
+      case 1:
+        return <Tag color="purple">Chờ xác nhận</Tag>;
+      case 2:
+        return <Tag color="lime">Đã xác nhận</Tag>;
+      case 3:
+        return <Tag color="default">Chưa bắt đầu</Tag>;
+      case 4:
+        return <Tag color="blue">Trong quá trình</Tag>;
+      case 5:
+        return <Tag color="green">Hoàn thành</Tag>;
+      case 6:
+        return <Tag color="gold">Kiểm tra</Tag>;
+      case 7:
+        return <Tag color="volcano">Trả hàng</Tag>;
+      case 8:
+        return <Tag color="green">Đã giao</Tag>;
+      default:
+        return (
+          <Tag color="red" style={{ display: "none" }}>
+            Hủy đơn
+          </Tag>
+        );
+    }
+  };
   const itemsRefund = [
     {
       key: "1",
       label: "Họ và tên",
-      children: dataOrderDetail && dataOrderDetail?.customer.fullname,
+      children: dataOrderDetail && dataOrderDetail?.cusName,
     },
     {
       key: "2",
-      label: dataOrderDetail?.customer.phone
-        ? "Số điện thoại"
-        : "Địa chỉ Email",
-      children: dataOrderDetail?.customer.phone
-        ? dataOrderDetail?.customer.phone
-        : dataOrderDetail?.customer.email,
+      label: dataOrderDetail?.cusPhone ? "Số điện thoại" : "Địa chỉ Email",
+      children: dataOrderDetail?.cusPhone
+        ? dataOrderDetail?.cusPhone
+        : dataOrderDetail?.cusEmail,
     },
     {
       key: "3",
+      label: "Trạng thái đơn hàng",
+      children: dataOrderDetail && (
+        <b>{handleCheckStatus(dataOrderDetail?.status)}</b>
+      ),
+    },
+    {
+      key: "4",
       label: "Tổng số tiền",
       children: dataOrderDetail && (
         <b>{formatCurrency(dataOrderDetail?.totalPrice)}</b>
       ),
     },
     {
-      key: "4",
+      key: "5",
       label: "Giảm giá",
       children: dataOrderDetail?.discountPrice ? (
         <b>{formatCurrency(dataOrderDetail?.discountPrice)}</b>
@@ -116,7 +146,7 @@ export const ConfirmCancelOrder = ({
       ),
     },
     {
-      key: "5",
+      key: "6",
       label: "Số tiền còn lại sau khi giảm",
       children: dataOrderDetail?.afterDiscountPrice ? (
         <b>{formatCurrency(dataOrderDetail?.afterDiscountPrice)}</b>
@@ -125,21 +155,70 @@ export const ConfirmCancelOrder = ({
       ),
     },
     {
-      key: "6",
+      key: "7",
       label: "Tổng tiền phải hoàn trả",
       children: dataOrderDetail && (
         <b>{formatCurrency(dataOrderDetail?.paidMoney)}</b>
       ),
     },
     {
-      key: "7",
-      label: "Vải khách hàng",
-      children: dataOrderDetail && <span>Chưa xử lý</span>,
+      key: "8",
+      label: "Tổng số vải khách đã đưa",
+      children:
+        dataOrderDetail &&
+        dataOrderDetail?.orderMaterials?.filter(
+          (material) => material.isCusMaterial
+        ) ? (
+          <span>
+            {dataOrderDetail?.orderMaterials
+              ?.filter((material) => material.isCusMaterial)
+              .reduce(function (acc, obj) {
+                if (obj.isCusMaterial) {
+                  return acc + 1;
+                }
+              }, 0)}
+          </span>
+        ) : (
+          <span>0</span>
+        ),
     },
     {
-      key: "8",
+      key: "9",
+      label: "Tổng met vải khách đã đưa",
+      children:
+        dataOrderDetail &&
+        dataOrderDetail?.orderMaterials?.filter(
+          (material) => material.isCusMaterial
+        ) ? (
+          <span>
+            {dataOrderDetail?.orderMaterials
+              ?.filter((material) => material.isCusMaterial)
+              .reduce(function (acc, obj) {
+                return acc + obj.value;
+              }, 0) + " met"}
+          </span>
+        ) : (
+          <span>0 met</span>
+        ),
+    },
+    {
+      key: "10",
       label: "Số met vải hoàn trả",
-      children: dataOrderDetail && <span>Chưa xử lý</span>,
+      children:
+        dataOrderDetail &&
+        dataOrderDetail?.orderMaterials?.filter(
+          (material) => material.isCusMaterial
+        ) ? (
+          <span>
+            {dataOrderDetail?.orderMaterials
+              ?.filter((material) => material.isCusMaterial)
+              .reduce(function (acc, obj) {
+                return acc + obj.value;
+              }, 0) + " met"}
+          </span>
+        ) : (
+          <span>0 met</span>
+        ),
     },
   ];
 

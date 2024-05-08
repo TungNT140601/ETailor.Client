@@ -31,6 +31,8 @@ const OrderToCustomerContent = () => {
 
   const [createOrderLoading, setCreateOrderLoading] = useState(false);
 
+  const [loadingForm, setLoadingForm] = useState(false);
+
   const getDiscountForOrder = async () => {
     if (saveOrderId) {
       const url = `https://e-tailorapi.azurewebsites.net/api/discount/order/${saveOrderId}`;
@@ -84,6 +86,8 @@ const OrderToCustomerContent = () => {
       });
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setLoadingForm(false);
     }
   };
 
@@ -95,9 +99,7 @@ const OrderToCustomerContent = () => {
 
   useEffect(() => {
     if (saveCustomer) {
-      setTimeout(() => {
-        handleSaveOrder();
-      }, 1000);
+      handleSaveOrder();
     }
   }, [saveCustomer, saveOrderId]);
   //---------------------------------------------------Xử lý logic bước 1----------------------------------------------------------
@@ -542,6 +544,7 @@ const OrderToCustomerContent = () => {
             setProductComponent={setProductComponent}
             form={form}
             saveCustomer={saveCustomer}
+            setLoadingForm={setLoadingForm}
           />
         </>
       ),
@@ -643,7 +646,7 @@ const OrderToCustomerContent = () => {
             type="primary"
             onClick={() => next()}
             loading={loadingStep2}
-            disabled={!saveOrderId}
+            disabled={!saveOrderId || loadingForm}
             style={{ color: "white" }}
           >
             Tiếp theo

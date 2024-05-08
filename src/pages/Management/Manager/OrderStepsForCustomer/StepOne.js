@@ -1,4 +1,5 @@
 import React, { useState, useEffect, memo } from "react";
+import { debounce } from "lodash";
 
 import { FileSearchOutlined, SearchOutlined } from "@ant-design/icons";
 import { Typography, Button, Card, Row, Col, Form, Input, Select } from "antd";
@@ -21,6 +22,7 @@ function StepOne({
   setProductComponent,
   form,
   saveCustomer,
+  setLoadingForm,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [searchResult, setSearchResult] = useState([]);
@@ -112,6 +114,27 @@ function StepOne({
     }
     return () => clearTimeout(timer);
   }, [searchInfo]);
+
+  let timeoutId = null;
+
+  const handleInputChange = (fieldName, value) => {
+    setSaveCustomer((prevCustomer) => ({
+      ...prevCustomer,
+      [fieldName]: value,
+    }));
+  };
+
+  const debouncedHandleInputChange = debounce(handleInputChange, 1000);
+
+  const handleFormInputChange = (fieldName, e) => {
+    setLoadingForm(true);
+    const { value } = e.target;
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      debouncedHandleInputChange(fieldName, value);
+    }, 1000);
+  };
+
   return (
     <>
       <Toaster />
@@ -241,13 +264,7 @@ function StepOne({
                 <Input
                   placeholder={"Nhập họ và tên"}
                   // readOnly={saveCustomer ? true : false}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    setSaveCustomer((prevCustomer) => ({
-                      ...prevCustomer,
-                      fullname: value,
-                    }));
-                  }}
+                  onChange={(e) => handleFormInputChange("fullname", e)}
                 />
               </Form.Item>
               <Form.Item
@@ -264,13 +281,7 @@ function StepOne({
                 <Input
                   placeholder={"Nhập địa chỉ"}
                   // readOnly={saveCustomer ? true : false}
-                  onChange={(e) => {
-                    const { value } = e.target;
-                    setSaveCustomer((prevCustomer) => ({
-                      ...prevCustomer,
-                      address: value,
-                    }));
-                  }}
+                  onChange={(e) => handleFormInputChange("address", e)}
                 />
               </Form.Item>
               <Row>
@@ -289,13 +300,7 @@ function StepOne({
                     <Input
                       placeholder={"Nhập email"}
                       // readOnly={saveCustomer ? true : false}
-                      onChange={(e) => {
-                        const { value } = e.target;
-                        setSaveCustomer((prevCustomer) => ({
-                          ...prevCustomer,
-                          email: value,
-                        }));
-                      }}
+                      onChange={(e) => handleFormInputChange("email", e)}
                     />
                   </Form.Item>
                 </Col>
@@ -314,13 +319,7 @@ function StepOne({
                     <Input
                       placeholder={"Nhập số điện thoại"}
                       // readOnly={saveCustomer ? true : false}
-                      onChange={(e) => {
-                        const { value } = e.target;
-                        setSaveCustomer((prevCustomer) => ({
-                          ...prevCustomer,
-                          phone: value,
-                        }));
-                      }}
+                      onChange={(e) => handleFormInputChange("phone", e)}
                     />
                   </Form.Item>
                 </Col>
