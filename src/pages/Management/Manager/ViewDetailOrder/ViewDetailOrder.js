@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
 
-import { EyeOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import {
+  EyeOutlined,
+  ArrowLeftOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
 import { Typography, Table } from "antd";
 
 import {
@@ -19,6 +23,7 @@ import {
   Collapse,
   Space,
   ConfigProvider,
+  message,
 } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ChatRealTimeManager } from "../ChatRealTimeManager.js";
@@ -69,8 +74,10 @@ export const ViewDetailOrder = ({
   const [detailProductData, setDetailProductData] = useState(null);
   const [chatWithCustomer, setChatWithCustomer] = useState(false);
   const [badgeChatCount, setBadgeChatCount] = useState(0);
+  const [loadingDetailProduct, setLoadingDetailProduct] = useState(false);
+  const [loadingDefect, setLoadingDefect] = useState(false);
   const vnpayNotification = VnPay();
-  const { resetMessage, message } = vnpayNotification;
+  const { resetMessage, message: messageNotification } = vnpayNotification;
 
   const chatNotification = ChatRealTimeManager();
   const { messageReturn, resetMessageReturn } = chatNotification;
@@ -83,8 +90,12 @@ export const ViewDetailOrder = ({
     }
   }, [messageReturn, resetMessageReturn]);
   useEffect(() => {
-    if (message !== null && message !== undefined && message !== "") {
-      if (message === "False") {
+    if (
+      messageNotification !== null &&
+      messageNotification !== undefined &&
+      messageNotification !== ""
+    ) {
+      if (messageNotification === "False") {
         Swal.fire({
           position: "top-center",
           icon: "error",
@@ -92,7 +103,7 @@ export const ViewDetailOrder = ({
           showConfirmButton: false,
         });
         resetMessage();
-      } else if (message === "True") {
+      } else if (messageNotification === "True") {
         Swal.fire({
           position: "top-center",
           icon: "success",
@@ -103,9 +114,11 @@ export const ViewDetailOrder = ({
         handleDataOrder();
       }
     }
-  }, [message]);
-
-  const handleViewProductDetail = async (id) => {
+  }, [messageNotification]);
+  const [indexDetail, setIndexDetail] = useState(null);
+  const handleViewProductDetail = async (id, index) => {
+    setLoadingDetailProduct(true);
+    setIndexDetail(index);
     const detailUrl = `https://e-tailorapi.azurewebsites.net/api/task/${id}`;
     try {
       const response = await fetch(`${detailUrl}`, {
@@ -119,9 +132,15 @@ export const ViewDetailOrder = ({
         const responseData = await response.json();
         setViewDetailProduct(true);
         setDetailProductData(responseData);
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        message.error(responseData);
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setLoadingDetailProduct(false);
+      setIndexDetail(null);
     }
   };
 
@@ -185,7 +204,7 @@ export const ViewDetailOrder = ({
           case 3:
             return <Tag color="gold">Tạm dừng</Tag>;
           case 4:
-            return <Tag color="orange">Thiếu sót</Tag>;
+            return <Tag color="orange">Sản phẩm lỗi</Tag>;
           case 5:
             return <Tag color="green">Hoàn thành</Tag>;
           default:
@@ -222,27 +241,30 @@ export const ViewDetailOrder = ({
     },
 
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       key: "action",
-      render: (_, record) => (
+      render: (_, record, index) => (
         <>
           <Row justify="start">
             <Col span={4}>
-              <EyeOutlined
-                title="Xem chi tiết"
-                style={{
-                  backgroundColor: "rgb(140, 173, 245)",
-                  color: "white",
-                  padding: 6,
-                  borderRadius: "5px",
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  console.log("record xin xo", record);
-                  handleViewProductDetail(record.id, record.orderId);
-                }}
-              />
+              {loadingDetailProduct && index === indexDetail ? (
+                <LoadingOutlined style={{ fontSize: 24 }} />
+              ) : (
+                <EyeOutlined
+                  title="Xem chi tiết"
+                  style={{
+                    backgroundColor: "rgb(140, 173, 245)",
+                    color: "white",
+                    padding: 6,
+                    borderRadius: "5px",
+                    fontSize: 15,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    handleViewProductDetail(record.id, index);
+                  }}
+                />
+              )}
             </Col>
           </Row>
         </>
@@ -492,6 +514,32 @@ export const ViewDetailOrder = ({
       ),
     }));
 
+  const handleDefectsOrder = async (id) => {
+    setLoadingDefect(true);
+    const url = `https://e-tailorapi.azurewebsites.net/api/product/${saveIdOrder}/${id}/defects`;
+    try {
+      const response = await fetch(`${url}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      const responseData = await response.text();
+      if (response.ok && response.status === 200) {
+        message.success(responseData);
+        handleViewProductDetail(id);
+        handleDataOrder();
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    } finally {
+      setLoadingDefect(false);
+    }
+  };
+
   return (
     <>
       <div>
@@ -729,46 +777,6 @@ export const ViewDetailOrder = ({
                               </div>
                             </div>
                           </Col>
-                          {detailProductData &&
-                            detailProductData.status === 5 && (
-                              <div
-                                style={{
-                                  marginTop: 15,
-                                  width: "100%",
-                                  textAlign: "center",
-                                }}
-                              >
-                                <button
-                                  style={{
-                                    width: 150,
-                                    height: 30,
-                                    color: "white",
-                                    backgroundColor: "rgba(252, 96, 118, 0.8)",
-                                    border: "1px solid #e75516",
-                                    borderRadius: 10,
-                                    cursor: "pointer",
-                                    fontSize: "bold",
-                                  }}
-                                >
-                                  Từ chối
-                                </button>
-                                &nbsp; &nbsp; &nbsp;
-                                <button
-                                  style={{
-                                    width: 150,
-                                    height: 30,
-                                    color: "white",
-                                    backgroundColor: "rgba(64, 228, 149, 0.8)",
-                                    border: "1px solid #40e495",
-                                    borderRadius: 10,
-                                    fontSize: "bold",
-                                    cursor: "pointer",
-                                  }}
-                                >
-                                  Phê duyệt
-                                </button>
-                              </div>
-                            )}
 
                           <div style={{ marginTop: 20, width: "100%" }}>
                             <Title level={3} style={{ marginLeft: 40 }}>
@@ -831,7 +839,10 @@ export const ViewDetailOrder = ({
                             </div>
                           ) : (
                             <>
-                              <Title level={3} style={{ marginLeft: 40 }}>
+                              <Title
+                                level={3}
+                                style={{ marginLeft: 40, marginTop: 15 }}
+                              >
                                 Kiểu sản phẩm:
                               </Title>
                               <div
@@ -1001,6 +1012,34 @@ export const ViewDetailOrder = ({
                           )}
                         </Row>
                       </div>
+                      {detailProductData && detailProductData.status === 5 && (
+                        <div
+                          style={{
+                            marginBottom: 15,
+                            width: "100%",
+                            textAlign: "center",
+                          }}
+                        >
+                          <button
+                            style={{
+                              width: 250,
+                              height: 30,
+                              color: "white",
+                              backgroundColor: "rgba(252, 96, 118, 0.8)",
+                              border: "1px solid #e75516",
+                              borderRadius: 10,
+                              cursor: "pointer",
+                              fontSize: "bold",
+                            }}
+                            onClick={() =>
+                              handleDefectsOrder(detailProductData.id)
+                            }
+                          >
+                            {loadingDefect ? <LoadingOutlined /> : ""} Sản phẩm
+                            chưa hoàn thiện
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ) : chatWithCustomer ? (
                     <>
@@ -1071,8 +1110,7 @@ export const ViewDetailOrder = ({
                             justifyContent: "space-between",
                           }}
                         >
-                          <b>Họ và tên:</b>{" "}
-                          {dataOrderDetail?.customer?.fullname}
+                          <b>Họ và tên:</b> {dataOrderDetail?.cusName}
                         </Text>
                       </div>
                       <div style={{ margin: "10px 0" }}>
@@ -1084,8 +1122,8 @@ export const ViewDetailOrder = ({
                           }}
                         >
                           <b>Số điện thoại:</b>{" "}
-                          {dataOrderDetail?.customer?.phone
-                            ? dataOrderDetail?.customer?.phone
+                          {dataOrderDetail?.cusPhone
+                            ? dataOrderDetail?.cusPhone
                             : "Chưa có!"}
                         </Text>
                       </div>
@@ -1113,8 +1151,8 @@ export const ViewDetailOrder = ({
                               textOverflow: "ellipsis",
                             }}
                           >
-                            {dataOrderDetail?.customer?.address
-                              ? dataOrderDetail?.customer?.address
+                            {dataOrderDetail?.cusAddress
+                              ? dataOrderDetail?.cusAddress
                               : "Chưa có!"}
                           </span>
                         </Text>
@@ -1143,8 +1181,8 @@ export const ViewDetailOrder = ({
                               textOverflow: "ellipsis",
                             }}
                           >
-                            {dataOrderDetail?.customer?.email
-                              ? dataOrderDetail?.customer?.email
+                            {dataOrderDetail?.cusEmail
+                              ? dataOrderDetail?.cusEmail
                               : "Chưa có!"}
                           </span>
                         </Text>
