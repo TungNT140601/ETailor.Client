@@ -694,6 +694,19 @@ function StepTwo({
                     sản phẩm
                   </Text>
                 </div>
+                {orderPaymentDetail && orderPaymentDetail?.plannedTime && (
+                  <div style={{ marginTop: 5 }}>
+                    <Text
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <b>Thời gian dự kiến:</b>
+                      &nbsp; {orderPaymentDetail?.plannedTime}
+                    </Text>
+                  </div>
+                )}
               </div>
               {orderPaymentDetail?.products?.length === 0 ? (
                 <div

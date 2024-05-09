@@ -1197,6 +1197,9 @@ export const ViewDetailOrder = ({
                     height: 340,
                     padding: 10,
                     marginTop: 10,
+                    overflowY: "scroll",
+                    scrollbarWidth: "none",
+                    WebkitScrollbar: "none",
                   }}
                 >
                   <Divider style={{ marginTop: 0 }}>Thông tin đơn hàng</Divider>
@@ -1221,6 +1224,28 @@ export const ViewDetailOrder = ({
                     >
                       <b>Tổng giá tiền:</b>{" "}
                       {formatCurrency(dataOrderDetail?.totalPrice)}
+                    </Text>
+                  </div>
+                  <div style={{ margin: "10px 0" }}>
+                    <Text
+                      level={5}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <b>Ngày dự kiến:</b>{" "}
+                      <Text
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "bold",
+                          color: "#9F78FF",
+                        }}
+                      >
+                        {new Date(
+                          dataOrderDetail?.plannedTime
+                        ).toLocaleDateString()}
+                      </Text>
                     </Text>
                   </div>
                   <div style={{ margin: "10px 0" }}>
@@ -1312,7 +1337,7 @@ export const ViewDetailOrder = ({
                       style={{
                         width: "100%",
                         textAlign: "center",
-                        marginTop: 30,
+                        marginTop: 20,
                       }}
                     >
                       <Button
