@@ -130,6 +130,7 @@ const ManagementMaterialContent = () => {
       dataIndex: "quantity",
       key: "2",
       width: "7%",
+      render: (_, record) => <Text>{record.quantity + " met"}</Text>,
     },
     {
       title: "Tùy chỉnh",
@@ -1188,6 +1189,7 @@ const CreateMaterialType = ({ open, onCreateMaterialType, onCancel }) => {
                 message: "Đơn vị đo không được để trống",
               },
             ]}
+            initialValue={"met"}
           >
             <Input />
           </Form.Item>
