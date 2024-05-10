@@ -203,3 +203,18 @@
     padding-inline: unset !important;
     border: none !important;
 }
+
+.custom-table-orders .ant-table-column-sorter-up.active {
+    background-color: #f0f0f0;
+    color: #9F78FF;
+}
+
+.custom-table-orders .ant-table-column-sorter-down.active {
+    background-color: #f0f0f0;
+    color: #9F78FF;
+}
+
+.custom-table-orders .ant-dropdown-trigger.ant-table-filter-trigger.active {
+    background-color: #fafafa;
+    color: #9F78FF;
+}
