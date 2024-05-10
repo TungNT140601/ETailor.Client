@@ -703,7 +703,16 @@ function StepTwo({
                       }}
                     >
                       <b>Thời gian dự kiến:</b>
-                      &nbsp; {orderPaymentDetail?.plannedTime}
+                      &nbsp;{" "}
+                      <b>
+                        {new Date(
+                          orderPaymentDetail?.plannedTime
+                        ).toLocaleDateString("vn-VI", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })}
+                      </b>
                     </Text>
                   </div>
                 )}

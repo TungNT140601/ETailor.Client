@@ -154,26 +154,28 @@ const OrderToCustomerContent = () => {
       cancelButtonText: "Hủy",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const urlDeleteProduct = `https://e-tailorapi.azurewebsites.net/api/product/${id}`;
-        try {
-          const response = await fetch(`${urlDeleteProduct}`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${manager?.token}`,
-            },
-          });
-          if (response.ok && response.status === 200) {
-            const check = await handleDataOrderDetail();
-            if (check === 1) {
-              toast.success("Đã xóa sản phẩm!");
+        if (saveOrderId) {
+          const urlDeleteProduct = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${id}`;
+          try {
+            const response = await fetch(`${urlDeleteProduct}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${manager?.token}`,
+              },
+            });
+            if (response.ok && response.status === 200) {
+              const check = await handleDataOrderDetail();
+              if (check === 1) {
+                toast.success("Đã xóa sản phẩm!");
+              }
+            } else if (response.status === 401) {
+              localStorage.removeItem("manager");
+              navigate("/management/login");
             }
-          } else if (response.status === 401) {
-            localStorage.removeItem("manager");
-            navigate("/management/login");
+          } catch (error) {
+            console.error("Error calling API:", error);
           }
-        } catch (error) {
-          console.error("Error calling API:", error);
         }
       }
     });
