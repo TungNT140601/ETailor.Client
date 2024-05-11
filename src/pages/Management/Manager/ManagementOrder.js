@@ -366,15 +366,28 @@ const ManagementOrderContent = () => {
       dataIndex: "plannedTime",
       key: "plannedTime",
       fixed: "left",
-      render: (_, record) => (
-        <Text style={{ fontSize: 15, fontWeight: "bold", color: "#9F78FF" }}>
-          {new Date(record.plannedTime).toLocaleDateString("vn-VI", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          })}
-        </Text>
-      ),
+      render: (_, record) =>
+        record.plannedTime < new Date().toISOString() ? (
+          <Text
+            style={{ fontSize: 15, fontWeight: "bold" }}
+            type="danger"
+            underline
+          >
+            {new Date(record.plannedTime).toLocaleDateString("vn-VI", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
+          </Text>
+        ) : (
+          <Text style={{ fontSize: 15, fontWeight: "bold", color: "#9F78FF" }}>
+            {new Date(record.plannedTime).toLocaleDateString("vn-VI", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
+          </Text>
+        ),
       sorter: (a, b) => new Date(a.plannedTime) - new Date(b.plannedTime),
     },
     {

@@ -57,11 +57,11 @@ const OrderToCustomerContent = () => {
     }
   };
 
-  const handleSaveOrder = () => {
-    console.log("saveCustomer", saveCustomer);
+  const handleSaveOrder = async () => {
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/order`;
+
     try {
-      fetch(urlCreateNew, {
+      const response = await fetch(urlCreateNew, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,19 +75,20 @@ const OrderToCustomerContent = () => {
           cusEmail: saveCustomer.email,
           cusAddress: saveCustomer.address,
         }),
-      }).then(async (response) => {
-        if (response.ok && response.status === 200) {
-          const responseData = await response.text();
-          setSaveOrderId(responseData);
-        } else if (response.status === 401) {
-          localStorage.removeItem("manager");
-          navigate("/management/login");
-        }
       });
+
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        setSaveOrderId(responseData);
+        return true;
+      } else if (response.status === 401) {
+        localStorage.removeItem("manager");
+        navigate("/management/login");
+        return false;
+      }
     } catch (error) {
       console.error("Error calling API:", error);
-    } finally {
-      setLoadingForm(false);
+      return false;
     }
   };
 
@@ -98,9 +99,15 @@ const OrderToCustomerContent = () => {
   };
 
   useEffect(() => {
-    if (saveCustomer) {
-      handleSaveOrder();
-    }
+    const saveOrderAsync = async () => {
+      if (saveCustomer) {
+        const check = await handleSaveOrder();
+        if (check) {
+          setLoadingForm(false);
+        }
+      }
+    };
+    saveOrderAsync();
   }, [saveCustomer, saveOrderId]);
   //---------------------------------------------------Xử lý logic bước 1----------------------------------------------------------
 
