@@ -490,8 +490,8 @@ export const ViewDetailOrder = ({
                                       <div style={{ marginTop: 10 }}>
                                         <Text>
                                           Số mét vải:{" "}
-                                          {material?.material?.quantity
-                                            ? material?.material?.quantity
+                                          {material?.quantity
+                                            ? material?.quantity
                                             : "Lỗi"}{" "}
                                           mét
                                         </Text>
