@@ -1,7 +1,7 @@
 import React from "react";
 import { Breadcrumb } from "antd";
-
-import { Typography } from "antd";
+import { NotificationOutlined } from "@ant-design/icons";
+import { Typography, Badge, Popover } from "antd";
 
 import { Avatar } from "antd";
 import { Link } from "react-router-dom";
@@ -46,6 +46,12 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
       </div>
     );
   };
+  const content = (
+    <div>
+      <p>Content</p>
+      <p>Content</p>
+    </div>
+  );
   return (
     <div
       style={{
@@ -61,6 +67,19 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
           alignItems: "center",
         }}
       >
+        <Badge
+          count={12}
+          overflowCount={10}
+          style={{ marginRight: 30 }}
+          size="small"
+        >
+          <Popover content={content} title="Thông báo" trigger="click">
+            <NotificationOutlined
+              size="large"
+              style={{ marginRight: 30, fontSize: 30 }}
+            />
+          </Popover>
+        </Badge>
         <div>
           {manager?.avatar ? (
             <Avatar src={manager?.avatar} />

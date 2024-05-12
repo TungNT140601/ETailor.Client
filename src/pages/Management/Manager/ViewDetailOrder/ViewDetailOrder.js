@@ -333,8 +333,10 @@ export const ViewDetailOrder = ({
   };
 
   const [openOrderMaterial, setOpenOrderMaterial] = useState(false);
-  const handleOpenOrderMaterial = () => {
+  const [modalOpenStage, setModalOpenStage] = useState(null);
+  const handleOpenOrderMaterial = (value) => {
     setOpenOrderMaterial(true);
+    setModalOpenStage(value);
   };
 
   const items =
@@ -421,17 +423,25 @@ export const ViewDetailOrder = ({
                           cursor: "pointer",
                           fontWeight: "bold",
                         }}
-                        onClick={() => handleOpenOrderMaterial()}
+                        onClick={() =>
+                          handleOpenOrderMaterial(productStage.stageNum)
+                        }
                       >
                         Hãy thêm vào!
                       </Text>
-                      <OrderMaterial
-                        open={openOrderMaterial}
-                        onCancel={() => setOpenOrderMaterial(false)}
-                        stageId={productStage.id}
-                        taskId={productStage.productId}
-                        handleViewProductDetail={handleViewProductDetail}
-                      />
+                      {modalOpenStage === productStage.stageNum && (
+                        <OrderMaterial
+                          open={openOrderMaterial}
+                          onCancel={() => setOpenOrderMaterial(false)}
+                          stageId={productStage.id}
+                          taskId={productStage.productId}
+                          handleViewProductDetail={handleViewProductDetail}
+                          materialId={
+                            detailProductData &&
+                            detailProductData.fabricMaterialId
+                          }
+                        />
+                      )}
                     </Text>
                   </div>
                 ) : (
@@ -981,7 +991,6 @@ export const ViewDetailOrder = ({
                                               item.id ===
                                               componentTypeOrder?.selected_Component_Id
                                           );
-                                        console.log("selected", selected);
                                         return (
                                           <>
                                             <Col span={12}>

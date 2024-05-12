@@ -44,10 +44,12 @@ export const OrderMaterial = ({
   stageId,
   taskId,
   handleViewProductDetail,
+  materialId,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const getMaterialUrl = "https://e-tailorapi.azurewebsites.net/api/material";
   const [loadingMaterial, setLoadingMaterial] = useState(false);
+  const [formReset, setFormReset] = useState(0);
   const [loadingCreateOrderMaterial, setLoadingCreateOrderMaterial] =
     useState(false);
   const [material, setMaterial] = useState([]);
@@ -96,7 +98,7 @@ export const OrderMaterial = ({
       console.error("Error calling API:", error);
     }
   };
-
+  console.log("formReset", formReset);
   const filterOptionForMaterial = (input, option) =>
     (option?.title ?? "")
       .toString()
@@ -107,6 +109,23 @@ export const OrderMaterial = ({
   useEffect(() => {
     handleDataMaterial();
   }, []);
+  useEffect(() => {
+    if (material) {
+      const defaultMaterial = material.find((item) => item.id === materialId);
+      console.log("defaultMaterial", defaultMaterial);
+      console.log("material", defaultMaterial);
+      if (defaultMaterial) {
+        form.setFieldsValue({
+          materialStages: [
+            {
+              materialId: defaultMaterial.id,
+              quantity: defaultMaterial.quantity,
+            },
+          ],
+        });
+      }
+    }
+  }, [material]);
   return (
     <>
       <Modal
@@ -121,8 +140,8 @@ export const OrderMaterial = ({
         onCancel={() => {
           form.resetFields();
           onCancel();
+          handleDataMaterial();
         }}
-        destroyOnClose
         onOk={async () => {
           try {
             setLoadingCreateOrderMaterial(true);
