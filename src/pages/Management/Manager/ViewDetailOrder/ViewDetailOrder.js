@@ -663,6 +663,54 @@ export const ViewDetailOrder = ({
       setLoadingDefect(false);
     }
   };
+  const [checking, setChecking] = useState(false);
+  const handleCheckOrder = async (id) => {
+    setChecking(true);
+    const url = `https://e-tailorapi.azurewebsites.net/api/order/finish-check/${id}`;
+    try {
+      const response = await fetch(`${url}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      const responseData = await response.text();
+      if (response.ok && response.status === 200) {
+        message.success(responseData);
+        handleDataOrder();
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    } finally {
+      setChecking(false);
+    }
+  };
+  const [done, setDone] = useState(false);
+  const handleDoneOrder = async (id) => {
+    setDone(true);
+    const url = `https://e-tailorapi.azurewebsites.net/api/order/done/${id}`;
+    try {
+      const response = await fetch(`${url}`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      const responseData = await response.text();
+      if (response.ok && response.status === 200) {
+        message.success(responseData);
+        handleDataOrder();
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    } finally {
+      setDone(false);
+    }
+  };
 
   return (
     <>
@@ -696,8 +744,8 @@ export const ViewDetailOrder = ({
             setSaveIdOrder(null);
           }}
           width={1200}
-          style={{ top: 40, height: 100 }}
-          bodyStyle={{ height: "600px" }}
+          style={{ top: 20, height: 100 }}
+          bodyStyle={{ height: "630px" }}
           footer={[
             <div
               style={{
@@ -720,6 +768,42 @@ export const ViewDetailOrder = ({
                   Hủy đơn hàng
                 </Button>
               )}
+
+              {checkStatus === 5 && (
+                <Button
+                  key="checking"
+                  onClick={() => {
+                    handleCheckOrder(saveIdOrder);
+                  }}
+                  style={{
+                    marginLeft: 15,
+                    color: "white",
+                    backgroundColor: "#ffd34d",
+                    border: "1px solid #ffd34d",
+                  }}
+                  loading={checking}
+                >
+                  Kiểm tra đơn hàng
+                </Button>
+              )}
+              {checkStatus === 6 && (
+                <Button
+                  key="done"
+                  onClick={() => {
+                    handleDoneOrder(saveIdOrder);
+                  }}
+                  style={{
+                    marginLeft: 15,
+                    color: "white",
+                    backgroundColor: "#3eb489",
+                    border: "1px solid #3eb489",
+                  }}
+                  loading={done}
+                >
+                  Hoàn thành
+                </Button>
+              )}
+
               {checkStatus >= 1 && checkStatus <= 6 && (
                 <Button
                   key="cancel"
@@ -727,7 +811,9 @@ export const ViewDetailOrder = ({
                   onClick={() => {
                     handleConfirmCancel(dataOrderDetail?.paidMoney);
                   }}
-                  style={{ marginLeft: 15 }}
+                  style={{
+                    marginLeft: 15,
+                  }}
                   loading={cancelOrderLoading}
                 >
                   Hoàn trả đơn
@@ -745,16 +831,6 @@ export const ViewDetailOrder = ({
                     Xác nhận đơn hàng
                   </Button>
                 </>
-              )}
-              {checkStatus && (
-                <Button
-                  key="chat"
-                  type="primary"
-                  style={{ marginLeft: 15 }}
-                  onClick={() => setChatWithCustomer(true)}
-                >
-                  Trò chuyện với khách hàng
-                </Button>
               )}
             </div>,
           ]}
@@ -777,7 +853,7 @@ export const ViewDetailOrder = ({
                   style={{
                     border: "1px solid #9F78FF",
                     width: 850,
-                    height: 590,
+                    height: 631,
                     padding: chatWithCustomer ? "" : "0px 10px",
                     borderRadius: "5px",
                     position: "relative",
@@ -1309,6 +1385,23 @@ export const ViewDetailOrder = ({
                               : "Chưa có!"}
                           </span>
                         </Text>
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            marginTop: 10,
+                          }}
+                        >
+                          {checkStatus && (
+                            <Button
+                              key="chat"
+                              type="primary"
+                              onClick={() => setChatWithCustomer(true)}
+                            >
+                              Trò chuyện với khách hàng
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </Col>
