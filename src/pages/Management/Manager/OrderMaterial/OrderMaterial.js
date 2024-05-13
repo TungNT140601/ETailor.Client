@@ -119,7 +119,7 @@ export const OrderMaterial = ({
           materialStages: [
             {
               materialId: defaultMaterial.id,
-              quantity: defaultMaterial.quantity,
+              quantity: 0,
             },
           ],
         });
@@ -255,6 +255,11 @@ export const OrderMaterial = ({
                           {
                             required: true,
                             message: "Số mét sử dụng không được để trống!",
+                          },
+                          {
+                            type: "number",
+                            min: 1,
+                            message: "Số mét sử dụng phải lớn hơn hoặc bằng 1",
                           },
                         ]}
                       >
