@@ -8,6 +8,8 @@ import {
   DeleteOutlined,
   PlusOutlined,
   LoadingOutlined,
+  OrderedListOutlined,
+  AppstoreAddOutlined,
 } from "@ant-design/icons";
 import "./index.css";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
@@ -26,89 +28,17 @@ import {
   Button,
   Image,
   InputNumber,
+  message,
 } from "antd";
 
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import ManagerHeader from "../../../components/ManagerHeader";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
 
 const manager = JSON.parse(localStorage.getItem("manager"));
-
-const ManagementMaterialHeader = () => {
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div>
-        <Breadcrumb
-          items={[
-            {
-              href: "#",
-              title: <HomeOutlined />,
-            },
-            {
-              href: "/manager/material",
-              title: (
-                <>
-                  <Link to="/manager/material">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        color: "#9F78FF",
-                      }}
-                    >
-                      <FactCheckIcon
-                        fontSize="small"
-                        style={{ fontSize: "18px" }}
-                      />
-                      &nbsp;
-                      <span>Nguyên liệu</span>
-                    </div>
-                  </Link>
-                </>
-              ),
-            },
-          ]}
-        />
-        <Title level={4}>Nguyên liệu</Title>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <Search
-            placeholder="Tìm kiếm"
-            onSearch={onSearch}
-            style={{
-              width: 250,
-            }}
-          />
-        </div>
-        &nbsp; &nbsp; &nbsp;
-        <div>
-          {manager?.avatar ? (
-            <Avatar src={manager?.avatar} />
-          ) : (
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-          )}
-          &nbsp; &nbsp;
-          <Text>{manager?.name}</Text>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const ManagementMaterialContent = () => {
   const [material, setMaterial] = useState([]);
@@ -257,18 +187,15 @@ const ManagementMaterialContent = () => {
         },
         body: formData,
       });
+      const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        message.success(responseData);
         handleDataMaterial();
         setOpen(false);
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -293,18 +220,14 @@ const ManagementMaterialContent = () => {
         },
         body: values,
       });
+      const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        message.success(responseData);
         handleDataMaterial();
-
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -328,17 +251,14 @@ const ManagementMaterialContent = () => {
               Authorization: `Bearer ${manager?.token}`,
             },
           });
+          const responseData = await response.text();
           if (response.ok && response.status === 200) {
-            const responseData = await response.text();
-            Swal.fire({
-              position: "top-center",
-              icon: "success",
-              title: responseData,
-              showConfirmButton: false,
-              timer: 2000,
-            });
+            message.success(responseData);
             handleDataMaterial();
             return 1;
+          } else if (response.status === 400 || response.status === 500) {
+            message.error(responseData);
+            return 0;
           }
         } catch (error) {
           console.error("Error calling API:", error);
@@ -424,19 +344,21 @@ const ManagementMaterialContent = () => {
             <CircularProgress />
           </div>
         ) : (
-          <Table
-            columns={newColumns}
-            dataSource={getApi}
-            pagination={{
-              position: ["bottomCenter"],
-            }}
-            style={{
-              marginTop: 24,
-            }}
-            scroll={{
-              y: 426,
-            }}
-          />
+          <>
+            <Table
+              columns={newColumns}
+              dataSource={getApi}
+              pagination={{
+                position: ["bottomCenter"],
+              }}
+              style={{
+                marginTop: 24,
+              }}
+              scroll={{
+                y: 426,
+              }}
+            />
+          </>
         )}
       </>
     </div>
@@ -506,7 +428,6 @@ const UpdateMaterial = ({
         if (response.ok && response.status === 200) {
           const responseData = await response.json();
           setLoading(false);
-          console.log("Data image: ", responseData?.image);
           setImageUrl(responseData?.image);
           setMaterialDetail(responseData);
         }
@@ -514,7 +435,9 @@ const UpdateMaterial = ({
         console.error("Error calling API:", error);
       }
     };
-    handleDataDetail();
+    if (saveMaterialId) {
+      handleDataDetail();
+    }
   }, [saveMaterialId]);
 
   useEffect(() => {
@@ -970,7 +893,7 @@ function ManagementMaterialTypeContent() {
       width: "35%",
     },
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "3",
       width: "20%",
@@ -1011,7 +934,6 @@ function ManagementMaterialTypeContent() {
   //------------------------------------------------------------Modal create-------------------------------------------------------
   const [open, setOpen] = useState(false);
   const onCreateMaterialType = async (values) => {
-    console.log("Gia tri material type: ", values);
     const urlCreateMaterialType = `https://e-tailorapi.azurewebsites.net/api/material-type`;
     try {
       const response = await fetch(urlCreateMaterialType, {
@@ -1022,18 +944,15 @@ function ManagementMaterialTypeContent() {
         },
         body: JSON.stringify(values),
       });
+      const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        message.success(responseData);
         handleDataMaterialType();
         setOpen(false);
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -1059,17 +978,14 @@ function ManagementMaterialTypeContent() {
         },
         body: JSON.stringify(values),
       });
+      const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        message.success(responseData);
         handleDataMaterialType();
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -1094,17 +1010,14 @@ function ManagementMaterialTypeContent() {
               Authorization: `Bearer ${manager?.token}`,
             },
           });
+          const responseData = await response.text();
           if (response.ok && response.status === 200) {
-            const responseData = await response.text();
-            Swal.fire({
-              position: "top-center",
-              icon: "success",
-              title: responseData,
-              showConfirmButton: false,
-              timer: 2000,
-            });
+            message.success(responseData);
             handleDataMaterialType();
             return 1;
+          } else if (response.status === 400 || response.status === 500) {
+            message.error(responseData);
+            return 0;
           }
         } catch (error) {
           console.error("Error calling API:", error);
@@ -1316,7 +1229,9 @@ const UpdateMaterialType = ({
         console.error("Error calling API:", error);
       }
     };
-    handleDataDetail();
+    if (saveId) {
+      handleDataDetail();
+    }
   }, [saveId]);
 
   useEffect(() => {
@@ -1500,13 +1415,13 @@ function ManagementMaterialCategoryContent() {
       ),
     },
     {
-      title: "Loại vải",
+      title: "Loại nguyên liệu",
       dataIndex: "materialTypeName",
       key: "3",
       width: "25%",
     },
     {
-      title: "Action",
+      title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "4",
       width: "30%",
@@ -1554,7 +1469,6 @@ function ManagementMaterialCategoryContent() {
   //------------------------------------------------------------Modal create-------------------------------------------------------
   const [open, setOpen] = useState(false);
   const onCreate = async (values) => {
-    console.log("Gia tri material category: ", values);
     const urlCreateMaterialCategory = `https://e-tailorapi.azurewebsites.net/api/material-category`;
     try {
       const response = await fetch(urlCreateMaterialCategory, {
@@ -1565,18 +1479,15 @@ function ManagementMaterialCategoryContent() {
         },
         body: JSON.stringify(values),
       });
+      const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        message.success(responseData);
         handleDataMaterialCategory();
         setOpen(false);
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -1602,17 +1513,14 @@ function ManagementMaterialCategoryContent() {
         },
         body: JSON.stringify(values),
       });
+      const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        message.success(responseData);
         handleDataMaterialCategory();
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
@@ -1638,17 +1546,14 @@ function ManagementMaterialCategoryContent() {
               Authorization: `Bearer ${manager?.token}`,
             },
           });
+          const responseData = await response.text();
           if (response.ok && response.status === 200) {
-            const responseData = await response.text();
-            Swal.fire({
-              position: "top-center",
-              icon: "success",
-              title: responseData,
-              showConfirmButton: false,
-              timer: 2000,
-            });
+            message.success(responseData);
             handleDataMaterialCategory();
             return 1;
+          } else if (response.status === 400 || response.status === 500) {
+            message.error(responseData);
+            return 0;
           }
         } catch (error) {
           console.error("Error calling API:", error);
@@ -1732,16 +1637,18 @@ function ManagementMaterialCategoryContent() {
           <CircularProgress />
         </div>
       ) : (
-        <Table
-          columns={newColumns1}
-          dataSource={getApi}
-          pagination={{
-            position: ["bottomCenter"],
-          }}
-          style={{
-            marginTop: 24,
-          }}
-        />
+        <>
+          <Table
+            columns={newColumns1}
+            dataSource={getApi}
+            pagination={{
+              position: ["bottomCenter"],
+            }}
+            style={{
+              marginTop: 24,
+            }}
+          />
+        </>
       )}
     </>
   );
@@ -1780,7 +1687,9 @@ const UpdateMaterialCategory = ({
         console.error("Error calling API:", error);
       }
     };
-    handleDataDetail();
+    if (saveMaterialCategoryId) {
+      handleDataDetail();
+    }
   }, [saveMaterialCategoryId]);
 
   useEffect(() => {
@@ -2060,7 +1969,12 @@ export function ManagementMaterialCategory() {
         }}
         className="manager-header"
       >
-        <ManagementMaterialHeader />
+        <ManagerHeader
+          name={"Danh mục nguyên liệu"}
+          link={"/manager/material-category"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<AppstoreAddOutlined />}
+        />
       </div>
       <div
         className="manager-content"
@@ -2087,7 +2001,12 @@ export function ManagementMaterialType() {
         }}
         className="manager-header"
       >
-        <ManagementMaterialHeader />
+        <ManagerHeader
+          name={"Loại nguyên liệu"}
+          link={"/manager/material-type"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<OrderedListOutlined />}
+        />
       </div>
       <div
         className="manager-content"
@@ -2114,7 +2033,14 @@ function ManagementMaterial() {
         }}
         className="manager-header"
       >
-        <ManagementMaterialHeader />
+        <ManagerHeader
+          name={"Nguyên liệu"}
+          link={"/manager/material"}
+          iconHome={<HomeOutlined />}
+          iconRoute={
+            <FactCheckIcon fontSize="small" style={{ fontSize: "18px" }} />
+          }
+        />
       </div>
       <div
         className="manager-content"

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import { InputNumber } from "antd";
 import {
   FileSearchOutlined,
@@ -64,6 +64,8 @@ function StepTwo({
 
   const vnpayNotification = VnPay();
   const { resetMessage, message } = vnpayNotification;
+
+  console.log("thang con step two");
 
   useEffect(() => {
     if (message !== null && message !== undefined && message !== "") {
@@ -401,7 +403,6 @@ function StepTwo({
           setSaveIdDetailProduct={setSaveIdDetailProduct}
         />
       )}
-      <Toaster />
       <Spin spinning={paymentLoading} fullscreen />
       <Row style={{ marginTop: 24 }}>
         <Col
@@ -456,6 +457,7 @@ function StepTwo({
                 />
               </div>
               <div style={{ height: 250, marginTop: 50 }}>
+                <Title level={4}>Nguyên phụ liệu sử dụng</Title>
                 <Form
                   labelCol={{ span: 6 }}
                   wrapperCol={{ span: 18 }}
@@ -635,11 +637,11 @@ function StepTwo({
                       }}
                     >
                       <b>Họ và tên:</b>
-                      &nbsp; {orderPaymentDetail?.customer?.fullname}
+                      &nbsp; {orderPaymentDetail?.cusName}
                     </Text>
                   </div>
                   <div style={{ marginTop: 5 }}>
-                    {orderPaymentDetail?.customer?.phone !== null ? (
+                    {orderPaymentDetail?.cusPhone !== null ? (
                       <Text
                         style={{
                           display: "flex",
@@ -647,7 +649,7 @@ function StepTwo({
                         }}
                       >
                         <b>Số điện thoại:</b>
-                        &nbsp; {orderPaymentDetail?.customer?.phone}
+                        &nbsp; {orderPaymentDetail?.cusPhone}
                       </Text>
                     ) : (
                       <Text
@@ -657,7 +659,7 @@ function StepTwo({
                         }}
                       >
                         <b>Email:</b>
-                        &nbsp; {orderPaymentDetail?.customer?.email}
+                        &nbsp; {orderPaymentDetail?.cusEmail}
                       </Text>
                     )}
                   </div>
@@ -946,40 +948,106 @@ function StepTwo({
                             onClick={() => {
                               setActive(active === 3 ? null : 3);
                               Swal.fire({
-                                title: `Xác nhận trả tiền cọc ${formatCurrency(
-                                  orderPaymentDetail?.unPaidMoney
-                                )} ?`,
+                                title: `Chọn phương thức trả cọc`,
                                 showCancelButton: true,
-                                confirmButtonText: "Thanh toán trực tiếp",
+                                confirmButtonText: "Nhập số tiền cọc",
                                 showDenyButton: true,
-                                denyButtonText: "Thanh toán Vn Pay",
+                                denyButtonText: "Trả 30% tiền cọc",
                                 cancelButtonText: `Hủy`,
                                 denyButtonColor: "#7066e0",
                                 cancelButtonColor: "red",
                               }).then(async (result) => {
                                 if (result.isConfirmed) {
-                                  const check = await handleCreatePayCash(
-                                    0,
-                                    1,
-                                    "Offline"
-                                  );
-                                  if (check === 1) {
-                                    Swal.fire({
-                                      position: "top-center",
-                                      icon: "success",
-                                      title: "Thanh toán thành công",
-                                      showConfirmButton: false,
-                                      timer: 4000,
-                                    });
-                                  }
-                                } else if (result.isDenied) {
-                                  await handleCreatePayCash(0, 1, "VN Pay");
                                   Swal.fire({
-                                    position: "top-center",
-                                    icon: "warning",
-                                    title: "Chờ xác nhận",
-                                    showConfirmButton: false,
-                                    timer: 4000,
+                                    title: `Nhập số tiền cọc`,
+                                    html: `<input type="text" id="depositAmount" class="swal2-input" style="width: 350px;">`,
+                                    showCancelButton: true,
+                                    confirmButtonText: "Thanh toán trực tiếp",
+                                    showDenyButton: true,
+                                    denyButtonText: "Thanh toán Vn Pay",
+                                    cancelButtonText: `Hủy`,
+                                    denyButtonColor: "#7066e0",
+                                    cancelButtonColor: "red",
+                                  }).then(async (result) => {
+                                    const depositAmount =
+                                      document.getElementById(
+                                        "depositAmount"
+                                      ).value;
+                                    console.log("depositAmount", depositAmount);
+                                    if (result.isConfirmed) {
+                                      const check = await handleCreatePayCash(
+                                        depositAmount,
+                                        1,
+                                        "Offline"
+                                      );
+                                      if (check === 1) {
+                                        Swal.fire({
+                                          position: "top-center",
+                                          icon: "success",
+                                          title: "Thanh toán thành công",
+                                          showConfirmButton: false,
+                                          timer: 4000,
+                                        });
+                                      }
+                                    } else if (result.isDenied) {
+                                      await handleCreatePayCash(
+                                        depositAmount,
+                                        1,
+                                        "VN Pay"
+                                      );
+                                      Swal.fire({
+                                        position: "top-center",
+                                        icon: "warning",
+                                        title: "Chờ xác nhận",
+                                        showConfirmButton: false,
+                                        timer: 4000,
+                                      });
+                                    } else if (result.dismiss) {
+                                      setActive(0);
+                                      Swal.fire("Hủy chọn", "", "info");
+                                    }
+                                  });
+                                } else if (result.isDenied) {
+                                  Swal.fire({
+                                    title: `Xác nhận trả tiền cọc ${formatCurrency(
+                                      orderPaymentDetail?.unPaidMoney
+                                    )} ?`,
+                                    showCancelButton: true,
+                                    confirmButtonText: "Thanh toán trực tiếp",
+                                    showDenyButton: true,
+                                    denyButtonText: "Thanh toán Vn Pay",
+                                    cancelButtonText: `Hủy`,
+                                    denyButtonColor: "#7066e0",
+                                    cancelButtonColor: "red",
+                                  }).then(async (result) => {
+                                    if (result.isConfirmed) {
+                                      const check = await handleCreatePayCash(
+                                        0,
+                                        1,
+                                        "Offline"
+                                      );
+                                      if (check === 1) {
+                                        Swal.fire({
+                                          position: "top-center",
+                                          icon: "success",
+                                          title: "Thanh toán thành công",
+                                          showConfirmButton: false,
+                                          timer: 4000,
+                                        });
+                                      }
+                                    } else if (result.isDenied) {
+                                      await handleCreatePayCash(0, 1, "VN Pay");
+                                      Swal.fire({
+                                        position: "top-center",
+                                        icon: "warning",
+                                        title: "Chờ xác nhận",
+                                        showConfirmButton: false,
+                                        timer: 4000,
+                                      });
+                                    } else if (result.dismiss) {
+                                      setActive(0);
+                                      Swal.fire("Hủy chọn", "", "info");
+                                    }
                                   });
                                 } else if (result.dismiss) {
                                   setActive(0);
@@ -1181,4 +1249,4 @@ function StepTwo({
   );
 }
 
-export default StepTwo;
+export default memo(StepTwo);

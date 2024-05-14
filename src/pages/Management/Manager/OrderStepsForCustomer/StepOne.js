@@ -21,53 +21,49 @@ function StepOne({
   setProductComponent,
   form,
   saveCustomer,
-  saveOrderId,
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [searchResult, setSearchResult] = useState([]);
   const [searchInfo, setSearchInfo] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  console.log("saveCustomer", saveCustomer);
   const [createCustomerLoading, setCreateCustomerLoading] = useState(false);
-  const handleCreateInfoCustomer = () => {
-    formInfoCustomer.validateFields().then(async () => {
+  const handleCreateInfoCustomer = async () => {
+    try {
+      const checkForm = await formInfoCustomer.validateFields();
+      if (!checkForm) return 0;
+
       const getAllValues = formInfoCustomer.getFieldsValue();
       const url = `https://e-tailorapi.azurewebsites.net/api/customer-management/staff/customer`;
       setCreateCustomerLoading(true);
-      try {
-        const response = await fetch(`${url}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${manager?.token}`,
-          },
-          body: JSON.stringify(getAllValues),
-        });
-        if (response.ok && response.status === 200) {
-          const responseData = await response.text();
-          toast.success(responseData, {
-            duration: 3000,
-          });
-          formInfoCustomer.resetFields();
-          return 1;
-        } else if (response.status === 400 || response.status === 500) {
-          const responseData = await response.text();
-          toast.error(responseData, {
-            duration: 3000,
-          });
-          return 0;
-        } else if (response.status === 401) {
-          localStorage.removeItem("manager");
-          navigate("/management/login");
-        }
-      } catch (error) {
-        console.error("Error calling API:", error);
-      } finally {
-        setCreateCustomerLoading(false);
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: JSON.stringify(getAllValues),
+      });
+
+      if (response.ok) {
+        const responseData = await response.text();
+        toast.success(responseData, { duration: 3000 });
+        formInfoCustomer.resetFields();
+        return 1;
+      } else {
+        const errorData = await response.text();
+        toast.error(errorData, { duration: 3000 });
+        return 0;
       }
-    });
+    } catch (error) {
+      console.error("Error calling API:", error);
+      return 0; // or handle the error accordingly
+    } finally {
+      setCreateCustomerLoading(false);
+    }
   };
+
   const handleSearchInfoCustomer = async (value) => {
     if (!value || !searchInfo) {
       setSearchInfo(value);
@@ -244,7 +240,14 @@ function StepOne({
               >
                 <Input
                   placeholder={"Nhập họ và tên"}
-                  readOnly={saveCustomer ? true : false}
+                  // readOnly={saveCustomer ? true : false}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    setSaveCustomer((prevCustomer) => ({
+                      ...prevCustomer,
+                      fullname: value,
+                    }));
+                  }}
                 />
               </Form.Item>
               <Form.Item
@@ -260,7 +263,14 @@ function StepOne({
               >
                 <Input
                   placeholder={"Nhập địa chỉ"}
-                  readOnly={saveCustomer ? true : false}
+                  // readOnly={saveCustomer ? true : false}
+                  onChange={(e) => {
+                    const { value } = e.target;
+                    setSaveCustomer((prevCustomer) => ({
+                      ...prevCustomer,
+                      address: value,
+                    }));
+                  }}
                 />
               </Form.Item>
               <Row>
@@ -278,7 +288,14 @@ function StepOne({
                   >
                     <Input
                       placeholder={"Nhập email"}
-                      readOnly={saveCustomer ? true : false}
+                      // readOnly={saveCustomer ? true : false}
+                      onChange={(e) => {
+                        const { value } = e.target;
+                        setSaveCustomer((prevCustomer) => ({
+                          ...prevCustomer,
+                          email: value,
+                        }));
+                      }}
                     />
                   </Form.Item>
                 </Col>
@@ -296,7 +313,14 @@ function StepOne({
                   >
                     <Input
                       placeholder={"Nhập số điện thoại"}
-                      readOnly={saveCustomer ? true : false}
+                      // readOnly={saveCustomer ? true : false}
+                      onChange={(e) => {
+                        const { value } = e.target;
+                        setSaveCustomer((prevCustomer) => ({
+                          ...prevCustomer,
+                          phone: value,
+                        }));
+                      }}
                     />
                   </Form.Item>
                 </Col>

@@ -109,7 +109,12 @@ export default function Notification() {
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} >
                                 <div style={{ height: "100%", borderLeft: `3px solid #bcdcfc`, margin: 10, paddingLeft: 20, alignItems: "center", width: "100%" }}>
                                     <p style={{ fontWeight: `${notification.isRead ? "" : "bold"}` }}>{notification.title}</p>
-                                    <p>{getHoursDifference(new Date(notification?.sendTime))}</p>
+                                    <p>
+                                        {notification.content}
+                                        <span style={{ fontWeight: 400 }}>
+                                            &nbsp;.{getHoursDifference(new Date(notification?.sendTime))}
+                                        </span>
+                                    </p>
 
                                 </div>
                                 <p style={{ fontSize: 50, color: "#9F78FF", paddingRight: 20 }}>&#x2022;</p>

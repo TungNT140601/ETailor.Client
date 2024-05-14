@@ -56,6 +56,7 @@ const OrderToCustomerContent = () => {
   };
 
   const handleSaveOrder = () => {
+    console.log("saveCustomer", saveCustomer);
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/order`;
     try {
       fetch(urlCreateNew, {
@@ -94,7 +95,9 @@ const OrderToCustomerContent = () => {
 
   useEffect(() => {
     if (saveCustomer) {
-      handleSaveOrder();
+      setTimeout(() => {
+        handleSaveOrder();
+      }, 1000);
     }
   }, [saveCustomer, saveOrderId]);
   //---------------------------------------------------Xử lý logic bước 1----------------------------------------------------------
@@ -177,6 +180,7 @@ const OrderToCustomerContent = () => {
   const [orderPaymentDetail, setOrderPaymentDetail] = useState(null);
 
   const [loadingStep2, setLoadingStep2] = useState(false);
+
   const handleDataOrderDetail = async () => {
     setLoadingStep2(true);
     if (saveOrderId) {
@@ -406,21 +410,30 @@ const OrderToCustomerContent = () => {
           .map((fieldName) => {
             if (fieldName.startsWith("productComponent_")) {
               const productComponent = allValues[fieldName];
+              console.log("productComponent", productComponent);
               let note;
               let noteImageFiles = [];
               let noteImageObjects = [];
               if (productComponent) {
                 note = productComponent[0]?.note;
-                productComponent[0]?.image?.fileList?.map((image) =>
-                  image.url
-                    ? noteImageObjects.push(image.url)
-                    : noteImageFiles.push({
-                        base64String: image.thumbUrl,
-                        fileName: image.name,
-                        type: image.type,
-                      })
-                );
+                if (productComponent[0]?.image?.fileList) {
+                  productComponent[0]?.image?.fileList?.map((image) =>
+                    image.url
+                      ? noteImageObjects.push(image.url)
+                      : noteImageFiles.push({
+                          base64String: image.thumbUrl,
+                          fileName: image.name,
+                          type: image.type,
+                        })
+                  );
+                } else {
+                  productComponent[0]?.image?.map((image) =>
+                    noteImageObjects.push(image.url)
+                  );
+                }
               }
+              console.log("noteImageFiles", noteImageFiles);
+              console.log("noteImageObjects", noteImageObjects);
               const componentId =
                 allValues[fieldName.replace("productComponent_", "component_")];
               return {
@@ -448,6 +461,7 @@ const OrderToCustomerContent = () => {
           });
           if (response.ok && response.status === 200) {
             toast.success("Cập nhật thành công");
+            await handleDataOrderDetail();
             return 1;
           } else if (response.status === 400 || response.status === 500) {
             const responseData = await response.text();
@@ -513,7 +527,6 @@ const OrderToCustomerContent = () => {
       console.error("Error calling API:", error);
     }
   };
-  console.log("thang cha");
   const steps = [
     {
       title: "Thông tin khách hàng",

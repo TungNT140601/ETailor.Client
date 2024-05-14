@@ -53,7 +53,6 @@ function OrderUpdate({
 }) {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const navigate = useNavigate();
-  console.log("profileCustomer", profileCustomer);
 
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [dataDetailForUpdate, setDataDetailForUpdate] = useState(null);

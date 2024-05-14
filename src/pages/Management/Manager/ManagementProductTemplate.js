@@ -51,82 +51,12 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import ManagerHeader from "../../../components/ManagerHeader";
 
 const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
 const { Meta } = Card;
 const { Option } = Select;
-
-const ManagementProductTemplateHeader = () => {
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div>
-        <Breadcrumb
-          items={[
-            {
-              href: "#",
-              title: <HomeOutlined />,
-            },
-
-            {
-              href: "/manager/product-template",
-              title: (
-                <>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      color: "#9F78FF",
-                    }}
-                  >
-                    <CheckroomIcon fontSize="small" />
-                    &nbsp;
-                    <span>Bản mẫu</span>
-                  </div>
-                </>
-              ),
-            },
-          ]}
-        />
-        <Title level={4}>Bản mẫu</Title>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <Search
-            placeholder="Tìm kiếm"
-            onSearch={onSearch}
-            style={{
-              width: 250,
-            }}
-          />
-        </div>
-        &nbsp; &nbsp; &nbsp;
-        <div>
-          {manager?.avatar ? (
-            <Avatar src={manager?.avatar} />
-          ) : (
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-          )}
-          &nbsp; &nbsp;
-          <Text>{manager?.name}</Text>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export const ManagementCreateProductTemplate = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
@@ -403,6 +333,7 @@ export const ManagementCreateProductTemplate = () => {
     formData.append("Price", values.Price);
     formData.append("ThumbnailImageFile", postThumbnailUrl);
     formData.append("AveDateForComplete", values.deadline);
+    formData.append("Gender", values.gender);
     if (postImageUrl?.length >= 1) {
       postImageUrl.map((item) => formData.append("ImageFiles", item));
     }
@@ -845,8 +776,8 @@ export const ManagementCreateProductTemplate = () => {
               >
                 <Select placeholder="Bản mẫu này phù hợp với" defaultValue="-1">
                   <Option value="-1">Nam và Nữ</Option>
-                  <Option value="1">Nam</Option>
-                  <Option value="2">Nữ</Option>
+                  <Option value="0">Nam</Option>
+                  <Option value="1">Nữ</Option>
                 </Select>
               </Form.Item>
               <Form.Item
@@ -1500,7 +1431,12 @@ export const ManagementCreateProductTemplate = () => {
         }}
         className="manager-header"
       >
-        <ManagementProductTemplateHeader />
+        <ManagerHeader
+          name={"Bản mẫu"}
+          link={"/manager/product-template"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<CheckroomIcon fontSize="small" />}
+        />
       </div>
       <div
         className="manager-content"
@@ -1906,7 +1842,12 @@ function ManagementProductTemplate() {
         }}
         className="manager-header"
       >
-        <ManagementProductTemplateHeader />
+        <ManagerHeader
+          name={"Bản mẫu"}
+          link={"/manager/product-template"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<CheckroomIcon fontSize="small" />}
+        />
       </div>
       <div
         className="manager-content"

@@ -2,36 +2,21 @@ import React, { useState, useEffect } from 'react'
 import {
     HomeOutlined,
     UserOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    PlusOutlined,
-    LoadingOutlined,
     ClockCircleOutlined,
 } from "@ant-design/icons";
 import { Typography, Table, Checkbox } from "antd";
 import "./index.css";
 
 import {
-    Avatar,
-    Col,
-    Row,
-    InputNumber,
-    Image,
-    Button,
     Input,
-    Divider,
     Select,
-    Breadcrumb,
     Popover
 } from "antd";
 import Notask from "../../../assets/images/nodata.jpg";
 import toast, { Toaster } from 'react-hot-toast';
-import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
-import { useQuery } from "react-query";
 import CircularProgress from "@mui/material/CircularProgress";
-import { render } from '@testing-library/react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import ManagerHeader from "../../../components/ManagerHeader/index.js";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
@@ -117,78 +102,6 @@ const formatDate = (dateString) => {
 export default function ManagementTask() {
 
     const manager = JSON.parse(localStorage.getItem("manager"));
-    const ManagementStaffHeader = () => {
-        const onSearch = (value, _e, info) => console.log(info?.source, value);
-        return (
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: "100%",
-                    height: "100%",
-                }}
-            >
-                <div>
-                    <Breadcrumb
-                        items={[
-                            {
-                                href: "#",
-                                title: <HomeOutlined />,
-                            },
-                            {
-                                href: "#",
-                                title: (
-                                    <>
-                                        <Link to="#">
-                                            <div
-                                                style={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    color: "#9F78FF",
-                                                }}
-                                            >
-                                                <UserOutlined fontSize="small" />
-                                                &nbsp;
-                                                <span>Quản lý công việc</span>
-                                            </div>
-                                        </Link>
-                                    </>
-                                ),
-                            },
-                        ]}
-                    />
-                    <Title level={4}>Quản lý công việc của nhân viên</Title>
-                </div>
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
-                    <div>
-                        <Search
-                            placeholder="Tìm kiếm"
-                            onSearch={onSearch}
-                            style={{
-                                width: 250,
-                            }}
-                        />
-                    </div>
-                    &nbsp; &nbsp; &nbsp;
-                    <div>
-                        {manager?.avatar ? (
-                            <Avatar src={manager?.avatar} />
-                        ) : (
-                            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-                        )}
-                        &nbsp; &nbsp;
-                        <Text>{manager?.name}</Text>
-                    </div>
-                </div>
-            </div>
-        );
-    };
     const ManagementTasksContent = () => {
         const [unAssignedTasks, setUnAssignedTasks] = useState({
             id: "unAssignedTasks",
@@ -508,7 +421,12 @@ export default function ManagementTask() {
                 }}
                 className="manager-header"
             >
-                <ManagementStaffHeader />
+                <ManagerHeader
+                    name={"Quản lý công việc của nhân viên"}
+                    link={"#"}
+                    iconHome={<HomeOutlined />}
+                    iconRoute={<UserOutlined style={{ fontSize: 15 }} />}
+                />
             </div>
             <div
                 className="manager-task-content"

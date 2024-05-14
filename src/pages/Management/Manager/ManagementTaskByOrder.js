@@ -6,6 +6,7 @@ import {
     WarningOutlined,
     MinusCircleOutlined, PlusOutlined
 } from "@ant-design/icons";
+import ManagerHeader from "../../../components/ManagerHeader/index.js";
 import "./index.css";
 import {
     Avatar,
@@ -705,7 +706,12 @@ export default function ManagementTaskByOrder() {
                 }}
                 className="manager-header"
             >
-                <ManagementTasksHeader />
+                <ManagerHeader
+                    name={"Quản lý công việc theo công đoạn"}
+                    link={"#"}
+                    iconHome={<HomeOutlined />}
+                    iconRoute={<UserOutlined style={{ fontSize: 15 }} />}
+                />
             </div>
             <div
                 className="manager-task-content"
