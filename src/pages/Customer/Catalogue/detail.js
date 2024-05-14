@@ -231,7 +231,7 @@ export default function ProductDetail() {
                   className="subtitle is-4"
                   style={{ margin: 0, paddingBottom: "5px" }}
                 >
-                  $ {formatCurrency(productData?.price)}
+                  Giá tham khảo:  {formatCurrency(productData?.price)}
                 </p>
                 <div>
                   {componentData &&

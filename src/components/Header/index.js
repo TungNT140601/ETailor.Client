@@ -145,9 +145,9 @@ const Header = () => {
             )}
           </div>
         </div>
+        {customer ? (
+          <div className="header-end">
 
-        <div className="header-end">
-          {customer ? (
             <div style={{ height: "auto" }}>
               <Dropdown>
                 <MenuButton className="user-logo" sx={{ border: "none" }}>
@@ -167,18 +167,22 @@ const Header = () => {
                 </Menu>
               </Dropdown>
             </div>
-          ) : (
+            <div className="navbar-items">
+              <Notification />
+            </div>
+
+          </div>
+        ) : (
+          <div className="header-end">
             <div className="navbar-items login">
-              <h1 className="subtitle is-5" onClick={handleOpen}>
+              <h1 className="subtitle is-5" id="header-login-btn" onClick={handleOpen}>
                 Đăng nhập
               </h1>
             </div>
-          )}
-
-          <div className="navbar-items">
-            <Notification />
           </div>
-        </div>
+        )}
+
+
       </div>
       {open && <Login openModal={handleOpen} closeModal={handleClose} />}
     </nav>

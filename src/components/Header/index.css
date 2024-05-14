@@ -41,6 +41,10 @@
     padding-right: 70px;
 }
 
+#header-login-btn:hover {
+    color: #9F78FF;
+}
+
 .gray {
     color: #999999;
 }

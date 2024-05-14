@@ -2,36 +2,21 @@ import React, { useState, useEffect } from 'react'
 import {
     HomeOutlined,
     UserOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    PlusOutlined,
-    LoadingOutlined,
     ClockCircleOutlined,
 } from "@ant-design/icons";
 import { Typography, Table, Checkbox } from "antd";
 import "./index.css";
 
 import {
-    Avatar,
-    Col,
-    Row,
-    InputNumber,
-    Image,
-    Button,
     Input,
-    Divider,
     Select,
-    Breadcrumb,
     Popover
 } from "antd";
 import Notask from "../../../assets/images/nodata.jpg";
 import toast, { Toaster } from 'react-hot-toast';
-import { Link } from "react-router-dom";
-import Swal from "sweetalert2";
-import { useQuery } from "react-query";
 import CircularProgress from "@mui/material/CircularProgress";
-import { render } from '@testing-library/react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import ManagerHeader from "../../../components/ManagerHeader/index.js";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
@@ -92,6 +77,20 @@ const getStatusTextAndColor = (status) => {
     }
     return { color, text, backgroundColor, borderColor };
 };
+
+function getHoursDifference(deadline) {
+
+    const currentDateUTC = new Date();
+
+    const startMillis = new Date(deadline).getTime();
+    const currentMillisUTC7 = currentDateUTC.getTime();
+
+    const millisDiff = startMillis - currentMillisUTC7;
+    const hoursDiff = millisDiff / (1000 * 60 * 60);
+
+    return hoursDiff < 0 ? "Quá hạn" : hoursDiff < 24 ? `${Math.floor(hoursDiff)} giờ ` : `${Math.floor(hoursDiff / 24)} ngày`;
+}
+
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -99,81 +98,10 @@ const formatDate = (dateString) => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`
 };
+
 export default function ManagementTask() {
 
     const manager = JSON.parse(localStorage.getItem("manager"));
-    const ManagementStaffHeader = () => {
-        const onSearch = (value, _e, info) => console.log(info?.source, value);
-        return (
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    width: "100%",
-                    height: "100%",
-                }}
-            >
-                <div>
-                    <Breadcrumb
-                        items={[
-                            {
-                                href: "#",
-                                title: <HomeOutlined />,
-                            },
-                            {
-                                href: "#",
-                                title: (
-                                    <>
-                                        <Link to="#">
-                                            <div
-                                                style={{
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    color: "#9F78FF",
-                                                }}
-                                            >
-                                                <UserOutlined fontSize="small" />
-                                                &nbsp;
-                                                <span>Quản lý công việc</span>
-                                            </div>
-                                        </Link>
-                                    </>
-                                ),
-                            },
-                        ]}
-                    />
-                    <Title level={4}>Quản lý công việc của nhân viên</Title>
-                </div>
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                    }}
-                >
-                    <div>
-                        <Search
-                            placeholder="Tìm kiếm"
-                            onSearch={onSearch}
-                            style={{
-                                width: 250,
-                            }}
-                        />
-                    </div>
-                    &nbsp; &nbsp; &nbsp;
-                    <div>
-                        {manager?.avatar ? (
-                            <Avatar src={manager?.avatar} />
-                        ) : (
-                            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-                        )}
-                        &nbsp; &nbsp;
-                        <Text>{manager?.name}</Text>
-                    </div>
-                </div>
-            </div>
-        );
-    };
     const ManagementTasksContent = () => {
         const [unAssignedTasks, setUnAssignedTasks] = useState({
             id: "unAssignedTasks",
@@ -324,7 +252,7 @@ export default function ManagementTask() {
                                                         <div style={{ backgroundColor: "#f3f1fa", minHeight: 500, marginTop: 20, maxHeight: 600, overflowY: "scroll", scrollbarWidth: "none", }}>
                                                             {unAssignedTasks?.data.length > 0 && unAssignedTasks?.data.map((task, index) => (
                                                                 <Popover content={content} title="Title" trigger="click">
-                                                                    <Draggable key={task.id} draggableId={task.id} index={task?.à}>
+                                                                    <Draggable key={task.id} draggableId={task.id} index={task?.index}>
                                                                         {(provided, snapshot) => (
                                                                             <div
                                                                                 ref={provided.innerRef}
@@ -365,7 +293,7 @@ export default function ManagementTask() {
                                                                                     >
                                                                                         {task?.name}+{task?.index}
                                                                                     </h3>
-                                                                                    <p style={{ minHeight: "fit-content", color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.deadline ? formatDate(task?.deadline) : "Không có thời hạn"}</p>
+                                                                                    <p style={{ minHeight: "fit-content", color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.plannedTime ? getHoursDifference(task.plannedTime) : "Không có thời hạn"}</p>
                                                                                 </div>
                                                                                 {snapshot.hover && <Popover content={content} title="Title" />}
                                                                             </div>
@@ -459,7 +387,7 @@ export default function ManagementTask() {
                                                                                         textOverflow: "ellipsis",
                                                                                         maxWidth: "150px",
                                                                                     }}> <span style={{ fontSize: 15 }}>{index + 1}. </span>{task?.name}</h3>
-                                                                                    <p style={{ color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.deadline ? task?.deadline : "-"}</p>
+                                                                                    <p style={{ color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.plannedTime ? getHoursDifference(task?.plannedTime) : "Không có thời hạn"}</p>
 
                                                                                 </div>
                                                                             </div>
@@ -493,7 +421,12 @@ export default function ManagementTask() {
                 }}
                 className="manager-header"
             >
-                <ManagementStaffHeader />
+                <ManagerHeader
+                    name={"Quản lý công việc của nhân viên"}
+                    link={"#"}
+                    iconHome={<HomeOutlined />}
+                    iconRoute={<UserOutlined style={{ fontSize: 15 }} />}
+                />
             </div>
             <div
                 className="manager-task-content"
