@@ -508,7 +508,11 @@ function StepThree({
                                         alignItems: "center",
                                       }}
                                     >
-                                      <Image width={35} src={material.image} />
+                                      <Image
+                                        width={35}
+                                        src={material.image}
+                                        height={35}
+                                      />
                                       &nbsp; &nbsp;
                                       <Title level={5} style={{ marginTop: 6 }}>
                                         {material.name}
