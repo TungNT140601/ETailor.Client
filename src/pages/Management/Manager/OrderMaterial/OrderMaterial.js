@@ -258,8 +258,8 @@ export const OrderMaterial = ({
                           },
                           {
                             type: "number",
-                            min: 1,
-                            message: "Số mét sử dụng phải lớn hơn hoặc bằng 1",
+                            min: 0.01,
+                            message: "Số mét sử dụng phải lớn hơn 0",
                           },
                         ]}
                       >

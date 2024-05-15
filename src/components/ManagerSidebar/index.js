@@ -153,7 +153,7 @@ export const ManagerSidebar = () => {
           children: [
             {
               key: "/manager/material",
-              label: <Link to="/manager/product-template">Thông tin</Link>,
+              label: <Link to="/manager/material">Thông tin</Link>,
               icon: <FileTextOutlined />,
             },
             {

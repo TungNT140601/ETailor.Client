@@ -82,7 +82,7 @@ export const ViewDetailOrder = ({
 
   const chatNotification = ChatRealTimeManager();
   const { messageReturn, resetMessageReturn } = chatNotification;
-  console.log("detailProductData", detailProductData);
+  console.log("detailProductData", dataOrderDetail);
   useEffect(() => {
     if (messageReturn) {
       fetchChat();
@@ -677,7 +677,8 @@ export const ViewDetailOrder = ({
       const responseData = await response.text();
       if (response.ok && response.status === 200) {
         message.success(responseData);
-        handleDataOrder();
+        await handleDataOrder();
+        await handleDataOrderContent();
       } else if (response.status === 400 || response.status === 500) {
         message.error(responseData);
       }
@@ -701,7 +702,8 @@ export const ViewDetailOrder = ({
       const responseData = await response.text();
       if (response.ok && response.status === 200) {
         message.success(responseData);
-        handleDataOrder();
+        await handleDataOrder();
+        await handleDataOrderContent();
       } else if (response.status === 400 || response.status === 500) {
         message.error(responseData);
       }
@@ -769,39 +771,50 @@ export const ViewDetailOrder = ({
                 </Button>
               )}
 
-              {checkStatus === 5 && (
-                <Button
-                  key="checking"
+              {dataOrderDetail && dataOrderDetail.status === 5 && (
+                <button
                   onClick={() => {
                     handleCheckOrder(saveIdOrder);
                   }}
                   style={{
                     marginLeft: 15,
                     color: "white",
+                    width: 170,
+                    cursor: "pointer",
+                    borderRadius: "5px",
                     backgroundColor: "#ffd34d",
                     border: "1px solid #ffd34d",
+                    transition:
+                      "background-color 0.3s, border-color 0.3s, color 0.3s",
                   }}
-                  loading={checking}
                 >
-                  Kiểm tra đơn hàng
-                </Button>
+                  {checking && <LoadingOutlined style={{ color: "white" }} />}
+                  &nbsp; Kiểm tra đơn hàng
+                </button>
               )}
-              {checkStatus === 6 && (
-                <Button
-                  key="done"
+              {dataOrderDetail && dataOrderDetail.status === 6 && (
+                <button
                   onClick={() => {
                     handleDoneOrder(saveIdOrder);
                   }}
                   style={{
                     marginLeft: 15,
+                    width: 130,
+                    cursor: "pointer",
                     color: "white",
                     backgroundColor: "#3eb489",
+                    borderRadius: "5px",
                     border: "1px solid #3eb489",
+                    "&:hover": {
+                      backgroundColor: "#3eb489",
+                      borderColor: "1px solid #3eb489",
+                      color: "white",
+                    },
                   }}
-                  loading={done}
                 >
-                  Hoàn thành
-                </Button>
+                  {done && <LoadingOutlined style={{ color: "white" }} />}
+                  &nbsp; Hoàn thành
+                </button>
               )}
 
               {checkStatus >= 1 && checkStatus <= 6 && (

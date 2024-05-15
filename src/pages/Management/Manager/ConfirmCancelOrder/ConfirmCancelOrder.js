@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Breadcrumb } from "antd";
+import { Breadcrumb, message } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
@@ -37,7 +37,6 @@ export const ConfirmCancelOrder = ({
   onCancel,
   dataOrderDetail,
   formatCurrency,
-  handleCancelOrder,
   saveIdOrder,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
@@ -83,6 +82,30 @@ export const ConfirmCancelOrder = ({
   //     children: dataOrderDetail && dataOrderDetail?.totalProduct + " sản phẩm",
   //   },
   // ];
+  const handleRefund = async (id, amount) => {
+    const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/payment/refund/${id}?amount=${amount}`;
+    try {
+      const response = await fetch(`${urlCreateNew}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        message.success(responseData);
+        onCancel();
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        toast.error(responseData, {
+          duration: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
   const handleCheckStatus = (status) => {
     switch (status) {
       case 1:
@@ -271,9 +294,14 @@ export const ConfirmCancelOrder = ({
               type="primary"
               style={{ marginLeft: 15 }}
               onClick={async () => {
-                const check = await handleCancelOrder(saveIdOrder);
-                if (check === 1) {
-                  onCancel();
+                if (dataOrderDetail?.paidMoney) {
+                  const check = await handleRefund(
+                    saveIdOrder,
+                    dataOrderDetail?.paidMoney
+                  );
+                  if (check === 1) {
+                    onCancel();
+                  }
                 }
               }}
             >
