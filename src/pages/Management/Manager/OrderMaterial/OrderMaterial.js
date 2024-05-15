@@ -220,7 +220,7 @@ export const OrderMaterial = ({
                         ]}
                       >
                         <Select
-                          style={{ width: "300px" }}
+                          style={{ width: "300px", height: 45 }}
                           showSearch
                           placeholder="Chọn loại vải"
                           optionFilterProp="children"
@@ -238,7 +238,11 @@ export const OrderMaterial = ({
                                   alignItems: "center",
                                 }}
                               >
-                                <Image width={35} src={material.image} />
+                                <Image
+                                  width={35}
+                                  src={material.image}
+                                  height={35}
+                                />
                                 &nbsp; &nbsp;
                                 <Title level={5} style={{ marginTop: 6 }}>
                                   {material.name}
@@ -269,8 +273,9 @@ export const OrderMaterial = ({
                             `${value}m`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                           }
                           parser={(value) => value.replace(/m\s?|(,*)/g, "")}
-                          style={{ width: "100%" }}
+                          style={{ width: "100%", height: 45 }}
                           step={0.01}
+                          size="large"
                         />
                       </Form.Item>
                       <MinusCircleOutlined onClick={() => remove(name)} />

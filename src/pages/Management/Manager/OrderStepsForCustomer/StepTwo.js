@@ -499,7 +499,7 @@ function StepTwo({
                                     alignItems: "center",
                                   }}
                                 >
-                                  <Image width={40} src={text} />
+                                  <Image width={40} src={text} height={40} />
                                 </div>
                               ),
                             },
