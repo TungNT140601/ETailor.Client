@@ -130,6 +130,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
                 borderRadius: 10,
                 padding: 10,
                 marginBottom: 10,
+                cursor: "pointer",
               }}
             >
               <Title level={5} style={{ marginBottom: 4 }}>
