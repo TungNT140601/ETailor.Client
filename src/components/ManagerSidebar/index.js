@@ -109,13 +109,13 @@ export const ManagerSidebar = () => {
             {
               key: "/manager/tasks-management-by-order",
               label: (
-                <Link to="/manager/tasks-management-by-order">Công đoạn</Link>
+                <Link to="/manager/tasks-management-by-order">Quản lý</Link>
               ),
               icon: <ControlOutlined />,
             },
             {
               key: "/manager/tasks-management",
-              label: <Link to="/manager/tasks-management">Nhân viên</Link>,
+              label: <Link to="/manager/tasks-management">Phân công</Link>,
               icon: <ControlOutlined />,
             },
           ],

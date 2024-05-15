@@ -2,19 +2,54 @@ import React, { useEffect, useState } from "react";
 import Blog2 from "../../../assets/images/2011.i203.010..hobby cartoon set-06.jpg";
 import "./blog.css";
 import { useParams } from "react-router-dom";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
+import useBlogDetailQuery from "./BlogDetailData";
 import Loading from "../LoadingComponent/loading";
 import NoBlog from '../../../assets/images/blog-not-found.jpg'
+import { Link } from "react-router-dom";
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.toLocaleString("vi-VI", { month: "long" });
+  const year = date.getFullYear();
+  return `${day} ${month} ${year}`
+};
 export default function BlogDetail() {
   const { id } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   console.log("ID", id);
   const blogDetailUrl = `https://e-tailorapi.azurewebsites.net/api/blog/${id}`;
+  const { data: blog, isLoading: loading } = useBlogDetailQuery(blogDetailUrl);
+  const queryClient = useQueryClient();
 
-  const { data: blog, isLoading: loading } = useQuery("get-detail-blog", () =>
-    fetch(blogDetailUrl, {}).then((response) => response.json())
-  );
-  console.log("BLOG DETAIL", blog);
+  const handleRelativeBlog = async (id) => {
+    const blogRelativeDetailUrl = `https://e-tailorapi.azurewebsites.net/api/blog/${id}`;
+    const blogData = queryClient.getQueryData("get-detail-blog");
+    console.log("Blog Detail Data:", blogData);
+  };
+  const [relativeBlog, setRelativeBlog] = useState([]);
+  useEffect(() => {
+    const fetchRelativeBlog = async () => {
+      if (!blog) return;
+      console.log("BLOG", blog?.hastag)
+      const encodedHashtag = encodeURIComponent(blog?.hastag); // Encode hashtag
+      const RELATIVE_BLOG_URL = `https://e-tailorapi.azurewebsites.net/api/blog/relative?hastag=${encodedHashtag}`;
+      const response = await fetch(RELATIVE_BLOG_URL, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setRelativeBlog(data);
+        console.log("DATA", data);
+      }
+    }
+    fetchRelativeBlog();
+  }, [blog])
+
+
   const BlogContent = ({ blog }) => {
     if (!blog || !blog.content) return null;
 
@@ -50,7 +85,7 @@ export default function BlogDetail() {
                 <li className="is-active" style={{ fontWeight: "bold" }}>
                   {" "}
                   <a href="#" style={{ color: "#000000" }} aria-current="page">
-                    Xu Hướng
+                    {blog?.hastag}
                   </a>
                 </li>
               </ul>
@@ -64,10 +99,7 @@ export default function BlogDetail() {
                   <p className="title is-1">{blog?.title}</p>
 
                   <div className="content-blog">
-
                     <BlogContent blog={blog} />
-
-
                   </div>
                 </div>
               </div>
@@ -85,37 +117,35 @@ export default function BlogDetail() {
                     >
                       <p className="title is-3">Bài viết khác</p>
                     </div>
+                    {relativeBlog.length > 0 && relativeBlog.map((blog, index) => (
+                      <div key={index}>
+                        <div className="relative-blog" style={{ display: "flex", alignItems: "center" }} onClick={() => handleRelativeBlog(blog.id)}>
+                          <img src={blog?.thumbnail} alt="" width={64} height={64}></img>
+                          <div>
+                            <span style={{
+                              paddingLeft: "10px",
+                              display: "inline-block",
+                              maxWidth: "300px",
+                              overflow: "hidden",
+                              whiteSpace: "nowrap",
+                              textOverflow: "ellipsis"
+                            }}>
+                              {blog?.title}
+                            </span>
+                            <p
+                              className="blog-description"
+                              style={{ paddingLeft: "10px" }}
+                            >
+                              {formatDate(blog?.createdTime)}
+                            </p>
+                          </div>
+                        </div>
+                        <hr style={{ width: "400px", margin: "10px" }} />
+                      </div>
 
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <img src={Blog2} alt="" width={64} height={64}></img>
-                      <div>
-                        <span style={{ paddingLeft: "10px" }}>
-                          Làm sao để thu hút ánh nhìn?
-                        </span>
-                        <p
-                          className="blog-description"
-                          style={{ paddingLeft: "10px" }}
-                        >
-                          10/1/2024
-                        </p>
-                      </div>
-                    </div>
-                    <hr style={{ width: "400px", margin: "10px" }} />
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <img src={Blog2} alt="" width={64} height={64}></img>
-                      <div>
-                        <span style={{ paddingLeft: "10px" }}>
-                          Làm sao để thu hút ánh nhìn?
-                        </span>
-                        <p
-                          className="blog-description"
-                          style={{ paddingLeft: "10px" }}
-                        >
-                          10/1/2024
-                        </p>
-                      </div>
-                    </div>
-                    <hr style={{ width: "400px", margin: "10px" }} />
+                    ))}
+
+
                   </div>
                 </div>
               </div>

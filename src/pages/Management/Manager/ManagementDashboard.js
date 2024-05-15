@@ -14,11 +14,12 @@ import {
   Filler,
   Legend, ArcElement
 } from 'chart.js';
-import { RiseOutlined, FallOutlined, CalendarOutlined } from '@ant-design/icons';
-import { DatePicker, Select, Space, Row, Col, Spin } from 'antd';
+import { RiseOutlined, FallOutlined, CalendarOutlined, WarningFilled } from '@ant-design/icons';
+import { DatePicker, Select, Space, Row, Col, Spin, Button } from 'antd';
 import 'dayjs/locale/vi';
 import dayjs from 'dayjs';
 import FormatVNCurrency from '../../utils/FormatVNCurrency'
+import { useNavigate } from 'react-router-dom';
 
 dayjs.locale('vi_VN');
 ChartJS.register(
@@ -103,7 +104,6 @@ export default function ManagementDashboard() {
             });
             setTotalOrdersByYear(totalOrders)
             setTotalCancelOrdersByYear(totalCancelOrders)
-            console.log("BY year data", totalOrders)
           }
         } catch (error) {
           console.log("Error:", error);
@@ -183,7 +183,7 @@ export default function ManagementDashboard() {
     )
   }
   const OverAllStatistic = () => {
-
+    const navigate = useNavigate();
     const [orderStatistic, setOrderStatistic] = useState([]);
     const [totalForStatus0, setTotalForStatus0] = useState(0);
     const [totalForStatus7, setTotalForStatus7] = useState(0);
@@ -194,6 +194,57 @@ export default function ManagementDashboard() {
     const [totalRevenueRate, setTotalRevenueRate] = useState("");
     const [revenueLoading, setRevenueLoading] = useState(false)
     const [orderLoading, setOrderLoading] = useState(false)
+    const [allTask, setAllTask] = useState([])
+    const [warnTasks, setWarnTasks] = useState([]);
+    const [lateTasks, setLateTasks] = useState([]);
+    const [fetching, setFetching] = useState(false)
+    const [taskLoading, setTaskLoading] = useState(false)
+    useEffect(() => {
+      if (allTask.length > 0) {
+        const currentDateTime = new Date();
+
+        const filteredTasks = allTask.filter(task => {
+          if (task.status === 1 || task.status === 2 || task.status === 3) {
+            const timeDifference = new Date(task.plannedTime) - currentDateTime;
+            const hoursDifference = timeDifference / (1000 * 60 * 60);
+            if (hoursDifference < 48 && hoursDifference > 0) {
+              setWarnTasks(prevWarnTasks => [...prevWarnTasks, task]);
+            } else if (hoursDifference < 0) {
+              setLateTasks(prevLateTasks => [...prevLateTasks, task]);
+            }
+
+          }
+          return null;
+        });
+      }
+    }, [allTask]);
+    useEffect(() => {
+      const fetchTaskCurrentMonthStatistic = async () => {
+        setTaskLoading(true)
+        const manager = JSON.parse(localStorage.getItem("manager"));
+        const GET_TASK_CURRENT_MONTH_STATISTIC = 'https://e-tailorapi.azurewebsites.net/api/task/manager/get-all';
+        try {
+          const response = await fetch(GET_TASK_CURRENT_MONTH_STATISTIC, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${manager.token}`,
+            },
+          });
+          if (response.ok) {
+            setTaskLoading(false)
+            const data = await response.json();
+            setAllTask(data)
+            console.log("task statistic", data);
+          }
+        } catch (error) {
+          console.log("Error:", error);
+          setTaskLoading(false)
+        }
+      }
+      fetchTaskCurrentMonthStatistic();
+    }, [fetching]);
+
     useEffect(() => {
       const manager = JSON.parse(localStorage.getItem("manager"));
       const baseOrderStatisticURL = "https://e-tailorapi.azurewebsites.net/api/Dashboard/order-dashboard";
@@ -234,6 +285,7 @@ export default function ManagementDashboard() {
           console.log("Error:", error);
         }
       };
+
 
       const fetchTotalOrderRate = async () => {
         setOrderLoading(true)
@@ -339,10 +391,10 @@ export default function ManagementDashboard() {
           </Row>
         </Col>
         <Col span={12}>
-          <Row>
-            <Col span={24} style={{ height: "230px", backgroundColor: "#ffffff", borderRadius: 10 }}>
+          <Row gutter={5}>
+            <Col span={24} style={{ height: "230px", borderRadius: 10, backgroundColor: "#fff", }}>
+              <div style={{ width: "100%", height: 200, position: "relative" }}>
 
-              <div style={{ width: "100%", height: 200 }}>
                 <Pie options={{
                   maintainAspectRatio: false,
                   plugins: {
@@ -377,8 +429,52 @@ export default function ManagementDashboard() {
                     ],
                   }}
                 />
+                <div style={{ position: "absolute", bottom: 0, right: 0 }}>
+                  <Button type="primary" onClick={() => navigate('/manager/orders')}>Xem tất cả</Button>
+                </div>
               </div>
             </Col>
+            {/* <Col span={12} style={{ height: "230px", backgroundColor: "#ffffff", borderRadius: 10 }}>
+
+              <div style={{ width: "100%", height: 200 }}>
+                <Pie options={{
+                  maintainAspectRatio: false,
+                  plugins: {
+                    legend: {
+                      position: 'right',
+                    },
+                    title: {
+                      display: true,
+                      text: `Trạng thái công việc hiện tại`,
+                    },
+                  }
+                }}
+
+                  data={{
+                    labels: ['Trễ', 'Gần tới hạn hoàn thành', 'Đang thực hiện'],
+                    datasets: [
+                      {
+                        label: 'Số lượng',
+                        data: [lateTasks.length, warnTasks.length, allTask.length],
+                        backgroundColor: [
+                          'rgba(255, 99, 132, 0.2)',
+                          'rgba(255, 206, 86, 0.2)',
+                          '#f6ffed',
+                        ],
+
+                        borderColor: [
+                          'rgba(255, 99, 132, 1)',
+                          'rgba(255, 206, 86, 1)',
+                          '#389e0d',
+                        ],
+                        borderWidth: 1,
+                      },
+                    ],
+                  }}
+
+                />
+              </div>
+            </Col> */}
           </Row>
           <Row style={{ backgroundColor: "#fff", borderRadius: 10, marginTop: 15, width: "620px", height: "400px" }}>
 
@@ -391,12 +487,10 @@ export default function ManagementDashboard() {
     )
   }
   const [searchMonth, setSearchMonth] = useState(new Date().getMonth() + 1)
-  console.log("searchMonth", searchMonth)
   const handleChoseMonth = (value) => {
     setSearchMonth(value)
   }
   const [searchYear, setSearchYear] = useState(new Date().getFullYear())
-  console.log("search year", searchYear)
   const handleChoseYear = (date, dateString) => {
     setSearchYear(dateString)
   }
@@ -570,7 +664,7 @@ export default function ManagementDashboard() {
                                 <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
                               </div>
                               <div style={{ marginLeft: 20 }}>
-                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material.name}</p>
+                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0, overflow: "hidden", textOverflow: "ellipsis", width: 130, textWrap: "nowrap" }}>{material.name}</p>
                                 <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {material.totalProducts ? material.totalProducts : 0}</p>
                               </div>
                             </div>
@@ -616,7 +710,7 @@ export default function ManagementDashboard() {
                                 <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
                               </div>
                               <div style={{ marginLeft: 20 }}>
-                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{template?.name}</p>
+                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0, overflow: "hidden", textOverflow: "ellipsis", width: 140, textWrap: "nowrap" }}>{template?.name}</p>
                                 <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {template?.total ? template?.total : 0}</p>
                               </div>
                             </div>
@@ -633,45 +727,58 @@ export default function ManagementDashboard() {
 
           </div>
         </Col>
-        <Col span={10}>
-          <Row style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "45em" }}>
-            <div>
-              <div>
-                <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Đề xuất nhập vải</h1>
-                {materialStatistic.map((material, index) => (
-                  material.totalProducts > 0 && (
-                    <div style={{ display: "flex", padding: 15, alignItems: "center", height: "22vh" }} key={index}>
-                      <div>
-                        <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
-                      </div>
-                      <div style={{ marginLeft: 20 }}>
-                        <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material.name}</p>
-                      </div>
+        <Col span={10} style={{ width: "100%" }}>
+          <Row style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "45em", width: "100%" }}>
+            <div style={{ width: "100%" }}>
+              <div style={{ width: "100%" }}>
+                <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10, width: "100%" }}>Đề xuất nhập vải</h1>
+                <div style={{ width: "90%", margin: 10, display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+                  {materialStatistic.map((material, index) => (
+                    <div style={{ width: "48%", marginBottom: 10 }} key={index}>
+                      <Row style={{ width: "100%" }} justify={'start'}>
+                        <Col className="gutter-row" span={12} style={{ display: "flex", width: "100%", flex: 1, maxWidth: "100%" }}>
+                          <div style={{ width: "100%", display: "flex", alignItems: "center" }}>
+                            <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }} alt={material.name} />
+                            <div style={{ marginLeft: 10 }}>
+                              <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material?.name}</p>
+                              {material && material.quantity < 10 ? (
+                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Kho: {material.quantity} mét   <WarningFilled title='Gần hết vải' style={{ color: "red", paddingLeft: 5 }} /></p>
+                              ) : (
+                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Kho: {material.quantity} mét </p>
+                              )}
+                            </div>
+                          </div>
+                        </Col>
+                      </Row>
                     </div>
-                  )
-
-                ))}
+                  ))}
+                </div>
               </div>
               <div>
                 <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Xu hướng thịnh hành</h1>
-                {commonTemplate && commonTemplate.map((template, index) => (
-                  commonTemplate && commonTemplate.total > 0 && (
+
+                {commonTemplate && commonTemplate.total > 0 ? (
+                  commonTemplate.map((template, index) => (
                     <div style={{ padding: 5, alignItems: "center" }} key={index}>
                       <div>
-                        <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+                        <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }} alt={template.name} />
                       </div>
                       <div style={{ marginLeft: 20 }}>
                         <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{template?.name}</p>
                       </div>
                     </div>
-                  )
+                  ))
+                ) : (
+                  <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+                    <p style={{ fontSize: 18, fontWeight: 600, color: "#000000", margin: 0 }}>Không có dữ liệu hoặc chưa có đơn hàng</p>
+                  </div>
+                )}
 
-                ))}
               </div>
-
             </div>
           </Row>
         </Col>
+
       </Row>
     )
   }
@@ -791,15 +898,6 @@ export default function ManagementDashboard() {
         <div>
           <MaterialStatistic searchMonth={searchMonth} searchYear={searchYear} />
         </div>
-        {/* <div style={{ marginTop: 20 }}>
-          <OrderStatistic searchMonth={searchMonth} searchYear={searchYear} />
-        </div> */}
-        {/* <div>
-          <StaffTaskStatistic />
-        </div>
-        <div>
-          <MaterialStatistic />
-        </div> */}
       </div>
     </div >
   )
