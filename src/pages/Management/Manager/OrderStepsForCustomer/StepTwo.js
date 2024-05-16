@@ -34,6 +34,10 @@ import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { VnPay } from "../../../../components/RealTime/index.js";
 import DetailProduct from "../DetailProductOrderToCustomer/DetailProduct.js";
+import {
+  ConfirmMaterial,
+  MaterialComponent,
+} from "./StepTwoComponents/MaterialComponent.js";
 
 const { Search } = Input;
 const { Title, Text } = Typography;
@@ -61,11 +65,10 @@ function StepTwo({
   const [active, setActive] = useState(0);
   const [formMaterial] = Form.useForm();
   const [materialLoading, setMaterialLoading] = useState(false);
+  const [openConfirmMaterial, setOpenConfirmMaterial] = useState(false);
 
   const vnpayNotification = VnPay();
   const { resetMessage, message } = vnpayNotification;
-
-  console.log("thang con step two");
 
   useEffect(() => {
     if (message !== null && message !== undefined && message !== "") {
@@ -258,16 +261,6 @@ function StepTwo({
       width: 150,
       ellipsis: true,
     },
-    // {
-    //   title: "Hình ảnh bản mẫu",
-    //   dataIndex: "templateThumnailImage",
-    //   key: "templateThumnailImage",
-    //   render: (text) => (
-    //     <div style={{ display: "flex", alignItems: "center" }}>
-    //       <Image width={40} src={text} />
-    //     </div>
-    //   ),
-    // },
     {
       title: "Giá tiền",
       dataIndex: "price",
@@ -384,14 +377,7 @@ function StepTwo({
     price: item.price,
     id: item.id,
   }));
-  const dataOrderMaterials = orderPaymentDetail?.orderMaterials?.map(
-    (item, index) => ({
-      id: item.materialId,
-      index: index + 1,
-      name: item.material.name,
-      image: item.material.image,
-    })
-  );
+
   return (
     <>
       {openViewDetail && saveIdDetailProduct && (
@@ -456,148 +442,24 @@ function StepTwo({
                   }}
                 />
               </div>
-              <div style={{ height: 250, marginTop: 50 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <Title level={4}>Nguyên phụ liệu sử dụng</Title>
-                <Form
-                  labelCol={{ span: 6 }}
-                  wrapperCol={{ span: 18 }}
-                  form={formMaterial}
-                  name="dynamic_form_complex"
-                  style={{ maxWidth: "100%" }}
-                  autoComplete="off"
-                  initialValues={{ items: [{}] }}
-                >
-                  <Form.List name="itemsMaterial">
-                    {(fields, { add, remove }) => (
-                      <>
-                        <Table
-                          dataSource={dataOrderMaterials}
-                          pagination={false}
-                          scroll={{ y: 250 }}
-                          rowKey={(record) => record.id}
-                          columns={[
-                            {
-                              title: "STT",
-                              dataIndex: "index",
-                              key: "index",
-                              width: 60,
-                              render: (text) => <a>{text}</a>,
-                            },
-                            {
-                              title: "Nguyên phụ liệu",
-                              dataIndex: "name",
-                              key: "name",
-                            },
-                            {
-                              title: "Hình ảnh",
-                              dataIndex: "image",
-                              key: "image",
-                              render: (text) => (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <Image width={40} src={text} height={40} />
-                                </div>
-                              ),
-                            },
-                            {
-                              title: "Xác nhận vải",
-                              dataIndex: "materialConfirm",
-                              key: "materialConfirm",
-                              render: (text, record, index) => (
-                                <>
-                                  <Form.Item
-                                    name={[index, "materialConfirm"]}
-                                    key={`${record.id}-materialConfirm`}
-                                    noStyle
-                                    initialValue={false}
-                                  >
-                                    <Radio.Group
-                                      disabled={
-                                        orderPaymentDetail?.paidMoney > 0
-                                      }
-                                    >
-                                      <Radio value={true}>Vải khách</Radio>
-                                      <Radio value={false}>Vải cửa hàng</Radio>
-                                    </Radio.Group>
-                                  </Form.Item>
-                                  <Form.Item
-                                    name={[index, "materialId"]}
-                                    initialValue={record.id}
-                                    noStyle
-                                  >
-                                    <Input type="hidden" />
-                                  </Form.Item>
-                                </>
-                              ),
-                            },
-                            {
-                              title: "Số met vải cần thiết",
-                              dataIndex: "value",
-                              key: "value",
-                              render: (text, record, index) => (
-                                <>
-                                  {" "}
-                                  <Form.Item
-                                    name={[index, "value"]}
-                                    key={`${record.id}-value`}
-                                    noStyle
-                                    initialValue={0}
-                                  >
-                                    <InputNumber
-                                      disabled={
-                                        orderPaymentDetail?.paidMoney > 0
-                                      }
-                                      formatter={(value) =>
-                                        `${value}m`.replace(
-                                          /\B(?=(\d{3})+(?!\d))/g,
-                                          ","
-                                        )
-                                      }
-                                      parser={(value) =>
-                                        value.replace(/m\s?|(,*)/g, "")
-                                      }
-                                      style={{ width: "100%" }}
-                                      step={0.01}
-                                    />
-                                  </Form.Item>
-                                  <Form.Item
-                                    // Trường ẩn để lưu trữ materialId
-                                    name={[index, "materialId"]}
-                                    initialValue={record.id}
-                                    noStyle
-                                  >
-                                    <Input type="hidden" />
-                                  </Form.Item>
-                                </>
-                              ),
-                            },
-                          ]}
-                        />
-                        <Form.Item
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                          }}
-                        >
-                          <Button
-                            disabled={orderPaymentDetail?.paidMoney > 0}
-                            type="dashed"
-                            onClick={() => onConfirmMaterial()}
-                            block
-                            style={{ width: 200, marginTop: 10 }}
-                            loading={materialLoading}
-                          >
-                            Lưu thay đổi
-                          </Button>
-                        </Form.Item>
-                      </>
-                    )}
-                  </Form.List>
-                </Form>
+                <Button onClick={() => setOpenConfirmMaterial(true)}>
+                  Xác định vải
+                </Button>
+              </div>
+              <div
+                style={{
+                  height: 250,
+                }}
+              >
+                <MaterialComponent orderPaymentDetail={orderPaymentDetail} />
+                {openConfirmMaterial && (
+                  <ConfirmMaterial
+                    open={openConfirmMaterial}
+                    onCancel={() => setOpenConfirmMaterial(false)}
+                  />
+                )}
               </div>
             </>
           )}

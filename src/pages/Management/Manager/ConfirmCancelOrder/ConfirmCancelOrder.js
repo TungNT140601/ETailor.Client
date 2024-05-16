@@ -1,29 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Breadcrumb, message } from "antd";
-import {
-  HomeOutlined,
-  UserOutlined,
-  EyeOutlined,
-  ArrowLeftOutlined,
-} from "@ant-design/icons";
-import { Typography, Table, Checkbox } from "antd";
+import { message } from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+import { Typography } from "antd";
 
 import {
-  Avatar,
   Col,
   Row,
   Modal,
-  Divider,
   Tag,
   Image,
   Button,
-  Input,
-  Badge,
-  Flex,
-  Card,
-  Popover,
   Descriptions,
   List,
+  InputNumber,
 } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 import toast, { Toaster } from "react-hot-toast";
@@ -42,46 +31,9 @@ export const ConfirmCancelOrder = ({
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [loading, setLoading] = useState(false);
   console.log("dataOrderDetail", dataOrderDetail);
-  // const items = [
-  //   {
-  //     key: "1",
-  //     label: "Họ và tên",
-  //     children: dataOrderDetail && dataOrderDetail?.customer.fullname,
-  //   },
-  //   {
-  //     key: "2",
-  //     label: " Địa chỉ Email",
-  //     children: dataOrderDetail && dataOrderDetail?.customer.email,
-  //   },
-  //   {
-  //     key: "3",
-  //     label: "Số điện thoại",
-  //     children: dataOrderDetail && dataOrderDetail?.customer.phone,
-  //   },
-  //   {
-  //     key: "4",
-  //     label: "Số tiền đã thanh toán",
-  //     children: dataOrderDetail && (
-  //       <b>{formatCurrency(dataOrderDetail?.paidMoney)}</b>
-  //     ),
-  //   },
-  //   {
-  //     key: "5",
-  //     label: "Tiền đặt cọc",
-  //     children: dataOrderDetail && (
-  //       <b>
-  //         {dataOrderDetail?.deposit
-  //           ? formatCurrency(dataOrderDetail?.deposit)
-  //           : "0đ"}
-  //       </b>
-  //     ),
-  //   },
-  //   {
-  //     key: "6",
-  //     label: "Tổng sản phẩm",
-  //     children: dataOrderDetail && dataOrderDetail?.totalProduct + " sản phẩm",
-  //   },
-  // ];
+  const [refundPercent, setRefundPercent] = useState(100);
+  const [caculatePaidMoney, setCalculatePaidMoney] = useState(null);
+
   const handleRefund = async (id, amount) => {
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/payment/refund/${id}?amount=${amount}`;
     try {
@@ -104,6 +56,19 @@ export const ConfirmCancelOrder = ({
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    }
+  };
+  const handleCaculatePercentPaidMoney = (value, paidMoney) => {
+    if (value > 0 && value <= 100) {
+      setRefundPercent(value);
+      const caculatePaidMoney = Math.round(
+        ((value / 100 / 1000) * paidMoney).toFixed(3) * 1000
+      );
+      // Math.round() * 1000;
+      return setCalculatePaidMoney(caculatePaidMoney);
+    } else {
+      setCalculatePaidMoney(null);
+      return message.error("Phần trăm hoàn trả từ 0 - 100%");
     }
   };
   const handleCheckStatus = (status) => {
@@ -145,13 +110,7 @@ export const ConfirmCancelOrder = ({
         ? dataOrderDetail?.cusPhone
         : dataOrderDetail?.cusEmail,
     },
-    {
-      key: "3",
-      label: "Trạng thái đơn hàng",
-      children: dataOrderDetail && (
-        <b>{handleCheckStatus(dataOrderDetail?.status)}</b>
-      ),
-    },
+
     {
       key: "4",
       label: "Tổng số tiền",
@@ -178,10 +137,29 @@ export const ConfirmCancelOrder = ({
       ),
     },
     {
+      key: "3",
+      label: "Số phần trăm hoàn trả",
+      children: dataOrderDetail && (
+        <InputNumber
+          min={0.1}
+          max={100}
+          addonAfter={"%"}
+          defaultValue={refundPercent}
+          onChange={(value) =>
+            handleCaculatePercentPaidMoney(value, dataOrderDetail?.paidMoney)
+          }
+        />
+      ),
+    },
+    {
       key: "7",
       label: "Tổng tiền phải hoàn trả",
       children: dataOrderDetail && (
-        <b>{formatCurrency(dataOrderDetail?.paidMoney)}</b>
+        <b>
+          {caculatePaidMoney
+            ? formatCurrency(caculatePaidMoney)
+            : formatCurrency(dataOrderDetail?.paidMoney)}
+        </b>
       ),
     },
     {
@@ -207,7 +185,7 @@ export const ConfirmCancelOrder = ({
     },
     {
       key: "9",
-      label: "Tổng met vải khách đã đưa",
+      label: "Tổng mét vải khách đã đưa",
       children:
         dataOrderDetail &&
         dataOrderDetail?.orderMaterials?.filter(
@@ -218,15 +196,15 @@ export const ConfirmCancelOrder = ({
               ?.filter((material) => material.isCusMaterial)
               .reduce(function (acc, obj) {
                 return acc + obj.value;
-              }, 0) + " met"}
+              }, 0) + " mét"}
           </span>
         ) : (
-          <span>0 met</span>
+          <span>0 mét</span>
         ),
     },
     {
       key: "10",
-      label: "Số met vải hoàn trả",
+      label: "Số mét vải hoàn trả",
       children:
         dataOrderDetail &&
         dataOrderDetail?.orderMaterials?.filter(
@@ -237,10 +215,10 @@ export const ConfirmCancelOrder = ({
               ?.filter((material) => material.isCusMaterial)
               .reduce(function (acc, obj) {
                 return acc + obj.value;
-              }, 0) + " met"}
+              }, 0) + " mét"}
           </span>
         ) : (
-          <span>0 met</span>
+          <span>0 mét</span>
         ),
     },
   ];
@@ -269,8 +247,8 @@ export const ConfirmCancelOrder = ({
           onCancel();
         }}
         width={1200}
-        style={{ top: 40, height: 100 }}
-        bodyStyle={{ height: "600px" }}
+        style={{ top: 20, height: 100 }}
+        bodyStyle={{ height: "630px" }}
         footer={[
           <div
             style={{
@@ -348,7 +326,7 @@ export const ConfirmCancelOrder = ({
 
                 <div
                   style={{
-                    height: "550px",
+                    height: "560px",
                     overflowY: "scroll",
                     scrollbarWidth: "none",
                     WebkitScrollbar: "none",
@@ -392,7 +370,7 @@ export const ConfirmCancelOrder = ({
                   />
                 </div>
               </Col>
-              <Col span={10} style={{}}>
+              <Col span={11} style={{}}>
                 <Title level={3}>Thông tin đơn hàng</Title>
                 <Descriptions
                   items={itemsRefund}
