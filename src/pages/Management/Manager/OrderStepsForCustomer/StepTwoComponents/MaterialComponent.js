@@ -135,7 +135,6 @@ export const ConfirmMaterial = ({ open, onCancel }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [selectedOption, setSelectedOption] = useState("Vải có trong cửa hàng");
   const [form] = Form.useForm();
-  const [formCreate] = Form.useForm();
   const [loadingMaterial, setLoadingMaterial] = useState(false);
   const [material, setMaterial] = useState([]);
   const [postImage, setPostImage] = useState(null);
@@ -217,71 +216,14 @@ export const ConfirmMaterial = ({ open, onCancel }) => {
       </div>
     </button>
   );
-
-  const onCreate = async (values) => {
-    console.log("values trong create", values);
-    formCreate.resetFields();
-    setImageUrl(null);
-    setPostImage(null);
-    // const formData = new FormData();
-    // formData.append("MaterialCategoryId", values.materialCategoryId);
-    // formData.append("Name", values.name);
-    // formData.append("ImageFile", values.imageFile);
-    // formData.append("Quantity", values.quantity);
-    // const urlCreateMaterialType = `https://e-tailorapi.azurewebsites1.net/api/material`;
-    // try {
-    //   const response = await fetch(urlCreateMaterialType, {
-    //     method: "POST",
-    //     headers: {
-    //       Authorization: `Bearer ${manager?.token}`,
-    //     },
-    //     body: formData,
-    //   });
-    //   const responseData = await response.text();
-    //   if (response.ok && response.status === 200) {
-    //     message.success(responseData);
-    //     return 1;
-    //   } else if (response.status === 400 || response.status === 500) {
-    //     message.error(responseData);
-    //     return 0;
-    //   }
-    // } catch (error) {
-    //   console.error("Error calling API:", error);
-    // }
+  console.log("form", form.getFieldsValue());
+  const onCreateMaterial = async (values) => {
+    console.log("values trong onCreateMaterial", values);
+    return 1;
   };
-  const onChoose = async (values) => {
-    console.log("values trong choose", values);
-    form.resetFields();
-    // const url = `https://e-tailorapi.azurewebsites.net/order/${saveOrderId}`;
-    //   try {
-    //     const response = await fetch(`${url}`, {
-    //       method: "PUT",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${manager?.token}`,
-    //       },
-    //       body: JSON.stringify(dataBackEnd),
-    //     });
-    //     if (response.ok && response.status === 200) {
-    //       const responseData = await response.text();
-    //       toast.success(responseData, {
-    //         duration: 3000,
-    //       });
-    //       await handleDataOrderDetail();
-    //       return 1;
-    //     } else if (response.status === 400 || response.status === 500) {
-    //       const responseData = await response.text();
-    //       toast.error(responseData, {
-    //         duration: 3000,
-    //       });
-    //       return 0;
-    //     } else if (response.status === 401) {
-    //       localStorage.removeItem("manager");
-    //       navigate("/management/login");
-    //     }
-    //   } catch (error) {
-    //     console.error("Error calling API:", error);
-    //   }
+  const onDefindMaterial = async (values) => {
+    console.log("values trong onDefindMaterial", values);
+    return 1;
   };
   const filterOptionForMaterial = (input, option) =>
     (option?.title ?? "")
@@ -300,58 +242,43 @@ export const ConfirmMaterial = ({ open, onCancel }) => {
       }}
       onCancel={() => {
         form.resetFields();
-        formCreate.resetFields();
         setImageUrl(null);
         setPostImage(null);
         setMaterialCategory(null);
         onCancel();
       }}
       onOk={async () => {
-        try {
-          console.log("form", form.getFieldsValue());
-          console.log("formCreate", formCreate.getFieldsValue());
-          if (selectedOption === "Vải có trong cửa hàng") {
-            form
-              .validateFields()
-              .then(async (values) => {
-                setConfirmLoading(true);
-                const dataBackEndConfirm = {
-                  name: values.name,
-                  quantity: values.quantity,
-                };
-                const check = await onChoose(dataBackEndConfirm);
-                if (check === 1) {
-                  form.resetFields();
-                  formCreate.resetFields();
-                  onCancel();
-                }
-              })
-              .catch((info) => {
-                console.log("Validate Failed:", info);
-              });
-          } else {
-            formCreate
-              .validateFields()
-              .then(async (values) => {
-                setConfirmLoading(true);
-                console.log("values", values);
-                const dataBackEnd = {
-                  image: values.image,
-                  nameCreate: values.nameCreate,
-                  quantityCreate: values.quantityCreate,
-                  materialCategoryId: values.materialCategoryId,
-                };
+        setConfirmLoading(true);
 
-                const check = await onCreate(dataBackEnd);
-                if (check === 1) {
-                  formCreate.resetFields();
-                  form.resetFields();
-                  onCancel();
-                }
-              })
-              .catch((info) => {
-                console.log("Validate Failed:", info);
-              });
+        try {
+          if (selectedOption === "Vải có trong cửa hàng") {
+            const values = await form.validateFields();
+            const dataBackEnd = {
+              name: values.name,
+              quantity: values.quantity,
+            };
+            const check = await onDefindMaterial(dataBackEnd);
+            if (check === 1) {
+              form.resetFields();
+              setMaterialCategory(null);
+              onCancel();
+            }
+          } else {
+            const values = await form.validateFields();
+            const dataBackEnd = {
+              image: values.image,
+              nameCreate: values.nameCreate,
+              quantityCreate: values.quantityCreate,
+              materialCategoryId: values.materialCategoryId,
+            };
+            const check = await onCreateMaterial(dataBackEnd);
+            if (check === 1) {
+              form.resetFields();
+              setImageUrl(null);
+              setPostImage(null);
+              setMaterialCategory(null);
+              onCancel();
+            }
           }
         } catch (error) {
           console.log("Failed:", error);
@@ -363,16 +290,11 @@ export const ConfirmMaterial = ({ open, onCancel }) => {
       <div style={{ display: "flex", justifyContent: "center" }}>
         <Segmented
           options={["Vải có trong cửa hàng", "Vải không có trong cửa hàng"]}
-          defaultValue={"Vải có trong cửa hàng"}
+          defaultValue="Vải có trong cửa hàng"
           onChange={(value) => {
-            if (value === "Vải có trong cửa hàng" && formCreate) {
-              formCreate.resetFields();
-              setImageUrl(null);
-              setPostImage(null);
-            } else if (value === "Vải không có trong cửa hàng" && form) {
-              form.resetFields();
-            }
             setSelectedOption(value);
+            form.resetFields();
+            setImageUrl(null);
           }}
         />
       </div>
@@ -462,7 +384,7 @@ export const ConfirmMaterial = ({ open, onCancel }) => {
       ) : (
         <Form
           layout="vertical"
-          form={formCreate}
+          form={form}
           name="form_in_modal_create"
           style={{ marginTop: 24 }}
         >
