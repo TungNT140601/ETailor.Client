@@ -54,8 +54,8 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
         },
       });
       if (response.ok && response.status === 200) {
-        const data = await response.json();
-        setAllNotification(data);
+        message.success("Đã xem thông báo");
+        fetchNotification();
       } else if (response.status === 400 || response.status === 500) {
         const data = await response.text();
         message.error(data);
@@ -108,7 +108,6 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
       </div>
     );
   };
-  console.log("manager", manager);
 
   useEffect(() => {
     fetchNotification();
@@ -158,7 +157,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
               <Title level={5}>
                 Tổng cộng:{" "}
                 <span style={{ color: "#9F78FF" }}>
-                  {allNotification.data.length}
+                  {allNotification && allNotification?.data?.length}
                 </span>
               </Title>
             </div>
@@ -166,7 +165,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
               <Title level={5}>
                 Chưa xem:{" "}
                 <span style={{ color: "#9F78FF" }}>
-                  {allNotification.unread}
+                  {allNotification && allNotification?.unread}
                 </span>
               </Title>
             </div>
@@ -174,7 +173,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
         )}
 
         {allNotification ? (
-          allNotification.data.map((notification) => (
+          allNotification?.data?.map((notification) => (
             <div
               key={notification.id}
               style={{
@@ -195,9 +194,8 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
               >
                 <>
                   <Title level={5} style={{ marginBottom: 4 }}>
-                    {!notification.isRead && (
-                      <Badge status="processing" text="Processing" />
-                    )}{" "}
+                    {!notification.isRead && <Badge status="processing" />}{" "}
+                    &nbsp;
                     {notification.title}
                   </Title>
                   <Text>

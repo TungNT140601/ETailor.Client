@@ -817,7 +817,7 @@ export const ViewDetailOrder = ({
                 </button>
               )}
 
-              {checkStatus >= 1 && checkStatus <= 6 && (
+              {checkStatus >= 1 && checkStatus <= 4 && (
                 <Button
                   key="cancel"
                   type="primary"
