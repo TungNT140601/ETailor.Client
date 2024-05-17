@@ -214,16 +214,9 @@ function StepTwo({
     }
   };
   const handleToggleChangePrice = (productId) => {
-    // setProductChangePrice((prevProductChangePrice) => ({
-    //   ...prevProductChangePrice,
-    //   [productId]: !prevProductChangePrice[productId],
-    // }));
     setProductChangePrice((prevProductChangePrice) => {
       if (prevProductChangePrice.hasOwnProperty(productId)) {
         delete prevProductChangePrice[productId];
-        console.log("{ ...prevProductChangePrice }", {
-          ...prevProductChangePrice,
-        });
         return { ...prevProductChangePrice };
       } else {
         return {
@@ -453,11 +446,17 @@ function StepTwo({
                   height: 250,
                 }}
               >
-                <MaterialComponent orderPaymentDetail={orderPaymentDetail} />
+                <MaterialComponent
+                  orderPaymentDetail={orderPaymentDetail}
+                  saveOrderId={saveOrderId}
+                  handleDataOrderDetail={handleDataOrderDetail}
+                />
                 {openConfirmMaterial && (
                   <ConfirmMaterial
                     open={openConfirmMaterial}
                     onCancel={() => setOpenConfirmMaterial(false)}
+                    handleDataOrderDetail={handleDataOrderDetail}
+                    saveOrderId={saveOrderId}
                   />
                 )}
               </div>

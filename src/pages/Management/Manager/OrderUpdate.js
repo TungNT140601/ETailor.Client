@@ -474,28 +474,75 @@ function OrderUpdate({
                               placeholder="Chọn loại vải"
                               optionFilterProp="children"
                               filterOption={filterOptionForMaterial}
-                            >
-                              {materialId?.map((material) => (
-                                <Select.Option
-                                  key={material.id}
-                                  value={material.id}
-                                  title={material.name}
-                                >
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <Image width={35} src={material.image} />
-                                    &nbsp; &nbsp;
-                                    <Title level={5} style={{ marginTop: 6 }}>
-                                      {material.name}
-                                    </Title>
-                                  </div>
-                                </Select.Option>
-                              ))}
-                            </Select>
+                              options={[
+                                {
+                                  label: (
+                                    <Title level={5}>Vải trong đơn hàng</Title>
+                                  ),
+                                  title: "Vải trong đơn hàng",
+                                  options: materialId?.orderMaterials?.map(
+                                    (material) => ({
+                                      label: (
+                                        <div
+                                          key={material.id}
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                          }}
+                                        >
+                                          <Image
+                                            width={35}
+                                            src={material.image}
+                                            height={35}
+                                          />
+                                          &nbsp; &nbsp;
+                                          <Title
+                                            level={5}
+                                            style={{ marginTop: 6 }}
+                                          >
+                                            {material.name}
+                                          </Title>
+                                        </div>
+                                      ),
+                                      value: material.id,
+                                    })
+                                  ),
+                                },
+                                {
+                                  label: (
+                                    <Title level={5}>Vải trong cửa hàng</Title>
+                                  ),
+                                  title: "Vải trong cửa hàng",
+                                  options: materialId?.materials?.map(
+                                    (material) => ({
+                                      label: (
+                                        <div
+                                          key={material.id}
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                          }}
+                                        >
+                                          <Image
+                                            width={35}
+                                            src={material.image}
+                                            height={35}
+                                          />
+                                          &nbsp; &nbsp;
+                                          <Title
+                                            level={5}
+                                            style={{ marginTop: 6 }}
+                                          >
+                                            {material.name}
+                                          </Title>
+                                        </div>
+                                      ),
+                                      value: material.id,
+                                    })
+                                  ),
+                                },
+                              ]}
+                            ></Select>
                           </Form.Item>
                           <Form.Item label="Ghi chú" name="note" hasFeedback>
                             <Input.TextArea />

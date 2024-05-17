@@ -5,8 +5,6 @@ import "./index.css";
 
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { useQuery } from "react-query";
-import ChooseTemplate from "./ChooseTemplate.js";
 import StepOne from "./OrderStepsForCustomer/StepOne.js";
 import StepTwo from "./OrderStepsForCustomer/StepTwo.js";
 import StepThree from "./OrderStepsForCustomer/StepThree.js";
