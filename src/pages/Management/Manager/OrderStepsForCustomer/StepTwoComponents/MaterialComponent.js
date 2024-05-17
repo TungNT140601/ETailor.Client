@@ -35,103 +35,300 @@ import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 
-const { Title, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 
-export const MaterialComponent = ({ orderPaymentDetail }) => {
-  const columns = [
-    {
-      title: "STT",
-      dataIndex: "index",
-      key: "index",
-      width: 60,
-      render: (text) => <a>{text}</a>,
-    },
-    {
-      title: "Nguyên phụ liệu",
-      dataIndex: "name",
-      width: 150,
-      key: "name",
-      ellipsis: true,
-    },
-    {
-      title: "Hình ảnh",
-      dataIndex: "image",
-      key: "image",
-      width: 150,
-      ellipsis: true,
-    },
-    {
-      title: "Xác nhận vải",
-      dataIndex: "materialConfirm",
-      key: "materialConfirm",
-      width: 150,
-    },
-    {
-      title: "Số mét vải",
-      dataIndex: "value",
-      key: "value",
-      width: 150,
-      fixed: "right",
-    },
-    {
-      title: "Tùy chỉnh",
-      dataIndex: "Action",
-      key: "Action",
-      width: 100,
-      fixed: "right",
-      render: (_, record) => (
-        <>
-          <Row justify="start">
-            <Col span={4}>
-              <DeleteOutlined
-                style={{
-                  backgroundColor: "red",
-                  color: "white",
-                  padding: 6,
-                  borderRadius: "5px",
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-              />
-            </Col>
-            <Col span={4} offset={7}>
-              <EditOutlined
-                style={{
-                  backgroundColor: "blue",
-                  color: "white",
-                  padding: 6,
-                  borderRadius: "5px",
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-              />
-            </Col>
-          </Row>
-        </>
-      ),
-    },
-  ];
+export const MaterialComponent = ({
+  orderPaymentDetail,
+  saveOrderId,
+  handleDataOrderDetail,
+}) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const [formMaterial] = Form.useForm();
+  const [materialLoading, setMaterialLoading] = useState(false);
+
+  const onConfirmMaterial = async () => {
+    const getFieldMaterial = formMaterial.getFieldsValue();
+    console.log("getFieldMaterial", getFieldMaterial);
+    if (saveOrderId) {
+      const dataBackEnd = getFieldMaterial?.itemsMaterial?.map((items) => {
+        const { materialConfirm, value, materialId } = items;
+        return {
+          materialId,
+          isCusMaterial: materialConfirm,
+          value,
+          orderId: saveOrderId,
+        };
+      });
+      setMaterialLoading(true);
+      const url = `https://e-tailorapi.azurewebsites.net/api/order-material/order/${saveOrderId}`;
+      try {
+        const response = await fetch(`${url}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${manager?.token}`,
+          },
+          body: JSON.stringify(dataBackEnd),
+        });
+        if (response.ok && response.status === 200) {
+          const responseData = await response.text();
+          toast.success(responseData, {
+            duration: 3000,
+          });
+          await handleDataOrderDetail();
+          return 1;
+        } else if (response.status === 400 || response.status === 500) {
+          const responseData = await response.text();
+          toast.error(responseData, {
+            duration: 3000,
+          });
+          return 0;
+        }
+      } catch (error) {
+        console.error("Error calling API:", error);
+      } finally {
+        setMaterialLoading(false);
+      }
+    }
+  };
+
+  // const columns = [
+  //   {
+  //     title: "STT",
+  //     dataIndex: "index",
+  //     key: "index",
+  //     width: 60,
+  //     render: (text) => <a>{text}</a>,
+  //   },
+  //   {
+  //     title: "Nguyên phụ liệu",
+  //     dataIndex: "name",
+  //     width: 150,
+  //     key: "name",
+  //     ellipsis: true,
+  //   },
+  //   {
+  //     title: "Hình ảnh",
+  //     dataIndex: "image",
+  //     key: "image",
+  //     width: 150,
+  //     ellipsis: true,
+  //     render: (_, record) => {
+  //       return <Image width={35} src={record.image} height={35} />;
+  //     },
+  //   },
+  //   {
+  //     title: "Xác nhận vải",
+  //     dataIndex: "materialConfirm",
+  //     key: "materialConfirm",
+  //     width: 150,
+  //     render: (_, record) => {
+  //       if (record.isCusMaterial) {
+  //         return <Text>Vải khách</Text>;
+  //       } else {
+  //         return <Text>Vải cửa hàng</Text>;
+  //       }
+  //     },
+  //   },
+  //   {
+  //     title: "Số mét vải",
+  //     dataIndex: "value",
+  //     key: "value",
+  //     width: 150,
+  //     fixed: "right",
+  //     render: (_, record) =>
+  //       productChangePrice[record.id] ? (
+  //         <InputNumber
+  //           style={{ width: "100%" }}
+  //           formatter={(value) =>
+  //             `${value}m`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+  //           }
+  //           parser={(value) => value.replace(/m\s?|(,*)/g, "")}
+  //           onChange={(value) => setInputValue(value)}
+  //           onBlur={() => handleToggleChangePrice(record.id)}
+  //         />
+  //       ) : (
+  //         <>
+  //           <Text onClick={() => handleToggleChangePrice(record.id)}>
+  //             {record.value} mét
+  //           </Text>
+  //         </>
+  //       ),
+  //   },
+  //   {
+  //     title: "Tùy chỉnh",
+  //     dataIndex: "Action",
+  //     key: "Action",
+  //     width: 100,
+  //     fixed: "right",
+  //     render: (_, record) => (
+  //       <>
+  //         <Row justify="start">
+  //           <Col span={4}>
+  //             <DeleteOutlined
+  //               style={{
+  //                 backgroundColor: "red",
+  //                 color: "white",
+  //                 padding: 6,
+  //                 borderRadius: "5px",
+  //                 fontSize: 15,
+  //                 cursor: "pointer",
+  //               }}
+  //             />
+  //           </Col>
+  //         </Row>
+  //       </>
+  //     ),
+  //   },
+  // ];
   const dataOrderMaterials = orderPaymentDetail?.orderMaterials?.map(
     (item, index) => ({
       id: item.materialId,
       index: index + 1,
       name: item.material.name,
       image: item.material.image,
+      isCusMaterial: item.isCusMaterial,
+      value: item.value,
     })
   );
   return (
-    <Table
-      columns={columns}
-      dataSource={dataOrderMaterials}
-      pagination={false}
-      scroll={{
-        y: 200,
-      }}
-    />
+    <Form
+      labelCol={{ span: 6 }}
+      wrapperCol={{ span: 18 }}
+      form={formMaterial}
+      name="dynamic_form_complex"
+      style={{ maxWidth: "100%" }}
+      autoComplete="off"
+      initialValues={{ items: [{}] }}
+    >
+      <Form.List name="itemsMaterial">
+        {(fields, { add, remove }) => (
+          <>
+            <Table
+              dataSource={dataOrderMaterials}
+              pagination={false}
+              scroll={{ y: 250 }}
+              rowKey={(record) => record.id}
+              columns={[
+                {
+                  title: "STT",
+                  dataIndex: "index",
+                  key: "index",
+                  width: 60,
+                  render: (text) => <a>{text}</a>,
+                },
+                {
+                  title: "Nguyên phụ liệu",
+                  dataIndex: "name",
+                  key: "name",
+                },
+                {
+                  title: "Hình ảnh",
+                  dataIndex: "image",
+                  key: "image",
+                  render: (text) => (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Image width={40} src={text} height={40} />
+                    </div>
+                  ),
+                },
+                {
+                  title: "Xác nhận vải",
+                  dataIndex: "materialConfirm",
+                  key: "materialConfirm",
+                  render: (_, record, index) => {
+                    if (record.isCusMaterial) {
+                      return (
+                        <Form.Item
+                          name={[index, "materialConfirm"]}
+                          noStyle
+                          initialValue={record.isCusMaterial}
+                        >
+                          <Text>Vải khách</Text>
+                        </Form.Item>
+                      );
+                    } else {
+                      return (
+                        <Form.Item
+                          name={[index, "materialConfirm"]}
+                          noStyle
+                          initialValue={record.isCusMaterial}
+                        >
+                          <Text>Vải cửa hàng</Text>
+                        </Form.Item>
+                      );
+                    }
+                  },
+                },
+                {
+                  title: "Số met vải cần thiết",
+                  dataIndex: "value",
+                  key: "value",
+                  render: (_, record, index) => (
+                    <>
+                      <Form.Item
+                        name={[index, "value"]}
+                        key={`${record.id}-value`}
+                        noStyle
+                        initialValue={record?.value}
+                      >
+                        <InputNumber
+                          disabled={!record?.isCusMaterial}
+                          formatter={(value) =>
+                            `${value}m`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                          }
+                          parser={(value) => value.replace(/m\s?|(,*)/g, "")}
+                          style={{ width: "100%" }}
+                          step={0.01}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        name={[index, "materialId"]}
+                        initialValue={record.id}
+                        noStyle
+                      >
+                        <Input type="hidden" />
+                      </Form.Item>
+                    </>
+                  ),
+                },
+              ]}
+            />
+            <Form.Item
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <Button
+                disabled={orderPaymentDetail?.paidMoney > 0}
+                type="dashed"
+                onClick={() => onConfirmMaterial()}
+                block
+                style={{ width: 200, marginTop: 10 }}
+                loading={materialLoading}
+              >
+                Cập nhật
+              </Button>
+            </Form.Item>
+          </>
+        )}
+      </Form.List>
+    </Form>
   );
 };
 
-export const ConfirmMaterial = ({ open, onCancel }) => {
+export const ConfirmMaterial = ({
+  open,
+  onCancel,
+  handleDataOrderDetail,
+  saveOrderId,
+}) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [selectedOption, setSelectedOption] = useState("Vải có trong cửa hàng");
   const [form] = Form.useForm();
@@ -216,15 +413,32 @@ export const ConfirmMaterial = ({ open, onCancel }) => {
       </div>
     </button>
   );
-  console.log("form", form.getFieldsValue());
-  const onCreateMaterial = async (values) => {
-    console.log("values trong onCreateMaterial", values);
-    return 1;
+
+  const onDefinedMaterial = async (values) => {
+    const url = `https://e-tailorapi.azurewebsites.net/api/order-material/order/${saveOrderId}/customer-material`;
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: values,
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        message.success(responseData);
+        handleDataOrderDetail();
+        return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        message.error(responseData);
+        return 0;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
   };
-  const onDefindMaterial = async (values) => {
-    console.log("values trong onDefindMaterial", values);
-    return 1;
-  };
+
   const filterOptionForMaterial = (input, option) =>
     (option?.title ?? "")
       .toString()
@@ -239,6 +453,7 @@ export const ConfirmMaterial = ({ open, onCancel }) => {
       cancelText="Hủy bỏ"
       okButtonProps={{
         autoFocus: true,
+        loading: confirmLoading,
       }}
       onCancel={() => {
         form.resetFields();
@@ -253,11 +468,13 @@ export const ConfirmMaterial = ({ open, onCancel }) => {
         try {
           if (selectedOption === "Vải có trong cửa hàng") {
             const values = await form.validateFields();
-            const dataBackEnd = {
-              name: values.name,
-              quantity: values.quantity,
-            };
-            const check = await onDefindMaterial(dataBackEnd);
+            const formData = new FormData();
+
+            formData.append("Id", values.name);
+            formData.append("Quantity", values.quantity);
+            console.log("FormData :", values);
+
+            const check = await onDefinedMaterial(formData);
             if (check === 1) {
               form.resetFields();
               setMaterialCategory(null);
@@ -265,13 +482,13 @@ export const ConfirmMaterial = ({ open, onCancel }) => {
             }
           } else {
             const values = await form.validateFields();
-            const dataBackEnd = {
-              image: values.image,
-              nameCreate: values.nameCreate,
-              quantityCreate: values.quantityCreate,
-              materialCategoryId: values.materialCategoryId,
-            };
-            const check = await onCreateMaterial(dataBackEnd);
+            const formData = new FormData();
+
+            formData.append("Name", values.nameCreate);
+            formData.append("Quantity", values.quantityCreate);
+            formData.append("MaterialCategoryId", values.materialCategoryId);
+            formData.append("ImageFile", postImage);
+            const check = await onDefinedMaterial(formData);
             if (check === 1) {
               form.resetFields();
               setImageUrl(null);
