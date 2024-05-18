@@ -44,10 +44,12 @@ export const OrderMaterial = ({
   stageId,
   taskId,
   handleViewProductDetail,
+  saveIdOrder,
+  handleDataOrder,
   materialId,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
-  const getMaterialUrl = "https://e-tailorapi.azurewebsites.net/api/material";
+  const getMaterialUrl = `https://e-tailorapi.azurewebsites.net/api/material/order/${saveIdOrder}/fabric`;
   const [loadingMaterial, setLoadingMaterial] = useState(false);
   const [formReset, setFormReset] = useState(0);
   const [loadingCreateOrderMaterial, setLoadingCreateOrderMaterial] =
@@ -79,6 +81,7 @@ export const OrderMaterial = ({
       console.error("Error calling API:", error);
     }
   };
+  console.log("material", material);
   const handleDataMaterial = async () => {
     setLoadingMaterial(true);
     try {
@@ -98,7 +101,7 @@ export const OrderMaterial = ({
       console.error("Error calling API:", error);
     }
   };
-  console.log("formReset", formReset);
+
   const filterOptionForMaterial = (input, option) =>
     (option?.title ?? "")
       .toString()
@@ -110,11 +113,14 @@ export const OrderMaterial = ({
     handleDataMaterial();
   }, []);
   useEffect(() => {
-    if (material) {
-      const defaultMaterial = material.find((item) => item.id === materialId);
+    if (material.orderMaterials && material.orderMaterials.length > 0) {
+      const defaultMaterial = material.orderMaterials.find(
+        (item) => item.id === materialId
+      );
       console.log("defaultMaterial", defaultMaterial);
       console.log("material", defaultMaterial);
       if (defaultMaterial) {
+        console.log("form", form.getFieldsValue());
         form.setFieldsValue({
           materialStages: [
             {
@@ -150,6 +156,7 @@ export const OrderMaterial = ({
               const check = await onCreate(values);
               if (check === 1) {
                 handleViewProductDetail(taskId);
+                handleDataOrder();
                 onCancel();
                 form.resetFields();
               }
@@ -199,7 +206,6 @@ export const OrderMaterial = ({
                             validator(_, value) {
                               const selectedMaterials =
                                 getFieldValue("materialStages") || [];
-
                               const duplicateValues = selectedMaterials
                                 .map((field) => field && field.materialId)
                                 .filter((m) => m === value);
@@ -220,37 +226,72 @@ export const OrderMaterial = ({
                         ]}
                       >
                         <Select
-                          style={{ width: "300px", height: 45 }}
+                          style={{ height: 45, width: 290 }}
                           showSearch
                           placeholder="Chọn loại vải"
                           optionFilterProp="children"
                           filterOption={filterOptionForMaterial}
-                        >
-                          {material?.map((material) => (
-                            <Select.Option
-                              key={material.id}
-                              value={material.id}
-                              title={material.name}
-                            >
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <Image
-                                  width={35}
-                                  src={material.image}
-                                  height={35}
-                                />
-                                &nbsp; &nbsp;
-                                <Title level={5} style={{ marginTop: 6 }}>
-                                  {material.name}
-                                </Title>
-                              </div>
-                            </Select.Option>
-                          ))}
-                        </Select>
+                          options={[
+                            {
+                              label: (
+                                <Title level={5}>Vải trong đơn hàng</Title>
+                              ),
+                              title: "Vải trong đơn hàng",
+                              options: material?.orderMaterials?.map(
+                                (material) => ({
+                                  label: (
+                                    <div
+                                      key={material.id}
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <Image
+                                        width={35}
+                                        src={material.image}
+                                        height={35}
+                                      />
+                                      &nbsp; &nbsp;
+                                      <Title level={5} style={{ marginTop: 6 }}>
+                                        {material.name}
+                                      </Title>
+                                    </div>
+                                  ),
+                                  value: material.id,
+                                })
+                              ),
+                            },
+                            {
+                              label: (
+                                <Title level={5}>Vải trong cửa hàng</Title>
+                              ),
+                              title: "Vải trong cửa hàng",
+                              options: material?.materials?.map((material) => ({
+                                label: (
+                                  <div
+                                    key={material.id}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <Image
+                                      width={35}
+                                      src={material.image}
+                                      height={35}
+                                    />
+                                    &nbsp; &nbsp;
+                                    <Title level={5} style={{ marginTop: 6 }}>
+                                      {material.name}
+                                    </Title>
+                                  </div>
+                                ),
+                                value: material.id,
+                              })),
+                            },
+                          ]}
+                        ></Select>
                       </Form.Item>
                       <Form.Item
                         {...restField}
