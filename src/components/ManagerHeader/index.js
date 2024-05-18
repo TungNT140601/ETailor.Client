@@ -155,7 +155,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
           >
             <div>
               <Title level={5}>
-                Tổng cộng:{" "}
+                Tất cả:{" "}
                 <span style={{ color: "#9F78FF" }}>
                   {allNotification && allNotification?.data?.length}
                 </span>
@@ -163,7 +163,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
             </div>
             <div>
               <Title level={5}>
-                Chưa xem:{" "}
+                Chưa đọc:{" "}
                 <span style={{ color: "#9F78FF" }}>
                   {allNotification && allNotification?.unread}
                 </span>
@@ -193,22 +193,17 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
                 key={notification.id}
               >
                 <>
-                  <Title level={5} style={{ marginBottom: 4 }}>
-                    {!notification.isRead && <Badge status="processing" />}{" "}
-                    &nbsp;
+                  <Title style={{ marginBottom: 4, fontSize: 15 }}>
+                    {!notification.isRead && (
+                      <Badge
+                        status="processing"
+                        style={{ marginRight: 5, fontSize: 18 }}
+                      />
+                    )}
+
                     {notification.title}
                   </Title>
-                  <Text>
-                    Ngày gửi:{" "}
-                    {new Date(notification.sendTime).toLocaleDateString(
-                      "vn-VI",
-                      {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      }
-                    )}
-                  </Text>
+                  <Text>Nội dung: {notification.content}</Text>
                   <br />
                   <Text>
                     Thời gian: {calculateDifferenceDays(notification.sendTime)}

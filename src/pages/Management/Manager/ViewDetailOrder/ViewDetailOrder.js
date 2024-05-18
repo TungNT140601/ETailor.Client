@@ -21,9 +21,8 @@ import {
   Card,
   Popover,
   Collapse,
-  Space,
-  ConfigProvider,
   message,
+  Segmented,
 } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ChatRealTimeManager } from "../ChatRealTimeManager.js";
@@ -77,6 +76,7 @@ export const ViewDetailOrder = ({
   const [badgeChatCount, setBadgeChatCount] = useState(0);
   const [loadingDetailProduct, setLoadingDetailProduct] = useState(false);
   const [loadingDefect, setLoadingDefect] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("Sản phẩm");
   const vnpayNotification = VnPay();
   const { resetMessage, message: messageNotification } = vnpayNotification;
 
@@ -273,6 +273,52 @@ export const ViewDetailOrder = ({
     },
   ];
 
+  const columns2 = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+      width: 60,
+      render: (_, record, index) => <span>{index + 1}</span>,
+    },
+    {
+      title: "Tên vải",
+      dataIndex: "name",
+      key: "name",
+      render: (_, record) => <Text>{record?.material?.name}</Text>,
+    },
+    {
+      title: "Hình ảnh",
+      dataIndex: "image",
+      key: "image",
+      render: (_, record) => (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Image width={35} src={record?.material?.image} height={35} />
+        </div>
+      ),
+    },
+    {
+      title: "Số mét vải nhận",
+      dataIndex: "value",
+      key: "value",
+      render: (_, record) => <Text>{record.value} mét</Text>,
+    },
+    {
+      title: "Vải đã sử dụng",
+      dataIndex: "valueUsed",
+      key: "valueUsed",
+      render: (_, record) => <Text>{record.valueUsed} mét</Text>,
+    },
+    {
+      title: "Xác nhận vải",
+      dataIndex: "isCusMaterial",
+      key: "isCusMaterial",
+      render: (_, record) => (
+        <Text>{record.isCusMaterial ? "Vải khách hàng" : "Vải cửa hàng"}</Text>
+      ),
+    },
+  ];
+
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   const handleCreatePayCash = async (amount, payType, platform) => {
@@ -432,10 +478,12 @@ export const ViewDetailOrder = ({
                       {modalOpenStage === productStage.stageNum && (
                         <OrderMaterial
                           open={openOrderMaterial}
+                          saveIdOrder={saveIdOrder}
                           onCancel={() => setOpenOrderMaterial(false)}
                           stageId={productStage.id}
                           taskId={productStage.productId}
                           handleViewProductDetail={handleViewProductDetail}
+                          handleDataOrder={handleDataOrder}
                           materialId={
                             detailProductData &&
                             detailProductData.fabricMaterialId
@@ -1268,15 +1316,52 @@ export const ViewDetailOrder = ({
                       <Divider style={{ marginTop: 12 }}>
                         Thông tin sản phẩm
                       </Divider>
-                      <Table
-                        columns={columns1}
-                        dataSource={dataOrderDetail && dataOrderDetail.products}
-                        pagination={false}
-                        scroll={{
-                          y: 450,
-                          x: 1000,
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          marginBottom: 10,
                         }}
-                      />
+                      >
+                        <Segmented
+                          options={["Sản phẩm", "Vải trong đơn hàng"]}
+                          defaultValue="Sản phẩm"
+                          onChange={(value) => {
+                            setSelectedOption(value);
+                          }}
+                        />
+                      </div>
+
+                      {selectedOption === "Sản phẩm" ? (
+                        <Table
+                          columns={columns1}
+                          dataSource={
+                            dataOrderDetail && dataOrderDetail.products
+                          }
+                          pagination={false}
+                          scroll={{
+                            y: 450,
+                            x: 1000,
+                          }}
+                        />
+                      ) : (
+                        <Table
+                          key={
+                            dataOrderDetail &&
+                            dataOrderDetail?.orderMaterials?.map(
+                              (item) => item.id
+                            )
+                          }
+                          columns={columns2}
+                          dataSource={
+                            dataOrderDetail && dataOrderDetail.orderMaterials
+                          }
+                          pagination={false}
+                          scroll={{
+                            y: 450,
+                          }}
+                        />
+                      )}
                     </>
                   )}
                 </div>
