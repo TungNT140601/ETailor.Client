@@ -47,6 +47,7 @@ export const OrderMaterial = ({
   saveIdOrder,
   handleDataOrder,
   materialId,
+  detailProductData,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const getMaterialUrl = `https://e-tailorapi.azurewebsites.net/api/material/order/${saveIdOrder}/fabric`;
@@ -56,6 +57,7 @@ export const OrderMaterial = ({
     useState(false);
   const [material, setMaterial] = useState([]);
   const [form] = Form.useForm();
+  console.log("stageId", stageId);
   const onCreate = async () => {
     const values = form.getFieldsValue();
     console.log("values", values);
@@ -114,21 +116,45 @@ export const OrderMaterial = ({
   }, []);
   useEffect(() => {
     if (material.orderMaterials && material.orderMaterials.length > 0) {
-      const defaultMaterial = material.orderMaterials.find(
-        (item) => item.id === materialId
-      );
-      console.log("defaultMaterial", defaultMaterial);
-      console.log("material", defaultMaterial);
-      if (defaultMaterial) {
-        console.log("form", form.getFieldsValue());
-        form.setFieldsValue({
-          materialStages: [
-            {
-              materialId: defaultMaterial.id,
-              quantity: 0,
-            },
-          ],
-        });
+      if (
+        detailProductData.productStages &&
+        detailProductData.productStages.length > 0 &&
+        detailProductData.productStages.find((item) => item.id === stageId)
+          .productStageMaterials.length > 0
+      ) {
+        const dataUpdateMaterial = detailProductData.productStages.find(
+          (item) => item.id === stageId
+        );
+        if (dataUpdateMaterial) {
+          const materialsData = dataUpdateMaterial.productStageMaterials.map(
+            (item) => ({
+              materialId: item.materialId,
+              quantity: item.quantity,
+            })
+          );
+
+          console.log("dataUpdateMaterial", materialsData);
+          form.setFieldsValue({
+            materialStages: materialsData,
+          });
+        }
+      } else {
+        const defaultMaterial = material.orderMaterials.find(
+          (item) => item.id === materialId
+        );
+        console.log("defaultMaterial", defaultMaterial);
+        console.log("material", defaultMaterial);
+        if (defaultMaterial) {
+          console.log("form", form.getFieldsValue());
+          form.setFieldsValue({
+            materialStages: [
+              {
+                materialId: defaultMaterial.id,
+                quantity: 0,
+              },
+            ],
+          });
+        }
       }
     }
   }, [material]);
@@ -150,6 +176,7 @@ export const OrderMaterial = ({
         }}
         onOk={async () => {
           try {
+            console.log("alo");
             setLoadingCreateOrderMaterial(true);
             const values = await form?.validateFields();
             if (values) {

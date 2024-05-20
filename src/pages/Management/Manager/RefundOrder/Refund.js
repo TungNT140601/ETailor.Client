@@ -40,7 +40,6 @@ function Refund({
   open,
   onCancel,
   saveIdOrder,
-
   dataOrderDetail,
   formatCurrency,
 }) {
@@ -66,13 +65,11 @@ function Refund({
   const [refresh, setRefresh] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const onSelectChange = (newSelectedRowKeys) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
   const hasSelected = selectedRowKeys.length > 0;
   const start = () => {
     setRefresh(true);
-    // ajax request after empty completing
     setTimeout(() => {
       setSelectedRowKeys([]);
       setRefresh(false);
@@ -180,7 +177,7 @@ function Refund({
         const checkSum = dataOrderDetail.products
           .filter((item) => selectedRowKeys.includes(item.id))
           .reduce((total, item) => total + item.price, 0);
-        console.log("checkSum", checkSum);
+
         return checkSum;
       }
       return undefined;
