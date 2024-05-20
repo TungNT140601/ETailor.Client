@@ -27,6 +27,7 @@ export const ConfirmCancelOrder = ({
   dataOrderDetail,
   formatCurrency,
   saveIdOrder,
+  handleDataOrder,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [loading, setLoading] = useState(false);
@@ -47,6 +48,7 @@ export const ConfirmCancelOrder = ({
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
         message.success(responseData);
+        await handleDataOrder();
         onCancel();
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
@@ -275,7 +277,9 @@ export const ConfirmCancelOrder = ({
                 if (dataOrderDetail?.paidMoney) {
                   const check = await handleRefund(
                     saveIdOrder,
-                    dataOrderDetail?.paidMoney
+                    caculatePaidMoney
+                      ? caculatePaidMoney
+                      : dataOrderDetail?.paidMoney
                   );
                   if (check === 1) {
                     onCancel();
@@ -301,16 +305,6 @@ export const ConfirmCancelOrder = ({
           </div>
         ) : (
           <>
-            {/* <Divider>Thông tin đơn hàng</Divider>
-            <Descriptions items={items} style={{ marginTop: 10 }} bordered />
-            <br />
-            <Divider>Thông tin hoàn trả</Divider>
-            <Descriptions
-              items={itemsRefund}
-              style={{ marginTop: 10 }}
-              bordered
-            /> */}
-
             <Row gutter={[24, 16]} style={{ marginTop: 15 }}>
               <Col span={13} style={{}}>
                 <div

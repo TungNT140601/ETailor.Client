@@ -49,6 +49,7 @@ import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import ManagerHeader from "../../../components/ManagerHeader";
 
 const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
@@ -1935,7 +1936,12 @@ function ManagementUpdateProductTemplate() {
         }}
         className="manager-header"
       >
-        <ManagementUpdateProductTemplateHeader />
+        <ManagerHeader
+          name={"Bản mẫu"}
+          link={"/manager/product-template"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<CheckroomIcon fontSize="small" />}
+        />
       </div>
       <div
         className="manager-content"

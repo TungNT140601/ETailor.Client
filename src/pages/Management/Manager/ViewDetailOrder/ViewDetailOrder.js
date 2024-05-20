@@ -82,7 +82,7 @@ export const ViewDetailOrder = ({
 
   const chatNotification = ChatRealTimeManager();
   const { messageReturn, resetMessageReturn } = chatNotification;
-  console.log("detailProductData", dataOrderDetail);
+  console.log("detailProductData", detailProductData);
   useEffect(() => {
     if (messageReturn) {
       fetchChat();
@@ -451,11 +451,21 @@ export const ViewDetailOrder = ({
             </div>
           </div>
           <div style={{ marginTop: 15 }}>
-            <Title level={4}>
-              Vải được xử lý trong quy trình {`${productStage.stageNum}`}:
-            </Title>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Title level={4}>
+                Vải được xử lý trong quy trình {`${productStage.stageNum}`}:
+              </Title>
+              {productStage.productStageMaterials.length > 0 && (
+                <Button
+                  onClick={() => handleOpenOrderMaterial(productStage.stageNum)}
+                >
+                  Cập nhật
+                </Button>
+              )}
+            </div>
+
             {!productStage.productStageMaterials ? (
-              "Quy trình này không yêu cầu sử dụng vải."
+              <Text>Quy trình này không yêu cầu sử dụng vải.</Text>
             ) : (
               <div>
                 {productStage.productStageMaterials.length === 0 ? (
@@ -475,21 +485,6 @@ export const ViewDetailOrder = ({
                       >
                         Hãy thêm vào!
                       </Text>
-                      {modalOpenStage === productStage.stageNum && (
-                        <OrderMaterial
-                          open={openOrderMaterial}
-                          saveIdOrder={saveIdOrder}
-                          onCancel={() => setOpenOrderMaterial(false)}
-                          stageId={productStage.id}
-                          taskId={productStage.productId}
-                          handleViewProductDetail={handleViewProductDetail}
-                          handleDataOrder={handleDataOrder}
-                          materialId={
-                            detailProductData &&
-                            detailProductData.fabricMaterialId
-                          }
-                        />
-                      )}
                     </Text>
                   </div>
                 ) : (
@@ -565,6 +560,21 @@ export const ViewDetailOrder = ({
                   </div>
                 )}
               </div>
+            )}
+            {modalOpenStage === productStage.stageNum && (
+              <OrderMaterial
+                open={openOrderMaterial}
+                saveIdOrder={saveIdOrder}
+                onCancel={() => setOpenOrderMaterial(false)}
+                stageId={productStage.id}
+                taskId={productStage.productId}
+                handleViewProductDetail={handleViewProductDetail}
+                handleDataOrder={handleDataOrder}
+                materialId={
+                  detailProductData && detailProductData.fabricMaterialId
+                }
+                detailProductData={detailProductData}
+              />
             )}
           </div>
           <br />
@@ -772,6 +782,7 @@ export const ViewDetailOrder = ({
             formatCurrency={formatCurrency}
             handleCancelOrder={handleCancelOrder}
             saveIdOrder={saveIdOrder}
+            handleDataOrder={handleDataOrder}
           />
         )}
         {openRefund && saveIdOrder && dataOrderDetail && (
