@@ -441,22 +441,24 @@ const ManagementOrderContent = () => {
       fixed: "right",
       render: (_, record) => (
         <>
-          <Row justify="start">
-            <Col span={4}>
-              <EyeOutlined
-                title="Xem chi tiết"
-                style={{
-                  backgroundColor: "rgb(140, 173, 245)",
-                  color: "white",
-                  padding: 6,
-                  borderRadius: "5px",
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-                onClick={() => showModal(record.id, record.status)}
-              />
-            </Col>
-          </Row>
+          {record.status !== 0 && (
+            <Row justify="start">
+              <Col span={4}>
+                <EyeOutlined
+                  title="Xem chi tiết"
+                  style={{
+                    backgroundColor: "rgb(140, 173, 245)",
+                    color: "white",
+                    padding: 6,
+                    borderRadius: "5px",
+                    fontSize: 15,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => showModal(record.id, record.status)}
+                />
+              </Col>
+            </Row>
+          )}
         </>
       ),
     },

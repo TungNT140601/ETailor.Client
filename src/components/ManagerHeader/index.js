@@ -245,15 +245,15 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
       >
         <Badge
           dot={messageReturn ? true : false}
-          style={{ marginRight: 110 }}
-          size="small"
+          size="default"
+          style={{ marginRight: 15 }}
         >
           <Popover content={content} title="Thông báo" trigger="click">
             <div
               style={{ cursor: "pointer" }}
               onClick={() => resetMessageReturn()}
             >
-              <BellOutlined style={{ fontSize: 22 }} />{" "}
+              <BellOutlined style={{ fontSize: 24, marginRight: 15 }} />{" "}
             </div>
           </Popover>
         </Badge>
