@@ -170,11 +170,7 @@ const ManagementOrderContent = () => {
       case 8:
         return <Tag color="green">Đã giao</Tag>;
       default:
-        return (
-          <Tag color="red" style={{ display: "none" }}>
-            Hủy đơn
-          </Tag>
-        );
+        return <Tag color="red">Hủy đơn</Tag>;
     }
   };
 
@@ -375,7 +371,10 @@ const ManagementOrderContent = () => {
       key: "plannedTime",
       fixed: "left",
       render: (_, record) =>
-        record.plannedTime < new Date().toISOString() ? (
+        record.status !== 0 &&
+        (record.plannedTime < new Date().toISOString() &&
+        record.status !== 8 &&
+        record.status !== 5 ? (
           <Text
             style={{ fontSize: 15, fontWeight: "bold" }}
             type="danger"
@@ -395,7 +394,7 @@ const ManagementOrderContent = () => {
               year: "numeric",
             })}
           </Text>
-        ),
+        )),
       sorter: (a, b) => new Date(a.plannedTime) - new Date(b.plannedTime),
     },
     {

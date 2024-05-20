@@ -250,7 +250,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
         >
           <Popover content={content} title="Thông báo" trigger="click">
             <div
-              style={{ cursor: "pointer", marginRight: 18 }}
+              style={{ cursor: "pointer" }}
               onClick={() => resetMessageReturn()}
             >
               <BellOutlined style={{ fontSize: 22 }} />{" "}
