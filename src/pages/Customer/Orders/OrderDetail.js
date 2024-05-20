@@ -220,7 +220,7 @@ export default function OrderDetail() {
                             style={{ margin: 0, backgroundColor: "#f2f2f2" }}
                         >
                             <p style={{ fontWeight: 'bold', margin: "5px 0 10px 5px" }}>
-                                E-tailor
+                              Chat với  E-tailor
 
                             </p>
                         </AccordionSummary>

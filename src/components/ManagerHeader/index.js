@@ -1,15 +1,52 @@
-import React from "react";
-import { Breadcrumb } from "antd";
-
-import { Typography } from "antd";
+import React, { useEffect, useState } from "react";
+import { Breadcrumb, notification } from "antd";
+import { BellOutlined } from "@ant-design/icons";
+import { Typography, Badge, Popover, message } from "antd";
 
 import { Avatar } from "antd";
 import { Link } from "react-router-dom";
+import { NotificationRealTime } from "../NotificationManager/NotificationRealTime";
 
 const { Title, Text } = Typography;
 
 const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
+  const chatNotification = NotificationRealTime();
+  const { messageReturn, resetMessageReturn } = chatNotification;
+  const [allNotification, setAllNotification] = useState(null);
+  useEffect(() => {
+    if (messageReturn) {
+      fetchNotification();
+    }
+  }, [messageReturn, resetMessageReturn]);
+
+  const fetchNotification = async () => {
+    const GET_NOTIFICATIONS = `https://e-tailorapi.azurewebsites.net/api/notification/get-notification`;
+    try {
+      const response = await fetch(GET_NOTIFICATIONS, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const data = await response.json();
+        setAllNotification(data);
+      } else if (response.status === 400 || response.status === 500) {
+        const data = await response.text();
+        message.error(data);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+  useEffect(() => {
+    const handleGetNotification = async () => {
+      await fetchNotification();
+    };
+    handleGetNotification();
+  }, []);
   const handleCheckRoute = (name, link, iconHome, iconRoute) => {
     return (
       <div>
@@ -46,6 +83,88 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
       </div>
     );
   };
+  console.log("messageReturn", messageReturn);
+
+  useEffect(() => {
+    fetchNotification();
+    const interval = setInterval(fetchNotification, 60000);
+    return () => clearInterval(interval);
+  }, []);
+  const calculateDifferenceDays = (sendTime) => {
+    const firstDate = new Date(sendTime);
+    const secondDate = new Date();
+
+    const differenceBtwDates = secondDate.getTime() - firstDate.getTime();
+    const minutesDiff = Math.floor(differenceBtwDates / (1000 * 60));
+
+    if (minutesDiff <= 0) {
+      return `0 phút trước`;
+    } else if (minutesDiff < 60) {
+      return `${minutesDiff} phút trước`;
+    } else if (minutesDiff < 1440) {
+      const hoursDiff = Math.floor(minutesDiff / 60);
+      return `${hoursDiff} giờ trước`;
+    } else {
+      const daysDiff = Math.floor(minutesDiff / (24 * 60));
+      return `${daysDiff} ngày trước`;
+    }
+  };
+  const content = (
+    <div style={{ width: 350, height: 350 }}>
+      <div
+        style={{
+          height: "100%",
+          overflowY: "scroll",
+          scrollbarWidth: "none",
+          WebkitScrollbar: "none",
+        }}
+      >
+        {allNotification ? (
+          allNotification.data.map((notification) => (
+            <div
+              key={notification.id}
+              style={{
+                width: "100%",
+                height: "auto",
+                border: "1px solid #9F78FF",
+                borderRadius: 10,
+                padding: 10,
+                marginBottom: 10,
+              }}
+            >
+              <Title level={5} style={{ marginBottom: 4 }}>
+                {notification.title}
+              </Title>
+              <Text>
+                Ngày gửi:{" "}
+                {new Date(notification.sendTime).toLocaleDateString("vn-VI", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })}
+              </Text>
+              <br />
+              <Text>
+                Thời gian: {calculateDifferenceDays(notification.sendTime)}
+              </Text>
+            </div>
+          ))
+        ) : (
+          <div
+            style={{
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Title level={5}>Bạn chưa có thông báo nào!</Title>
+          </div>
+        )}
+      </div>
+    </div>
+  );
   return (
     <div
       style={{
@@ -61,14 +180,29 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
           alignItems: "center",
         }}
       >
-        <div>
+        <Badge
+          dot={messageReturn ? true : false}
+          style={{ marginRight: 110 }}
+          size="small"
+        >
+          <Popover content={content} title="Thông báo" trigger="click">
+            <div
+              style={{ cursor: "pointer", marginRight: 18 }}
+              onClick={() => resetMessageReturn()}
+            >
+              <BellOutlined style={{ fontSize: 22 }} />{" "}
+              <span style={{ fontSize: 18 }}> Thông báo</span>
+            </div>
+          </Popover>
+        </Badge>
+        <div style={{ display: "flex", alignItems: "center" }}>
           {manager?.avatar ? (
             <Avatar src={manager?.avatar} />
           ) : (
             <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
           )}
           &nbsp; &nbsp;
-          <Text>{manager?.name}</Text>
+          <Text style={{ fontSize: 18 }}>{manager?.name}</Text>
         </div>
       </div>
     </div>

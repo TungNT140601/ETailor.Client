@@ -10,14 +10,16 @@ import "./index.css";
 import {
     Input,
     Select,
-    Popover
+    Popover,
+    Button,
 } from "antd";
 import Notask from "../../../assets/images/nodata.jpg";
 import toast, { Toaster } from 'react-hot-toast';
 import CircularProgress from "@mui/material/CircularProgress";
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import ManagerHeader from "../../../components/ManagerHeader/index.js";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRotate } from '@fortawesome/free-solid-svg-icons';
 const { Search } = Input;
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -169,7 +171,6 @@ export default function ManagementTask() {
         const notify = (msg) => toast.success(msg, {
             duration: 4000,
             position: 'top-center',
-
             ariaProps: {
                 role: 'status',
                 'aria-live': 'polite',
@@ -203,6 +204,46 @@ export default function ManagementTask() {
 
             }
             handleDndTask()
+        }
+
+        const handleAutoAssign = async () => {
+            const autoAssignURL = `https://e-tailorapi.azurewebsites.net/api/test/RunAutoAssignTask`;
+            const handleAutoAssignTaskForStaffs = async () => {
+                const URL = `https://e-tailorapi.azurewebsites.net/api/test/AutoAssignTaskForStaff`;
+                const response = await fetch(URL, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${manager?.token}`,
+                    },
+
+                })
+                if (response.ok && response.status === 200) {
+                    handleGetAllTasks();
+                }
+            }
+            const handleAutoAssign = async () => {
+                setLoading(true);
+                try {
+                    const response = await fetch(autoAssignURL, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${manager?.token}`,
+                        },
+                    });
+                    if (response.ok && response.status === 200) {
+                        const msg = await response.text();
+                        notify("Tự động phân thành công!");
+                        handleAutoAssignTaskForStaffs()
+
+                    }
+                } catch (error) {
+                    console.error("Error calling API:", error);
+                }
+
+            }
+            handleAutoAssign()
         }
         const content = (
             <div>
@@ -318,7 +359,7 @@ export default function ManagementTask() {
                                         <div>
                                             <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#9F78FF", paddingLeft: 20 }}>Tất cả nhân viên</h2>
                                         </div>
-                                        <div style={{ display: "flex", paddingLeft: "10vw" }}>
+                                        <div style={{ display: "flex", paddingLeft: "5vw" }}>
                                             {[0, 1, 2, 3, 4].map(index => (
                                                 <div key={index} style={{ display: "flex", alignItems: "center", marginRight: "10px" }}>
                                                     <button style={{ width: "2rem", height: "1rem", backgroundColor: getStatusTextAndColor(index).backgroundColor, borderRadius: 5, border: `1px solid ${getStatusTextAndColor(index).borderColor}` }}></button>
@@ -326,6 +367,10 @@ export default function ManagementTask() {
                                                 </div>
                                             ))}
                                         </div>
+                                        <div style={{ paddingLeft: 16 }}>
+                                            <Button onClick={() => handleAutoAssign()}><FontAwesomeIcon icon={faRotate} /></Button>
+                                        </div>
+
 
                                     </div>
 

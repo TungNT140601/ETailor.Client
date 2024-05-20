@@ -1,0 +1,297 @@
+import React, { useEffect, useState } from "react";
+
+import {
+  EyeOutlined,
+  ArrowLeftOutlined,
+  LoadingOutlined,
+  MinusCircleOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import { Typography, Table, Form } from "antd";
+
+import {
+  Avatar,
+  Col,
+  Row,
+  Modal,
+  Divider,
+  Tag,
+  Image,
+  Button,
+  Badge,
+  Flex,
+  Card,
+  Popover,
+  Collapse,
+  Space,
+  ConfigProvider,
+  message,
+  Input,
+  Radio,
+  Select,
+  InputNumber,
+} from "antd";
+import CircularProgress from "@mui/material/CircularProgress";
+import toast from "react-hot-toast";
+
+import Swal from "sweetalert2";
+
+const { Title, Paragraph } = Typography;
+
+export const OrderMaterial = ({
+  open,
+  onCancel,
+  stageId,
+  taskId,
+  handleViewProductDetail,
+  materialId,
+}) => {
+  const manager = JSON.parse(localStorage.getItem("manager"));
+  const getMaterialUrl = "https://e-tailorapi.azurewebsites.net/api/material";
+  const [loadingMaterial, setLoadingMaterial] = useState(false);
+  const [formReset, setFormReset] = useState(0);
+  const [loadingCreateOrderMaterial, setLoadingCreateOrderMaterial] =
+    useState(false);
+  const [material, setMaterial] = useState([]);
+  const [form] = Form.useForm();
+  const onCreate = async () => {
+    const values = form.getFieldsValue();
+    console.log("values", values);
+    const url = `https://e-tailorapi.azurewebsites.net/api/task/${taskId}/stage/${stageId}/material`;
+    try {
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+        body: JSON.stringify(values?.materialStages),
+      });
+      const responseData = await response.text();
+      if (response.ok && response.status === 200) {
+        message.success(responseData);
+        return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+        return 0;
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  const handleDataMaterial = async () => {
+    setLoadingMaterial(true);
+    try {
+      const response = await fetch(getMaterialUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        const responseData = await response.json();
+        setLoadingMaterial(false);
+        setMaterial(responseData);
+      }
+    } catch (error) {
+      console.error("Error calling API:", error);
+    }
+  };
+  console.log("formReset", formReset);
+  const filterOptionForMaterial = (input, option) =>
+    (option?.title ?? "")
+      .toString()
+      .trim()
+      .toLowerCase()
+      .includes(input.toLowerCase());
+
+  useEffect(() => {
+    handleDataMaterial();
+  }, []);
+  useEffect(() => {
+    if (material) {
+      const defaultMaterial = material.find((item) => item.id === materialId);
+      console.log("defaultMaterial", defaultMaterial);
+      console.log("material", defaultMaterial);
+      if (defaultMaterial) {
+        form.setFieldsValue({
+          materialStages: [
+            {
+              materialId: defaultMaterial.id,
+              quantity: 0,
+            },
+          ],
+        });
+      }
+    }
+  }, [material]);
+  return (
+    <>
+      <Modal
+        open={open}
+        title="Thêm mới nguyên phụ liệu cần thiết cho một bước"
+        okText="Thêm mới"
+        cancelText="Hủy bỏ"
+        okButtonProps={{
+          autoFocus: true,
+          loading: loadingCreateOrderMaterial,
+        }}
+        onCancel={() => {
+          form.resetFields();
+          onCancel();
+          handleDataMaterial();
+        }}
+        onOk={async () => {
+          try {
+            setLoadingCreateOrderMaterial(true);
+            const values = await form?.validateFields();
+            if (values) {
+              const check = await onCreate(values);
+              if (check === 1) {
+                handleViewProductDetail(taskId);
+                onCancel();
+                form.resetFields();
+              }
+            }
+          } catch (error) {
+            console.log("Failed:", error);
+          } finally {
+            setLoadingCreateOrderMaterial(false);
+          }
+        }}
+      >
+        {loadingMaterial ? (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "350px",
+            }}
+          >
+            <CircularProgress />
+          </div>
+        ) : (
+          <Form
+            layout="vertical"
+            form={form}
+            name="form_in_modal"
+            style={{ marginTop: 15 }}
+          >
+            <Form.List name="materialStages">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <Space
+                      key={key}
+                      style={{
+                        display: "flex",
+                        marginBottom: 8,
+                      }}
+                      align="baseline"
+                    >
+                      <Form.Item
+                        {...restField}
+                        name={[name, "materialId"]}
+                        rules={[
+                          ({ getFieldValue }) => ({
+                            validator(_, value) {
+                              const selectedMaterials =
+                                getFieldValue("materialStages") || [];
+
+                              const duplicateValues = selectedMaterials
+                                .map((field) => field && field.materialId)
+                                .filter((m) => m === value);
+
+                              if (!value) {
+                                return Promise.reject(
+                                  new Error("Vải không được để trống!")
+                                );
+                              } else if (duplicateValues.length > 1) {
+                                return Promise.reject(
+                                  new Error("Vải đã được chọn trước đó!")
+                                );
+                              }
+
+                              return Promise.resolve();
+                            },
+                          }),
+                        ]}
+                      >
+                        <Select
+                          style={{ width: "300px" }}
+                          showSearch
+                          placeholder="Chọn loại vải"
+                          optionFilterProp="children"
+                          filterOption={filterOptionForMaterial}
+                        >
+                          {material?.map((material) => (
+                            <Select.Option
+                              key={material.id}
+                              value={material.id}
+                              title={material.name}
+                            >
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                }}
+                              >
+                                <Image width={35} src={material.image} />
+                                &nbsp; &nbsp;
+                                <Title level={5} style={{ marginTop: 6 }}>
+                                  {material.name}
+                                </Title>
+                              </div>
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, "quantity"]}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Số mét sử dụng không được để trống!",
+                          },
+                          {
+                            type: "number",
+                            min: 1,
+                            message: "Số mét sử dụng phải lớn hơn hoặc bằng 1",
+                          },
+                        ]}
+                      >
+                        <InputNumber
+                          placeholder="Nhập số met vải"
+                          formatter={(value) =>
+                            `${value}m`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                          }
+                          parser={(value) => value.replace(/m\s?|(,*)/g, "")}
+                          style={{ width: "100%" }}
+                          step={0.01}
+                        />
+                      </Form.Item>
+                      <MinusCircleOutlined onClick={() => remove(name)} />
+                    </Space>
+                  ))}
+                  <Form.Item>
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      block
+                      icon={<PlusOutlined />}
+                    >
+                      Thêm vải
+                    </Button>
+                  </Form.Item>
+                </>
+              )}
+            </Form.List>
+          </Form>
+        )}
+      </Modal>
+    </>
+  );
+};

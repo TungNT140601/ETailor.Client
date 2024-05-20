@@ -694,6 +694,28 @@ function StepTwo({
                     sản phẩm
                   </Text>
                 </div>
+                {orderPaymentDetail && orderPaymentDetail?.plannedTime && (
+                  <div style={{ marginTop: 5 }}>
+                    <Text
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <b>Thời gian dự kiến:</b>
+                      &nbsp;{" "}
+                      <b>
+                        {new Date(
+                          orderPaymentDetail?.plannedTime
+                        ).toLocaleDateString("vn-VI", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })}
+                      </b>
+                    </Text>
+                  </div>
+                )}
               </div>
               {orderPaymentDetail?.products?.length === 0 ? (
                 <div

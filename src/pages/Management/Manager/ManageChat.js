@@ -218,7 +218,7 @@ function ManageChat({
           <div
             style={{
               maxHeight: 300,
-              minHeight: checkStatus === 0 || checkStatus === 7 ? 523 : 443,
+              minHeight: checkStatus === 0 || checkStatus === 7 ? 564 : 484,
               overflowY: "scroll",
               scrollbarWidth: "none",
               padding: 10,

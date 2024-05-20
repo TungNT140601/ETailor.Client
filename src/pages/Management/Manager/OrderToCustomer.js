@@ -31,6 +31,8 @@ const OrderToCustomerContent = () => {
 
   const [createOrderLoading, setCreateOrderLoading] = useState(false);
 
+  const [loadingForm, setLoadingForm] = useState(false);
+
   const getDiscountForOrder = async () => {
     if (saveOrderId) {
       const url = `https://e-tailorapi.azurewebsites.net/api/discount/order/${saveOrderId}`;
@@ -55,11 +57,11 @@ const OrderToCustomerContent = () => {
     }
   };
 
-  const handleSaveOrder = () => {
-    console.log("saveCustomer", saveCustomer);
+  const handleSaveOrder = async () => {
     const urlCreateNew = `https://e-tailorapi.azurewebsites.net/api/order`;
+
     try {
-      fetch(urlCreateNew, {
+      const response = await fetch(urlCreateNew, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -73,17 +75,20 @@ const OrderToCustomerContent = () => {
           cusEmail: saveCustomer.email,
           cusAddress: saveCustomer.address,
         }),
-      }).then(async (response) => {
-        if (response.ok && response.status === 200) {
-          const responseData = await response.text();
-          setSaveOrderId(responseData);
-        } else if (response.status === 401) {
-          localStorage.removeItem("manager");
-          navigate("/management/login");
-        }
       });
+
+      if (response.ok && response.status === 200) {
+        const responseData = await response.text();
+        setSaveOrderId(responseData);
+        return true;
+      } else if (response.status === 401) {
+        localStorage.removeItem("manager");
+        navigate("/management/login");
+        return false;
+      }
     } catch (error) {
       console.error("Error calling API:", error);
+      return false;
     }
   };
 
@@ -94,11 +99,15 @@ const OrderToCustomerContent = () => {
   };
 
   useEffect(() => {
-    if (saveCustomer) {
-      setTimeout(() => {
-        handleSaveOrder();
-      }, 1000);
-    }
+    const saveOrderAsync = async () => {
+      if (saveCustomer) {
+        const check = await handleSaveOrder();
+        if (check) {
+          setLoadingForm(false);
+        }
+      }
+    };
+    saveOrderAsync();
   }, [saveCustomer, saveOrderId]);
   //---------------------------------------------------Xử lý logic bước 1----------------------------------------------------------
 
@@ -152,26 +161,28 @@ const OrderToCustomerContent = () => {
       cancelButtonText: "Hủy",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        const urlDeleteProduct = `https://e-tailorapi.azurewebsites.net/api/product/${id}`;
-        try {
-          const response = await fetch(`${urlDeleteProduct}`, {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${manager?.token}`,
-            },
-          });
-          if (response.ok && response.status === 200) {
-            const check = await handleDataOrderDetail();
-            if (check === 1) {
-              toast.success("Đã xóa sản phẩm!");
+        if (saveOrderId) {
+          const urlDeleteProduct = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${id}`;
+          try {
+            const response = await fetch(`${urlDeleteProduct}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${manager?.token}`,
+              },
+            });
+            if (response.ok && response.status === 200) {
+              const check = await handleDataOrderDetail();
+              if (check === 1) {
+                toast.success("Đã xóa sản phẩm!");
+              }
+            } else if (response.status === 401) {
+              localStorage.removeItem("manager");
+              navigate("/management/login");
             }
-          } else if (response.status === 401) {
-            localStorage.removeItem("manager");
-            navigate("/management/login");
+          } catch (error) {
+            console.error("Error calling API:", error);
           }
-        } catch (error) {
-          console.error("Error calling API:", error);
         }
       }
     });
@@ -542,6 +553,7 @@ const OrderToCustomerContent = () => {
             setProductComponent={setProductComponent}
             form={form}
             saveCustomer={saveCustomer}
+            setLoadingForm={setLoadingForm}
           />
         </>
       ),
@@ -643,7 +655,7 @@ const OrderToCustomerContent = () => {
             type="primary"
             onClick={() => next()}
             loading={loadingStep2}
-            disabled={!saveOrderId}
+            disabled={!saveOrderId || loadingForm}
             style={{ color: "white" }}
           >
             Tiếp theo

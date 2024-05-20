@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { HomeOutlined, EyeOutlined } from "@ant-design/icons";
-import { Typography, Table, Checkbox } from "antd";
+import React, { useEffect, useState, useRef } from "react";
+import { HomeOutlined, EyeOutlined, SearchOutlined } from "@ant-design/icons";
+import Highlighter from "react-highlight-words";
+import { Typography, Table, Checkbox, ConfigProvider } from "antd";
 import "./index.css";
+import { useSearchParams } from "react-router-dom";
 
-import { Col, Row, Tag, Button } from "antd";
+import { Col, Row, Tag, Button, Input, Space } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -149,6 +151,148 @@ const ManagementOrderContent = () => {
       setOpenRefund(true);
     }
   };
+  const handleStatusOrder = (status) => {
+    switch (status) {
+      case 1:
+        return <Tag color="purple">Chờ xác nhận</Tag>;
+      case 2:
+        return <Tag color="lime">Đã xác nhận</Tag>;
+      case 3:
+        return <Tag color="default">Chưa bắt đầu</Tag>;
+      case 4:
+        return <Tag color="blue">Trong quá trình</Tag>;
+      case 5:
+        return <Tag color="green">Hoàn thành</Tag>;
+      case 6:
+        return <Tag color="gold">Kiểm tra</Tag>;
+      case 7:
+        return <Tag color="volcano">Trả hàng</Tag>;
+      case 8:
+        return <Tag color="green">Đã giao</Tag>;
+      default:
+        return (
+          <Tag color="red" style={{ display: "none" }}>
+            Hủy đơn
+          </Tag>
+        );
+    }
+  };
+
+  //---------------------------------------------------------------Search id order----------------------------------------
+  const [searchText, setSearchText] = useState("");
+  const [searchedColumn, setSearchedColumn] = useState("");
+  const searchInput = useRef(null);
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+      close,
+    }) => (
+      <div
+        style={{
+          padding: 8,
+        }}
+        onKeyDown={(e) => e.stopPropagation()}
+      >
+        <Input
+          ref={searchInput}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{
+            marginBottom: 8,
+            display: "block",
+          }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => clearFilters && handleReset(clearFilters)}
+            size="small"
+            style={{
+              width: 90,
+            }}
+          >
+            Reset
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              confirm({
+                closeDropdown: false,
+              });
+              setSearchText(selectedKeys[0]);
+              setSearchedColumn(dataIndex);
+            }}
+          >
+            Filter
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={() => {
+              close();
+            }}
+          >
+            close
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined
+        style={{
+          color: filtered ? "#1677ff" : undefined,
+        }}
+      />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+    onFilterDropdownOpenChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.current?.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{
+            backgroundColor: "#ffc069",
+            padding: 0,
+          }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ""}
+        />
+      ) : (
+        text
+      ),
+  });
 
   const columns = [
     {
@@ -164,6 +308,7 @@ const ManagementOrderContent = () => {
       dataIndex: "id",
       key: "1",
       fixed: "left",
+      ...getColumnSearchProps("id"),
     },
     {
       title: "Trạng thái",
@@ -171,32 +316,79 @@ const ManagementOrderContent = () => {
       key: "2",
       width: 100,
       fixed: "left",
-      render: (_, record) => {
-        switch (record.status) {
-          case 1:
-            return <Tag color="purple">Chờ xác nhận</Tag>;
-          case 2:
-            return <Tag color="lime">Đã xác nhận</Tag>;
-          case 3:
-            return <Tag color="default">Chưa bắt đầu</Tag>;
-          case 4:
-            return <Tag color="blue">Trong quá trình</Tag>;
-          case 5:
-            return <Tag color="green">Hoàn thành</Tag>;
-          case 6:
-            return <Tag color="gold">Kiểm tra</Tag>;
-          case 7:
-            return <Tag color="volcano">Trả hàng</Tag>;
-          case 8:
-            return <Tag color="green">Đã giao</Tag>;
-          default:
-            return (
-              <Tag color="red" style={{ display: "none" }}>
-                Hủy đơn
-              </Tag>
-            );
+      render: (_, record) => handleStatusOrder(record.status),
+      showSorterTooltip: {
+        target: "full-header",
+      },
+      filters: [
+        {
+          text: "Chờ xác nhận",
+          value: 1,
+        },
+        {
+          text: "Đã xác nhận",
+          value: 2,
+        },
+        {
+          text: "Chưa bắt đầu",
+          value: 3,
+        },
+        {
+          text: "Trong quá trình",
+          value: 4,
+        },
+        {
+          text: "Hoàn thành",
+          value: 5,
+        },
+        {
+          text: "Kiểm tra",
+          value: 6,
+        },
+        {
+          text: "Trả hàng",
+          value: 7,
+        },
+        {
+          text: "Đã giao",
+          value: 8,
+        },
+      ],
+      onFilter: (value, record) => {
+        if (value === record.status) {
+          return record;
         }
       },
+    },
+    {
+      title: "Ngày dự kiến hoàn thành",
+      width: 150,
+      dataIndex: "plannedTime",
+      key: "plannedTime",
+      fixed: "left",
+      render: (_, record) =>
+        record.plannedTime < new Date().toISOString() ? (
+          <Text
+            style={{ fontSize: 15, fontWeight: "bold" }}
+            type="danger"
+            underline
+          >
+            {new Date(record.plannedTime).toLocaleDateString("vn-VI", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
+          </Text>
+        ) : (
+          <Text style={{ fontSize: 15, fontWeight: "bold", color: "#9F78FF" }}>
+            {new Date(record.plannedTime).toLocaleDateString("vn-VI", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
+          </Text>
+        ),
+      sorter: (a, b) => new Date(a.plannedTime) - new Date(b.plannedTime),
     },
     {
       title: "Tổng giá tiền",
@@ -208,20 +400,6 @@ const ManagementOrderContent = () => {
           {`${record.totalPrice}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
         </Text>
       ),
-    },
-    {
-      title: "Tiền đặt cọc đã trả",
-      dataIndex: "payDeposit",
-      key: "8",
-      width: 120,
-      render: (_, record) =>
-        record.payDeposit ? (
-          <Text>
-            {`${record.payDeposit}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-          </Text>
-        ) : (
-          <Text>{`0đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Text>
-        ),
     },
     {
       title: "Tiền đã trả",
@@ -276,6 +454,22 @@ const ManagementOrderContent = () => {
       ),
     },
   ];
+  const [searchParams, setSearchParams] = useSearchParams();
+  const onFilterStatus = (pagination, filters, sorter, extra) => {
+    const statusFilter = filters["2"];
+
+    if (statusFilter) {
+      setSearchParams({ status: statusFilter });
+    } else {
+      setSearchParams({});
+    }
+  };
+
+  useEffect(() => {
+    if (searchParams) {
+      setSearchParams({});
+    }
+  }, []);
 
   const getApi = dataOrder?.map((item, index) => ({
     stt: index + 1,
@@ -290,6 +484,7 @@ const ManagementOrderContent = () => {
     deposit: item.deposit,
     paidMoney: item.paidMoney,
     unPaidMoney: item.unPaidMoney,
+    plannedTime: item.plannedTime,
   }));
 
   const defaultCheckedList = columns.map((item) => item.key);
@@ -340,17 +535,32 @@ const ManagementOrderContent = () => {
           <CircularProgress />
         </div>
       ) : (
-        <Table
-          columns={newColumns}
-          dataSource={getApi}
-          pagination={{
-            position: ["bottomCenter"],
+        <ConfigProvider
+          theme={{
+            components: {
+              Table: {
+                /* here is your component tokens */
+              },
+            },
           }}
-          style={{
-            marginTop: 24,
-          }}
-          scroll={{ x: 1000, y: 410 }}
-        />
+        >
+          <Table
+            columns={newColumns}
+            dataSource={getApi}
+            showSorterTooltip={{
+              target: "sorter-icon",
+            }}
+            onChange={onFilterStatus}
+            pagination={{
+              position: ["bottomCenter"],
+            }}
+            style={{
+              marginTop: 24,
+            }}
+            scroll={{ x: 1000, y: 410 }}
+            className="custom-table-orders"
+          />
+        </ConfigProvider>
       )}
       {isModalOpen && saveIdOrder && checkStatus && (
         <ViewDetailOrder
