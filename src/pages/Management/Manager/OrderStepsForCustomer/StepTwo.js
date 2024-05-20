@@ -435,7 +435,14 @@ function StepTwo({
                   }}
                 />
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <br />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: 20,
+                }}
+              >
                 <Title level={4}>Nguyên phụ liệu sử dụng</Title>
                 <Button onClick={() => setOpenConfirmMaterial(true)}>
                   Xác định vải

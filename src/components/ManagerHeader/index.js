@@ -203,7 +203,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
 
                     {notification.title}
                   </Title>
-                  <Text>Nội dung: {notification.content}</Text>
+                  <Text>{notification.content}</Text>
                   <br />
                   <Text>
                     Thời gian: {calculateDifferenceDays(notification.sendTime)}
@@ -254,7 +254,6 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
               onClick={() => resetMessageReturn()}
             >
               <BellOutlined style={{ fontSize: 22 }} />{" "}
-              <span style={{ fontSize: 18 }}> Thông báo</span>
             </div>
           </Popover>
         </Badge>
