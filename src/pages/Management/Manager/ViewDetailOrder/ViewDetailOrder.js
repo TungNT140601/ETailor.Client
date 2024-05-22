@@ -778,7 +778,8 @@ export const ViewDetailOrder = ({
             formatCurrency={formatCurrency}
             handleCancelOrder={handleCancelOrder}
             saveIdOrder={saveIdOrder}
-            handleDataOrder={handleDataOrder}
+            handleDataOrder={handleDataOrderContent}
+            handleCancel={handleCancel}
           />
         )}
         {openRefund && saveIdOrder && dataOrderDetail && (

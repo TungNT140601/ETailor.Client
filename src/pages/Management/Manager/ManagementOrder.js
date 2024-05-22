@@ -293,11 +293,20 @@ const ManagementOrderContent = () => {
   const columns = [
     {
       title: "STT",
-      width: 70,
+      width: 40,
       dataIndex: "stt",
       key: "index",
       fixed: "left",
     },
+    {
+      title: "Ngày tạo",
+      width: 100,
+      dataIndex: "createdTime",
+      key: "createdTime",
+      fixed: "left",
+      ...getColumnSearchProps("createdTime"),
+    },
+
     {
       title: "Mã đơn",
       width: 120,
@@ -366,7 +375,7 @@ const ManagementOrderContent = () => {
     },
     {
       title: "Ngày dự kiến hoàn thành",
-      width: 150,
+      width: 170,
       dataIndex: "plannedTime",
       key: "plannedTime",
       fixed: "left",
@@ -495,6 +504,11 @@ const ManagementOrderContent = () => {
     unPaidMoney: item.unPaidMoney,
     plannedTime: item.plannedTime,
     cusName: item.cusName,
+    createdTime: new Date(item.createdTime).toLocaleDateString("vn-VI", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }),
   }));
 
   const defaultCheckedList = columns.map((item) => item.key);
@@ -567,7 +581,7 @@ const ManagementOrderContent = () => {
             style={{
               marginTop: 24,
             }}
-            scroll={{ x: 1400, y: 410 }}
+            scroll={{ x: 1500, y: 410 }}
             className="custom-table-orders"
           />
         </ConfigProvider>
