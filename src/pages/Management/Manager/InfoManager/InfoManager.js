@@ -43,6 +43,7 @@ export const InfoManager = () => {
   const [category, setCategory] = useState(null);
   const [form] = Form.useForm();
   const [updatePasswordLoading, setUpdatePasswordLoading] = useState(false);
+  const [open, setOpen] = useState([]);
   const handleGetInfo = async () => {
     setLoading(true);
     try {
@@ -115,6 +116,7 @@ export const InfoManager = () => {
   }, []);
   const onFinish = async (values) => {
     console.log("values:", values);
+
     setUpdatePasswordLoading(true);
     const dataBackend = {
       oldPassword: values.oldPassword,
@@ -136,6 +138,7 @@ export const InfoManager = () => {
         const responseData = await response.text();
         message.success(responseData);
         form.resetFields();
+        setOpen([]);
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
         message.error(responseData);
@@ -371,6 +374,8 @@ export const InfoManager = () => {
                           ),
                         },
                       ]}
+                      activeKey={open}
+                      onChange={() => setOpen((prev) => [1])}
                     />
                   </div>
                 </div>
