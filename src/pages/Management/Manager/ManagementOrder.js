@@ -315,14 +315,7 @@ const ManagementOrderContent = () => {
       fixed: "left",
       ...getColumnSearchProps("id"),
     },
-    {
-      title: "Khách hàng",
-      width: 120,
-      dataIndex: "cusName",
-      key: "2",
-      fixed: "left",
-      ...getColumnSearchProps("cusName"),
-    },
+
     {
       title: "Trạng thái",
       dataIndex: "status",
@@ -374,11 +367,17 @@ const ManagementOrderContent = () => {
       },
     },
     {
+      title: "Khách hàng",
+      width: 120,
+      dataIndex: "cusName",
+      key: "2",
+      ...getColumnSearchProps("cusName"),
+    },
+    {
       title: "Ngày dự kiến hoàn thành",
-      width: 170,
+      width: 150,
       dataIndex: "plannedTime",
       key: "plannedTime",
-      fixed: "left",
       render: (_, record) =>
         record.status !== 0 &&
         (record.plannedTime < new Date().toISOString() &&
