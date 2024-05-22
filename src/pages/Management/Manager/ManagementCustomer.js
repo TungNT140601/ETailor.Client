@@ -145,12 +145,12 @@ const ManagementCustomerContent = () => {
         />
       ),
     },
-    {
-      title: "Tên người dùng",
-      dataIndex: "username",
-      key: "1",
-      width: 150,
-    },
+    // {
+    //   title: "Tên người dùng",
+    //   dataIndex: "username",
+    //   key: "1",
+    //   width: 150,
+    // },
     {
       title: "Họ và tên",
       dataIndex: "fullname",
@@ -202,7 +202,7 @@ const ManagementCustomerContent = () => {
     id: item.id,
     stt: index,
     avatar: item.avatar,
-    username: item.username,
+    // username: item.username,
     fullname: item.fullname,
     address: item.address,
     phone: item.phone,
