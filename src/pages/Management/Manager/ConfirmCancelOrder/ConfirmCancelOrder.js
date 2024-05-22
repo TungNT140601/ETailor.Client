@@ -28,6 +28,7 @@ export const ConfirmCancelOrder = ({
   formatCurrency,
   saveIdOrder,
   handleDataOrder,
+  handleCancel,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [loading, setLoading] = useState(false);
@@ -50,6 +51,7 @@ export const ConfirmCancelOrder = ({
         message.success(responseData);
         await handleDataOrder();
         onCancel();
+        handleCancel();
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
         toast.error(responseData, {
