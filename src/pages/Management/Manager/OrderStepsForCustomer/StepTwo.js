@@ -500,12 +500,25 @@ function StepTwo({
                   <div>
                     <Text
                       style={{
+                        width: "100%",
                         display: "flex",
                         justifyContent: "space-between",
                       }}
                     >
                       <b>Họ và tên:</b>
-                      &nbsp; {orderPaymentDetail?.cusName}
+                      &nbsp;
+                      <span
+                        style={{
+                          flexGrow: 1,
+                          maxWidth: "200px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          textAlign: "right",
+                        }}
+                      >
+                        {orderPaymentDetail?.cusName}
+                      </span>
                     </Text>
                   </div>
                   <div style={{ marginTop: 5 }}>

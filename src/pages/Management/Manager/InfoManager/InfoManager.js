@@ -28,6 +28,7 @@ import {
   Button,
   Collapse,
   message,
+  Avatar,
 } from "antd";
 import ManagerHeader from "../../../../components/ManagerHeader";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -193,7 +194,11 @@ export const InfoManager = () => {
           </div>
         ) : (
           <>
-            <Row justify={"center"} style={{ height: "550px" }}>
+            <Row
+              justify={"center"}
+              style={{ height: "450px" }}
+              align={"middle"}
+            >
               <Col span={8}>
                 <div
                   style={{
@@ -203,60 +208,110 @@ export const InfoManager = () => {
                     height: "100%",
                   }}
                 >
-                  <Image
-                    width={350}
-                    src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                    style={{ borderRadius: "50%" }}
-                  />
+                  <div
+                    style={{
+                      border: "1px solid #9F78FF",
+                      padding: 10,
+                      borderRadius: "50%",
+                    }}
+                  >
+                    <Avatar
+                      style={{
+                        width: 250,
+                        height: 250,
+                      }}
+                      src={
+                        info.avatar
+                          ? info?.avatar
+                          : "https://api.dicebear.com/7.x/miniavs/svg?seed=1"
+                      }
+                    />
+                  </div>
                 </div>
               </Col>
               <Col span={10}>
-                <div style={{ padding: 20, height: "100%" }}>
+                <div
+                  style={{
+                    padding: 20,
+                    height: "auto",
+                    border: "1px solid #9F78FF",
+                  }}
+                >
                   <div style={{ margin: "10px 0" }}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "0px 30px",
+                      }}
+                    >
                       <Title level={5} style={{ margin: 0 }}>
                         Họ và tên:{" "}
                       </Title>{" "}
-                      &nbsp; &nbsp; &nbsp;
                       <Text style={{ fontSize: 15 }}>{info?.fullname}</Text>
                     </div>
                   </div>
                   <div style={{ margin: "10px 0" }}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "0px 30px",
+                      }}
+                    >
                       <Title level={5} style={{ margin: 0 }}>
                         Tên tài khoản:{" "}
                       </Title>{" "}
-                      &nbsp; &nbsp; &nbsp;
                       <Text style={{ fontSize: 15 }}>{info?.username}</Text>
                     </div>
                   </div>
                   <div style={{ margin: "10px 0" }}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "0px 30px",
+                      }}
+                    >
                       <Title level={5} style={{ margin: 0 }}>
                         Số điện thoại:{" "}
                       </Title>{" "}
-                      &nbsp; &nbsp; &nbsp;
                       <Text style={{ fontSize: 15 }}>{info?.phone}</Text>
                     </div>
                   </div>
                   <div style={{ margin: "10px 0" }}>
-                    <div style={{ display: "flex", alignItems: "center" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        padding: "0px 30px",
+                      }}
+                    >
                       <Title level={5} style={{ margin: 0 }}>
                         Địa chỉ:{" "}
                       </Title>{" "}
+                      <Text style={{ fontSize: 15 }}>{info?.address}</Text>
                     </div>
-                    &nbsp; &nbsp; &nbsp;
-                    <Text style={{ fontSize: 15 }}>{info?.address}</Text>
                   </div>
                   {info?.masterySkills ? (
                     <div style={{ margin: "10px 0" }}>
-                      <div style={{ display: "flex", alignItems: "center" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          padding: "0px 30px",
+                        }}
+                      >
                         <Title level={5} style={{ margin: 0 }}>
                           Kỹ năng chuyên môn:{" "}
                         </Title>{" "}
-                        &nbsp; &nbsp; &nbsp;
                       </div>
-                      <div style={{ marginTop: 5 }}>
+                      <div style={{ marginTop: 5, textAlign: "center" }}>
                         <Text style={{ fontSize: 20 }}>
                           {handleFilterCategory(info?.masterySkills)}
                         </Text>
@@ -375,7 +430,15 @@ export const InfoManager = () => {
                         },
                       ]}
                       activeKey={open}
-                      onChange={() => setOpen((prev) => [1])}
+                      onChange={() =>
+                        setOpen((prev) => {
+                          if (prev[0] === "1") {
+                            return [];
+                          } else {
+                            return ["1"];
+                          }
+                        })
+                      }
                     />
                   </div>
                 </div>

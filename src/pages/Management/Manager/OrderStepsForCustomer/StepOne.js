@@ -124,7 +124,7 @@ function StepOne({
     }));
   };
 
-  const debouncedHandleInputChange = debounce(handleInputChange, 1000);
+  const debouncedHandleInputChange = debounce(handleInputChange, 2000);
 
   const handleFormInputChange = (fieldName, e) => {
     setLoadingForm(true);
@@ -132,7 +132,7 @@ function StepOne({
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
       debouncedHandleInputChange(fieldName, value);
-    }, 1000);
+    }, 2000);
   };
 
   return (
