@@ -145,9 +145,9 @@ const ManagementStaffContent = () => {
     },
   ];
 
-  const getApi = staffs?.data?.map((item) => ({
+  const getApi = staffs?.data?.map((item, index) => ({
     id: item.id,
-    stt: item.stt,
+    stt: index + 1,
     avatar: item.avatar,
     username: item.username,
     fullname: item.fullname,

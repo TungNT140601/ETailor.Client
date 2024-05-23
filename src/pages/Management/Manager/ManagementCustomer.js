@@ -200,7 +200,7 @@ const ManagementCustomerContent = () => {
 
   const getApi = getCustomer?.map((item, index) => ({
     id: item.id,
-    stt: index,
+    stt: index + 1,
     avatar: item.avatar,
     // username: item.username,
     fullname: item.fullname,
