@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import NotificationBell from "../../assets/images/notification.png";
-import { App, Button, Space, Popover, Divider, Modal } from 'antd';
+import { App, Button, Space, Popover, Divider, Modal, Badge, notification } from 'antd';
 import './index.css'
 import {
     CloseOutlined,
@@ -57,76 +57,108 @@ export default function Notification() {
     const hide = () => {
         setOpen(false);
     };
+
     const handleOpenChange = (newOpen) => {
         setOpen(newOpen);
-    };
-    useEffect(() => {
-        const fetchNotifications = async () => {
+        if (!newOpen) {
             const customer = JSON.parse(localStorage.getItem("customer"));
             const token = customer?.token;
-            const GET_NOTIFICATIONS = `https://e-tailorapi.azurewebsites.net/api/notification/get-notification`
+            const GET_NOTIFICATIONS = `https://e-tailorapi.azurewebsites.net/api/notification/read-all-notification`
             try {
-                const response = await fetch(GET_NOTIFICATIONS, {
-                    method: "GET",
+                const response = fetch(GET_NOTIFICATIONS, {
+                    method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                         Authorization: `Bearer ${token}`,
                     },
                 });
                 if (response.ok) {
-                    const data = await response.json()
-                    setAllNotification(data)
-                    console.log("allNotification", allNotification)
-
+                    fetchNotifications()
                 }
 
-            }
-            catch (error) {
+            } catch (error) {
                 console.error("Error:", error);
             }
         }
+
+    };
+    const [customer, setCustomer] = useState()
+    const [unreadCount, setUnreadCount] = useState(0)
+
+    const fetchNotifications = async () => {
+        const customer = JSON.parse(localStorage.getItem("customer"));
+        const token = customer?.token;
+        const GET_NOTIFICATIONS = `https://e-tailorapi.azurewebsites.net/api/notification/get-notification`
+        try {
+            const response = await fetch(GET_NOTIFICATIONS, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            if (response.ok) {
+                const data = await response.json()
+                setAllNotification(data)
+                console.log("allNotification", data)
+                setUnreadCount(data.unread)
+            }
+
+        }
+        catch (error) {
+            console.error("Error:", error);
+        }
+    }
+
+    useEffect(() => {
         fetchNotifications()
     }, [chatNotification])
-    console.log("length", allNotification)
+    useEffect(() => {
+        const customer = JSON.parse(localStorage.getItem("customer"));
+        setCustomer(customer)
+        fetchNotifications()
+    }, [])
+
     const NoticeInfo = () => {
-        const [isModalOpen, setIsModalOpen] = useState(false);
-        const [currentNotification, setCurrentNotification] = useState('')
-        const showModal = (notification) => {
-            setIsModalOpen(true);
-            setCurrentNotification(notification)
-        };
-        const handleOk = () => {
-            setIsModalOpen(false);
-        };
-        const handleCancel = () => {
-            setIsModalOpen(false);
-        };
         return (
             <>
-                <div style={{ maxHeight: 400, overflowY: "scroll" }}>
-                    {allNotification?.data.length > 0 ? allNotification?.data.map((notification) => (
-                        <>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} >
-                                <div style={{ height: "100%", borderLeft: `3px solid #bcdcfc`, margin: 10, paddingLeft: 20, alignItems: "center", width: "100%" }}>
-                                    <p style={{ fontWeight: `${notification.isRead ? "" : "bold"}` }}>{notification.title}</p>
-                                    <p>
-                                        {notification.content}
-                                        <span style={{ fontWeight: 400 }}>
-                                            &nbsp;.{getHoursDifference(new Date(notification?.sendTime))}
-                                        </span>
-                                    </p>
+                {customer ? (
+                    <div style={{ maxHeight: 400, overflowY: "scroll" }}>
+                        {allNotification?.data.length > 0 ? allNotification?.data.map((notification, index) => (
+                            <>
 
-                                </div>
-                                <p style={{ fontSize: 50, color: "#9F78FF", paddingRight: 20 }}>&#x2022;</p>
-                            </div>
-                            <Divider style={{ margin: 0, }} />
-                        </>
-                    )) : (
-                        <p>Không có thông báo nào</p>
+                                <>
+                                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }} key={index}>
+                                        <div style={{ height: "100%", borderLeft: `${notification.isRead ? "3px solid #bcdcfc" : "3px solid #9F78FF"}`, margin: 10, paddingLeft: 20, alignItems: "center", width: "100%" }}>
+                                            <p style={{ fontWeight: "bold", color: `${notification.isRead ? "#Acacac" : "black"}` }}> {notification.title} </p>
+                                            <p style={{ width: 300, padding: "5 0 0 5", fontWeight: 400, color: `${notification.isRead ? "#Acacac" : "black"}` }}>
+                                                {notification.content}
+                                                <span style={{ fontWeight: 400, color: `${notification.isRead ? "#Acacac" : "black"}` }}>
+                                                    &nbsp;&nbsp;.&nbsp;{getHoursDifference(new Date(notification?.sendTime))}
+                                                </span>
+                                            </p>
 
-                    )}
+                                        </div>
+                                        {notification.isRead ? null : (
+                                            <p style={{ fontSize: 50, color: "#9F78FF", paddingRight: 20 }}>&#x2022;</p>
+                                        )}
+                                    </div >
+                                    <Divider style={{ margin: 0, }} />
+                                </>
 
-                </div>
+                            </>
+                        )) : (
+                            <p>Không có thông báo nào</p>
+
+                        )
+                        }
+
+                    </div >
+                ) : (
+                    <p>Bạn cần đăng nhập để xem thông báo</p>
+                )
+                }
+
                 {/* <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                     <p>Some contents...</p>
                     <p>Some contents...</p>
@@ -166,6 +198,7 @@ export default function Notification() {
             </>
         )
     }
+
     return (
         <div>
             <Popover
@@ -177,9 +210,11 @@ export default function Notification() {
                 className='notification-popover'
                 onOpenChange={handleOpenChange}
             >
-                <Button className="wrapper-shopping">
-                    <img src={NotificationBell} width={18} height={18}></img>
-                </Button>
+                <Badge count={unreadCount} showZero>
+                    <Button className="wrapper-shopping">
+                        <img src={NotificationBell} width={22} height={22}></img>
+                    </Button>
+                </Badge>
             </Popover>
 
             <Toaster />

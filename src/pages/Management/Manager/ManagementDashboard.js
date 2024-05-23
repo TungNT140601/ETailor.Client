@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Bar, Pie, Line } from 'react-chartjs-2';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRankingStar } from "@fortawesome/free-solid-svg-icons";
+import { Link } from 'react-router-dom';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,16 +13,17 @@ import {
   LineElement,
   Tooltip,
   Filler,
-  Legend, ArcElement
+  Legend,
+  ArcElement
 } from 'chart.js';
-import { RiseOutlined, FallOutlined, CalendarOutlined, WarningFilled } from '@ant-design/icons';
-import { DatePicker, Select, Space, Row, Col, Spin, Button } from 'antd';
+import { RiseOutlined, FallOutlined, CalendarOutlined, WarningFilled, DoubleRightOutlined } from '@ant-design/icons';
+import { DatePicker, Select, Space, Row, Col, Spin, Button, Collapse } from 'antd';
 import 'dayjs/locale/vi';
 import dayjs from 'dayjs';
 import FormatVNCurrency from '../../utils/FormatVNCurrency'
 import { useNavigate } from 'react-router-dom';
+dayjs.locale('vi');
 
-dayjs.locale('vi_VN');
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -199,6 +201,7 @@ export default function ManagementDashboard() {
     const [lateTasks, setLateTasks] = useState([]);
     const [fetching, setFetching] = useState(false)
     const [taskLoading, setTaskLoading] = useState(false)
+    const [totalOrderLoading, setTotalOrderLoading] = useState(false)
     useEffect(() => {
       if (allTask.length > 0) {
         const currentDateTime = new Date();
@@ -251,6 +254,7 @@ export default function ManagementDashboard() {
       const fetchOrderStatistic = async () => {
         let url = baseOrderStatisticURL;
         const params = new URLSearchParams();
+        setTotalOrderLoading(true)
         if (searchYear) params.append('year', searchYear);
         if (searchMonth) params.append('month', searchMonth);
         if (params.toString()) url += `?${params.toString()}`;
@@ -279,9 +283,10 @@ export default function ManagementDashboard() {
             setTotalRevenue(totalRevenue);
             setTotalForStatus0(totalForStatus0);
             setTotalForStatus7(totalForStatus7);
-
+            setTotalOrderLoading(false)
           }
         } catch (error) {
+          setTotalOrderLoading(false)
           console.log("Error:", error);
         }
       };
@@ -393,46 +398,68 @@ export default function ManagementDashboard() {
         <Col span={12}>
           <Row gutter={5}>
             <Col span={24} style={{ height: "230px", borderRadius: 10, backgroundColor: "#fff", }}>
-              <div style={{ width: "100%", height: 200, position: "relative" }}>
+              {totalOrderLoading ? <div style={{ width: "100%", height: "100%", alignContent: "center", alignItems: "center", display: "flex", justifyContent: "center" }}>
+                <Spin size="large" color="#9F78FF" style={{ paddingTop: 40 }} />
+              </div> : (
+                <>
+                  {totalForStatus0 === 0 && totalForStatus7 === 0 && totalForOtherStatuses === 0 ? (
+                    <>
+                      <div style={{ width: "100%" }}>
+                        <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Tổng số đơn hàng</h1>
+                        <p style={{ fontSize: 15, fontWeight: 600, color: "#c0c0c0", margin: "auto" }}>Không có dữ liệu đơn hàng tháng {searchMonth} </p>
+                      </div>
 
-                <Pie options={{
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: {
-                      position: 'right',
-                    },
-                    title: {
-                      display: true,
-                      text: `Biểu đồ tổng số đơn hàng ${searchMonth}/${searchYear}`,
-                    },
-                  }
-                }}
+                    </>
+                  ) : (
+                    <>
+                      <div style={{ width: "100%", height: 200, position: "relative" }}>
 
-                  data={{
-                    labels: ['Đã huỷ', 'Hoàn thiện', 'Đang thực hiện'],
-                    datasets: [
-                      {
-                        label: 'Số lượng',
-                        data: [totalForStatus0, totalForStatus7, totalForOtherStatuses],
-                        backgroundColor: [
-                          'rgba(255, 99, 132, 0.2)',
-                          '#f6ffed',
-                          'rgba(255, 206, 86, 0.2)',
-                        ],
-                        borderColor: [
-                          'rgba(255, 99, 132, 1)',
-                          '#389e0d',
-                          'rgba(255, 206, 86, 1)',
-                        ],
-                        borderWidth: 1,
-                      },
-                    ],
-                  }}
-                />
-                <div style={{ position: "absolute", bottom: 0, right: 0 }}>
-                  <Button type="primary" onClick={() => navigate('/manager/orders')}>Xem tất cả</Button>
-                </div>
-              </div>
+                        <Pie options={{
+                          maintainAspectRatio: false,
+                          plugins: {
+                            legend: {
+                              position: 'right',
+                            },
+                            title: {
+                              display: true,
+                              text: `Biểu đồ tổng số đơn hàng ${searchMonth}/${searchYear}`,
+                            },
+                          }
+                        }}
+
+                          data={{
+                            labels: ['Đã huỷ', 'Hoàn thiện', 'Đang thực hiện'],
+                            datasets: [
+                              {
+                                label: 'Số lượng',
+                                data: [totalForStatus0, totalForStatus7, totalForOtherStatuses],
+                                backgroundColor: [
+                                  'rgba(255, 99, 132, 0.2)',
+                                  '#f6ffed',
+                                  'rgba(255, 206, 86, 0.2)',
+                                ],
+                                borderColor: [
+                                  'rgba(255, 99, 132, 1)',
+                                  '#389e0d',
+                                  'rgba(255, 206, 86, 1)',
+                                ],
+                                borderWidth: 1,
+                              },
+                            ],
+                          }}
+                        />
+
+                      </div>
+                      {searchYear === new Date().getFullYear() && searchMonth === (dayjs().month() + 1) + 1 ? (
+                        <div style={{ position: "absolute", bottom: 0, right: 5 }}>
+                          <Link to="/manager/orders" style={{ fontWeight: "bold", alignItems: "center" }}>Xem tất cả <DoubleRightOutlined /></Link>
+                        </div>
+                      ) : null
+                      }
+                    </>
+                  )}
+                </>
+              )}
             </Col>
             {/* <Col span={12} style={{ height: "230px", backgroundColor: "#ffffff", borderRadius: 10 }}>
 
@@ -475,6 +502,7 @@ export default function ManagementDashboard() {
                 />
               </div>
             </Col> */}
+
           </Row>
           <Row style={{ backgroundColor: "#fff", borderRadius: 10, marginTop: 15, width: "620px", height: "400px" }}>
 
@@ -486,7 +514,10 @@ export default function ManagementDashboard() {
       </Row>
     )
   }
-  const [searchMonth, setSearchMonth] = useState(new Date().getMonth() + 1)
+  const currentDate = dayjs()
+  console.log(" CURRENT DATE ", currentDate.month())
+  const [searchMonth, setSearchMonth] = useState(currentDate.month() + 1)
+
   const handleChoseMonth = (value) => {
     setSearchMonth(value)
   }
@@ -501,10 +532,13 @@ export default function ManagementDashboard() {
       </div>
     )
   }
+  const disabledDate = (current) => {
+    return current && current > dayjs().endOf('year');
+  };
+
   const MaterialStatistic = ({ searchMonth, searchYear }) => {
     const [fabricLoading, setFabricLoading] = useState(false)
     const [materialStatistic, setMaterialStatistic] = useState([]);
-    const [fabricName, setFabricName] = useState([]);
     const [commonTemplate, setCommonTemplate] = useState([])
     const [commonTemplateLoading, setCommonTemplateLoading] = useState(false)
     useEffect(() => {
@@ -634,10 +668,64 @@ export default function ManagementDashboard() {
         },
       },
     };
+    const onChange = (key) => {
+      console.log(key);
+    };
+    const items = [
+      {
+        key: '1',
+        label: `Đề xuất nhập vải`,
+        children:
+          <>
 
+            <Row gutter={[16, 16]}>
+              {materialStatistic.map((material, index) => (
+                <Col xs={24} sm={12} md={12} lg={12} xl={12} key={index}>
+                  <div style={{ display: "flex", alignItems: "center", border: "1px solid #e8e8e8", borderRadius: 10, padding: 10 }}>
+                    <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }} alt={material.name} />
+                    <div style={{ marginLeft: 10 }}>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material?.name}</p>
+                      {material && material.quantity < 10 ? (
+                        <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Kho: {material.quantity} mét
+                          <WarningFilled title='Gần hết vải' style={{ color: "red", paddingLeft: 5 }} />
+                        </p>
+                      ) : (
+                        <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Kho: {material.quantity} mét </p>
+                      )}
+                    </div>
+                  </div>
+                </Col>
+              ))}
+            </Row>
+          </>,
+      },
+      {
+        key: '2',
+        label: 'Xu hướng thịnh hành',
+        children: <>
+          {commonTemplate && commonTemplate.total > 0 ? (
+            commonTemplate.map((template, index) => (
+              <div style={{ padding: 5, alignItems: "center" }} key={index}>
+                <div>
+                  <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }} alt={template.name} />
+                </div>
+                <div style={{ marginLeft: 20 }}>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{template?.name}</p>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+              <p style={{ fontSize: 18, fontWeight: 600, color: "#000000", margin: 0 }}>Không có dữ liệu hoặc chưa có đơn hàng</p>
+            </div>
+          )}
+        </>,
+      },
+
+    ];
     return (
-      <Row justify="space-between" style={{ backgroundColor: "unset", margin: 15 }}>
-        <Col span={14} >
+      <Row justify="space-between" style={{ backgroundColor: "unset", margin: 15, display: 'flex', flexWrap: 'wrap' }}>
+        <Col span={14} style={{ width: "100%", maxHeight: "40vh" }}>
           <div style={{ marginRight: 10, borderRadius: 10, height: "45em" }} >
             <div style={{ display: "flex", backgroundColor: "#ffffff", height: "22em", borderRadius: 10 }}>
               {fabricLoading ?
@@ -701,20 +789,7 @@ export default function ManagementDashboard() {
                       <div style={{ padding: "20px 5px 20px 50px", alignContent: "center", alignItems: "center", height: "100%" }}>
                         <p style={{ padding: 5, fontSize: 14, fontWeight: 600, color: "#727272", }}>Top 3 bản mẫu được ưa chuộng nhất</p>
                         {/* <p><FontAwesomeIcon icon={faRankingStar} /></p> */}
-                        {commonTemplate && commonTemplate
-                          .sort((a, b) => (b.total ? b.total : 0) - (a.total ? a.total : 0))
-                          .slice(0, 3)
-                          .map((template, index) => (
-                            <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
-                              <div>
-                                <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
-                              </div>
-                              <div style={{ marginLeft: 20 }}>
-                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0, overflow: "hidden", textOverflow: "ellipsis", width: 140, textWrap: "nowrap" }}>{template?.name}</p>
-                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {template?.total ? template?.total : 0}</p>
-                              </div>
-                            </div>
-                          ))}
+
                       </div>
 
 
@@ -727,54 +802,10 @@ export default function ManagementDashboard() {
 
           </div>
         </Col>
-        <Col span={10} style={{ width: "100%" }}>
+        <Col span={10} style={{ width: "100%", maxHeight: "40vh" }}>
           <Row style={{ backgroundColor: "#ffffff", borderRadius: 10, height: "45em", width: "100%" }}>
             <div style={{ width: "100%" }}>
-              <div style={{ width: "100%" }}>
-                <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10, width: "100%" }}>Đề xuất nhập vải</h1>
-                <div style={{ width: "90%", margin: 10, display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-                  {materialStatistic.map((material, index) => (
-                    <div style={{ width: "48%", marginBottom: 10 }} key={index}>
-                      <Row style={{ width: "100%" }} justify={'start'}>
-                        <Col className="gutter-row" span={12} style={{ display: "flex", width: "100%", flex: 1, maxWidth: "100%" }}>
-                          <div style={{ width: "100%", display: "flex", alignItems: "center" }}>
-                            <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }} alt={material.name} />
-                            <div style={{ marginLeft: 10 }}>
-                              <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material?.name}</p>
-                              {material && material.quantity < 10 ? (
-                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Kho: {material.quantity} mét   <WarningFilled title='Gần hết vải' style={{ color: "red", paddingLeft: 5 }} /></p>
-                              ) : (
-                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Kho: {material.quantity} mét </p>
-                              )}
-                            </div>
-                          </div>
-                        </Col>
-                      </Row>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Xu hướng thịnh hành</h1>
-
-                {commonTemplate && commonTemplate.total > 0 ? (
-                  commonTemplate.map((template, index) => (
-                    <div style={{ padding: 5, alignItems: "center" }} key={index}>
-                      <div>
-                        <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }} alt={template.name} />
-                      </div>
-                      <div style={{ marginLeft: 20 }}>
-                        <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{template?.name}</p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-                    <p style={{ fontSize: 18, fontWeight: 600, color: "#000000", margin: 0 }}>Không có dữ liệu hoặc chưa có đơn hàng</p>
-                  </div>
-                )}
-
-              </div>
+              <Collapse items={items} defaultActiveKey={['1']} onChange={onChange} />
             </div>
           </Row>
         </Col>
@@ -782,34 +813,21 @@ export default function ManagementDashboard() {
       </Row>
     )
   }
-  const disabledDate = (current) => {
-    return current && current > dayjs().endOf('year');
-  };
 
-  const generateMonthOptions = async () => {
-    const currentYear = dayjs().year();
-    const isCurrentYear = parseInt(searchYear, 10) === currentYear;
-    const currentMonth = dayjs().month() + 1;
-
-    return Array.from({ length: 12 }, (_, i) => ({
-      value: i + 1,
-      label: `Tháng ${i + 1}`,
-      disabled: isCurrentYear && i + 1 > currentMonth,
-    }));
-  };
+  console.log("search year", searchYear)
 
   return (
     <div style={{ width: "100%", height: "99vh", backgroundColor: "#f0f4f5", borderRadius: 10, border: "1px solid #9F78FF", overflowY: "scroll", scrollbarWidth: "none" }}>
       <div style={{ padding: "5px 20px" }}>
         <div style={{ paddingLeft: 20 }}>
-          <h1 style={{ fontSize: 28, fontWeight: 600, color: "#3f4344" }}>Dashboard</h1>
+          <h1 style={{ fontSize: 28, fontWeight: 600, color: "#3f4344" }}>Quản lý chung</h1>
         </div>
 
         <div style={{ display: "flex", margin: "5px 20px" }}>
           <Space direction="vertical" size={5}>
-            <p style={{ fontSize: 15, fontWeight: 100, color: "#3f4344", paddingLeft: 5 }}>Chọn tháng</p>
+            <p style={{ fontSize: 15, fontWeight: 400, color: "#3f4344", paddingLeft: 5 }}>Chọn tháng</p>
             <Select
-              defaultValue={dayjs().month() + 1}
+              defaultValue={(currentDate.month() + 1)}
               style={{ width: 200, height: 40 }}
               suffixIcon={<CalendarOutlined style={{ fontSize: 14 }} />}
               onChange={handleChoseMonth}
@@ -817,75 +835,76 @@ export default function ManagementDashboard() {
                 {
                   value: 1,
                   label: 'Tháng 1',
-                  disabled: searchYear === dayjs().format('YYYY') && 1 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 1 > dayjs().month() + 1 ? true : false
                 },
                 {
                   value: 2,
                   label: 'Tháng 2',
-                  disabled: searchYear === dayjs().format('YYYY') && 2 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 2 > dayjs().month() + 1 ? true : false
 
                 },
                 {
                   value: 3,
                   label: 'Tháng 3',
-                  disabled: searchYear === dayjs().format('YYYY') && 3 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 3 > dayjs().month() + 1 ? true : false
 
                 },
                 {
                   value: 4,
                   label: 'Tháng 4',
-                  disabled: searchYear === dayjs().format('YYYY') && 4 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 4 > dayjs().month() + 1 ? true : false
 
                 },
                 {
                   value: 5,
                   label: 'Tháng 5',
-                  disabled: searchYear === dayjs().format('YYYY') && 5 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 5 > dayjs().month() + 1 ? true : false
                 },
                 {
                   value: 6,
                   label: 'Tháng 6',
-                  disabled: searchYear === dayjs().format('YYYY') && 6 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 6 > dayjs().month() + 1 ? true : false
                 },
                 {
                   value: 7,
                   label: 'Tháng 7',
-                  disabled: searchYear === dayjs().format('YYYY') && 7 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 7 > dayjs().month() + 1 ? true : false
                 },
                 {
                   value: 8,
                   label: 'Tháng 8',
-                  disabled: searchYear === dayjs().format('YYYY') && 8 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 8 > dayjs().month() + 1 ? true : false
                 },
                 {
                   value: 9,
                   label: 'Tháng 9',
-                  disabled: searchYear === dayjs().format('YYYY') && 9 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 9 > dayjs().month() + 1 ? true : false
                 },
                 {
                   value: 10,
                   label: 'Tháng 10',
-                  disabled: searchYear === dayjs().format('YYYY') && 10 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 10 > dayjs().month() + 1 ? true : false
                 },
                 {
                   value: 11,
                   label: 'Tháng 11',
-                  disabled: searchYear === dayjs().format('YYYY') && 11 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 11 > dayjs().month() + 1 ? true : false
                 },
                 {
                   value: 12,
                   label: 'Tháng 12',
-                  disabled: searchYear === dayjs().format('YYYY') && 12 > dayjs().month() + 1 ? true : false
+                  disabled: searchYear === dayjs().year() && 12 > dayjs().month() + 1 ? true : false
                 },
               ]}
             />
           </Space>
+
           <Space direction="vertical" size={5} style={{ width: 200, marginLeft: 40 }}>
-            <p style={{ fontSize: 15, fontWeight: 100, color: "#3f4344", paddingLeft: 5 }} >Chọn năm</p>
+            <p style={{ fontSize: 15, fontWeight: 400, color: "#3f4344", paddingLeft: 5 }} >Chọn năm</p>
             <DatePicker
               picker='year'
               disabledDate={disabledDate}
-              defaultValue={dayjs().startOf('year')}
+              defaultValue={currentDate.startOf('year')}
               onChange={handleChoseYear}
               placeholder='Chọn năm'
               style={{ width: 200, height: 40 }} />

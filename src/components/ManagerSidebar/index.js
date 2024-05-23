@@ -53,7 +53,7 @@ export const ManagerSidebar = () => {
   const items = [
     {
       key: "/manager",
-      label: <Link to="/manager">Dashboard</Link>,
+      label: <Link to="/manager">Quản lý chung</Link>,
       icon: <HomeOutlined />,
     },
     {

@@ -218,10 +218,10 @@ export default function ManagementTaskByOrder() {
         };
         const [loading, setLoading] = useState(true);
         const [templatesData, setTemplatesData] = useState("");
+        console.log("Templates Data:", templatesData)
         const [templateCategories, setTemplateCategories] = useState("");
         const [currentTemplate, setCurrentTemplate] = useState("");
         const handleChoseTemplate = (id) => {
-            // console.log("Chose template:", id);
             templatesData.filter((category) => {
                 category.productTemplates.filter((template) => {
                     if (template.id === id) {
@@ -257,6 +257,27 @@ export default function ManagementTaskByOrder() {
             }
         };
         const [allMaterials, setAllMaterials] = useState("");
+        const fetchAllStaff = async () => {
+            try {
+                const response = await fetch(
+                    "https://e-tailorapi.azurewebsites.net/api/staff/current-tasks",
+                    {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${manager.token}`,
+                        },
+                    }
+                );
+                if (response.ok) {
+                    const data = await response.json();
+                    // console.log("Data staff:", data);
+                    setAllStaff(data);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
         useEffect(() => {
 
             const manager = JSON.parse(localStorage.getItem("manager"))
@@ -278,27 +299,7 @@ export default function ManagementTaskByOrder() {
                     console.error("Error:", error);
                 }
             }
-            const fetchAllStaff = async () => {
-                try {
-                    const response = await fetch(
-                        "https://e-tailorapi.azurewebsites.net/api/staff/current-tasks",
-                        {
-                            method: "GET",
-                            headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${manager.token}`,
-                            },
-                        }
-                    );
-                    if (response.ok) {
-                        const data = await response.json();
-                        // console.log("Data staff:", data);
-                        setAllStaff(data);
-                    }
-                } catch (error) {
-                    console.error("Error:", error);
-                }
-            }
+
             fetchTemplates();
             fetchAllMaterial()
             fetchAllStaff();
@@ -341,6 +342,7 @@ export default function ManagementTaskByOrder() {
                             setConfirmLoading(false);
                             toast.success("Thay đổi nhân viên thực hiện thành công");
                             fetchTemplates();
+                            fetchAllStaff()
                             setChangeClick(false);
                             setOpen(false);
                         } else {
@@ -607,7 +609,7 @@ export default function ManagementTaskByOrder() {
                                                                     margin: "auto",
                                                                     marginBottom: 20,
                                                                     cursor: "pointer",
-                                                                    height: 120,
+                                                                    height: 140,
                                                                     alignContent: "start"
                                                                 }}
                                                                 className="task-card"

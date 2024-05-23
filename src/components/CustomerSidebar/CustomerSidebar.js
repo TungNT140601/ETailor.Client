@@ -36,7 +36,7 @@ export default function CustomerSidebar() {
             <Link to="/profile">
                 <div className='profile-detail' onMouseEnter={() => handleHover('profile')} onMouseLeave={() => setIsHover('')}>
                     {isHover === 'profile' && <CaretRightFilled style={{ color: "#9F78FF" }} />}
-                
+
                     <p className='subtitle is-6 ' style={{ color: pathname.includes("/profile") ? "#9F78FF" : "#1D2547", paddingLeft: "15px" }}> Thông tin cá nhân </p>
                 </div>
             </Link>
@@ -44,8 +44,15 @@ export default function CustomerSidebar() {
             <Link to="/body-profile">
                 <div className='profile-detail' onMouseEnter={() => handleHover('body-profile')} onMouseLeave={() => setIsHover('')}>
                     {isHover === 'body-profile' && <CaretRightFilled style={{ color: "#9F78FF" }} />}
-                    
+
                     <p className='subtitle is-6' style={{ color: pathname.includes("/body-profile") ? "#9F78FF" : "#1D2547", paddingLeft: "15px" }}> Hồ sơ số đo </p>
+                </div>
+            </Link>
+            <Link to="/change-password">
+                <div className='profile-detail' onMouseEnter={() => handleHover('change-password')} onMouseLeave={() => setIsHover('')}>
+                    {isHover === 'change-password' && <CaretRightFilled style={{ color: "#9F78FF" }} />}
+
+                    <p className='subtitle is-6' style={{ color: pathname.includes("/change-password") ? "#9F78FF" : "#1D2547", paddingLeft: "15px" }}> Đổi mật khẩu </p>
                 </div>
             </Link>
         </>
