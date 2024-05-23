@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Breadcrumb, notification } from "antd";
 import { BellOutlined } from "@ant-design/icons";
-import { Typography, Badge, Popover, message } from "antd";
+import { Typography, Badge, Popover, message, Spin, Alert } from "antd";
 
 import { Avatar } from "antd";
 import { Link } from "react-router-dom";
@@ -14,6 +14,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
   const chatNotification = NotificationRealTime();
   const { messageReturn, resetMessageReturn } = chatNotification;
   const [allNotification, setAllNotification] = useState(null);
+  const [loadingNotification, setLoadingNotification] = useState(false);
   useEffect(() => {
     if (messageReturn) {
       fetchNotification();
@@ -39,6 +40,30 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
       }
     } catch (error) {
       console.error("Error:", error);
+    }
+  };
+  const handleReadNotification = async (id) => {
+    setLoadingNotification(id);
+    const GET_NOTIFICATIONS = `https://e-tailorapi.azurewebsites.net/api/notification/get-notification/${id}`;
+    try {
+      const response = await fetch(GET_NOTIFICATIONS, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${manager?.token}`,
+        },
+      });
+      if (response.ok && response.status === 200) {
+        message.success("Đã xem thông báo");
+        fetchNotification();
+      } else if (response.status === 400 || response.status === 500) {
+        const data = await response.text();
+        message.error(data);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    } finally {
+      setLoadingNotification(null);
     }
   };
   useEffect(() => {
@@ -83,7 +108,6 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
       </div>
     );
   };
-  console.log("messageReturn", messageReturn);
 
   useEffect(() => {
     fetchNotification();
@@ -119,8 +143,37 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
           WebkitScrollbar: "none",
         }}
       >
+        {allNotification && (
+          <div
+            style={{
+              marginTop: 5,
+              marginBottom: 5,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <div>
+              <Title level={5}>
+                Tất cả:{" "}
+                <span style={{ color: "#9F78FF" }}>
+                  {allNotification && allNotification?.data?.length}
+                </span>
+              </Title>
+            </div>
+            <div>
+              <Title level={5}>
+                Chưa đọc:{" "}
+                <span style={{ color: "#9F78FF" }}>
+                  {allNotification && allNotification?.unread}
+                </span>
+              </Title>
+            </div>
+          </div>
+        )}
+
         {allNotification ? (
-          allNotification.data.map((notification) => (
+          allNotification?.data?.map((notification) => (
             <div
               key={notification.id}
               style={{
@@ -130,23 +183,33 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
                 borderRadius: 10,
                 padding: 10,
                 marginBottom: 10,
+                cursor: "pointer",
               }}
+              onClick={() => handleReadNotification(notification.id)}
             >
-              <Title level={5} style={{ marginBottom: 4 }}>
-                {notification.title}
-              </Title>
-              <Text>
-                Ngày gửi:{" "}
-                {new Date(notification.sendTime).toLocaleDateString("vn-VI", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                })}
-              </Text>
-              <br />
-              <Text>
-                Thời gian: {calculateDifferenceDays(notification.sendTime)}
-              </Text>
+              <Spin
+                spinning={loadingNotification === notification.id}
+                tip="Loading..."
+                key={notification.id}
+              >
+                <>
+                  <Title style={{ marginBottom: 4, fontSize: 15 }}>
+                    {!notification.isRead && (
+                      <Badge
+                        status="processing"
+                        style={{ marginRight: 5, fontSize: 18 }}
+                      />
+                    )}
+
+                    {notification.title}
+                  </Title>
+                  <Text>Nội dung: {notification.content}</Text>
+                  <br />
+                  <Text>
+                    Thời gian: {calculateDifferenceDays(notification.sendTime)}
+                  </Text>
+                </>
+              </Spin>
             </div>
           ))
         ) : (

@@ -44,16 +44,20 @@ export const OrderMaterial = ({
   stageId,
   taskId,
   handleViewProductDetail,
+  saveIdOrder,
+  handleDataOrder,
   materialId,
+  detailProductData,
 }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
-  const getMaterialUrl = "https://e-tailorapi.azurewebsites.net/api/material";
+  const getMaterialUrl = `https://e-tailorapi.azurewebsites.net/api/material/order/${saveIdOrder}/fabric`;
   const [loadingMaterial, setLoadingMaterial] = useState(false);
   const [formReset, setFormReset] = useState(0);
   const [loadingCreateOrderMaterial, setLoadingCreateOrderMaterial] =
     useState(false);
   const [material, setMaterial] = useState([]);
   const [form] = Form.useForm();
+  console.log("stageId", stageId);
   const onCreate = async () => {
     const values = form.getFieldsValue();
     console.log("values", values);
@@ -79,6 +83,7 @@ export const OrderMaterial = ({
       console.error("Error calling API:", error);
     }
   };
+  console.log("material", material);
   const handleDataMaterial = async () => {
     setLoadingMaterial(true);
     try {
@@ -98,7 +103,7 @@ export const OrderMaterial = ({
       console.error("Error calling API:", error);
     }
   };
-  console.log("formReset", formReset);
+
   const filterOptionForMaterial = (input, option) =>
     (option?.title ?? "")
       .toString()
@@ -110,19 +115,46 @@ export const OrderMaterial = ({
     handleDataMaterial();
   }, []);
   useEffect(() => {
-    if (material) {
-      const defaultMaterial = material.find((item) => item.id === materialId);
-      console.log("defaultMaterial", defaultMaterial);
-      console.log("material", defaultMaterial);
-      if (defaultMaterial) {
-        form.setFieldsValue({
-          materialStages: [
-            {
-              materialId: defaultMaterial.id,
-              quantity: 0,
-            },
-          ],
-        });
+    if (material.orderMaterials && material.orderMaterials.length > 0) {
+      if (
+        detailProductData.productStages &&
+        detailProductData.productStages.length > 0 &&
+        detailProductData.productStages.find((item) => item.id === stageId)
+          .productStageMaterials.length > 0
+      ) {
+        const dataUpdateMaterial = detailProductData.productStages.find(
+          (item) => item.id === stageId
+        );
+        if (dataUpdateMaterial) {
+          const materialsData = dataUpdateMaterial.productStageMaterials.map(
+            (item) => ({
+              materialId: item.materialId,
+              quantity: item.quantity,
+            })
+          );
+
+          console.log("dataUpdateMaterial", materialsData);
+          form.setFieldsValue({
+            materialStages: materialsData,
+          });
+        }
+      } else {
+        const defaultMaterial = material.orderMaterials.find(
+          (item) => item.id === materialId
+        );
+        console.log("defaultMaterial", defaultMaterial);
+        console.log("material", defaultMaterial);
+        if (defaultMaterial) {
+          console.log("form", form.getFieldsValue());
+          form.setFieldsValue({
+            materialStages: [
+              {
+                materialId: defaultMaterial.id,
+                quantity: 0,
+              },
+            ],
+          });
+        }
       }
     }
   }, [material]);
@@ -144,12 +176,14 @@ export const OrderMaterial = ({
         }}
         onOk={async () => {
           try {
+            console.log("alo");
             setLoadingCreateOrderMaterial(true);
             const values = await form?.validateFields();
             if (values) {
               const check = await onCreate(values);
               if (check === 1) {
                 handleViewProductDetail(taskId);
+                handleDataOrder();
                 onCancel();
                 form.resetFields();
               }
@@ -199,7 +233,6 @@ export const OrderMaterial = ({
                             validator(_, value) {
                               const selectedMaterials =
                                 getFieldValue("materialStages") || [];
-
                               const duplicateValues = selectedMaterials
                                 .map((field) => field && field.materialId)
                                 .filter((m) => m === value);
@@ -220,33 +253,72 @@ export const OrderMaterial = ({
                         ]}
                       >
                         <Select
-                          style={{ width: "300px" }}
+                          style={{ height: 45, width: 290 }}
                           showSearch
                           placeholder="Chọn loại vải"
                           optionFilterProp="children"
                           filterOption={filterOptionForMaterial}
-                        >
-                          {material?.map((material) => (
-                            <Select.Option
-                              key={material.id}
-                              value={material.id}
-                              title={material.name}
-                            >
-                              <div
-                                style={{
-                                  display: "flex",
-                                  alignItems: "center",
-                                }}
-                              >
-                                <Image width={35} src={material.image} />
-                                &nbsp; &nbsp;
-                                <Title level={5} style={{ marginTop: 6 }}>
-                                  {material.name}
-                                </Title>
-                              </div>
-                            </Select.Option>
-                          ))}
-                        </Select>
+                          options={[
+                            {
+                              label: (
+                                <Title level={5}>Vải trong đơn hàng</Title>
+                              ),
+                              title: "Vải trong đơn hàng",
+                              options: material?.orderMaterials?.map(
+                                (material) => ({
+                                  label: (
+                                    <div
+                                      key={material.id}
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <Image
+                                        width={35}
+                                        src={material.image}
+                                        height={35}
+                                      />
+                                      &nbsp; &nbsp;
+                                      <Title level={5} style={{ marginTop: 6 }}>
+                                        {material.name}
+                                      </Title>
+                                    </div>
+                                  ),
+                                  value: material.id,
+                                })
+                              ),
+                            },
+                            {
+                              label: (
+                                <Title level={5}>Vải trong cửa hàng</Title>
+                              ),
+                              title: "Vải trong cửa hàng",
+                              options: material?.materials?.map((material) => ({
+                                label: (
+                                  <div
+                                    key={material.id}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <Image
+                                      width={35}
+                                      src={material.image}
+                                      height={35}
+                                    />
+                                    &nbsp; &nbsp;
+                                    <Title level={5} style={{ marginTop: 6 }}>
+                                      {material.name}
+                                    </Title>
+                                  </div>
+                                ),
+                                value: material.id,
+                              })),
+                            },
+                          ]}
+                        ></Select>
                       </Form.Item>
                       <Form.Item
                         {...restField}
@@ -258,8 +330,8 @@ export const OrderMaterial = ({
                           },
                           {
                             type: "number",
-                            min: 1,
-                            message: "Số mét sử dụng phải lớn hơn hoặc bằng 1",
+                            min: 0.01,
+                            message: "Số mét sử dụng phải lớn hơn 0",
                           },
                         ]}
                       >
@@ -269,8 +341,9 @@ export const OrderMaterial = ({
                             `${value}m`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
                           }
                           parser={(value) => value.replace(/m\s?|(,*)/g, "")}
-                          style={{ width: "100%" }}
+                          style={{ width: "100%", height: 45 }}
                           step={0.01}
+                          size="large"
                         />
                       </Form.Item>
                       <MinusCircleOutlined onClick={() => remove(name)} />

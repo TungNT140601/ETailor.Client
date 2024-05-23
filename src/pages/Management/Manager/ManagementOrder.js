@@ -311,9 +311,17 @@ const ManagementOrderContent = () => {
       ...getColumnSearchProps("id"),
     },
     {
+      title: "Khách hàng",
+      width: 120,
+      dataIndex: "cusName",
+      key: "2",
+      fixed: "left",
+      ...getColumnSearchProps("cusName"),
+    },
+    {
       title: "Trạng thái",
       dataIndex: "status",
-      key: "2",
+      key: "3",
       width: 100,
       fixed: "left",
       render: (_, record) => handleStatusOrder(record.status),
@@ -394,7 +402,7 @@ const ManagementOrderContent = () => {
       title: "Tổng giá tiền",
       dataIndex: "totalPrice",
       key: "4",
-      width: 150,
+      width: 100,
       render: (_, record) => (
         <Text>
           {`${record.totalPrice}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
@@ -404,7 +412,7 @@ const ManagementOrderContent = () => {
     {
       title: "Tiền đã trả",
       dataIndex: "paidMoney",
-      key: "10",
+      key: "5",
       width: 100,
       render: (_, record) =>
         record.paidMoney ? (
@@ -418,7 +426,7 @@ const ManagementOrderContent = () => {
     {
       title: "Tiền còn lại",
       dataIndex: "unPaidMoney",
-      key: "11",
+      key: "6",
       width: 100,
       render: (_, record) => (
         <Text>
@@ -429,8 +437,8 @@ const ManagementOrderContent = () => {
     {
       title: "Tùy chỉnh",
       dataIndex: "Action",
-      key: "12",
-      width: 100,
+      key: "7",
+      width: 80,
       fixed: "right",
       render: (_, record) => (
         <>
@@ -485,6 +493,7 @@ const ManagementOrderContent = () => {
     paidMoney: item.paidMoney,
     unPaidMoney: item.unPaidMoney,
     plannedTime: item.plannedTime,
+    cusName: item.cusName,
   }));
 
   const defaultCheckedList = columns.map((item) => item.key);
@@ -557,7 +566,7 @@ const ManagementOrderContent = () => {
             style={{
               marginTop: 24,
             }}
-            scroll={{ x: 1000, y: 410 }}
+            scroll={{ x: 1400, y: 410 }}
             className="custom-table-orders"
           />
         </ConfigProvider>

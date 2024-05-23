@@ -47,12 +47,19 @@ import ManagementTask from "../pages/Management/Manager/ManagementTask";
 import ManagementTaskByOrder from "../pages/Management/Manager/ManagementTaskByOrder";
 import ManagementUpdateProductTemplate from "../pages/Management/Manager/ManagementUpdateProductTemplate";
 import ProductTemplateDetail from "../pages/Management/Manager/ProductTemplateDetail";
+import ChangePassword from "../pages/Customer/BodyProfile/ChangePassword";
 
 export const customerRouters = [
   {
     path: "/body-profile",
     name: "user-body-profile",
     component: BodyProfile,
+    layout: UserProfileLayout,
+  },
+  {
+    path: "/change-password",
+    name: "user-change-password",
+    component: ChangePassword,
     layout: UserProfileLayout,
   },
   {

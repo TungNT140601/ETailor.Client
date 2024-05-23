@@ -49,6 +49,7 @@ import CheckroomIcon from "@mui/icons-material/Checkroom";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import ManagerHeader from "../../../components/ManagerHeader";
 
 const { Search, TextArea } = Input;
 const { Title, Text, Paragraph } = Typography;
@@ -563,7 +564,12 @@ function ProductTemplateDetail() {
         }}
         className="manager-header"
       >
-        <ManagementProductDetailTemplateHeader />
+        <ManagerHeader
+          name={"Bản mẫu"}
+          link={"/manager/product-template"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<CheckroomIcon fontSize="small" />}
+        />
       </div>
       <div
         className="manager-content"

@@ -21,9 +21,8 @@ import {
   Card,
   Popover,
   Collapse,
-  Space,
-  ConfigProvider,
   message,
+  Segmented,
 } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 import { ChatRealTimeManager } from "../ChatRealTimeManager.js";
@@ -77,6 +76,7 @@ export const ViewDetailOrder = ({
   const [badgeChatCount, setBadgeChatCount] = useState(0);
   const [loadingDetailProduct, setLoadingDetailProduct] = useState(false);
   const [loadingDefect, setLoadingDefect] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("Sản phẩm");
   const vnpayNotification = VnPay();
   const { resetMessage, message: messageNotification } = vnpayNotification;
 
@@ -273,6 +273,52 @@ export const ViewDetailOrder = ({
     },
   ];
 
+  const columns2 = [
+    {
+      title: "STT",
+      dataIndex: "index",
+      key: "index",
+      width: 60,
+      render: (_, record, index) => <span>{index + 1}</span>,
+    },
+    {
+      title: "Tên vải",
+      dataIndex: "name",
+      key: "name",
+      render: (_, record) => <Text>{record?.material?.name}</Text>,
+    },
+    {
+      title: "Hình ảnh",
+      dataIndex: "image",
+      key: "image",
+      render: (_, record) => (
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <Image width={35} src={record?.material?.image} height={35} />
+        </div>
+      ),
+    },
+    {
+      title: "Số mét vải nhận",
+      dataIndex: "value",
+      key: "value",
+      render: (_, record) => <Text>{record.value} mét</Text>,
+    },
+    {
+      title: "Vải đã sử dụng",
+      dataIndex: "valueUsed",
+      key: "valueUsed",
+      render: (_, record) => <Text>{record.valueUsed} mét</Text>,
+    },
+    {
+      title: "Xác nhận vải",
+      dataIndex: "isCusMaterial",
+      key: "isCusMaterial",
+      render: (_, record) => (
+        <Text>{record.isCusMaterial ? "Vải khách hàng" : "Vải cửa hàng"}</Text>
+      ),
+    },
+  ];
+
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   const handleCreatePayCash = async (amount, payType, platform) => {
@@ -405,11 +451,21 @@ export const ViewDetailOrder = ({
             </div>
           </div>
           <div style={{ marginTop: 15 }}>
-            <Title level={4}>
-              Vải được xử lý trong quy trình {`${productStage.stageNum}`}:
-            </Title>
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Title level={4}>
+                Vải được xử lý trong quy trình {`${productStage.stageNum}`}:
+              </Title>
+              {productStage.productStageMaterials.length > 0 && (
+                <Button
+                  onClick={() => handleOpenOrderMaterial(productStage.stageNum)}
+                >
+                  Cập nhật
+                </Button>
+              )}
+            </div>
+
             {!productStage.productStageMaterials ? (
-              "Quy trình này không yêu cầu sử dụng vải."
+              <Text>Quy trình này không yêu cầu sử dụng vải.</Text>
             ) : (
               <div>
                 {productStage.productStageMaterials.length === 0 ? (
@@ -429,19 +485,6 @@ export const ViewDetailOrder = ({
                       >
                         Hãy thêm vào!
                       </Text>
-                      {modalOpenStage === productStage.stageNum && (
-                        <OrderMaterial
-                          open={openOrderMaterial}
-                          onCancel={() => setOpenOrderMaterial(false)}
-                          stageId={productStage.id}
-                          taskId={productStage.productId}
-                          handleViewProductDetail={handleViewProductDetail}
-                          materialId={
-                            detailProductData &&
-                            detailProductData.fabricMaterialId
-                          }
-                        />
-                      )}
                     </Text>
                   </div>
                 ) : (
@@ -466,9 +509,8 @@ export const ViewDetailOrder = ({
                                   <img
                                     alt="avatar"
                                     src={
+                                      material?.material?.image &&
                                       material?.material?.image
-                                        ? material?.material?.image
-                                        : "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3PTWBSGcbGzM6GCKqlIBRV0dHRJFarQ0eUT8LH4BnRU0NHR0UEFVdIlFRV7TzRksomPY8uykTk/zewQfKw/9znv4yvJynLv4uLiV2dBoDiBf4qP3/ARuCRABEFAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghggQAQZQKAnYEaQBAQaASKIAQJEkAEEegJmBElAoBEgghgg0Aj8i0JO4OzsrPv69Wv+hi2qPHr0qNvf39+iI97soRIh4f3z58/u7du3SXX7Xt7Z2enevHmzfQe+oSN2apSAPj09TSrb+XKI/f379+08+A0cNRE2ANkupk+ACNPvkSPcAAEibACyXUyfABGm3yNHuAECRNgAZLuYPgEirKlHu7u7XdyytGwHAd8jjNyng4OD7vnz51dbPT8/7z58+NB9+/bt6jU/TI+AGWHEnrx48eJ/EsSmHzx40L18+fLyzxF3ZVMjEyDCiEDjMYZZS5wiPXnyZFbJaxMhQIQRGzHvWR7XCyOCXsOmiDAi1HmPMMQjDpbpEiDCiL358eNHurW/5SnWdIBbXiDCiA38/Pnzrce2YyZ4//59F3ePLNMl4PbpiL2J0L979+7yDtHDhw8vtzzvdGnEXdvUigSIsCLAWavHp/+qM0BcXMd/q25n1vF57TYBp0a3mUzilePj4+7k5KSLb6gt6ydAhPUzXnoPR0dHl79WGTNCfBnn1uvSCJdegQhLI1vvCk+fPu2ePXt2tZOYEV6/fn31dz+shwAR1sP1cqvLntbEN9MxA9xcYjsxS1jWR4AIa2Ibzx0tc44fYX/16lV6NDFLXH+YL32jwiACRBiEbf5KcXoTIsQSpzXx4N28Ja4BQoK7rgXiydbHjx/P25TaQAJEGAguWy0+2Q8PD6/Ki4R8EVl+bzBOnZY95fq9rj9zAkTI2SxdidBHqG9+skdw43borCXO/ZcJdraPWdv22uIEiLA4q7nvvCug8WTqzQveOH26fodo7g6uFe/a17W3+nFBAkRYENRdb1vkkz1CH9cPsVy/jrhr27PqMYvENYNlHAIesRiBYwRy0V+8iXP8+/fvX11Mr7L7ECueb/r48eMqm7FuI2BGWDEG8cm+7G3NEOfmdcTQw4h9/55lhm7DekRYKQPZF2ArbXTAyu4kDYB2YxUzwg0gi/41ztHnfQG26HbGel/crVrm7tNY+/1btkOEAZ2M05r4FB7r9GbAIdxaZYrHdOsgJ/wCEQY0J74TmOKnbxxT9n3FgGGWWsVdowHtjt9Nnvf7yQM2aZU/TIAIAxrw6dOnAWtZZcoEnBpNuTuObWMEiLAx1HY0ZQJEmHJ3HNvGCBBhY6jtaMoEiJB0Z29vL6ls58vxPcO8/zfrdo5qvKO+d3Fx8Wu8zf1dW4p/cPzLly/dtv9Ts/EbcvGAHhHyfBIhZ6NSiIBTo0LNNtScABFyNiqFCBChULMNNSdAhJyNSiECRCjUbEPNCRAhZ6NSiAARCjXbUHMCRMjZqBQiQIRCzTbUnAARcjYqhQgQoVCzDTUnQIScjUohAkQo1GxDzQkQIWejUogAEQo121BzAkTI2agUIkCEQs021JwAEXI2KoUIEKFQsw01J0CEnI1KIQJEKNRsQ80JECFno1KIABEKNdtQcwJEyNmoFCJAhELNNtScABFyNiqFCBChULMNNSdAhJyNSiECRCjUbEPNCRAhZ6NSiAARCjXbUHMCRMjZqBQiQIRCzTbUnAARcjYqhQgQoVCzDTUnQIScjUohAkQo1GxDzQkQIWejUogAEQo121BzAkTI2agUIkCEQs021JwAEXI2KoUIEKFQsw01J0CEnI1KIQJEKNRsQ80JECFno1KIABEKNdtQcwJEyNmoFCJAhELNNtScABFyNiqFCBChULMNNSdAhJyNSiECRCjUbEPNCRAhZ6NSiAARCjXbUHMCRMjZqBQiQIRCzTbUnAARcjYqhQgQoVCzDTUnQIScjUohAkQo1GxDzQkQIWejUogAEQo121BzAkTI2agUIkCEQs021JwAEXI2KoUIEKFQsw01J0CEnI1KIQJEKNRsQ80JECFno1KIABEKNdtQcwJEyNmoFCJAhELNNtScABFyNiqFCBChULMNNSdAhJyNSiEC/wGgKKC4YMA4TAAAAABJRU5ErkJggg=="
                                     }
                                     style={{
                                       display: "block",
@@ -518,6 +560,21 @@ export const ViewDetailOrder = ({
                   </div>
                 )}
               </div>
+            )}
+            {modalOpenStage === productStage.stageNum && (
+              <OrderMaterial
+                open={openOrderMaterial}
+                saveIdOrder={saveIdOrder}
+                onCancel={() => setOpenOrderMaterial(false)}
+                stageId={productStage.id}
+                taskId={productStage.productId}
+                handleViewProductDetail={handleViewProductDetail}
+                handleDataOrder={handleDataOrder}
+                materialId={
+                  detailProductData && detailProductData.fabricMaterialId
+                }
+                detailProductData={detailProductData}
+              />
             )}
           </div>
           <br />
@@ -677,7 +734,8 @@ export const ViewDetailOrder = ({
       const responseData = await response.text();
       if (response.ok && response.status === 200) {
         message.success(responseData);
-        handleDataOrder();
+        await handleDataOrder();
+        await handleDataOrderContent();
       } else if (response.status === 400 || response.status === 500) {
         message.error(responseData);
       }
@@ -701,7 +759,8 @@ export const ViewDetailOrder = ({
       const responseData = await response.text();
       if (response.ok && response.status === 200) {
         message.success(responseData);
-        handleDataOrder();
+        await handleDataOrder();
+        await handleDataOrderContent();
       } else if (response.status === 400 || response.status === 500) {
         message.error(responseData);
       }
@@ -723,6 +782,7 @@ export const ViewDetailOrder = ({
             formatCurrency={formatCurrency}
             handleCancelOrder={handleCancelOrder}
             saveIdOrder={saveIdOrder}
+            handleDataOrder={handleDataOrder}
           />
         )}
         {openRefund && saveIdOrder && dataOrderDetail && (
@@ -769,42 +829,53 @@ export const ViewDetailOrder = ({
                 </Button>
               )}
 
-              {checkStatus === 5 && (
-                <Button
-                  key="checking"
+              {dataOrderDetail && dataOrderDetail.status === 5 && (
+                <button
                   onClick={() => {
                     handleCheckOrder(saveIdOrder);
                   }}
                   style={{
                     marginLeft: 15,
                     color: "white",
+                    width: 170,
+                    cursor: "pointer",
+                    borderRadius: "5px",
                     backgroundColor: "#ffd34d",
                     border: "1px solid #ffd34d",
+                    transition:
+                      "background-color 0.3s, border-color 0.3s, color 0.3s",
                   }}
-                  loading={checking}
                 >
-                  Kiểm tra đơn hàng
-                </Button>
+                  {checking && <LoadingOutlined style={{ color: "white" }} />}
+                  &nbsp; Kiểm tra đơn hàng
+                </button>
               )}
-              {checkStatus === 6 && (
-                <Button
-                  key="done"
+              {dataOrderDetail && dataOrderDetail.status === 6 && (
+                <button
                   onClick={() => {
                     handleDoneOrder(saveIdOrder);
                   }}
                   style={{
                     marginLeft: 15,
+                    width: 130,
+                    cursor: "pointer",
                     color: "white",
                     backgroundColor: "#3eb489",
+                    borderRadius: "5px",
                     border: "1px solid #3eb489",
+                    "&:hover": {
+                      backgroundColor: "#3eb489",
+                      borderColor: "1px solid #3eb489",
+                      color: "white",
+                    },
                   }}
-                  loading={done}
                 >
-                  Hoàn thành
-                </Button>
+                  {done && <LoadingOutlined style={{ color: "white" }} />}
+                  &nbsp; Hoàn thành
+                </button>
               )}
 
-              {checkStatus >= 1 && checkStatus <= 6 && (
+              {checkStatus >= 1 && checkStatus <= 4 && (
                 <Button
                   key="cancel"
                   type="primary"
@@ -1087,9 +1158,8 @@ export const ViewDetailOrder = ({
                                                   <img
                                                     alt="avatar"
                                                     src={
+                                                      selected?.image &&
                                                       selected?.image
-                                                        ? selected?.image
-                                                        : "data:image/png;base64,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"
                                                     }
                                                     style={{
                                                       display: "block",
@@ -1257,15 +1327,52 @@ export const ViewDetailOrder = ({
                       <Divider style={{ marginTop: 12 }}>
                         Thông tin sản phẩm
                       </Divider>
-                      <Table
-                        columns={columns1}
-                        dataSource={dataOrderDetail && dataOrderDetail.products}
-                        pagination={false}
-                        scroll={{
-                          y: 450,
-                          x: 1000,
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          marginBottom: 10,
                         }}
-                      />
+                      >
+                        <Segmented
+                          options={["Sản phẩm", "Vải trong đơn hàng"]}
+                          defaultValue="Sản phẩm"
+                          onChange={(value) => {
+                            setSelectedOption(value);
+                          }}
+                        />
+                      </div>
+
+                      {selectedOption === "Sản phẩm" ? (
+                        <Table
+                          columns={columns1}
+                          dataSource={
+                            dataOrderDetail && dataOrderDetail.products
+                          }
+                          pagination={false}
+                          scroll={{
+                            y: 450,
+                            x: 1000,
+                          }}
+                        />
+                      ) : (
+                        <Table
+                          key={
+                            dataOrderDetail &&
+                            dataOrderDetail?.orderMaterials?.map(
+                              (item) => item.id
+                            )
+                          }
+                          columns={columns2}
+                          dataSource={
+                            dataOrderDetail && dataOrderDetail.orderMaterials
+                          }
+                          pagination={false}
+                          scroll={{
+                            y: 450,
+                          }}
+                        />
+                      )}
                     </>
                   )}
                 </div>

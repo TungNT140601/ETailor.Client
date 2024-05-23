@@ -360,7 +360,7 @@ export default function ManagementTask() {
                                             <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#9F78FF", paddingLeft: 20 }}>Tất cả nhân viên</h2>
                                         </div>
                                         <div style={{ display: "flex", paddingLeft: "5vw" }}>
-                                            {[0, 1, 2, 3, 4].map(index => (
+                                            {[ 1, 2].map(index => (
                                                 <div key={index} style={{ display: "flex", alignItems: "center", marginRight: "10px" }}>
                                                     <button style={{ width: "2rem", height: "1rem", backgroundColor: getStatusTextAndColor(index).backgroundColor, borderRadius: 5, border: `1px solid ${getStatusTextAndColor(index).borderColor}` }}></button>
                                                     &nbsp;<p style={{ fontSize: 15, color: getStatusTextAndColor(index).color }}>{getStatusTextAndColor(index).text}</p>
