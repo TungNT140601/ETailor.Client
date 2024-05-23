@@ -48,6 +48,7 @@ import ManagementTaskByOrder from "../pages/Management/Manager/ManagementTaskByO
 import ManagementUpdateProductTemplate from "../pages/Management/Manager/ManagementUpdateProductTemplate";
 import ProductTemplateDetail from "../pages/Management/Manager/ProductTemplateDetail";
 import ChangePassword from "../pages/Customer/BodyProfile/ChangePassword";
+import { InfoManager } from "../pages/Management/Manager/InfoManager/InfoManager";
 
 export const customerRouters = [
   {
@@ -281,8 +282,14 @@ export const managerRouters = [
   },
   {
     path: "/manager/product-template/:id",
-    name: "manager",
+    name: "product-template-detail",
     component: ProductTemplateDetail,
+    layout: DefaultLayoutManager,
+  },
+  {
+    path: "/manager/manager-info",
+    name: "manager-info",
+    component: InfoManager,
     layout: DefaultLayoutManager,
   },
 ];

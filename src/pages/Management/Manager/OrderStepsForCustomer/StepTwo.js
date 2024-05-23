@@ -435,7 +435,14 @@ function StepTwo({
                   }}
                 />
               </div>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <br />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  marginTop: 20,
+                }}
+              >
                 <Title level={4}>Nguyên phụ liệu sử dụng</Title>
                 <Button onClick={() => setOpenConfirmMaterial(true)}>
                   Xác định vải
@@ -493,12 +500,25 @@ function StepTwo({
                   <div>
                     <Text
                       style={{
+                        width: "100%",
                         display: "flex",
                         justifyContent: "space-between",
                       }}
                     >
                       <b>Họ và tên:</b>
-                      &nbsp; {orderPaymentDetail?.cusName}
+                      &nbsp;
+                      <span
+                        style={{
+                          flexGrow: 1,
+                          maxWidth: "200px",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          textAlign: "right",
+                        }}
+                      >
+                        {orderPaymentDetail?.cusName}
+                      </span>
                     </Text>
                   </div>
                   <div style={{ marginTop: 5 }}>
@@ -698,7 +718,7 @@ function StepTwo({
                     </div>
                   </div>
                   <div>
-                    {orderPaymentDetail?.unPaidMoney !== 0 && (
+                    {orderPaymentDetail?.paidMoney === 0 && (
                       <>
                         <Divider />
                         <Title level={5}>Phương thức thanh toán</Title>
@@ -893,8 +913,13 @@ function StepTwo({
                                 } else if (result.isDenied) {
                                   Swal.fire({
                                     title: `Xác nhận trả tiền cọc ${formatCurrency(
-                                      orderPaymentDetail?.unPaidMoney
-                                    )} ?`,
+                                      Math.round(
+                                        (
+                                          (30 / 100 / 1000) *
+                                          orderPaymentDetail?.unPaidMoney
+                                        ).toFixed(3) * 1000
+                                      )
+                                    )}?`,
                                     showCancelButton: true,
                                     confirmButtonText: "Thanh toán trực tiếp",
                                     showDenyButton: true,
@@ -905,7 +930,12 @@ function StepTwo({
                                   }).then(async (result) => {
                                     if (result.isConfirmed) {
                                       const check = await handleCreatePayCash(
-                                        0,
+                                        Math.round(
+                                          (
+                                            (30 / 100 / 1000) *
+                                            orderPaymentDetail?.unPaidMoney
+                                          ).toFixed(3) * 1000
+                                        ),
                                         1,
                                         "Offline"
                                       );
@@ -919,7 +949,16 @@ function StepTwo({
                                         });
                                       }
                                     } else if (result.isDenied) {
-                                      await handleCreatePayCash(0, 1, "VN Pay");
+                                      await handleCreatePayCash(
+                                        Math.round(
+                                          (
+                                            (30 / 100 / 1000) *
+                                            orderPaymentDetail?.unPaidMoney
+                                          ).toFixed(3) * 1000
+                                        ),
+                                        1,
+                                        "VN Pay"
+                                      );
                                       Swal.fire({
                                         position: "top-center",
                                         icon: "warning",

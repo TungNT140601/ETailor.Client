@@ -20,6 +20,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
       fetchNotification();
     }
   }, [messageReturn, resetMessageReturn]);
+  console.log("manager", manager);
 
   const fetchNotification = async () => {
     const GET_NOTIFICATIONS = `https://e-tailorapi.azurewebsites.net/api/notification/get-notification`;
@@ -172,7 +173,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
           </div>
         )}
 
-        {allNotification ? (
+        {allNotification && allNotification?.data?.length > 0 ? (
           allNotification?.data?.map((notification) => (
             <div
               key={notification.id}
@@ -203,7 +204,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
 
                     {notification.title}
                   </Title>
-                  <Text>Nội dung: {notification.content}</Text>
+                  <Text>{notification.content}</Text>
                   <br />
                   <Text>
                     Thời gian: {calculateDifferenceDays(notification.sendTime)}
@@ -228,6 +229,13 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
       </div>
     </div>
   );
+  const contentManager = (
+    <div style={{ marginTop: 10 }}>
+      <Link to={"/manager/manager-info"} style={{ color: "black" }}>
+        <span>Thông tin cá nhân</span>
+      </Link>
+    </div>
+  );
   return (
     <div
       style={{
@@ -245,27 +253,34 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
       >
         <Badge
           dot={messageReturn ? true : false}
-          style={{ marginRight: 110 }}
-          size="small"
+          size="default"
+          style={{ marginRight: 15 }}
         >
           <Popover content={content} title="Thông báo" trigger="click">
             <div
-              style={{ cursor: "pointer", marginRight: 18 }}
+              style={{ cursor: "pointer" }}
               onClick={() => resetMessageReturn()}
             >
-              <BellOutlined style={{ fontSize: 22 }} />{" "}
-              <span style={{ fontSize: 18 }}> Thông báo</span>
+              <BellOutlined style={{ fontSize: 24, marginRight: 15 }} />{" "}
             </div>
           </Popover>
         </Badge>
         <div style={{ display: "flex", alignItems: "center" }}>
           {manager?.avatar ? (
-            <Avatar src={manager?.avatar} />
+            <Popover
+              title={"Thông tin"}
+              content={contentManager}
+              trigger="click"
+            >
+              <Avatar src={manager?.avatar} />
+            </Popover>
           ) : (
             <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
           )}
           &nbsp; &nbsp;
-          <Text style={{ fontSize: 18 }}>{manager?.name}</Text>
+          <Popover title={"Thông tin"} content={contentManager} trigger="click">
+            <Text style={{ fontSize: 18 }}>{manager?.name}</Text>
+          </Popover>
         </div>
       </div>
     </div>

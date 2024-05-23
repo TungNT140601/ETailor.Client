@@ -170,11 +170,7 @@ const ManagementOrderContent = () => {
       case 8:
         return <Tag color="green">Đã giao</Tag>;
       default:
-        return (
-          <Tag color="red" style={{ display: "none" }}>
-            Hủy đơn
-          </Tag>
-        );
+        return <Tag color="red">Hủy đơn</Tag>;
     }
   };
 
@@ -297,11 +293,20 @@ const ManagementOrderContent = () => {
   const columns = [
     {
       title: "STT",
-      width: 70,
+      width: 40,
       dataIndex: "stt",
       key: "index",
       fixed: "left",
     },
+    {
+      title: "Ngày tạo",
+      width: 100,
+      dataIndex: "createdTime",
+      key: "createdTime",
+      fixed: "left",
+      ...getColumnSearchProps("createdTime"),
+    },
+
     {
       title: "Mã đơn",
       width: 120,
@@ -310,14 +315,7 @@ const ManagementOrderContent = () => {
       fixed: "left",
       ...getColumnSearchProps("id"),
     },
-    {
-      title: "Khách hàng",
-      width: 120,
-      dataIndex: "cusName",
-      key: "2",
-      fixed: "left",
-      ...getColumnSearchProps("cusName"),
-    },
+
     {
       title: "Trạng thái",
       dataIndex: "status",
@@ -369,13 +367,22 @@ const ManagementOrderContent = () => {
       },
     },
     {
+      title: "Khách hàng",
+      width: 120,
+      dataIndex: "cusName",
+      key: "2",
+      ...getColumnSearchProps("cusName"),
+    },
+    {
       title: "Ngày dự kiến hoàn thành",
       width: 150,
       dataIndex: "plannedTime",
       key: "plannedTime",
-      fixed: "left",
       render: (_, record) =>
-        record.plannedTime < new Date().toISOString() ? (
+        record.status !== 0 &&
+        (record.plannedTime < new Date().toISOString() &&
+        record.status !== 8 &&
+        record.status !== 5 ? (
           <Text
             style={{ fontSize: 15, fontWeight: "bold" }}
             type="danger"
@@ -395,7 +402,7 @@ const ManagementOrderContent = () => {
               year: "numeric",
             })}
           </Text>
-        ),
+        )),
       sorter: (a, b) => new Date(a.plannedTime) - new Date(b.plannedTime),
     },
     {
@@ -442,22 +449,24 @@ const ManagementOrderContent = () => {
       fixed: "right",
       render: (_, record) => (
         <>
-          <Row justify="start">
-            <Col span={4}>
-              <EyeOutlined
-                title="Xem chi tiết"
-                style={{
-                  backgroundColor: "rgb(140, 173, 245)",
-                  color: "white",
-                  padding: 6,
-                  borderRadius: "5px",
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-                onClick={() => showModal(record.id, record.status)}
-              />
-            </Col>
-          </Row>
+          {record.status !== 0 && (
+            <Row justify="start">
+              <Col span={4}>
+                <EyeOutlined
+                  title="Xem chi tiết"
+                  style={{
+                    backgroundColor: "rgb(140, 173, 245)",
+                    color: "white",
+                    padding: 6,
+                    borderRadius: "5px",
+                    fontSize: 15,
+                    cursor: "pointer",
+                  }}
+                  onClick={() => showModal(record.id, record.status)}
+                />
+              </Col>
+            </Row>
+          )}
         </>
       ),
     },
@@ -494,6 +503,11 @@ const ManagementOrderContent = () => {
     unPaidMoney: item.unPaidMoney,
     plannedTime: item.plannedTime,
     cusName: item.cusName,
+    createdTime: new Date(item.createdTime).toLocaleDateString("vn-VI", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    }),
   }));
 
   const defaultCheckedList = columns.map((item) => item.key);
@@ -566,7 +580,7 @@ const ManagementOrderContent = () => {
             style={{
               marginTop: 24,
             }}
-            scroll={{ x: 1400, y: 410 }}
+            scroll={{ x: 1500, y: 410 }}
             className="custom-table-orders"
           />
         </ConfigProvider>

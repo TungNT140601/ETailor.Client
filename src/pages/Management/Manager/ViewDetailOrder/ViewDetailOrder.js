@@ -541,11 +541,7 @@ export const ViewDetailOrder = ({
                                       </Typography.Title>
                                       <div style={{ marginTop: 10 }}>
                                         <Text>
-                                          Số mét vải:{" "}
-                                          {material?.quantity
-                                            ? material?.quantity
-                                            : "Lỗi"}{" "}
-                                          mét
+                                          Số mét vải: {material?.quantity} mét
                                         </Text>
                                       </div>
                                     </div>
@@ -782,7 +778,8 @@ export const ViewDetailOrder = ({
             formatCurrency={formatCurrency}
             handleCancelOrder={handleCancelOrder}
             saveIdOrder={saveIdOrder}
-            handleDataOrder={handleDataOrder}
+            handleDataOrder={handleDataOrderContent}
+            handleCancel={handleCancel}
           />
         )}
         {openRefund && saveIdOrder && dataOrderDetail && (
@@ -1281,34 +1278,36 @@ export const ViewDetailOrder = ({
                           )}
                         </Row>
                       </div>
-                      {detailProductData && detailProductData.status === 5 && (
-                        <div
-                          style={{
-                            marginBottom: 15,
-                            width: "100%",
-                            textAlign: "center",
-                          }}
-                        >
-                          <button
+                      {detailProductData &&
+                        detailProductData.status === 5 &&
+                        checkStatus !== 8 && (
+                          <div
                             style={{
-                              width: 250,
-                              height: 30,
-                              color: "white",
-                              backgroundColor: "rgba(252, 96, 118, 0.8)",
-                              border: "1px solid #e75516",
-                              borderRadius: 10,
-                              cursor: "pointer",
-                              fontSize: "bold",
+                              marginBottom: 15,
+                              width: "100%",
+                              textAlign: "center",
                             }}
-                            onClick={() =>
-                              handleDefectsOrder(detailProductData.id)
-                            }
                           >
-                            {loadingDefect ? <LoadingOutlined /> : ""} Sản phẩm
-                            chưa hoàn thiện
-                          </button>
-                        </div>
-                      )}
+                            <button
+                              style={{
+                                width: 250,
+                                height: 30,
+                                color: "white",
+                                backgroundColor: "rgba(252, 96, 118, 0.8)",
+                                border: "1px solid #e75516",
+                                borderRadius: 10,
+                                cursor: "pointer",
+                                fontSize: "bold",
+                              }}
+                              onClick={() =>
+                                handleDefectsOrder(detailProductData.id)
+                              }
+                            >
+                              {loadingDefect ? <LoadingOutlined /> : ""} Sản
+                              phẩm chưa hoàn thiện
+                            </button>
+                          </div>
+                        )}
                     </div>
                   ) : chatWithCustomer ? (
                     <>

@@ -145,12 +145,12 @@ const ManagementCustomerContent = () => {
         />
       ),
     },
-    {
-      title: "Tên người dùng",
-      dataIndex: "username",
-      key: "1",
-      width: 150,
-    },
+    // {
+    //   title: "Tên người dùng",
+    //   dataIndex: "username",
+    //   key: "1",
+    //   width: 150,
+    // },
     {
       title: "Họ và tên",
       dataIndex: "fullname",
@@ -200,9 +200,9 @@ const ManagementCustomerContent = () => {
 
   const getApi = getCustomer?.map((item, index) => ({
     id: item.id,
-    stt: index,
+    stt: index + 1,
     avatar: item.avatar,
-    username: item.username,
+    // username: item.username,
     fullname: item.fullname,
     address: item.address,
     phone: item.phone,
