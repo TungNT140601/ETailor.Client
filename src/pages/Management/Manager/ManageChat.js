@@ -39,6 +39,7 @@ function ManageChat({
       resetMessageReturn();
     }
   }, [messageReturn, resetMessageReturn]);
+  console.log("dataOrderDetail", dataOrderDetail);
   const handleSendChat = async (id) => {
     setCurrentChatText(chat);
     if (previewImageChat !== null) {
@@ -218,7 +219,11 @@ function ManageChat({
           <div
             style={{
               maxHeight: 300,
-              minHeight: checkStatus === 0 || checkStatus === 7 ? 564 : 484,
+              minHeight:
+                dataOrderDetail &&
+                (dataOrderDetail.status === 0 || dataOrderDetail.status === 8)
+                  ? 564
+                  : 484,
               overflowY: "scroll",
               scrollbarWidth: "none",
               padding: 10,
@@ -526,7 +531,7 @@ function ManageChat({
                 ))}
               </div>
             )}
-            {checkStatus === 0 || checkStatus === 8 ? (
+            {dataOrderDetail.status === 0 || dataOrderDetail.status === 8 ? (
               ""
             ) : (
               <div

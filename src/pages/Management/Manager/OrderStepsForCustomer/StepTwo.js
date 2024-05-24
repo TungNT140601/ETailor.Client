@@ -271,6 +271,7 @@ function StepTwo({
             onPressEnter={() => {
               handleChangePrice(inputValue, record.id);
             }}
+            autoFocus
             onBlur={() =>
               orderPaymentDetail?.paidMoney > 0
                 ? ""
