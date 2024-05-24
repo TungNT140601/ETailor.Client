@@ -484,7 +484,7 @@ function StepThree({
                               rules={[
                                 {
                                   required: true,
-                                  message: "Tên sản phẩm không được để trống!",
+                                  message: "Loại vải không được để trống!",
                                 },
                               ]}
                             >
@@ -578,6 +578,7 @@ function StepThree({
                                   message: "Số lượng không được để trống!",
                                 },
                               ]}
+                              initialValue={inputValue}
                             >
                               <Row>
                                 <Col span={19}>
