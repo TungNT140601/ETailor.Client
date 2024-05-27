@@ -675,13 +675,13 @@ function StepThree({
                                                   <Form.Item
                                                     {...restField}
                                                     name={[name, "image"]}
-                                                    rules={[
-                                                      {
-                                                        required: true,
-                                                        message:
-                                                          "Ảnh của kiểu không được để trống!",
-                                                      },
-                                                    ]}
+                                                    // rules={[
+                                                    //   {
+                                                    //     required: true,
+                                                    //     message:
+                                                    //       "Ảnh của kiểu không được để trống!",
+                                                    //   },
+                                                    // ]}
                                                   >
                                                     <Upload
                                                       multiple

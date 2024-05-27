@@ -237,28 +237,28 @@ function StepTwo({
       title: "STT",
       dataIndex: "index",
       key: "index",
-      width: 60,
+      width: "10%",
       render: (text) => <a>{text}</a>,
     },
     {
       title: "Tên sản phẩm",
       dataIndex: "name",
-      width: 150,
+      width: "40%",
       key: "name",
       ellipsis: true,
     },
     {
-      title: "Tên bản mẫu",
+      title: "Bản mẫu",
       dataIndex: "templateName",
       key: "templateName",
-      width: 150,
+      width: "15%",
       ellipsis: true,
     },
     {
       title: "Giá tiền",
       dataIndex: "price",
       key: "price",
-      width: 150,
+      width: "15%",
       render: (_, record) =>
         productChangePrice[record.id] ? (
           <InputNumber
@@ -292,43 +292,17 @@ function StepTwo({
           </>
         ),
     },
-    {
-      title: "Chi tiết",
-      dataIndex: "DetailProduct",
-      key: "DetailProduct",
-      width: 150,
-      fixed: "right",
-      render: (_, record) => (
-        <>
-          <Row justify="start">
-            <Col span={4}>
-              <EyeOutlined
-                title="Xem chi tiết"
-                style={{
-                  backgroundColor: "rgb(140, 173, 245)",
-                  color: "white",
-                  padding: 6,
-                  borderRadius: "5px",
-                  fontSize: 15,
-                  cursor: "pointer",
-                }}
-                onClick={() => viewDetailProduct(record.id)}
-              />
-            </Col>
-          </Row>
-        </>
-      ),
-    },
+
     {
       title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "Action",
-      width: 100,
+      width: "20%",
       fixed: "right",
       render: (_, record) => (
         <>
           <Row justify="start">
-            <Col span={4}>
+            <Col span={8}>
               <DeleteOutlined
                 style={{
                   backgroundColor: "red",
@@ -345,7 +319,7 @@ function StepTwo({
                 }
               />
             </Col>
-            <Col span={4} offset={7}>
+            <Col span={8}>
               <EditOutlined
                 style={{
                   backgroundColor: "blue",
@@ -356,6 +330,20 @@ function StepTwo({
                   cursor: "pointer",
                 }}
                 onClick={() => handleCheckUpdateProduct(record.id)}
+              />
+            </Col>
+            <Col span={8}>
+              <EyeOutlined
+                title="Xem chi tiết"
+                style={{
+                  backgroundColor: "rgb(140, 173, 245)",
+                  color: "white",
+                  padding: 6,
+                  borderRadius: "5px",
+                  fontSize: 15,
+                  cursor: "pointer",
+                }}
+                onClick={() => viewDetailProduct(record.id)}
               />
             </Col>
           </Row>

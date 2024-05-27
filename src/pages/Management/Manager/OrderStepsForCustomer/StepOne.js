@@ -261,11 +261,15 @@ function StepOne({
                 ]}
                 style={{ width: 700 }}
               >
-                <Input
-                  placeholder={"Nhập họ và tên"}
-                  // readOnly={saveCustomer ? true : false}
-                  onChange={(e) => handleFormInputChange("fullname", e)}
-                />
+                {!saveCustomer ? (
+                  <Input placeholder={"Nhập họ và tên"} />
+                ) : (
+                  <Input
+                    placeholder={"Nhập họ và tên"}
+                    // readOnly={saveCustomer ? true : false}
+                    onChange={(e) => handleFormInputChange("fullname", e)}
+                  />
+                )}
               </Form.Item>
               <Form.Item
                 name="address"
@@ -278,11 +282,15 @@ function StepOne({
                 ]}
                 style={{ width: 700 }}
               >
-                <Input
-                  placeholder={"Nhập địa chỉ"}
-                  // readOnly={saveCustomer ? true : false}
-                  onChange={(e) => handleFormInputChange("address", e)}
-                />
+                {!saveCustomer ? (
+                  <Input placeholder={"Nhập địa chỉ"} />
+                ) : (
+                  <Input
+                    placeholder={"Nhập địa chỉ"}
+                    // readOnly={saveCustomer ? true : false}
+                    onChange={(e) => handleFormInputChange("address", e)}
+                  />
+                )}
               </Form.Item>
               <Row>
                 <Col span={11}>
@@ -297,11 +305,15 @@ function StepOne({
                       },
                     ]}
                   >
-                    <Input
-                      placeholder={"Nhập email"}
-                      // readOnly={saveCustomer ? true : false}
-                      onChange={(e) => handleFormInputChange("email", e)}
-                    />
+                    {!saveCustomer ? (
+                      <Input placeholder={"Nhập email"} />
+                    ) : (
+                      <Input
+                        placeholder={"Nhập email"}
+                        // readOnly={saveCustomer ? true : false}
+                        onChange={(e) => handleFormInputChange("email", e)}
+                      />
+                    )}
                   </Form.Item>
                 </Col>
                 <Col span={11} push={2}>
@@ -316,11 +328,15 @@ function StepOne({
                     ]}
                     style={{ width: 320 }}
                   >
-                    <Input
-                      placeholder={"Nhập số điện thoại"}
-                      // readOnly={saveCustomer ? true : false}
-                      onChange={(e) => handleFormInputChange("phone", e)}
-                    />
+                    {!saveCustomer ? (
+                      <Input placeholder={"Nhập số điện thoại"} />
+                    ) : (
+                      <Input
+                        placeholder={"Nhập số điện thoại"}
+                        // readOnly={saveCustomer ? true : false}
+                        onChange={(e) => handleFormInputChange("phone", e)}
+                      />
+                    )}
                   </Form.Item>
                 </Col>
               </Row>
