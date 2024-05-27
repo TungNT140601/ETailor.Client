@@ -457,6 +457,7 @@ const OrderToCustomerContent = () => {
                         noteImageObjects.push(image.url)
                       );
                     }
+                    productComponent[0].image = null;
                   }
                   console.log("noteImageFiles", noteImageFiles);
                   console.log("noteImageObjects", noteImageObjects);
@@ -653,6 +654,19 @@ const OrderToCustomerContent = () => {
     }
   };
   const prev = () => {
+    if (saveIdProduct) {
+      formUpdate.resetFields();
+      setSaveIdProduct(null);
+    } else {
+      setProductComponent(null);
+      form.resetFields();
+      formProfileBody.resetFields();
+      setGetDetailDataProfileCustomer(null);
+      setChooseProductTemplate(null);
+      setProductComponent(null);
+      setOnFinishLoading(false);
+      setInputValue(1);
+    }
     setCurrent(current - 1);
   };
 
