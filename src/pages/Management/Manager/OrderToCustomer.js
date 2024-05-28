@@ -457,10 +457,7 @@ const OrderToCustomerContent = () => {
                         noteImageObjects.push(image.url)
                       );
                     }
-                    productComponent[0].image = null;
                   }
-                  console.log("noteImageFiles", noteImageFiles);
-                  console.log("noteImageObjects", noteImageObjects);
                   const componentId =
                     allValues[
                       fieldName.replace("productComponent_", "component_")
@@ -520,6 +517,8 @@ const OrderToCustomerContent = () => {
         console.error("Validation failed:", error);
         console.log("Validation error fields:", error.errorFields);
         // Optionally, provide feedback to the user about which fields need attention
+      } finally {
+        setOnFinishLoading(false);
       }
     } else {
       toast.error("Chọn hồ sơ số đo phù hợp cho sản phẩm", {
