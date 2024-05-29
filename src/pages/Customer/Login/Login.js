@@ -17,7 +17,9 @@ import EmailVerifyIcon from "../../../assets/images/verify-emails.png";
 import CircularProgress from "@mui/material/CircularProgress";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
-import SendIcon from "@mui/icons-material/Send";
+import ForgotPasswordImg from "../../../assets/images/undraw_my_password_re_ydq7.svg";
+import SuccessEmailIcon from "../../../assets/images/undraw_mail_sent_re_0ofv.svg";
+import ValidateEmail from "../../utils/ValidateEmail";
 
 const Input = React.forwardRef(function CustomInput(props, ref) {
   const { slots, ...other } = props;
@@ -185,6 +187,11 @@ export default function Login({ openModal, closeModal }) {
   const handleRegisterClick = () => {
     setLoginOrReg("REGISTER");
   };
+  const handleForgetPassword = () => {
+    setSendSuccess(false);
+    setForgetEmail("");
+    setLoginOrReg("FORGET_PASSWORD");
+  }
   const handleLoginClick = () => {
     setLoginOrReg("LOGIN");
   };
@@ -239,6 +246,47 @@ export default function Login({ openModal, closeModal }) {
       setLoading(false);
     }
   };
+  //----------------------------------------------- HANDLE FORGET PASSWORD ---------------------------------------------------
+  const [forgetEmail, setForgetEmail] = useState("");
+  const [sendSuccess, setSendSuccess] = useState(false);
+  const [emailErr, setEmailErr] = useState("");
+  const [validateEmail, setValidateEmail] = useState(true);
+  const handleForgetEmailChange = (event) => {
+    if (ValidateEmail(event.target.value) === null) {
+      setValidateEmail(false);
+    }
+    setValidateEmail(true);
+    setForgetEmail(event.target.value);
+    setEmailErr("");
+  };
+  const handleSendEmailToGetPassWord = async () => {
+    console.log("forgetEmail:", forgetEmail);
+    if (forgetEmail && forgetEmail.trim().length > 0) {
+      setLoading(true);
+      const FORGET_PASSWORD_URL = `https://e-tailorapi.azurewebsites.net/api/auth/customer/reset-password/${forgetEmail}`;
+      try {
+        const response = await fetch(FORGET_PASSWORD_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        if (response.ok) {
+          console.log(response);
+          setLoading(false);
+          setSendSuccess(true);
+        } else {
+          setSendSuccess(false);
+          setEmailErr("Email sai hoặc không tồn tại");
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    } else {
+      setEmailErr("Vui lòng nhập email của bạn");
+    }
+  }
   return (
     <div>
       <Modal
@@ -358,7 +406,7 @@ export default function Login({ openModal, closeModal }) {
                       </a>
                     </p>
                     <p className="control" style={{ paddingTop: "10px" }}>
-                      <a href="#">Quên mật khẩu</a>
+                      <a onClick={handleForgetPassword}>Quên mật khẩu</a>
                     </p>
                   </div>
                 </div>
@@ -367,7 +415,7 @@ export default function Login({ openModal, closeModal }) {
                 </div>
               </div>
             </ModalContent>
-          ) : (
+          ) : loginOrReg === "REGISTER" ? (
             <ModalContent sx={style}>
               <div
                 style={{
@@ -590,7 +638,130 @@ export default function Login({ openModal, closeModal }) {
                 </div>
               </div>
             </ModalContent>
-          )}
+          ) : (
+            <>
+              <ModalContent sx={style}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    height: "100%",
+                    width: "100%",
+                  }}
+                >
+                  <div className="login-form" style={{ width: "60%" }}>
+                    <h1 className="title is-2" style={{ margin: 0 }}>
+                      Quên mật khẩu
+                    </h1>
+                    {sendSuccess ? (
+                      <>
+                        <div style={{ width: "100%", height: "100%" }}>
+                          <div style={{ margin: "50px 0 0 30px", alignItems: 'center', display: "flex", flexDirection: "column" }}>
+                            <img src={SuccessEmailIcon} width={50} height={50} alt="Success" style={{ alignSelf: 'center' }} />
+                            <p style={{ fontSize: 15, marginTop: 20 }}>Email đã được gửi tới {forgetEmail}</p>
+                            <p style={{ fontSize: 15, }}>Vui lòng kiểm tra email của bạn!</p>
+                          </div>
+                          <div>
+                          </div>
+
+                          <div
+                            className="field loginbtn-submit"
+                            style={{ paddingTop: "50px", display: "flex", justifyContent: "center" }}
+                          >
+                            <button
+                              className="button"
+                              onClick={() => setLoginOrReg("LOGIN")}
+                              style={{
+                                backgroundColor: "#26282E",
+                                color: "#FFFFFF",
+                                width: "70%",
+                                fontSize: "1rem",
+                                borderRadius: "5px",
+                              }}
+                            >
+                              Trở lại trang đăng nhập &nbsp;{" "}
+                            </button>
+
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="input-form" style={{ marginTop: 50 }}>
+                          <Input
+                            id="outlined-start-adornment"
+                            placeholder="Nhập email của bạn"
+                            type="email"
+                            autoComplete="off"
+                            startAdornment={
+                              <InputAdornment>
+                                <img width={24} height={24} src={EmailIcon}></img>
+                              </InputAdornment>
+                            }
+                            value={forgetEmail}
+                            onChange={handleForgetEmailChange}
+                          />
+                          {!sendSuccess && (
+                            <div>
+                              <span
+                                style={{
+                                  color: "red",
+                                  fontSize: "12px",
+                                  paddingLeft: "5px",
+                                }}
+                              >
+                                {emailErr}
+                              </span>
+                            </div>
+                          )}
+                          <div
+                            className="field loginbtn-submit"
+                            style={{ paddingTop: 30, textAlign: "center" }}
+                          >
+                            <button
+                              className="button"
+                              onClick={() => handleSendEmailToGetPassWord()}
+                              style={{
+                                backgroundColor: "#26282E",
+                                color: "#FFFFFF",
+                                width: "60%",
+                                fontSize: "1rem",
+                                borderRadius: "5px",
+                              }}
+                            >
+                              Xác nhận &nbsp;{" "}
+                              {loading && (
+                                <CircularProgress
+                                  size={20}
+                                  sx={{ color: "#FFFFFF" }}
+                                />
+                              )}
+                            </button>
+                            <div className="field" style={{ margin: 10 }}>
+                              <p className="control">
+                                Trở lại {" "}
+                                <a href="#" onClick={() => setLoginOrReg("LOGIN")}>
+                                  đăng nhập
+                                </a>
+                              </p>
+
+                            </div>
+                          </div>
+
+                        </div>
+
+                      </>
+                    )}
+
+                  </div>
+                  <div style={{ width: "40%", alignContent: "center", alignItems: 'center' }}>
+                    <img src={ForgotPasswordImg} width={400} height={400} alt=""></img>
+                  </div>
+                </div>
+              </ModalContent>
+            </>
+          )
+          }
         </Fade>
       </Modal>
     </div>

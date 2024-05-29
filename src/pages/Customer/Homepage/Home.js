@@ -17,6 +17,7 @@ import CatalogType3 from '../../../assets/images/catalog-type/9294174f7778b13ee8
 import CatalogType4 from '../../../assets/images/catalog-type/vest.jpg'
 import Banner3 from '../../../assets/images/Banner.png'
 import ScrollReveal from 'scrollreveal';
+import { Link } from 'react-router-dom';
 
 
 const HomePage = () => {
@@ -64,7 +65,7 @@ const HomePage = () => {
             <div className='homepage-container'>
                 <div className='wrapper-main' >
                     <div className='banner-swiper'>
-                    
+
                         <Swiper
                             spaceBetween={30}
                             centeredSlides={true}
@@ -138,8 +139,10 @@ const HomePage = () => {
                         <img style={{ height: "375px", width: "275px", borderRadius: "5px", boxShadow: "5px 10px 18px #888888" }} src={CatalogType1}></img>
 
 
-                        <div className='catalog-wrapper-btn'>
-                            <button className='btn-main'>CHI TIẾT</button>
+                        <div className='catalog-wrapper-btn' >
+                            <Link to='/catalogue'>
+                                <button className='btn-main'>CHI TIẾT</button>
+                            </Link>
                         </div>
                         <div className='details'>
                             <span className='title'>Áo sơ mi</span>
@@ -150,8 +153,10 @@ const HomePage = () => {
                         <img style={{ height: "375px", width: "275px", borderRadius: "5px", boxShadow: "5px 10px 18px #888888" }} src={CatalogType2}></img>
 
 
-                        <div className='catalog-wrapper-btn'>
-                            <button className='btn-main'>CHI TIẾT</button>
+                         <div className='catalog-wrapper-btn' >
+                            <Link to='/catalogue'>
+                                <button className='btn-main'>CHI TIẾT</button>
+                            </Link>
                         </div>
                         <div className='details'>
                             <span className='title'>Áo dài</span>
@@ -161,8 +166,10 @@ const HomePage = () => {
                         <img style={{ height: "375px", width: "275px", borderRadius: "5px", boxShadow: "5px 10px 18px #888888" }} src={CatalogType3}></img>
 
 
-                        <div className='catalog-wrapper-btn'>
-                            <button className='btn-main'>CHI TIẾT</button>
+                         <div className='catalog-wrapper-btn' >
+                            <Link to='/catalogue'>
+                                <button className='btn-main'>CHI TIẾT</button>
+                            </Link>
                         </div>
                         <div className='details'>
                             <span className='title'>Quần tây</span>
@@ -172,8 +179,10 @@ const HomePage = () => {
                         <img style={{ height: "375px", width: "275px", borderRadius: "5px", boxShadow: "5px 10px 18px #888888" }} src={CatalogType4}></img>
 
 
-                        <div className='catalog-wrapper-btn'>
-                            <button className='btn-main'>CHI TIẾT</button>
+                         <div className='catalog-wrapper-btn' >
+                            <Link to='/catalogue'>
+                                <button className='btn-main'>CHI TIẾT</button>
+                            </Link>
                         </div>
                         <div className='details'>
                             <span className='title'>Áo vest</span>
