@@ -221,7 +221,7 @@ export const InfoManager = () => {
                         height: 250,
                       }}
                       src={
-                        info.avatar
+                        info?.avatar
                           ? info?.avatar
                           : "https://api.dicebear.com/7.x/miniavs/svg?seed=1"
                       }
