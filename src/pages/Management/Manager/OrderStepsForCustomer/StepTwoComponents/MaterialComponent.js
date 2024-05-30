@@ -266,7 +266,7 @@ export const MaterialComponent = ({
                   },
                 },
                 {
-                  title: "Số met vải cần thiết",
+                  title: "Số met vải đã nhận",
                   dataIndex: "value",
                   key: "value",
                   render: (_, record, index) => (
@@ -276,6 +276,17 @@ export const MaterialComponent = ({
                         key={`${record.id}-value`}
                         noStyle
                         initialValue={record?.value}
+                        rules={[
+                          {
+                            required: true,
+                            message: "Số mét nhận không được để trống!",
+                          },
+                          {
+                            type: "number",
+                            min: 0,
+                            message: "Số mét nhận phải lớn hơn hoặc bằng 0",
+                          },
+                        ]}
                       >
                         <InputNumber
                           disabled={!record?.isCusMaterial}
@@ -576,17 +587,17 @@ export const ConfirmMaterial = ({
             </Form.Item>
             <Form.Item
               name="quantity"
-              label="Số lượng"
+              label="Số mét vải nhận"
               hasFeedback
               rules={[
                 {
                   required: true,
-                  message: "Số lượng phải là số và không được để trống",
+                  message: "Số mét vải nhận phải là số và không được để trống",
                 },
                 {
                   type: "number",
                   min: 1,
-                  message: "Số lượng ít nhất là 1",
+                  message: "Số mét vải nhận ít nhất là 1",
                 },
               ]}
             >
@@ -665,17 +676,17 @@ export const ConfirmMaterial = ({
                 </Form.Item>
                 <Form.Item
                   name="quantityCreate"
-                  label="Số lượng"
+                  label="Số mét vải"
                   hasFeedback
                   rules={[
                     {
                       required: true,
-                      message: "Số lượng phải là số và không được để trống",
+                      message: "Số mét vải phải là số và không được để trống",
                     },
                     {
                       type: "number",
                       min: 1,
-                      message: "Số lượng ít nhất là 1",
+                      message: "Số mét vải ít nhất là 1",
                     },
                   ]}
                 >

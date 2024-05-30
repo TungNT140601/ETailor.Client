@@ -355,55 +355,124 @@ function DetailProduct({
                                                   <>
                                                     <br />
                                                     <Popover
+                                                      trigger={"click"}
                                                       title={
                                                         "Lời dặn của khách"
                                                       }
                                                       content={
                                                         <>
-                                                          <Text>Hình ảnh:</Text>
-                                                          <Row
-                                                            gutter={[0, 24]}
-                                                            span={10}
+                                                          <Title level={5}>
+                                                            Hình ảnh:
+                                                          </Title>
+                                                          <div
                                                             style={{
-                                                              marginTop: 5,
+                                                              width: "400px",
+                                                              height: "auto",
+                                                              padding:
+                                                                "10px 0px",
+                                                              border:
+                                                                "1px solid #9F78FF",
+                                                              borderRadius: 5,
                                                               textAlign:
                                                                 "center",
                                                             }}
                                                           >
-                                                            {JSON.parse(
-                                                              componentTypeOrder
+                                                            <Row
+                                                              gutter={[16, 24]}
+                                                              justify={"center"}
+                                                            >
+                                                              {componentTypeOrder
                                                                 .noteObject
-                                                                .noteImage
-                                                            ).map((image) => (
-                                                              <Col
-                                                                className="gutter-row"
-                                                                span={12}
-                                                              >
-                                                                <Image
-                                                                  width={100}
-                                                                  src={image}
+                                                                .noteImage ? (
+                                                                JSON.parse(
+                                                                  componentTypeOrder
+                                                                    .noteObject
+                                                                    .noteImage
+                                                                ).map(
+                                                                  (image) => (
+                                                                    <Col
+                                                                      span={10}
+                                                                      style={{
+                                                                        margin:
+                                                                          "0px 10px",
+                                                                      }}
+                                                                    >
+                                                                      <Image
+                                                                        width={
+                                                                          100
+                                                                        }
+                                                                        src={
+                                                                          image
+                                                                        }
+                                                                        style={{
+                                                                          objectFit:
+                                                                            "cover",
+                                                                        }}
+                                                                      />
+                                                                    </Col>
+                                                                  )
+                                                                )
+                                                              ) : (
+                                                                <div
                                                                   style={{
-                                                                    border:
-                                                                      "1px solid #9F78FF",
-                                                                    borderRadius: 5,
-                                                                    padding: 5,
+                                                                    textAlign:
+                                                                      "center",
                                                                   }}
-                                                                />
-                                                              </Col>
-                                                            ))}
-                                                          </Row>
+                                                                >
+                                                                  <Text>
+                                                                    Không có
+                                                                    hình ảnh!
+                                                                  </Text>
+                                                                </div>
+                                                              )}
+                                                            </Row>
+                                                          </div>
+
                                                           <br></br>
                                                           <Text>Ghi chú:</Text>
-                                                          <Paragraph
+                                                          <div
                                                             style={{
-                                                              width: "300px",
+                                                              width: "400px",
+                                                              height: "auto",
+                                                              padding:
+                                                                "10px 0px",
+                                                              border:
+                                                                "1px solid #9F78FF",
+                                                              borderRadius: 5,
                                                             }}
                                                           >
-                                                            {
-                                                              componentTypeOrder
-                                                                .noteObject.note
-                                                            }
-                                                          </Paragraph>
+                                                            {" "}
+                                                            {componentTypeOrder
+                                                              .noteObject
+                                                              .note ? (
+                                                              <Paragraph
+                                                                style={{
+                                                                  margin: "0px",
+                                                                  width: "100%",
+                                                                  padding:
+                                                                    "0px 10px",
+                                                                }}
+                                                              >
+                                                                {
+                                                                  componentTypeOrder
+                                                                    .noteObject
+                                                                    .note
+                                                                }
+                                                              </Paragraph>
+                                                            ) : (
+                                                              <Paragraph
+                                                                style={{
+                                                                  width: "100%",
+                                                                  textAlign:
+                                                                    "center",
+                                                                  margin: "0px",
+                                                                }}
+                                                              >
+                                                                Không có ghi
+                                                                chú!
+                                                              </Paragraph>
+                                                            )}
+                                                          </div>
                                                         </>
                                                       }
                                                     >

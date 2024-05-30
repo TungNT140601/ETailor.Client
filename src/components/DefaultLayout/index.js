@@ -34,7 +34,7 @@ const DefaultLayout = ({ children }) => {
             <div className={`scroll-to-top ${isVisible ? 'visible' : ''}`}>
                 {isVisible &&
 
-                    <img src={BackToTopIcon} width={80} height={80} onClick={scrollToTop}></img>
+                    <img src={BackToTopIcon} width={50} height={50} onClick={scrollToTop}></img>
                 }
             </div>
         );

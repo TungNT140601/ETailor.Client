@@ -332,57 +332,70 @@ const OrderToCustomerContent = () => {
   }, [getDetailDataProfileCustomer]);
 
   const onFinish = async () => {
-    setOnFinishLoading(true);
     if (!chooseProductTemplate) {
       toast.error("Chọn loại bản mẫu trước", {
         duration: 5000,
       });
       setOnFinishLoading(false);
     } else if (getDetailDataProfileCustomer) {
-      const allValues = form.getFieldsValue();
-
-      const backendData = {
-        orderId: saveOrderId,
-        name: allValues.name,
-        productTemplateId: chooseProductTemplate.id,
-        materialId: allValues.materialId,
-        productComponents: Object.keys(allValues)
-          .map((fieldName) => {
-            if (fieldName.startsWith("productComponent_")) {
-              const productComponent = allValues[fieldName];
-              let note;
-              let noteImageFiles;
-              if (productComponent) {
-                note = productComponent[0]?.note;
-                noteImageFiles = productComponent[0]?.image?.fileList.map(
-                  (image) => ({
-                    base64String: image.thumbUrl,
-                    fileName: image.name,
-                    type: image.type,
-                  })
-                );
-              }
-              const componentId =
-                allValues[fieldName.replace("productComponent_", "component_")];
-              return { componentId: componentId, note, noteImageFiles };
-            }
-            return null;
-          })
-          .filter(Boolean),
-        profileId: getDetailDataProfileCustomer.id,
-        note: allValues.note ? allValues.note : "",
-      };
-      const checkResult = await onCreateNewProduct(backendData);
-      if (checkResult === 1) {
-        setProductComponent(null);
-        form.resetFields();
-        formProfileBody.resetFields();
-        setGetDetailDataProfileCustomer(null);
-        setChooseProductTemplate(null);
-        setProductComponent(null);
-        setOnFinishLoading(false);
-        setInputValue(1);
-      } else {
+      try {
+        const validate = await form.validateFields();
+        console.log("allValues cua buoc 3", validate);
+        setOnFinishLoading(true);
+        if (validate) {
+          console.log("allValues vo if", validate);
+          const allValues = await form.getFieldsValue();
+          const backendData = {
+            orderId: saveOrderId,
+            name: allValues.name,
+            productTemplateId: chooseProductTemplate.id,
+            materialId: allValues.materialId,
+            productComponents: Object.keys(allValues)
+              .map((fieldName) => {
+                if (fieldName.startsWith("productComponent_")) {
+                  const productComponent = allValues[fieldName];
+                  let note;
+                  let noteImageFiles;
+                  if (productComponent) {
+                    note = productComponent[0]?.note;
+                    noteImageFiles = productComponent[0]?.image?.fileList.map(
+                      (image) => ({
+                        base64String: image.thumbUrl,
+                        fileName: image.name,
+                        type: image.type,
+                      })
+                    );
+                  }
+                  const componentId =
+                    allValues[
+                      fieldName.replace("productComponent_", "component_")
+                    ];
+                  return { componentId: componentId, note, noteImageFiles };
+                }
+                return null;
+              })
+              .filter(Boolean),
+            profileId: getDetailDataProfileCustomer.id,
+            note: allValues.note ? allValues.note : "",
+          };
+          const checkResult = await onCreateNewProduct(backendData);
+          if (checkResult === 1) {
+            setProductComponent(null);
+            form.resetFields();
+            formProfileBody.resetFields();
+            setGetDetailDataProfileCustomer(null);
+            setChooseProductTemplate(null);
+            setProductComponent(null);
+            setOnFinishLoading(false);
+            setInputValue(1);
+          } else {
+            setOnFinishLoading(false);
+          }
+        }
+      } catch (error) {
+        console.error("Validation failed:", error);
+        console.log("Validation error fields:", error.errorFields);
+      } finally {
         setOnFinishLoading(false);
       }
     } else {
@@ -406,93 +419,105 @@ const OrderToCustomerContent = () => {
   };
   const handleUpdateProduct = async () => {
     const urlUpdate = `https://e-tailorapi.azurewebsites.net/api/product/${saveOrderId}/${saveIdProduct}`;
-    setOnFinishLoading(true);
+
     if (getProfileUpdateCustomer) {
-      const allValues = formUpdate.getFieldsValue();
-      const backendData = {
-        id: saveIdProduct,
-        orderId: saveOrderId,
-        name: allValues.name,
-        productTemplateId: allValues.productTemplateId,
-        materialId: allValues.materialId,
-        productComponents: Object.keys(allValues)
-          .map((fieldName) => {
-            if (fieldName.startsWith("productComponent_")) {
-              const productComponent = allValues[fieldName];
-              console.log("productComponent", productComponent);
-              let note;
-              let noteImageFiles = [];
-              let noteImageObjects = [];
-              if (productComponent) {
-                note = productComponent[0]?.note;
-                if (productComponent[0]?.image?.fileList) {
-                  productComponent[0]?.image?.fileList?.map((image) =>
-                    image.url
-                      ? noteImageObjects.push(image.url)
-                      : noteImageFiles.push({
-                          base64String: image.thumbUrl,
-                          fileName: image.name,
-                          type: image.type,
-                        })
-                  );
-                } else {
-                  productComponent[0]?.image?.map((image) =>
-                    noteImageObjects.push(image.url)
-                  );
+      try {
+        const validate = await formUpdate.validateFields();
+        if (validate) {
+          setOnFinishLoading(true);
+          const allValues = formUpdate.getFieldsValue();
+          const backendData = {
+            id: saveIdProduct,
+            orderId: saveOrderId,
+            name: allValues.name,
+            productTemplateId: allValues.productTemplateId,
+            materialId: allValues.materialId,
+            productComponents: Object.keys(allValues)
+              .map((fieldName) => {
+                if (fieldName.startsWith("productComponent_")) {
+                  const productComponent = allValues[fieldName];
+                  console.log("productComponent", productComponent);
+                  let note;
+                  let noteImageFiles = [];
+                  let noteImageObjects = [];
+                  if (productComponent) {
+                    note = productComponent[0]?.note;
+                    if (productComponent[0]?.image?.fileList) {
+                      productComponent[0]?.image?.fileList?.map((image) =>
+                        image.url
+                          ? noteImageObjects.push(image.url)
+                          : noteImageFiles.push({
+                              base64String: image.thumbUrl,
+                              fileName: image.name,
+                              type: image.type,
+                            })
+                      );
+                    } else {
+                      productComponent[0]?.image?.map((image) =>
+                        noteImageObjects.push(image.url)
+                      );
+                    }
+                  }
+                  const componentId =
+                    allValues[
+                      fieldName.replace("productComponent_", "component_")
+                    ];
+                  return {
+                    componentId: componentId,
+                    note,
+                    noteImageFiles,
+                    noteImageObjects,
+                  };
                 }
+                return null;
+              })
+              .filter(Boolean),
+            profileId: getProfileUpdateCustomer.id,
+            note: allValues.note ? allValues.note : "",
+          };
+          const checkResult = await (async () => {
+            try {
+              const response = await fetch(`${urlUpdate}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${manager?.token}`,
+                },
+                body: JSON.stringify(backendData),
+              });
+              if (response.ok && response.status === 200) {
+                toast.success("Cập nhật thành công");
+                await handleDataOrderDetail();
+                return 1;
+              } else if (response.status === 400 || response.status === 500) {
+                const responseData = await response.text();
+                toast.error(responseData);
+                return 0;
+              } else if (response.status === 401) {
+                localStorage.removeItem("manager");
+                navigate("/management/login");
               }
-              console.log("noteImageFiles", noteImageFiles);
-              console.log("noteImageObjects", noteImageObjects);
-              const componentId =
-                allValues[fieldName.replace("productComponent_", "component_")];
-              return {
-                componentId: componentId,
-                note,
-                noteImageFiles,
-                noteImageObjects,
-              };
+            } catch (error) {
+              console.error("Error calling API:", error);
             }
-            return null;
-          })
-          .filter(Boolean),
-        profileId: getProfileUpdateCustomer.id,
-        note: allValues.note ? allValues.note : "",
-      };
-      const checkResult = await (async () => {
-        try {
-          const response = await fetch(`${urlUpdate}`, {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${manager?.token}`,
-            },
-            body: JSON.stringify(backendData),
-          });
-          if (response.ok && response.status === 200) {
-            toast.success("Cập nhật thành công");
-            await handleDataOrderDetail();
-            return 1;
-          } else if (response.status === 400 || response.status === 500) {
-            const responseData = await response.text();
-            toast.error(responseData);
-            return 0;
-          } else if (response.status === 401) {
-            localStorage.removeItem("manager");
-            navigate("/management/login");
+          })();
+          if (checkResult === 1) {
+            setCurrent(1);
+            formUpdate.resetFields();
+            getDiscountForOrder();
+            const check = await handleDataOrderDetail();
+            if (check === 1) {
+              setOnFinishLoading(false);
+            }
+          } else {
+            setOnFinishLoading(false);
           }
-        } catch (error) {
-          console.error("Error calling API:", error);
         }
-      })();
-      if (checkResult === 1) {
-        setCurrent(1);
-        formUpdate.resetFields();
-        getDiscountForOrder();
-        const check = await handleDataOrderDetail();
-        if (check === 1) {
-          setOnFinishLoading(false);
-        }
-      } else {
+      } catch (error) {
+        console.error("Validation failed:", error);
+        console.log("Validation error fields:", error.errorFields);
+        // Optionally, provide feedback to the user about which fields need attention
+      } finally {
         setOnFinishLoading(false);
       }
     } else {
@@ -628,6 +653,19 @@ const OrderToCustomerContent = () => {
     }
   };
   const prev = () => {
+    if (saveIdProduct) {
+      formUpdate.resetFields();
+      setSaveIdProduct(null);
+    } else {
+      setProductComponent(null);
+      form.resetFields();
+      formProfileBody.resetFields();
+      setGetDetailDataProfileCustomer(null);
+      setChooseProductTemplate(null);
+      setProductComponent(null);
+      setOnFinishLoading(false);
+      setInputValue(1);
+    }
     setCurrent(current - 1);
   };
 

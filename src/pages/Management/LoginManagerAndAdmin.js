@@ -34,14 +34,14 @@ export default function LoginManagerAndAdmin() {
       if (data.get("userName") === "") {
         Swal.fire({
           icon: "error",
-          title: "Oops...",
+          title: "Không chính xác",
           text: `Tên đăng nhập không được rỗng!`,
           timer: 4000,
         });
       } else if (data.get("password") === "") {
         Swal.fire({
           icon: "error",
-          title: "Oops...",
+          title: "Không chính xác",
           text: `Mật khẩu không được rỗng!`,
           timer: 4000,
         });
@@ -74,11 +74,11 @@ export default function LoginManagerAndAdmin() {
             await localStorage.setItem("manager", JSON.stringify(data));
             navigate("/manager");
           }
-        } else if (response.status === 400) {
+        } else if (response.status === 400 || response.status === 500) {
           const dataError = await response.text();
           Swal.fire({
             icon: "error",
-            title: "Oops...",
+            title: "Lỗi",
             text: `${dataError}`,
             timer: 4000,
           });

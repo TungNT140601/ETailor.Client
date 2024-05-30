@@ -161,11 +161,11 @@ export const ManagerSidebar = () => {
               label: <Link to="/manager/material-category">Danh mục</Link>,
               icon: <AppstoreAddOutlined />,
             },
-            {
-              key: "/manager/material-type",
-              label: <Link to="/manager/material-type">Các loại</Link>,
-              icon: <OrderedListOutlined />,
-            },
+            // {
+            //   key: "/manager/material-type",
+            //   label: <Link to="/manager/material-type">Các loại</Link>,
+            //   icon: <OrderedListOutlined />,
+            // },
           ],
         },
         {

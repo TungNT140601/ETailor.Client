@@ -1340,7 +1340,7 @@ const UpdateMaterialType = ({
 
 function ManagementMaterialCategoryContent() {
   const [materialCategory, setMaterialCategory] = useState([]);
-  const [materialType, setMaterialType] = useState([]);
+  // const [materialType, setMaterialType] = useState([]);
   const [loadingMaterialCategory, setLoadingMaterialCategory] = useState(false);
   const getMaterialCategoryUrl =
     "https://e-tailorapi.azurewebsites.net/api/material-category";
@@ -1364,30 +1364,30 @@ function ManagementMaterialCategoryContent() {
       console.error("Error calling API:", error);
     }
   };
-  const handleDataMaterialType = async () => {
-    try {
-      const response = await fetch(
-        "https://e-tailorapi.azurewebsites.net/api/material-type",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${manager?.token}`,
-          },
-        }
-      );
-      if (response.ok && response.status === 200) {
-        const responseData = await response.json();
-        setMaterialType(responseData);
-      }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
-  };
+  // const handleDataMaterialType = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       "https://e-tailorapi.azurewebsites.net/api/material-type",
+  //       {
+  //         method: "GET",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${manager?.token}`,
+  //         },
+  //       }
+  //     );
+  //     if (response.ok && response.status === 200) {
+  //       const responseData = await response.json();
+  //       setMaterialType(responseData);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error calling API:", error);
+  //   }
+  // };
 
   useEffect(() => {
     handleDataMaterialCategory();
-    handleDataMaterialType();
+    // handleDataMaterialType();
   }, []);
 
   const columns1 = [
@@ -1416,17 +1416,17 @@ function ManagementMaterialCategoryContent() {
         </Text>
       ),
     },
-    {
-      title: "Loại nguyên liệu",
-      dataIndex: "materialTypeName",
-      key: "3",
-      width: "25%",
-    },
+    // {
+    //   title: "Loại nguyên liệu",
+    //   dataIndex: "materialTypeName",
+    //   key: "3",
+    //   width: "25%",
+    // },
     {
       title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "4",
-      width: "30%",
+      width: "15%",
       fixed: "right",
       render: (_, record) => (
         <Row justify="start">
@@ -1443,7 +1443,7 @@ function ManagementMaterialCategoryContent() {
               onClick={() => onDeleteMaterialCategory(record.id)}
             />
           </Col>
-          <Col span={4} offset={2}>
+          <Col span={4}>
             <EditOutlined
               style={{
                 backgroundColor: "blue",
@@ -1465,7 +1465,7 @@ function ManagementMaterialCategoryContent() {
     id: item.id,
     name: item.name,
     pricePerUnit: item.pricePerUnit,
-    materialTypeName: item.materialTypeName,
+    // materialTypeName: item.materialTypeName,
   }));
 
   //------------------------------------------------------------Modal create-------------------------------------------------------
@@ -1613,7 +1613,7 @@ function ManagementMaterialCategoryContent() {
               onCancel={() => {
                 setOpen(false);
               }}
-              materialType={materialType}
+              // materialType={materialType}
             />
             <UpdateMaterialCategory
               open={openUpdate}
@@ -1700,7 +1700,7 @@ const UpdateMaterialCategory = ({
         modifier: "public",
         name: materialCategoryDetail.name || "",
         pricePerUnit: materialCategoryDetail.pricePerUnit || "",
-        materialTypeId: materialCategoryDetail.materialTypeName || "",
+        // materialTypeId: materialCategoryDetail.materialTypeName || "",
       });
     }
   }, [materialCategoryDetail]);
@@ -1741,7 +1741,7 @@ const UpdateMaterialCategory = ({
     >
       <Form
         style={{
-          height: 300,
+          height: 200,
           overflowY: "scroll",
           scrollbarWidth: "none",
           WebkitScrollbar: "none",
@@ -1806,7 +1806,7 @@ const UpdateMaterialCategory = ({
                 parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
               />
             </Form.Item>
-            <Form.Item
+            {/* <Form.Item
               hasFeedback
               label={`Loại vải`}
               name="materialTypeId"
@@ -1818,7 +1818,7 @@ const UpdateMaterialCategory = ({
               ]}
             >
               <Select style={{ height: 45 }} disabled>
-                {/* <Select.Option>
+                <Select.Option>
                 <div
                   style={{
                     display: "flex",
@@ -1829,9 +1829,9 @@ const UpdateMaterialCategory = ({
                     {materialCategoryDetail.materialTypeName}
                   </Title>
                 </div>
-              </Select.Option> */}
+              </Select.Option>
               </Select>
-            </Form.Item>
+            </Form.Item> */}
           </div>
         )}
       </Form>
@@ -1839,7 +1839,7 @@ const UpdateMaterialCategory = ({
   );
 };
 
-const CreateMaterialCategory = ({ open, onCreate, onCancel, materialType }) => {
+const CreateMaterialCategory = ({ open, onCreate, onCancel }) => {
   const [form] = Form.useForm();
   const [loadingCreate, setLoadingCreate] = useState(false);
 
@@ -1873,7 +1873,7 @@ const CreateMaterialCategory = ({ open, onCreate, onCancel, materialType }) => {
     >
       <Form
         style={{
-          height: 300,
+          height: 200,
           overflowY: "scroll",
           scrollbarWidth: "none",
           WebkitScrollbar: "none",
@@ -1926,7 +1926,7 @@ const CreateMaterialCategory = ({ open, onCreate, onCancel, materialType }) => {
               parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
             />
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             hasFeedback
             label={`Loại nguyên phụ liệu`}
             name="materialTypeId"
@@ -1953,7 +1953,7 @@ const CreateMaterialCategory = ({ open, onCreate, onCancel, materialType }) => {
                 );
               })}
             </Select>
-          </Form.Item>
+          </Form.Item> */}
         </div>
       </Form>
     </Modal>

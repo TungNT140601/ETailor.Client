@@ -484,7 +484,7 @@ function StepThree({
                               rules={[
                                 {
                                   required: true,
-                                  message: "Tên sản phẩm không được để trống!",
+                                  message: "Loại vải không được để trống!",
                                 },
                               ]}
                             >
@@ -578,6 +578,7 @@ function StepThree({
                                   message: "Số lượng không được để trống!",
                                 },
                               ]}
+                              initialValue={inputValue}
                             >
                               <Row>
                                 <Col span={19}>
@@ -674,13 +675,13 @@ function StepThree({
                                                   <Form.Item
                                                     {...restField}
                                                     name={[name, "image"]}
-                                                    rules={[
-                                                      {
-                                                        required: true,
-                                                        message:
-                                                          "Ảnh của kiểu không được để trống!",
-                                                      },
-                                                    ]}
+                                                    // rules={[
+                                                    //   {
+                                                    //     required: true,
+                                                    //     message:
+                                                    //       "Ảnh của kiểu không được để trống!",
+                                                    //   },
+                                                    // ]}
                                                   >
                                                     <Upload
                                                       multiple
