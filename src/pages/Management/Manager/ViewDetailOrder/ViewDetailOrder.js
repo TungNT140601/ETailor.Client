@@ -878,10 +878,12 @@ export const ViewDetailOrder = ({
                   style={{
                     marginLeft: 15,
                     color: "white",
-                    width: 170,
+                    fontWeight: "bold",
+                    width: "auto",
+                    height: 32,
                     cursor: "pointer",
                     borderRadius: "5px",
-                    backgroundColor: "#ffd34d",
+                    backgroundColor: "rgba(255,	211,	77, 0.7)",
                     border: "1px solid #ffd34d",
                     transition:
                       "background-color 0.3s, border-color 0.3s, color 0.3s",
@@ -898,10 +900,12 @@ export const ViewDetailOrder = ({
                   }}
                   style={{
                     marginLeft: 15,
-                    width: 130,
+                    width: "auto",
+                    fontWeight: "bold",
+                    height: 32,
                     cursor: "pointer",
                     color: "white",
-                    backgroundColor: "#3eb489",
+                    backgroundColor: "rgba(62, 180, 137, 0.7)",
                     borderRadius: "5px",
                     border: "1px solid #3eb489",
                     "&:hover": {
