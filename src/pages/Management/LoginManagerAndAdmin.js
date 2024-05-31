@@ -67,12 +67,16 @@ export default function LoginManagerAndAdmin() {
             text: `Đăng nhập thành công!`,
             timer: 4000,
           });
-          if (data.role === "Admin") {
-            await localStorage.setItem("admin", JSON.stringify(data));
-            navigate("/admin");
-          } else if (data.role === "Manager") {
+          if (data.role === "Manager") {
             await localStorage.setItem("manager", JSON.stringify(data));
             navigate("/manager");
+          } else if (data.role !== "Manager") {
+            Swal.fire({
+              icon: "error",
+              title: "Lỗi",
+              text: `Lỗi đăng nhập`,
+              timer: 4000,
+            });
           }
         } else if (response.status === 400 || response.status === 500) {
           const dataError = await response.text();
