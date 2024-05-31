@@ -60,15 +60,14 @@ export default function LoginManagerAndAdmin() {
         setLoading(false);
         if (response.status === 200) {
           const data = await response.json();
-          console.log(data);
-          await Swal.fire({
-            icon: "success",
-            title: "Thành công",
-            text: `Đăng nhập thành công!`,
-            timer: 4000,
-          });
           if (data.role === "Manager") {
             await localStorage.setItem("manager", JSON.stringify(data));
+            await Swal.fire({
+              icon: "success",
+              title: "Thành công",
+              text: `Đăng nhập thành công!`,
+              timer: 4000,
+            });
             navigate("/manager");
           } else if (data.role !== "Manager") {
             Swal.fire({

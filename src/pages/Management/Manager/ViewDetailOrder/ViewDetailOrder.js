@@ -883,8 +883,8 @@ export const ViewDetailOrder = ({
                     height: 32,
                     cursor: "pointer",
                     borderRadius: "5px",
-                    backgroundColor: "rgba(255,	211,	77, 0.7)",
-                    border: "1px solid #ffd34d",
+                    backgroundColor: "#edb300",
+                    border: "1px solid #edb300",
                     transition:
                       "background-color 0.3s, border-color 0.3s, color 0.3s",
                   }}
@@ -905,9 +905,9 @@ export const ViewDetailOrder = ({
                     height: 32,
                     cursor: "pointer",
                     color: "white",
-                    backgroundColor: "rgba(62, 180, 137, 0.7)",
+                    backgroundColor: "#1F883D",
                     borderRadius: "5px",
-                    border: "1px solid #3eb489",
+                    border: "1px solid #1F883D",
                     "&:hover": {
                       backgroundColor: "#3eb489",
                       borderColor: "1px solid #3eb489",
