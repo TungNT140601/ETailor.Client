@@ -152,7 +152,7 @@ const ManagementOrderContent = () => {
         } finally {
           setCancelOrderLoading(false);
         }
-      } else if (result.isDenied) {
+      } else if (result.dismiss) {
         Swal.fire("Hủy đơn thất bại", "", "info");
       }
     });
