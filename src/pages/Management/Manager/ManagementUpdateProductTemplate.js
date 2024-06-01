@@ -256,7 +256,7 @@ const CollectionCreateFormStep2 = ({
           rules={[
             {
               required: true,
-              message: "Thumbnail không được để trống",
+              message: "Hình ảnh không được để trống",
             },
           ]}
         >
@@ -1165,16 +1165,17 @@ const ManagementUpdateProductTemplateContent = () => {
               </Form.Item>
               <Form.Item
                 name="deadline"
-                label="Ngày hoàn thành"
+                label="Ngày dự kiến hoàn thành"
                 rules={[
                   {
                     required: true,
-                    message: "Ngày hoàn thành của bản mẫu không được để trống",
+                    message:
+                      "Ngày dự kiến hoàn thành của bản mẫu không được để trống",
                   },
                   {
                     type: "number",
                     min: 1,
-                    message: "Ngày hoàn thành phải lớn hơn hoặc bằng 1",
+                    message: "Ngày dự kiến hoàn thành phải lớn hơn hoặc bằng 1",
                   },
                 ]}
               >
@@ -1218,14 +1219,14 @@ const ManagementUpdateProductTemplateContent = () => {
                 <TextArea rows={4} />
               </Form.Item>
               <Form.Item
-                label="Thumbnail"
+                label="Hình ảnh đại diện"
                 valuePropName="fileList"
                 getValueFromEvent={getFileThumbnail}
                 name="ThumbnailImageFile"
                 rules={[
                   {
                     required: true,
-                    message: "Thumbnail không được để trống",
+                    message: "Hình ảnh đại diện không được để trống",
                   },
                 ]}
               >
