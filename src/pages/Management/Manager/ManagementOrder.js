@@ -1,7 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import { HomeOutlined, EyeOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  HomeOutlined,
+  EyeOutlined,
+  SearchOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
-import { Typography, Table, Checkbox, ConfigProvider } from "antd";
+import { Typography, Table, Checkbox, ConfigProvider, message } from "antd";
 import "./index.css";
 import { useSearchParams } from "react-router-dom";
 
@@ -32,13 +37,18 @@ const ManagementOrderContent = () => {
           Authorization: `Bearer ${manager?.token}`,
         },
       });
+
       if (response.ok && response.status === 200) {
         const responseData = await response.json();
-        setLoading(false);
         setDataOrder(responseData);
+      } else if (response.status === 400 || response.status === 500) {
+        const responseData = await response.text();
+        message.error(responseData);
       }
     } catch (error) {
       console.error("Error calling API:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -236,7 +246,7 @@ const ManagementOrderContent = () => {
               width: 90,
             }}
           >
-            Search
+            Tìm kiếm
           </Button>
           <Button
             onClick={() => clearFilters && handleReset(clearFilters)}
@@ -245,7 +255,7 @@ const ManagementOrderContent = () => {
               width: 90,
             }}
           >
-            Reset
+            Hủy toàn bộ
           </Button>
           <Button
             type="link"
@@ -258,7 +268,7 @@ const ManagementOrderContent = () => {
               setSearchedColumn(dataIndex);
             }}
           >
-            Filter
+            Lọc
           </Button>
           <Button
             type="link"
@@ -267,7 +277,7 @@ const ManagementOrderContent = () => {
               close();
             }}
           >
-            close
+            Đóng
           </Button>
         </Space>
       </div>
@@ -552,11 +562,12 @@ const ManagementOrderContent = () => {
             }}
           />
         </div>
-        <Row justify="start">
-          <Col span={4}>
-            <Button>Tổng cộng ({getApi?.length})</Button>
-          </Col>
-        </Row>
+        <Space>
+          <Button>Tổng cộng ({getApi?.length})</Button>
+          <Button onClick={() => handleDataOrder()}>
+            <ReloadOutlined />
+          </Button>
+        </Space>
       </div>
       {loading ? (
         <div
