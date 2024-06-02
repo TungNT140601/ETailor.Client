@@ -286,6 +286,7 @@ function StepTwo({
                   ? ""
                   : handleToggleChangePrice(record.id)
               }
+              style={{ cursor: "pointer" }}
             >
               {formatCurrency(record.price)}
             </Text>
