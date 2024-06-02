@@ -115,44 +115,13 @@ export default function Order() {
         return <p style={{ fontWeight: "bold" }}>{orderID}</p>;
       }
     },
-
-    {
-      title: "Hình ảnh",
-      dataIndex: "productImg",
-      render: (imgSrc) => {
-        return (
-          <Image
-            width={60}
-            height={60}
-            src={imgSrc}
-            style={{ objectFit: "cover" }}
-            alt=""
-            preview={{
-              imageRender: () => (
-                <div
-                  style={{
-                    marginTop: "60px",
-                    height: "65%",
-                    overflowY: "hidden",
-                  }}
-                >
-                  <Image
-                    width="100%"
-                    height="100%"
-                    style={{ objectFit: "cover" }}
-                    src={imgSrc}
-                  />
-                </div>
-              ),
-            }}
-          />
-        );
-      },
-    },
     {
       title: "Số lượng",
       dataIndex: "quantity",
       sorter: (a, b) => a.quantity - b.quantity,
+      render: (quantity) => {
+        return <p style={{ textAlign: "center" }}>{quantity}</p>;
+      }
     },
     {
       title: "Trạng thái",
