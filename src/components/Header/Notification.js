@@ -22,7 +22,7 @@ function getHoursDifference(startDate) {
     console.log("startDate", currentMillisUTC7)
     const hoursDiff = millisDiff / (1000 * 60 * 60);
 
-    return hoursDiff < 1 ? `${Math.floor(hoursDiff * 60)} phút trước` : hoursDiff < 24 ? `${Math.floor(hoursDiff)} giờ trước` : `${Math.floor(hoursDiff / 24)} ngày trước`;
+    return (hoursDiff >= 0 && hoursDiff < 1) ? `${Math.floor(hoursDiff * 60) + 1} phút trước` : hoursDiff < 24 ? `${Math.floor(hoursDiff)} giờ trước` : `${Math.floor(hoursDiff / 24)} ngày trước`;
 }
 
 export default function Notification() {
