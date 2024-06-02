@@ -176,6 +176,14 @@ export default function ManagementTask() {
                 'aria-live': 'polite',
             },
         })
+        const notifyFailure = (msg) => toast.error(msg, {
+            duration: 4000,
+            position: 'top-center',
+            ariaProps: {
+                role: 'status',
+                'aria-live': 'polite',
+            },
+        })
         const handleDragEnd = async (result) => {
             console.log("RESULT", result)
             const { destination, source } = result
@@ -207,43 +215,22 @@ export default function ManagementTask() {
         }
 
         const handleAutoAssign = async () => {
-            const autoAssignURL = `https://e-tailorapi.azurewebsites.net/api/test/RunAutoAssignTask`;
-            const handleAutoAssignTaskForStaffs = async () => {
-                const URL = `https://e-tailorapi.azurewebsites.net/api/test/AutoAssignTaskForStaff`;
+            
+                const URL = `https://e-tailorapi.azurewebsites.net/api/task/auto/create-and-assign-task`;
                 const response = await fetch(URL, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${manager?.token}`,
                     },
 
                 })
                 if (response.ok && response.status === 200) {
+                    notify("Tự động phân thành công!");
                     handleGetAllTasks();
+                }else{
+                    notifyFailure("Tự động phân thất bại!");
                 }
-            }
-            const handleAutoAssign = async () => {
-                setLoading(true);
-                try {
-                    const response = await fetch(autoAssignURL, {
-                        method: "PUT",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${manager?.token}`,
-                        },
-                    });
-                    if (response.ok && response.status === 200) {
-                        const msg = await response.text();
-                        notify("Tự động phân thành công!");
-                        handleAutoAssignTaskForStaffs()
-
-                    }
-                } catch (error) {
-                    console.error("Error calling API:", error);
-                }
-
-            }
-            handleAutoAssign()
+            
         }
         const content = (
             <div>
@@ -359,16 +346,16 @@ export default function ManagementTask() {
                                         <div>
                                             <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#9F78FF", paddingLeft: 20 }}>Tất cả nhân viên</h2>
                                         </div>
-                                        <div style={{ display: "flex", paddingLeft: "5vw" }}>
-                                            {[ 1, 2].map(index => (
+                                        <div style={{ display: "flex", marginLeft: "22vw" }}>
+                                            {[1, 2].map(index => (
                                                 <div key={index} style={{ display: "flex", alignItems: "center", marginRight: "10px" }}>
                                                     <button style={{ width: "2rem", height: "1rem", backgroundColor: getStatusTextAndColor(index).backgroundColor, borderRadius: 5, border: `1px solid ${getStatusTextAndColor(index).borderColor}` }}></button>
                                                     &nbsp;<p style={{ fontSize: 15, color: getStatusTextAndColor(index).color }}>{getStatusTextAndColor(index).text}</p>
                                                 </div>
                                             ))}
                                         </div>
-                                        <div style={{ paddingLeft: 16 }}>
-                                            <Button onClick={() => handleAutoAssign()}><FontAwesomeIcon icon={faRotate} /></Button>
+                                        <div style={{ paddingLeft: 16 }} className='btn-automation'>
+                                            <Button onClick={() => handleAutoAssign()}><FontAwesomeIcon icon={faRotate}/></Button>
                                         </div>
 
 

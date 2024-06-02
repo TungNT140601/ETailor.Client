@@ -23,6 +23,20 @@
     background-color: #ddd;
 }
 
+.btn-view-more {
+    font-size: 20;
+    color: #000;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.btn-view-more:hover {
+    color: #17469e;
+}
+
 .action-icons {
     display: flex;
 }

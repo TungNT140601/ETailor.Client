@@ -23,15 +23,16 @@ const formatDate = (date) => {
   return formattedDate;
 };
 
-const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, updateLoading, id, handleUpdateProfileSuccess }) => {
-  const [profileDetailData, setProfileDetailData] = useState([]);
+const UpdateBodyProfileModal = ({ open, onCancel, detailData, updateLoading, id, handleUpdateProfileSuccess }) => {
   const [currentGuideImage, setCurrentGuideImage] = useState(BangSize);
   const [modifiedDetailData, setModifiedDetailData] = useState({});
+  const [updateBodyProfileName, setUpdateBodyProfileName] = useState(detailData?.name ? detailData?.name : "");
 
   useEffect(() => {
     setModifiedDetailData(detailData)
     setUpdateBodyProfileName(detailData?.name)
   }, [detailData]);
+
   console.log("Modified detail data:", modifiedDetailData);
   const handleImageGuide = (image) => {
     setCurrentGuideImage(image);
@@ -54,21 +55,14 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
 
     const existingValueIndex = valueBodyAttribute.findIndex(item => item.id === attributeId);
 
-    // If the attribute exists, update its value in valueBodyAttribute state
     if (existingValueIndex !== -1) {
-      // Create a shallow copy of valueBodyAttribute
       const updatedValueBodyAttribute = [...valueBodyAttribute];
-
-      // Update the value of the attribute at the existing index
       updatedValueBodyAttribute[existingValueIndex] = {
         ...updatedValueBodyAttribute[existingValueIndex],
         value: value
       };
-
-      // Update the state with the modified valueBodyAttribute
       setValueBodyAttribute(updatedValueBodyAttribute);
     } else {
-      // If the attribute doesn't exist, add it to valueBodyAttribute state
       setValueBodyAttribute(prevState => [
         ...prevState,
         { id: attributeId, value: value }
@@ -79,9 +73,8 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
     validateInput(parentId, value);
   };
 
-  console.log("Value body attribute:", valueBodyAttribute);
+  console.log("Modified detail data:", modifiedDetailData);
 
-  console.log("Existing index:", valueBodyAttribute);
   const [formInstance, setFormInstance] = useState();
   const [form] = Form.useForm();
   const [validationMessages, setValidationMessages] = useState({});
@@ -89,8 +82,6 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
   const validateInput = (id, value) => {
     console.log("ALL:", detailData?.bodyAttributes)
     const attribute = detailData?.bodyAttributes.find((item) => item.id === id);
-
-
     if (!attribute) return;
 
     const min = parseFloat(attribute?.bodySize.minValidValue);
@@ -107,7 +98,7 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
       [id]: isValid ? "" : `Số đo từ ${min} ~ ${max} cm`,
     }));
   };
-  const [updateBodyProfileName, setUpdateBodyProfileName] = useState(detailData?.name ? detailData?.name : "");
+  
 
   const handleUpdateBodyProfileName = async (name) => {
     console.log("Update name:", name)
@@ -115,6 +106,7 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
   }
   const [profileID, setProfileID] = useState(id)
   console.log("Profile ID:", profileID)
+
   const handleUpdateProfile = async () => {
     console.log("Name:", updateBodyProfileName)
     const id = detailData.id;
@@ -196,7 +188,7 @@ const UpdateBodyProfileModal = ({ open, onCancel, bodySizeData, detailData, upda
                 </label>
                 <input
                   className="input is-normal"
-                  value={detailData?.name}
+                  value={updateBodyProfileName}
                   onChange={(e) => handleUpdateBodyProfileName(e.target.value)}
                   name="name"
                   type="text"
@@ -642,6 +634,7 @@ export default function BodyProfile() {
   };
   const handleCancel = () => {
     setIsModalOpen(false);
+    setBodyProfileName("");
   };
 
   const { data: getAllBodyAttributes, isLoading } = useQuery(

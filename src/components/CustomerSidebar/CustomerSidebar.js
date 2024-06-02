@@ -8,7 +8,8 @@ import { Link } from 'react-router-dom'
 import { CaretRightFilled } from '@ant-design/icons';
 export default function CustomerSidebar() {
     const [isHover, setIsHover] = useState('');
-
+    const customer = JSON.parse(localStorage.getItem('customer'));
+    console.log(customer);
     const handleHover = (name) => {
 
         console.log("location:", `/${name}`)
@@ -27,9 +28,7 @@ export default function CustomerSidebar() {
     return (
         <>
             <div className='avatar-wrapper'>
-                <figure className="image is-64x64">
-                    <img className='user-avatar' src={UserAvatar} alt="User Avatar" />
-                </figure>
+               
                 <h2 className='subtitle is-4' style={{ paddingLeft: '20px' }}> Cài đặt hồ sơ </h2>
             </div>
             <hr className="dropdown-divider" />
@@ -48,6 +47,7 @@ export default function CustomerSidebar() {
                     <p className='subtitle is-6' style={{ color: pathname.includes("/body-profile") ? "#9F78FF" : "#1D2547", paddingLeft: "15px" }}> Hồ sơ số đo </p>
                 </div>
             </Link>
+            <hr className="dropdown-divider" />
             <Link to="/change-password">
                 <div className='profile-detail' onMouseEnter={() => handleHover('change-password')} onMouseLeave={() => setIsHover('')}>
                     {isHover === 'change-password' && <CaretRightFilled style={{ color: "#9F78FF" }} />}
