@@ -42,6 +42,7 @@ const getStatusTextAndColor = (status) => {
     case 0:
       color = "red";
       text = "Đã huỷ";
+      break;
     case 1:
       color = "geekblue";
       text = "Chờ duyệt";
@@ -105,6 +106,14 @@ export default function Order() {
     {
       title: "Stt",
       dataIndex: "index",
+
+    },
+    {
+      title: "Mã đơn hàng",
+      dataIndex: "orderID",
+      render: (orderID) => {
+        return <p style={{ fontWeight: "bold" }}>{orderID}</p>;
+      }
     },
 
     {
@@ -169,13 +178,28 @@ export default function Order() {
     },
     {
       title: "Action",
-      dataIndex: "id",
+      dataIndex: "",
       key: "5",
       width: 120,
       fixed: "right",
-      render: (id) => (
+      render: (text, record) => (
         <>
-          <p onClick={() => handleViewDetail(id)} style={{ fontSize: 12, fontWeight: "bold", color: "primary", cursor: "pointer" }}>Xem chi tiết</p>
+          {record.status === 0 ? (
+
+            < p
+              style={{ fontSize: 12, fontWeight: "bold", color: "rgba(16, 16, 16, 0.3", cursor: "pointer" }}
+            >
+              Xem chi tiết
+            </p>
+          ) : (
+            <p
+              onClick={() => handleViewDetail(record.orderID, record.status)}
+              style={{ fontSize: 12, fontWeight: "bold", color: "primary", cursor: "pointer" }}
+            >
+              Xem chi tiết
+            </p>
+          )
+          }
         </>
       ),
     },
@@ -192,7 +216,7 @@ export default function Order() {
   );
   const orders = getOrdersAPI?.map((order, index) => ({
     index: index + 1,
-    id: order.id,
+    orderID: order.id,
     key: order.id,
     productName: order?.productName ? order.productName : "",
     productImg: order?.thumbnailImage ? order.thumbnailImage : "",
@@ -210,8 +234,9 @@ export default function Order() {
   const [tableLayout, setTableLayout] = useState();
   const [bottom, setBottom] = useState("bottomCenter");
   const [ellipsis, setEllipsis] = useState(false);
-  const handleViewDetail = (id) => {
+  const handleViewDetail = (id, status) => {
     console.log("detail id;", id)
+    console.log("status:", status)
     navigate(`/orders/${id}`)
   }
   const tableColumns = columns.map((item) => ({
@@ -230,24 +255,8 @@ export default function Order() {
       <div
         style={{
           padding: "140px 20px 0 20px",
-          display: "flex",
-          position: "relative",
-          columnGap: "20px",
-          position: "relative",
-          alignContent: "center",
         }}
-      >
-        <div
-          style={{
-            maxWidth: "200px",
-            left: "60px",
-            top: "200px",
-            height: "fit-content",
-            position: "absolute",
-          }}
-        >
-          <img src={LeftBanner} alt="Left Banner" loading="lazy" />
-        </div>
+      >{/*  */}
         <div></div>
         <div
           style={{
@@ -271,22 +280,7 @@ export default function Order() {
             />
           </div>
         </div>
-        <div
-          style={{
-            overflowX: "hidden",
-            height: "fit-content",
-            position: "absolute",
-            top: "200px",
-            right: "60px",
-          }}
-        >
-          <img
-            src={RightBanner}
-            alt="Right Banner"
-            width={200}
-            loading="lazy"
-          />
-        </div>
+
 
       </div>
     </>

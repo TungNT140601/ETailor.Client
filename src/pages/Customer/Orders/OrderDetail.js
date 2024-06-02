@@ -1,24 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Image, Avatar, Tag, Table, Divider } from "antd";
+import { Image, Avatar, Tag, Table, Divider, Modal, Button, Spin, } from "antd";
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { UserOutlined, CheckCircleFilled, MessageFilled } from '@ant-design/icons';
-import LeftBanner from "../../../assets/images/banner-blog/still-life-spring-wardrobe-switch (1).jpg";
-import RightBanner from "../../../assets/images/banner-blog/still-life-spring-wardrobe-switch.jpg";
+import { UserOutlined, CheckCircleFilled, MessageFilled, InfoCircleOutlined } from '@ant-design/icons';
 import { faImage, faPaperclip } from "@fortawesome/free-solid-svg-icons";
-import ClearOutlinedIcon from '@mui/icons-material/ClearOutlined';
 import SendIcon from '@mui/icons-material/Send';
 import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Input } from 'antd';
 import { ChatRealTime } from "./RealTime";
 import Loading from "../LoadingComponent/loading";
-import CircularProgress from "@mui/material/CircularProgress";
-
-const { TextArea } = Input;
-
+import toast from "react-hot-toast";
 
 function formatCurrency(amount) {
     if (amount) {
@@ -49,6 +43,7 @@ const getStatusTextAndColor = (status) => {
         case 0:
             color = "red";
             text = "Đã huỷ";
+            break;
         case 1:
             color = "geekblue";
             text = "Chờ duyệt";
@@ -77,11 +72,17 @@ const getStatusTextAndColor = (status) => {
             color = "green";
             text = "Hoàn tất & nhận hàng";
             break;
+        default:
+            color = "green";
+            text = "Hoàn tất & nhận hàng";
+            break;
     }
     return { color, text };
 };
 export default function OrderDetail() {
-    const [loading, setLoading] = useState(false);
+    const [loadingDetailOrder, setLoadingDetailOrder] = useState(false);
+
+    const [currentChosenProduct, setCurrentChosenProduct] = useState(null);
     const ChatWithUs = ({ orderId, chatDetail }) => {
         const [currentChatText, setCurrentChatText] = useState("");
         console.log("current chat text", currentChatText)
@@ -220,7 +221,7 @@ export default function OrderDetail() {
                             style={{ margin: 0, backgroundColor: "#f2f2f2" }}
                         >
                             <p style={{ fontWeight: 'bold', margin: "5px 0 10px 5px" }}>
-                              Chat với  E-tailor
+                                Chat với  E-tailor
 
                             </p>
                         </AccordionSummary>
@@ -311,7 +312,7 @@ export default function OrderDetail() {
                                                             borderBottomRightRadius: "8px",
                                                             minHeight: "40px"
                                                         }}>
-                                                            <p style={{ padding: "5px 5px 5px 15px ", wordWrap: "break-word", maxWidth: 170, fontSize: 14, margin: 0 }}>{chat.message}</p>
+                                                            <p style={{ padding: "5px 15px 5px 15px ", wordWrap: "break-word", maxWidth: 170, fontSize: 14, margin: 0 }}>{chat.message}</p>
                                                         </div>
                                                     </div>
 
@@ -435,6 +436,8 @@ export default function OrderDetail() {
     const [orderDetails, setOrderDetails] = useState(null);
     const { id } = useParams();
     const [getAllChat, setGetAllChat] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     console.log("Get all chat", getAllChat);
     const fetchChat = async () => {
         const customer = localStorage.getItem("customer");
@@ -460,7 +463,7 @@ export default function OrderDetail() {
     useEffect(() => {
         const fetchOrderDetails = async () => {
             try {
-                setLoading(true);
+                setLoadingDetailOrder(true);
                 const customer = localStorage.getItem("customer");
                 const token = JSON.parse(customer)?.token;
                 const response = await fetch(
@@ -473,14 +476,14 @@ export default function OrderDetail() {
                     }
                 );
                 if (response.ok) {
-                    setLoading(false);
+                    setLoadingDetailOrder(false);
                     const orderDetailsData = await response.json();
                     setOrderDetails(orderDetailsData);
                 }
 
             } catch (error) {
                 console.error("Error fetching order details:", error);
-                setLoading(false);
+                setLoadingDetailOrder(false);
             }
         };
 
@@ -503,13 +506,23 @@ export default function OrderDetail() {
 
 
     const parsedStatus = getStatusTextAndColor(orderDetails.status);
+    const showModal = (data) => {
+        setIsModalOpen(true);
+        setCurrentChosenProduct(data.id)
+    };
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
+    const handleCancel = () => {
+        setIsModalOpen(false);
+    };
     const columns = [
         {
             title: 'Sản phẩm',
             dataIndex: 'productName',
             key: 'productName',
             width: 350,
-            render: (text) => <a>{text}</a>,
+            render: (text) => <p style={{ fontWeight: 'bold' }}>{text}</p>,
         },
         {
             title: 'Hình ảnh',
@@ -564,6 +577,15 @@ export default function OrderDetail() {
             dataIndex: 'note',
             key: 'note',
         },
+        {
+            title: "",
+            dataIndex: '',
+            key: 'x',
+            render: (data) => (
+                <p className="btn-view-more" onClick={() => showModal(data)} type="primary">Xem chi tiết</p>
+            ),
+            width: 150,
+        }
 
     ];
     const data = orderDetails?.products.map((order, index) => ({
@@ -577,12 +599,158 @@ export default function OrderDetail() {
         image: order?.templateThumnailImage ? order.templateThumnailImage : "",
 
     }));
+
+    const ProductDetailModal = ({ product, isModalOpen, handleOk, orderId, handleCancel }) => {
+        console.log("Product", product)
+        const [productDetail, setProductDetail] = useState(null);
+        const [loadingDetail, setLoadingDetail] = useState(false);
+        useEffect(() => {
+            if (!(product && orderId)) return;
+
+            const PRODUCT_DETAIL_URL = `https://e-tailorapi.azurewebsites.net/api/product/order/${orderId}/${product}`;
+            const fetchProductDetail = async () => {
+                setLoadingDetail(true);
+                try {
+                    const response = await fetch(PRODUCT_DETAIL_URL, {
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${JSON.parse(localStorage.getItem("customer"))?.token}`,
+
+                        },
+
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        setLoadingDetail(false);
+                        console.log("Product detail:", data);
+                        setProductDetail(data);
+                    }
+                } catch (error) {
+                    console.error("Error fetching product detail:", error);
+                    setLoadingDetail(false);
+                    toast.error("Có lỗi xảy ra khi tải thông tin sản phẩm");
+                }
+            }
+            fetchProductDetail();
+        }, [product, orderId]);
+        return (
+            <>
+                <Modal
+                    title="Thông tin sản phẩm"
+                    open={isModalOpen}
+                    footer={[
+                        <Button key="back" onClick={handleCancel}>
+                            Đóng
+                        </Button>,
+                    ]}
+                    style={{ marginTop: 20 }}
+                    width={700}
+                    height={500}
+                >
+                    {loadingDetail ? (
+                        <div style={{ display: "flex", justifyContent: "center", padding: 20 }}>
+                            <Spin />
+                        </div>
+                    ) : (
+                        <div style={{ marginTop: 20 }}>
+                            <div>
+                                {/* <div>
+                                    <p className="has-text-weight-semibold" style={{ padding: "5px 15px 5px 15px", fontSize: 15 }}>
+                                        <Tag color={parsedStatus.color}>{parsedStatus.text}</Tag>
+                                    </p>
+                                </div> */}
+                                <div style={{ display: "flex", gap: 15, margin: "15px" }}>
+
+                                    <Image
+                                        width={150}
+                                        height={80}
+                                        src={productDetail?.productTemplateImage}
+                                        style={{ objectFit: "cover", alignSelf: "center", borderRadius: 5 }}
+                                        alt=""
+                                        preview={{
+                                            imageRender: () => (
+                                                <div style={{
+                                                    marginTop: "60px",
+                                                    height: "65%",
+                                                    overflowY: "hidden",
+                                                }}>
+                                                    <Image
+                                                        width="100%"
+                                                        height="100%"
+                                                        style={{ objectFit: "cover" }}
+                                                        src={productDetail?.productTemplateImage}
+                                                    />
+                                                </div>
+                                            ),
+                                        }}
+                                    />
+                                    <div>
+                                        <p className="title is-5" style={{ margin: 5, fontSize: 17 }}>
+                                            Tên sản phẩm: <span style={{ fontWeight: "bold", paddingLeft: 5 }}>{productDetail?.productTemplateName}</span>
+                                        </p>
+                                        <p className="title is-5" style={{ margin: 5, fontSize: 17 }}>
+                                            Mã sản phẩm: <span style={{ fontWeight: "bold", paddingLeft: 5 }}>{productDetail?.id}</span>
+                                        </p>
+                                    </div>
+
+                                </div>
+                                <Divider />
+                                <div>
+                                    <p className="has-text-weight-semibold" style={{ padding: 5, fontSize: 15 }}>Chi tiết các bộ phận:</p>
+                                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', overflowY: "scroll", scrollbarWidth: "none" }}>
+                                        {productDetail?.componentTypeOrders.length !== 0 ? (
+                                            productDetail?.componentTypeOrders.map((component, index) => (
+                                                <div key={index} style={{ marginBottom: "20px", flex: '1 0 45%' }}>
+                                                    <p className="has-text-weight-semibold" style={{ padding: 5, fontSize: 15 }}>{index + 1}.{component.name}</p>
+                                                    {component?.components.map((item, index) => (
+                                                        <div key={index} style={{ display: "flex", width: "100%", marginLeft: "10px", marginTop: 5 }}>
+                                                            <Image
+                                                                width={50}
+                                                                height={50}
+                                                                src={item.image}
+                                                                style={{ objectFit: "cover", borderRadius: 5 }}
+                                                                alt=""
+                                                                preview={{
+                                                                    imageRender: () => (
+                                                                        <div style={{
+                                                                            marginTop: "60px",
+                                                                            height: "65%",
+                                                                            overflowY: "hidden",
+                                                                        }}>
+                                                                            <Image
+                                                                                width="100%"
+                                                                                height="100%"
+                                                                                style={{ objectFit: "cover" }}
+                                                                                src={item.image}
+                                                                            />
+                                                                        </div>
+                                                                    ),
+                                                                }}
+                                                            />
+                                                            <p style={{ fontSize: 14, paddingLeft: 10 }}>{item.name}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p>Không có thông tin</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </Modal >
+            </>
+        )
+    }
     return (
         <>
 
-            {loading ? (
+            {loadingDetailOrder ? (
                 <div style={{ paddingTop: "300px", display: "flex", justifyContent: "center" }}>
-                    <Loading />
+                    <Spin />
                 </div>
             ) : (
                 <div
@@ -593,18 +761,7 @@ export default function OrderDetail() {
                         alignContent: "center",
                     }}
                 >
-                    {/* <div
-                        style={{
-                            maxWidth: "200px",
-                            left: "60px",
-                            top: "200px",
-                            height: "fit-content",
-                            position: "absolute",
-
-                        }}
-                    >
-                        <img src={LeftBanner} alt="Left Banner" loading="lazy" />
-                    </div> */}
+                    {isModalOpen && <ProductDetailModal product={currentChosenProduct} isModalOpen={isModalOpen} handleOk={handleOk} orderId={id} handleCancel={handleCancel} />}
                     <div
                         style={{
                             width: "80%",
@@ -617,6 +774,7 @@ export default function OrderDetail() {
                             scrollbarWidth: "none",
                         }}
                     >
+
                         <div
                             style={{
                                 display: "flex",
