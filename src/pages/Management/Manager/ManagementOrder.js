@@ -105,45 +105,57 @@ const ManagementOrderContent = () => {
     setIsModalOpen(false);
   };
   const handleCancelOrder = async (id) => {
-    setCancelOrderLoading(true);
-    const getUrl = `https://e-tailorapi.azurewebsites.net/api/order/cancel/${id}`;
-    try {
-      const response = await fetch(getUrl, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 4500,
-          zIndex: 1000,
-        });
-        handleDataOrder();
-        setIsModalOpen(false);
-        return 1;
-      } else if (response.status === 400 || response.status === 500) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "error",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 4500,
-          zIndex: 1000,
-        });
-        return 0;
+    Swal.fire({
+      title: "Xác nhận hủy đơn hàng?",
+      showCancelButton: true,
+      confirmButtonText: "Xác nhận",
+      cancelButtonText: `Hủy bỏ`,
+    }).then(async (result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        setCancelOrderLoading(true);
+        const getUrl = `https://e-tailorapi.azurewebsites.net/api/order/cancel/${id}`;
+        try {
+          const response = await fetch(getUrl, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${manager?.token}`,
+            },
+          });
+          if (response.ok && response.status === 200) {
+            const responseData = await response.text();
+            Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 4500,
+              zIndex: 1000,
+            });
+            handleDataOrder();
+            setIsModalOpen(false);
+            return 1;
+          } else if (response.status === 400 || response.status === 500) {
+            const responseData = await response.text();
+            Swal.fire({
+              position: "top-center",
+              icon: "error",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 4500,
+              zIndex: 1000,
+            });
+            return 0;
+          }
+        } catch (error) {
+          console.error("Error calling API:", error);
+        } finally {
+          setCancelOrderLoading(false);
+        }
+      } else if (result.dismiss) {
+        Swal.fire("Hủy đơn thất bại", "", "info");
       }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    } finally {
-      setCancelOrderLoading(false);
-    }
+    });
   };
 
   const handleConfirmRefund = (paidMoney) => {

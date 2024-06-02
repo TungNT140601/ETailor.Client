@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Image, Avatar, Tag, Table, Divider, Modal, Button, Spin, } from "antd";
+import { Image, Avatar, Tag, Table, Divider, Modal, Button, Spin, Collapse } from "antd";
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -639,6 +639,7 @@ export default function OrderDetail() {
                 <Modal
                     title="Thông tin sản phẩm"
                     open={isModalOpen}
+                    onCancel={handleCancel}
                     footer={[
                         <Button key="back" onClick={handleCancel}>
                             Đóng
@@ -660,13 +661,32 @@ export default function OrderDetail() {
                                         <Tag color={parsedStatus.color}>{parsedStatus.text}</Tag>
                                     </p>
                                 </div> */}
-                                <div style={{ display: "flex", gap: 15, margin: "15px" }}>
 
+                                <div style={{ display: "flex", gap: 15, margin: "15px", }}>
+                                    <div>
+                                        <p className="title is-5" style={{ margin: 10, fontSize: 15, fontWeight: "bold" }}>
+                                            Tên sản phẩm: <span style={{ fontWeight: "400", paddingLeft: 5 }}>{productDetail?.productTemplateName}</span>
+                                        </p>
+                                        <p className="title is-5" style={{ margin: 10, fontSize: 15, fontWeight: "bold" }}>
+                                            Ghi chú: <span style={{ fontWeight: "400", paddingLeft: 5 }}>{productDetail?.note ? (productDetail?.note) : ("Không có ghi chú")}</span>
+                                        </p>
+                                        {productDetail?.quantity && (
+                                            <p className="title is-5" style={{ margin: 10, fontSize: 15 }}>
+                                                Số lượng vải sử dụng: <span style={{ fontWeight: "bold", paddingLeft: 5 }}>{productDetail?.quantity}</span>
+                                            </p>
+                                        )}
+                                        {productDetail?.fabricMaterial && (
+                                            <p className="title is-5" style={{ margin: 10, fontSize: 15, fontWeight: "bold" }}>
+                                                Vải sử dụng :<span style={{ fontWeight: "400", paddingLeft: 5 }}>{productDetail?.fabricMaterial.name}</span>
+                                            </p>
+                                        )}
+
+                                    </div>
                                     <Image
                                         width={150}
-                                        height={80}
+                                        height={100}
                                         src={productDetail?.productTemplateImage}
-                                        style={{ objectFit: "cover", alignSelf: "center", borderRadius: 5 }}
+                                        style={{ objectFit: "cover", alignSelf: "center", borderRadius: 5, marginLeft: 150 }}
                                         alt=""
                                         preview={{
                                             imageRender: () => (
@@ -685,16 +705,10 @@ export default function OrderDetail() {
                                             ),
                                         }}
                                     />
-                                    <div>
-                                        <p className="title is-5" style={{ margin: 5, fontSize: 17 }}>
-                                            Tên sản phẩm: <span style={{ fontWeight: "bold", paddingLeft: 5 }}>{productDetail?.productTemplateName}</span>
-                                        </p>
-                                        <p className="title is-5" style={{ margin: 5, fontSize: 17 }}>
-                                            Mã sản phẩm: <span style={{ fontWeight: "bold", paddingLeft: 5 }}>{productDetail?.id}</span>
-                                        </p>
-                                    </div>
+
 
                                 </div>
+
                                 <Divider />
                                 <div>
                                     <p className="has-text-weight-semibold" style={{ padding: 5, fontSize: 15 }}>Chi tiết các bộ phận:</p>
@@ -728,7 +742,13 @@ export default function OrderDetail() {
                                                                     ),
                                                                 }}
                                                             />
-                                                            <p style={{ fontSize: 14, paddingLeft: 10 }}>{item.name}</p>
+                                                            <div>
+                                                                <p style={{ fontSize: 14, paddingLeft: 10 }}>{item.name}</p>
+                                                                {item?.noteObject && (
+                                                                    <p style={{ fontSize: 14, paddingLeft: 10, wordBreak: "break-word" }}>Ghi chú: {item.noteObject.note}</p>
+                                                                )}
+                                                            </div>
+
                                                         </div>
                                                     ))}
                                                 </div>
@@ -745,6 +765,166 @@ export default function OrderDetail() {
             </>
         )
     }
+
+    const items = [
+        {
+            key: '1',
+            label: (
+                <p className="title is-5" style={{ margin: 0, fontSize: 17, fontWeight: "bold" }}>
+                    Mã đơn: <span style={{ fontWeight: "bold" }}>{orderDetails.id} </span>
+                </p>
+            ),
+            children: (
+                <>
+
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            backgroundClip: "#f0f4fc",
+                            padding: 15,
+                        }}
+                    >
+                        <div>
+
+                            <p>Tên khách hàng : <span style={{ fontWeight: "bold" }}>{orderDetails?.customer?.fullname}</span></p>
+                            {orderDetails?.customer?.phone && (
+                                <p>Số điện thoại : <span style={{ fontWeight: "bold" }}>{orderDetails?.customer?.phone}</span></p>
+                            )}
+                            <p>Tổng sản phẩm : <span style={{ fontWeight: "bold" }}>{orderDetails?.totalProduct}</span></p>
+                        </div>
+
+                        <p className="has-text-weight-semibold" style={{ fontSize: 17 }}>
+                            Trạng thái: <Tag color={parsedStatus.color}>{parsedStatus.text}</Tag>
+                        </p>
+
+                    </div>
+                    <div style={{ padding: 15, }}>
+                        <Table columns={columns} dataSource={data} bordered />
+                    </div>
+                </>
+            ),
+        },
+        {
+            key: '2',
+            label: (
+                <p className="title is-5" style={{ margin: 0, fontSize: 17, fontWeight: "bold" }}>
+                    Danh mục nguyên liệu
+                </p>
+            ),
+            children: (
+                <div style={{ padding: 15, backgroundColor: 'rgb(250, 250, 250)', margin: 15 }}>
+                    <div>
+
+                    </div>
+
+
+                    <Divider />
+
+
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "20px", marginTop: 20 }}>
+                        {orderDetails?.orderMaterials && orderDetails.orderMaterials.map((item, index) => (
+                            <div key={index} style={{ border: "1px solid #ccc", padding: "10px", borderRadius: "5px", position: "relative" }}>
+                                <div>
+                                    {item?.isCusMaterial ? (
+                                        <>
+                                            <p style={{ fontWeight: "bold", padding: 5 }} >Vải dùng : <span style={{ fontWeight: '400' }}>Vải của khách</span></p>
+                                            <p style={{ fontWeight: "bold", padding: 5 }}>Vải đã nhận:  <span style={{ fontWeight: '400' }}>{item.value} mét</span> </p>
+                                        </>
+                                    ) : (
+                                        <p style={{ fontWeight: "bold", padding: 5 }}>Vải dùng : <span style={{ fontWeight: "400" }}>Vải của cửa hàng</span></p>
+                                    )}
+                                    <p style={{ fontWeight: "bold", padding: 5 }}>Số lượng vải đã sử dụng : <span style={{ fontWeight: "400" }}>{item.valueUsed} mét</span></p>
+                                </div>
+                                {item?.material && (
+                                    <>
+                                        <p style={{ fontWeight: "bold", padding: 5 }}>Màu vải:  <span style={{ fontWeight: "400" }}> {item.material.name}</span></p>
+                                        <div style={{ position: "absolute", top: "50%", right: "15px", transform: "translateY(-50%)" }}>
+                                            <Image
+                                                width={80}
+                                                height={80}
+                                                src={item.material.image}
+                                                style={{ objectFit: "cover", borderRadius: 5, }}
+                                                alt=""
+                                                preview={{
+                                                    imageRender: () => (
+                                                        <div style={{
+                                                            marginTop: "60px",
+                                                            height: "65%",
+                                                            overflowY: "hidden",
+                                                        }}>
+                                                            <Image
+                                                                width="100%"
+                                                                height="100%"
+                                                                style={{ objectFit: "cover" }}
+                                                                src={item.material.image}
+                                                            />
+                                                        </div>
+                                                    ),
+                                                }}
+                                            />
+                                        </div>
+
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+
+
+
+
+
+                </div>
+            ),
+        },
+        {
+            key: '3',
+            label: (
+                <p className="title is-5" style={{ margin: 0, fontSize: 17, fontWeight: "bold" }}>
+                    Thanh toán
+                </p>
+            ),
+            children: (
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                    <div style={{ padding: 10, width: "400px", }}>
+                        <p style={{ fontWeight: "bold" }}>Tổng tiền : <span style={{ fontWeight: "400" }}>{formatCurrency(orderDetails?.totalPrice)}</span></p>
+                    </div>
+
+                    <div style={{ padding: 10, width: "400px" }}>
+                        <p style={{ fontWeight: "bold" }}>Đã cọc : <span style={{ fontWeight: "400" }}>{orderDetails?.deposit ? formatCurrency(orderDetails?.deposit) : "Không cọc"}</span></p>
+                    </div>
+
+                    <div style={{ padding: 10, width: "400px" }}>
+                        <p style={{ fontWeight: "bold" }}>Giảm giá: <span style={{ fontWeight: "400" }}>{orderDetails?.discount ? formatCurrency(orderDetails?.discount) : "Không"}</span></p>
+                    </div>
+
+                    <div style={{ padding: 10, width: "400px" }}>
+                        <p style={{ fontWeight: "bold" }}>Sau khi giảm: <span style={{ fontWeight: "400" }}>{formatCurrency(orderDetails?.afterDiscountPrice)}</span></p>
+                    </div>
+
+                    {
+                        orderDetails?.unPaidMoney ? (
+                            <>
+                                <div style={{ color: "red", padding: 10, width: "400px" }}>
+                                    <p>CHƯA THANH TOÁN : <span style={{ fontWeight: "bold" }}>{orderDetails?.unPaidMoney && formatCurrency(orderDetails?.unPaidMoney)}</span></p>
+                                </div>
+                                <Divider />
+                            </>
+                        ) : (
+                            <>
+                                <div style={{ color: "green", padding: 10, width: "400px", fontWeight: "bold" }}>
+                                    <p>ĐÃ THANH TOÁN</p>
+                                </div>
+                                <Divider />
+                            </>
+                        )
+                    }
+                </div>
+            )
+        }
+    ];
     return (
         <>
 
@@ -762,88 +942,20 @@ export default function OrderDetail() {
                     }}
                 >
                     {isModalOpen && <ProductDetailModal product={currentChosenProduct} isModalOpen={isModalOpen} handleOk={handleOk} orderId={id} handleCancel={handleCancel} />}
+
                     <div
                         style={{
                             width: "80%",
-                            height: "800px",
+                            height: "fit-content",
                             position: "relative",
                             margin: "auto",
                             borderRadius: 5,
                             border: "1px solid #f0f4fc",
-                            overflow: "scroll",
-                            scrollbarWidth: "none",
                         }}
                     >
 
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                backgroundClip: "#f0f4fc",
-                                padding: 15,
-                            }}
-                        >
+                        <Collapse defaultActiveKey={1} items={items} />
 
-                            <p className="title is-5" style={{ margin: 0, fontSize: 17 }}>
-                                Mã đơn: <span style={{ fontWeight: "bold" }}>{orderDetails.id} </span>
-                            </p>
-                            <p className="has-text-weight-semibold" style={{ padding: 15, fontSize: 17 }}>
-                                Trạng thái: <Tag color={parsedStatus.color}>{parsedStatus.text}</Tag>
-                            </p>
-
-                        </div>
-                        <div style={{ padding: 15, }}>
-                            <Table columns={columns} dataSource={data} bordered />
-                        </div>
-                        <div style={{ padding: 15, backgroundColor: 'rgb(250, 250, 250)', margin: 15 }}>
-                            <p>Tên khách hàng : <span style={{ fontWeight: "bold" }}>{orderDetails?.customer?.fullname}</span></p>
-                            <Divider />
-                            {orderDetails?.customer?.phone && (
-                                <p>Số điện thoại : <span style={{ fontWeight: "bold" }}>{orderDetails?.customer?.phone}</span></p>
-                            )}
-                            <p>Tổng sản phẩm : <span style={{ fontWeight: "bold" }}>{orderDetails?.totalProduct}</span></p>
-                            <Divider />
-
-
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-                                <div style={{ padding: 10, width: "400px", }}>
-                                    <p>Tổng tiền : <span style={{ fontWeight: "bold" }}>{formatCurrency(orderDetails?.totalPrice)}</span></p>
-                                </div>
-
-                                <div style={{ padding: 10, width: "400px" }}>
-                                    <p>Đã cọc : <span style={{ fontWeight: "bold" }}>{orderDetails?.deposit ? formatCurrency(orderDetails?.deposit) : "Không cọc"}</span></p>
-                                </div>
-
-                                <div style={{ padding: 10, width: "400px" }}>
-                                    <p>Giảm giá: <span style={{ fontWeight: "bold" }}>{orderDetails?.discount ? formatCurrency(orderDetails?.discount) : "Không"}</span></p>
-                                </div>
-
-                                <div style={{ padding: 10, width: "400px" }}>
-                                    <p>Sau khi giảm: <span style={{ fontWeight: "bold" }}>{formatCurrency(orderDetails?.afterDiscountPrice)}</span></p>
-                                </div>
-
-                                {
-                                    orderDetails?.unPaidMoney ? (
-                                        <>
-                                            <div style={{ color: "red", padding: 10, width: "400px" }}>
-                                                <p>CHƯA THANH TOÁN : <span style={{ fontWeight: "bold" }}>{orderDetails?.unPaidMoney && formatCurrency(orderDetails?.unPaidMoney)}</span></p>
-                                            </div>
-                                            <Divider />
-                                        </>
-                                    ) : (
-                                        <>
-                                            <div style={{ color: "green", padding: 10, width: "400px" }}>
-                                                <p>ĐÃ THANH TOÁN</p>
-                                            </div>
-                                            <Divider />
-                                        </>
-                                    )
-                                }
-                            </div>
-
-
-
-                        </div>
 
                     </div>
                     <div style={{ position: "fixed", bottom: 10, right: 120, zIndex: 1 }}>
