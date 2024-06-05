@@ -19,7 +19,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
     if (messageReturn) {
       fetchNotification();
     }
-  }, [messageReturn, resetMessageReturn]);
+  }, [messageReturn]);
   console.log("manager", manager);
 
   const fetchNotification = async () => {
@@ -110,11 +110,6 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
     );
   };
 
-  useEffect(() => {
-    fetchNotification();
-    const interval = setInterval(fetchNotification, 60000);
-    return () => clearInterval(interval);
-  }, []);
   const calculateDifferenceDays = (sendTime) => {
     const firstDate = new Date(sendTime);
     const secondDate = new Date();
