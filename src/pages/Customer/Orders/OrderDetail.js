@@ -4,14 +4,12 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { UserOutlined, CheckCircleFilled, MessageFilled, InfoCircleOutlined } from '@ant-design/icons';
+import { UserOutlined, CheckCircleFilled, MessageFilled } from '@ant-design/icons';
 import { faImage, faPaperclip } from "@fortawesome/free-solid-svg-icons";
 import SendIcon from '@mui/icons-material/Send';
 import { useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Input } from 'antd';
 import { ChatRealTime } from "./RealTime";
-import Loading from "../LoadingComponent/loading";
 import toast from "react-hot-toast";
 
 function formatCurrency(amount) {
@@ -27,14 +25,6 @@ function formatCurrency(amount) {
         return parts.join("") + "₫";
     }
     return null;
-}
-function formatString(str) {
-    if (str.length <= 8) return str;
-
-    const firstFour = str.slice(0, 4);
-    const lastFour = str.slice(-4);
-
-    return `${firstFour}...${lastFour}`; // Return the formatted string
 }
 const getStatusTextAndColor = (status) => {
     let color;
@@ -814,15 +804,8 @@ export default function OrderDetail() {
             ),
             children: (
                 <div style={{ padding: 15, backgroundColor: 'rgb(250, 250, 250)', margin: 15 }}>
-                    <div>
-
-                    </div>
-
-
-                    <Divider />
-
-
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "20px", marginTop: 20 }}>
+            
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "20px", marginTop: 10 }}>
                         {orderDetails?.orderMaterials && orderDetails.orderMaterials.map((item, index) => (
                             <div key={index} style={{ border: "1px solid #ccc", padding: "10px", borderRadius: "5px", position: "relative" }}>
                                 <div>
