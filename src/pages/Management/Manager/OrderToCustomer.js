@@ -287,12 +287,10 @@ const OrderToCustomerContent = () => {
       });
 
       if (response.ok && response.status === 200) {
-        getDiscountForOrder();
-        const loadingData = await handleDataOrderDetail();
-        if (loadingData === 1) {
-          setCurrent(1);
-        }
         toast.success("Tạo mới thành công");
+        setCurrent(1);
+        getDiscountForOrder();
+        await handleDataOrderDetail();
         return 1;
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
@@ -487,7 +485,6 @@ const OrderToCustomerContent = () => {
               });
               if (response.ok && response.status === 200) {
                 toast.success("Cập nhật thành công");
-                await handleDataOrderDetail();
                 return 1;
               } else if (response.status === 400 || response.status === 500) {
                 const responseData = await response.text();

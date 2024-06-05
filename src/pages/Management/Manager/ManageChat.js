@@ -22,7 +22,6 @@ function ManageChat({
   dataOrderDetail,
   setChatWithCustomer,
   setBadgeChatCount,
-  checkStatus,
 }) {
   const [currentChatText, setCurrentChatText] = useState("");
   const [chat, setChat] = useState("");

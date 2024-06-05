@@ -1067,7 +1067,7 @@ const ManagementUpdateProductTemplateContent = () => {
         handleGetComponentType();
       } else if (response.status === 400 || response.status === 500) {
         const responseData = await response.text();
-        toast.error(responseData);
+        message.error(responseData);
       }
     } catch (error) {
       console.error("Error:", error);

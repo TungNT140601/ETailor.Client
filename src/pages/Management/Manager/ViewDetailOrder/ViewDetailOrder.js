@@ -749,8 +749,9 @@ export const ViewDetailOrder = ({
       const responseData = await response.text();
       if (response.ok && response.status === 200) {
         message.success(responseData);
-        handleViewProductDetail(id);
-        handleDataOrder();
+        await handleViewProductDetail(id);
+        await handleDataOrder();
+        await handleDataOrderContent();
       } else if (response.status === 400 || response.status === 500) {
         message.error(responseData);
       }
@@ -855,7 +856,7 @@ export const ViewDetailOrder = ({
                 margin: "0 20px",
               }}
             >
-              {checkStatus >= 1 && checkStatus <= 4 && (
+              {dataOrderDetail >= 1 && dataOrderDetail.status <= 4 && (
                 <Button
                   key="cancel"
                   type="primary"
@@ -920,22 +921,24 @@ export const ViewDetailOrder = ({
                 </button>
               )}
 
-              {checkStatus >= 1 && checkStatus <= 4 && (
-                <Button
-                  key="cancel"
-                  type="primary"
-                  onClick={() => {
-                    handleConfirmCancel(dataOrderDetail?.paidMoney);
-                  }}
-                  style={{
-                    marginLeft: 15,
-                  }}
-                  loading={cancelOrderLoading}
-                >
-                  Hoàn trả đơn
-                </Button>
-              )}
-              {checkStatus === 1 && (
+              {dataOrderDetail &&
+                dataOrderDetail.status >= 1 &&
+                dataOrderDetail.status <= 4 && (
+                  <Button
+                    key="cancel"
+                    type="primary"
+                    onClick={() => {
+                      handleConfirmCancel(dataOrderDetail?.paidMoney);
+                    }}
+                    style={{
+                      marginLeft: 15,
+                    }}
+                    loading={cancelOrderLoading}
+                  >
+                    Hoàn trả đơn
+                  </Button>
+                )}
+              {dataOrderDetail && dataOrderDetail.status === 1 && (
                 <>
                   <Button
                     key="approve"
@@ -1404,8 +1407,9 @@ export const ViewDetailOrder = ({
                         </Row>
                       </div>
                       {detailProductData &&
+                        dataOrderDetail &&
                         detailProductData.status === 5 &&
-                        checkStatus !== 8 && (
+                        dataOrderDetail.status !== 8 && (
                           <div
                             style={{
                               marginBottom: 15,
@@ -1443,7 +1447,6 @@ export const ViewDetailOrder = ({
                         dataOrderDetail={dataOrderDetail}
                         setChatWithCustomer={setChatWithCustomer}
                         setBadgeChatCount={setBadgeChatCount}
-                        checkStatus={checkStatus}
                       />
                     </>
                   ) : (
