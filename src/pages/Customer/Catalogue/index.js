@@ -1,10 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./index.css";
-import AoThun from "../../../assets/images/catalogues/ao-thun.jpg";
-import AoDai from "../../../assets/images/catalogues/ao-dai.jpg";
-import QuanTay from "../../../assets/images/catalog-type/9294174f7778b13ee82e7861b749603f.jpg";
-import AoKhoac from "../../../assets/images/catalog-type/414110991e17d3770d91742e46c39121.jpg";
-import Suit from "../../../assets/images/catalogues/istockphoto-1213129801-2048x2048.jpg";
 import { Link } from "react-router-dom";
 import { Virtual, Navigation, Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";

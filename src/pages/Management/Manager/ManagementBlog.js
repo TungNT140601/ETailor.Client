@@ -44,6 +44,7 @@ import Paragraph from "antd/es/skeleton/Paragraph";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
+import ManagerHeader from "../../../components/ManagerHeader";
 
 const { Search, TextArea } = Input;
 const { Title, Text } = Typography;
@@ -149,7 +150,7 @@ const BlogUpdateFormModal = ({
           });
       }}
     >
-   
+
       <Form
         layout="vertical"
         form={form}
@@ -380,12 +381,12 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
                 "file image: ",
                 file
               );
-              
+
               return false;
             }}
             listType="picture-card"
             maxCount={1}
-          
+
           >
             {imageUrl ? (
               <img
@@ -461,80 +462,7 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
     </Modal>
   );
 };
-const ManagementBlogHeader = () => {
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  if (!manager) {
-    manager = JSON.parse(localStorage.getItem("manager"));
-  }
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div>
-        <Breadcrumb
-          items={[
-            {
-              href: "#",
-              title: <HomeOutlined />,
-            },
-            {
-              href: "/manager/account/staffs",
-              title: (
-                <>
-                  <Link to="/manager/account/staffs">
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        color: "#9F78FF",
-                      }}
-                    >
-                      <MenuBookIcon fontSize="small" />
-                      &nbsp;
-                      <span>Bài viết</span>
-                    </div>
-                  </Link>
-                </>
-              ),
-            },
-          ]}
-        />
-        <Title level={4}>Bài viết</Title>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <Search
-            placeholder="Tìm kiếm"
-            onSearch={onSearch}
-            style={{
-              width: 250,
-            }}
-          />
-        </div>
-        &nbsp; &nbsp; &nbsp;
-        <div>
-          {manager?.avatar ? (
-            <Avatar src={manager?.avatar} />
-          ) : (
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-          )}
-          &nbsp; &nbsp;
-          <Text>{manager?.name}</Text>
-        </div>
-      </div>
-    </div>
-  );
-};
+
 
 const ManagementBlogContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
@@ -549,7 +477,7 @@ const ManagementBlogContent = () => {
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const navigate = useNavigate();
   const onCreate = async (values) => {
-    
+
     console.log("VALUE:", values);
     setFormValues(values);
     const formData = new FormData();
@@ -877,7 +805,13 @@ function ManagementBlog() {
         }}
         className="manager-header"
       >
-        <ManagementBlogHeader />
+        {/* <ManagementBlogHeader /> */}
+        <ManagerHeader
+          name={"Bài viết"}
+          link={"/manager/orders"}
+          iconHome={<HomeOutlined />}
+          iconRoute={<MenuBookIcon style={{ fontSize: 15 }} />}
+        />
       </div>
       <div
         className="manager-content"
