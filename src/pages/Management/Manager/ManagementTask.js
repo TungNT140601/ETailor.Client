@@ -321,7 +321,7 @@ export default function ManagementTask() {
                                                                                         }}
                                                                                         title={task?.name}
                                                                                     >
-                                                                                        {task?.name}+{task?.index}
+                                                                                        {task?.name}
                                                                                     </h3>
                                                                                     <p style={{ minHeight: "fit-content", color: `${getStatusTextAndColor(task?.status).color}` }}><ClockCircleOutlined style={{ color: `${getStatusTextAndColor(task?.status).color}` }} /> :{task?.plannedTime ? getHoursDifference(task.plannedTime) : "Không có thời hạn"}</p>
                                                                                 </div>

@@ -652,9 +652,9 @@ export default function OrderDetail() {
                                     </p>
                                 </div> */}
 
-                                <div style={{ display: "flex", gap: 15, margin: "15px", }}>
+                                <div style={{ display: "flex" }}>
                                     <div>
-                                        <p className="title is-5" style={{ margin: 10, fontSize: 15, fontWeight: "bold" }}>
+                                        <p className="title is-5" style={{ margin: 10, fontSize: 15, fontWeight: "bold", maxWidth: 200 }}>
                                             Tên sản phẩm: <span style={{ fontWeight: "400", paddingLeft: 5 }}>{productDetail?.productTemplateName}</span>
                                         </p>
                                         <p className="title is-5" style={{ margin: 10, fontSize: 15, fontWeight: "bold" }}>
@@ -672,29 +672,32 @@ export default function OrderDetail() {
                                         )}
 
                                     </div>
-                                    <Image
-                                        width={150}
-                                        height={100}
-                                        src={productDetail?.productTemplateImage}
-                                        style={{ objectFit: "cover", alignSelf: "center", borderRadius: 5, marginLeft: 150 }}
-                                        alt=""
-                                        preview={{
-                                            imageRender: () => (
-                                                <div style={{
-                                                    marginTop: "60px",
-                                                    height: "65%",
-                                                    overflowY: "hidden",
-                                                }}>
-                                                    <Image
-                                                        width="100%"
-                                                        height="100%"
-                                                        style={{ objectFit: "cover" }}
-                                                        src={productDetail?.productTemplateImage}
-                                                    />
-                                                </div>
-                                            ),
-                                        }}
-                                    />
+                                    <div>
+                                        <Image
+                                            width={150}
+                                            height={100}
+                                            src={productDetail?.productTemplateImage}
+                                            style={{ objectFit: "cover", alignSelf: "center", borderRadius: 5, marginLeft: 150 }}
+                                            alt=""
+                                            preview={{
+                                                imageRender: () => (
+                                                    <div style={{
+                                                        marginTop: "60px",
+                                                        height: "65%",
+                                                        overflowY: "hidden",
+                                                    }}>
+                                                        <Image
+                                                            width="100%"
+                                                            height="100%"
+                                                            style={{ objectFit: "cover" }}
+                                                            src={productDetail?.productTemplateImage}
+                                                        />
+                                                    </div>
+                                                ),
+                                            }}
+                                        />
+                                    </div>
+
 
 
                                 </div>
@@ -708,39 +711,43 @@ export default function OrderDetail() {
                                                 <div key={index} style={{ marginBottom: "20px", flex: '1 0 45%' }}>
                                                     <p className="has-text-weight-semibold" style={{ padding: 5, fontSize: 15 }}>{index + 1}.{component.name}</p>
                                                     {component?.components.map((item, index) => (
-                                                        <div key={index} style={{ display: "flex", width: "100%", marginLeft: "10px", marginTop: 5 }}>
-                                                            <Image
-                                                                width={50}
-                                                                height={50}
-                                                                src={item.image}
-                                                                style={{ objectFit: "cover", borderRadius: 5 }}
-                                                                alt=""
-                                                                preview={{
-                                                                    imageRender: () => (
-                                                                        <div style={{
-                                                                            marginTop: "60px",
-                                                                            height: "65%",
-                                                                            overflowY: "hidden",
-                                                                        }}>
-                                                                            <Image
-                                                                                width="100%"
-                                                                                height="100%"
-                                                                                style={{ objectFit: "cover" }}
-                                                                                src={item.image}
-                                                                            />
-                                                                        </div>
-                                                                    ),
-                                                                }}
-                                                            />
-                                                            <div>
+                                                        <>
+                                                            <div key={index} style={{ display: "flex", width: "100%", marginLeft: "10px", marginTop: 5 }}>
+                                                                <Image
+                                                                    width={50}
+                                                                    height={50}
+                                                                    src={item.image}
+                                                                    style={{ objectFit: "cover", borderRadius: 5 }}
+                                                                    alt=""
+                                                                    preview={{
+                                                                        imageRender: () => (
+                                                                            <div style={{
+                                                                                marginTop: "60px",
+                                                                                height: "65%",
+                                                                                overflowY: "hidden",
+                                                                            }}>
+                                                                                <Image
+                                                                                    width="100%"
+                                                                                    height="100%"
+                                                                                    style={{ objectFit: "cover" }}
+                                                                                    src={item.image}
+                                                                                />
+                                                                            </div>
+                                                                        ),
+                                                                    }}
+                                                                />
                                                                 <p style={{ fontSize: 14, paddingLeft: 10 }}>{item.name}</p>
-                                                                {item?.noteObject && (
-                                                                    <p style={{ fontSize: 14, paddingLeft: 10, wordBreak: "break-word" }}>Ghi chú: {item.noteObject.note}</p>
+
+                                                            </div>
+                                                            <div style={{ paddingTop: 5 }}>
+
+                                                                {component?.noteObject && (
+                                                                    <p style={{ fontSize: 14, paddingLeft: 10, wordBreak: "break-word" }}>Ghi chú: {component?.noteObject?.note}</p>
                                                                 )}
                                                             </div>
-
-                                                        </div>
+                                                        </>
                                                     ))}
+
                                                 </div>
                                             ))
                                         ) : (
@@ -804,7 +811,7 @@ export default function OrderDetail() {
             ),
             children: (
                 <div style={{ padding: 15, backgroundColor: 'rgb(250, 250, 250)', margin: 15 }}>
-            
+
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "20px", marginTop: 10 }}>
                         {orderDetails?.orderMaterials && orderDetails.orderMaterials.map((item, index) => (
                             <div key={index} style={{ border: "1px solid #ccc", padding: "10px", borderRadius: "5px", position: "relative" }}>
