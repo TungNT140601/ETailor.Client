@@ -215,7 +215,7 @@ export default function ManagementTask() {
         }
 
         const handleAutoAssign = async () => {
-            
+                setLoading(true);
                 const URL = `https://e-tailorapi.azurewebsites.net/api/task/auto/create-and-assign-task`;
                 const response = await fetch(URL, {
                     method: "PUT",
@@ -225,9 +225,11 @@ export default function ManagementTask() {
 
                 })
                 if (response.ok && response.status === 200) {
+                    setLoading(false);
                     notify("Tự động phân thành công!");
                     handleGetAllTasks();
                 }else{
+                    setLoading(false);
                     notifyFailure("Tự động phân thất bại!");
                 }
             
