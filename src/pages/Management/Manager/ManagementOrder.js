@@ -599,6 +599,7 @@ const ManagementOrderContent = () => {
             onChange={onFilterStatus}
             pagination={{
               position: ["bottomCenter"],
+              locale: { items_per_page: " / trang" },
             }}
             style={{
               marginTop: 24,
