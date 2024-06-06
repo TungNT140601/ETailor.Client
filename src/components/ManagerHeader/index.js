@@ -19,6 +19,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
   const [loadingNotification, setLoadingNotification] = useState(false);
   useEffect(() => {
     if (messageReturn) {
+      message.info("Bạn có thông báo mới");
       fetchNotification();
     }
   }, [messageReturn]);
