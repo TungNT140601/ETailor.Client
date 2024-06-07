@@ -4,6 +4,7 @@ import {
   EyeOutlined,
   ArrowLeftOutlined,
   LoadingOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import { Typography, Table } from "antd";
 
@@ -837,7 +838,28 @@ export const ViewDetailOrder = ({
           />
         )}
         <Modal
-          title="Chi tiết đơn hàng"
+          title={
+            <>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Title level={5} style={{ margin: 0 }}>
+                  Chi tiết đơn hàng
+                </Title>
+
+                <Button
+                  onClick={() => handleDataOrder()}
+                  style={{
+                    width: 50,
+                    marginLeft: 20,
+                    height: 25,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <ReloadOutlined />
+                </Button>
+              </div>
+            </>
+          }
           open={isModalOpen}
           onOk={handleApproveOrder}
           onCancel={() => {
@@ -856,20 +878,22 @@ export const ViewDetailOrder = ({
                 margin: "0 20px",
               }}
             >
-              {dataOrderDetail >= 1 && dataOrderDetail.status <= 4 && (
-                <Button
-                  key="cancel"
-                  type="primary"
-                  onClick={() => {
-                    handleCancelOrder(saveIdOrder);
-                  }}
-                  danger
-                  style={{ marginLeft: 15 }}
-                  loading={cancelOrderLoading}
-                >
-                  Hủy đơn hàng
-                </Button>
-              )}
+              {dataOrderDetail &&
+                dataOrderDetail.status >= 1 &&
+                dataOrderDetail.status <= 4 && (
+                  <Button
+                    key="cancel"
+                    type="primary"
+                    onClick={() => {
+                      handleCancelOrder(saveIdOrder);
+                    }}
+                    danger
+                    style={{ marginLeft: 15 }}
+                    loading={cancelOrderLoading}
+                  >
+                    Hủy đơn hàng
+                  </Button>
+                )}
 
               {dataOrderDetail && dataOrderDetail.status === 5 && (
                 <button

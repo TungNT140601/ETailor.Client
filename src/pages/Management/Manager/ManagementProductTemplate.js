@@ -359,13 +359,7 @@ export const ManagementCreateProductTemplate = () => {
       if (response.ok && response.status === 200) {
         const responseData = await response.text();
         console.log("step1", responseData);
-        setSaveProductTemplate((prev) => {
-          if (prev) {
-            return prev;
-          } else {
-            return responseData;
-          }
-        });
+        setSaveProductTemplate(responseData);
         Swal.fire({
           position: "top-center",
           icon: "success",
@@ -460,7 +454,9 @@ export const ManagementCreateProductTemplate = () => {
     }
   };
   useEffect(() => {
-    handleGetComponentType();
+    if (saveProductTemplateId) {
+      handleGetComponentType();
+    }
   }, [saveProductTemplateId]);
 
   const handleDeleteComponent = async (
@@ -612,7 +608,9 @@ export const ManagementCreateProductTemplate = () => {
     }
   };
   useEffect(() => {
-    handleGetComponentTypesCategory();
+    if (saveCategoryId) {
+      handleGetComponentTypesCategory();
+    }
   }, [saveCategoryId]);
 
   //----------------------------------------------------------Xử lý Export Import file Excel ở bước 2--------
@@ -1219,24 +1217,18 @@ export const ManagementCreateProductTemplate = () => {
             }}
           >
             <Select
+              showSearch
               mode="multiple"
               placeholder="Chọn số đo phù hợp cho bản mẫu"
               onChange={handleChange}
               defaultValue={() => {
                 if (saveBodySize) {
-                  // const matchingBodySizes = [];
-                  // for (const bodysize in dataBodySize) {
-                  //   let check = saveBodySize[0].includes(
-                  //     dataBodySize.at(bodysize).id
-                  //   );
-                  //   if (check) {
-                  //     matchingBodySizes.push(dataBodySize.at(bodysize).id);
-                  //   }
-                  // }
-                  // return matchingBodySizes;
                   return saveBodySize[0];
                 }
               }}
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
               style={{
                 width: "80%",
               }}
