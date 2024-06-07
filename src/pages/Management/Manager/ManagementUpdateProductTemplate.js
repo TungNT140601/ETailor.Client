@@ -56,94 +56,6 @@ const { Title, Text } = Typography;
 const { Meta } = Card;
 const { Option } = Select;
 
-const ManagementUpdateProductTemplateHeader = () => {
-  const manager = JSON.parse(localStorage.getItem("manager"));
-  const onSearch = (value, _e, info) => console.log(info?.source, value);
-  return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
-    >
-      <div>
-        <Breadcrumb
-          items={[
-            {
-              href: "#",
-              title: <HomeOutlined />,
-            },
-            {
-              href: "/manager",
-              title: (
-                <>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      color: "#9F78FF",
-                    }}
-                  >
-                    <CheckroomIcon fontSize="small" />
-                    &nbsp;
-                    <span>Quản lý bản mẫu</span>
-                  </div>
-                </>
-              ),
-            },
-            {
-              href: "/manager",
-              title: (
-                <>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      color: "#9F78FF",
-                    }}
-                  >
-                    <CheckroomIcon fontSize="small" />
-                    &nbsp;
-                    <span>Bản mẫu</span>
-                  </div>
-                </>
-              ),
-            },
-          ]}
-        />
-        <Title level={4}>Cập nhật bản mẫu</Title>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <div>
-          <Search
-            placeholder="Tìm kiếm"
-            onSearch={onSearch}
-            style={{
-              width: 250,
-            }}
-          />
-        </div>
-        &nbsp; &nbsp; &nbsp;
-        <div>
-          {manager?.avatar ? (
-            <Avatar src={manager?.avatar} />
-          ) : (
-            <Avatar src="https://api.dicebear.com/7.x/miniavs/svg?seed=1" />
-          )}
-          &nbsp; &nbsp;
-          <Text>{manager?.name}</Text>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const CollectionCreateFormStep2 = ({
   open,
   onCreate,
@@ -757,7 +669,9 @@ const ManagementUpdateProductTemplateContent = () => {
     }
   };
   useEffect(() => {
-    handleGetComponentType();
+    if (id !== null && id !== undefined) {
+      handleGetComponentType();
+    }
   }, []);
 
   const handleDeleteComponent = async (
@@ -913,7 +827,9 @@ const ManagementUpdateProductTemplateContent = () => {
     }
   };
   useEffect(() => {
-    handleGetComponentTypesCategory();
+    if (dataDetailForUpdate) {
+      handleGetComponentTypesCategory();
+    }
   }, [dataDetailForUpdate]);
 
   //--------------------------------------------------------------Cập nhật bản mẫu-----------------------------------------------------------
@@ -1669,9 +1585,13 @@ const ManagementUpdateProductTemplateContent = () => {
             }}
           >
             <Select
+              showSearch
               mode="multiple"
               placeholder="Chọn số đo phù hợp cho bản mẫu"
               onChange={handleChange}
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
               defaultValue={() => {
                 if (saveBodySize) {
                   return saveBodySize[0];

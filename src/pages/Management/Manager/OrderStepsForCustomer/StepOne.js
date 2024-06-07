@@ -197,10 +197,8 @@ function StepOne({
                               setChooseProductTemplate(null);
                               setProductComponent(null);
                               form.resetFields();
-                              return responseData;
-                            } else {
-                              return responseData;
                             }
+                            return responseData;
                           });
                           toast.success("Đã xác nhận khách hàng");
                           setSearchInfo(responseData.fullname);
