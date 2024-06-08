@@ -878,7 +878,7 @@ export const ViewDetailOrder = ({
                 margin: "0 20px",
               }}
             >
-              {dataOrderDetail &&
+              {/* {dataOrderDetail &&
                 dataOrderDetail.status >= 1 &&
                 dataOrderDetail.status <= 4 && (
                   <Button
@@ -893,7 +893,7 @@ export const ViewDetailOrder = ({
                   >
                     Hủy đơn hàng
                   </Button>
-                )}
+                )} */}
 
               {dataOrderDetail && dataOrderDetail.status === 5 && (
                 <button

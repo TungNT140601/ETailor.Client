@@ -1678,12 +1678,14 @@ const ManagementProductTemplateContent = () => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const [loading, setLoading] = useState(false);
   const [getProductTemplate, setGetProductTemplate] = useState([]);
-  const getUrl =
-    "https://e-tailorapi.azurewebsites.net/api/template-management/templates";
 
-  const handleGetProductTemplate = async () => {
+  const handleGetProductTemplate = async (searchText = null) => {
     setLoading(true);
     try {
+      const getUrl = `https://e-tailorapi.azurewebsites.net/api/template-management/templates${
+        searchText ? `?search=${searchText}` : ""
+      }`;
+
       const response = await fetch(getUrl, {
         method: "GET",
         headers: {
@@ -1743,14 +1745,24 @@ const ManagementProductTemplateContent = () => {
     <div>
       <div>
         <div>
-          <Flex wrap="wrap" gap="small">
-            <Button icon={<PushpinOutlined />}>
-              Tổng cộng ({getProductTemplate?.length})
-            </Button>
-            <Link to="/manager/create/product-template">
-              <Button icon={<PlusCircleOutlined />}>Thêm mới</Button>
-            </Link>
-          </Flex>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Flex wrap="wrap" gap="small">
+              <Button icon={<PushpinOutlined />}>
+                Tổng cộng ({getProductTemplate?.length})
+              </Button>
+              <Link to="/manager/create/product-template">
+                <Button icon={<PlusCircleOutlined />}>Thêm mới</Button>
+              </Link>
+            </Flex>
+            <Search
+              placeholder="Tìm kiếm bản mẫu"
+              allowClear
+              onSearch={(value) => handleGetProductTemplate(value)}
+              style={{
+                width: 250,
+              }}
+            />
+          </div>
         </div>
         <div>
           <Divider plain icon={<PushpinOutlined />}>
@@ -1769,7 +1781,7 @@ const ManagementProductTemplateContent = () => {
               >
                 <CircularProgress />
               </div>
-            ) : (
+            ) : getProductTemplate && getProductTemplate.length > 0 ? (
               <Row gutter={[16, 24]}>
                 {getProductTemplate.map((productTemplate) => {
                   return (
@@ -1827,6 +1839,17 @@ const ManagementProductTemplateContent = () => {
                   );
                 })}
               </Row>
+            ) : (
+              <div
+                style={{
+                  height: "450px",
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Title level={3}>Không tìm thấy bản mẫu phù hợp!</Title>
+              </div>
             )}
           </div>
         </div>
