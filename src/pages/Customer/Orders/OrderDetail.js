@@ -884,7 +884,7 @@ export default function OrderDetail() {
                     </div>
 
                     <div style={{ padding: 10, width: "400px" }}>
-                        <p style={{ fontWeight: "bold" }}>Giảm giá: <span style={{ fontWeight: "400" }}>{orderDetails?.discount ? formatCurrency(orderDetails?.discount) : "Không"}</span></p>
+                        <p style={{ fontWeight: "bold" }}>Giảm giá: <span style={{ fontWeight: "400" }}>{orderDetails?.discountPrice ? formatCurrency(orderDetails?.discountPrice) : "Không"}</span></p>
                     </div>
 
                     <div style={{ padding: 10, width: "400px" }}>
