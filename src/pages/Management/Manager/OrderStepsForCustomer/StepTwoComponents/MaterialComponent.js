@@ -592,7 +592,6 @@ export const ConfirmMaterial = ({
               rules={[
                 {
                   required: true,
-                  whitespace: true,
                   message: "Số mét vải nhận phải là số và không được để trống",
                 },
                 {
