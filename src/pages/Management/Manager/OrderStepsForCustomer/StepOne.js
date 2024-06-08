@@ -254,6 +254,7 @@ function StepOne({
                 rules={[
                   {
                     required: true,
+                    whitespace: true,
                     message: "Họ và tên không được để trống",
                   },
                 ]}
@@ -275,6 +276,7 @@ function StepOne({
                 rules={[
                   {
                     required: true,
+                    whitespace: true,
                     message: "Địa chỉ không được để trống",
                   },
                 ]}
@@ -299,6 +301,7 @@ function StepOne({
                     rules={[
                       {
                         required: true,
+                        whitespace: true,
                         message: "Email không được để trống",
                       },
                     ]}
@@ -321,6 +324,7 @@ function StepOne({
                     rules={[
                       {
                         required: true,
+                        whitespace: true,
                         message: "Số điện thoại không được để trống",
                       },
                     ]}

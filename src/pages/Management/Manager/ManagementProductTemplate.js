@@ -415,24 +415,19 @@ export const ManagementCreateProductTemplate = () => {
         },
         body: formData,
       });
+      const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
+        message.success(responseData);
         handleGetComponentType();
+        setOpen(false);
         return 1;
       } else if (response.status === 400 || response.status === 500) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "error",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 4500,
-        });
+        message.error(responseData);
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
     }
-    setOpen(false);
   };
 
   const handleGetComponentType = async () => {
@@ -462,39 +457,51 @@ export const ManagementCreateProductTemplate = () => {
   const handleDeleteComponent = async (
     templateId,
     componentTypeId,
-    componentId
+    componentId,
+    name
   ) => {
-    const getDetailUrl = `https://e-tailorapi.azurewebsites.net/api/Component/template/${templateId}/${componentTypeId}/${componentId}`;
-    try {
-      const response = await fetch(getDetailUrl, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: "Xóa thành công",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        await handleGetComponentType();
-      } else if (response.status === 400 || response.status === 500) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+    Swal.fire({
+      title: `Xác nhận xóa kiểu ${name} ?`,
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      denyButtonText: `Không xóa`,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const getDetailUrl = `https://e-tailorapi.azurewebsites.net/api/Component/template/${templateId}/${componentTypeId}/${componentId}`;
+        try {
+          const response = await fetch(getDetailUrl, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${manager?.token}`,
+            },
+          });
+          const responseData = await response.text();
+          if (response.ok && response.status === 200) {
+            Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            await handleGetComponentType();
+          } else if (response.status === 400 || response.status === 500) {
+            Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          }
+        } catch (error) {
+          console.error("Error calling API:", error);
+        }
+      } else if (result.dismiss) {
+        Swal.fire("Hủy xóa", "", "info");
       }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
+    });
   };
 
   //--------------------------------------------------------------step 3---------------------------------------------
@@ -731,6 +738,7 @@ export const ManagementCreateProductTemplate = () => {
                 rules={[
                   {
                     required: true,
+                    whitespace: true,
                     message: "Nhập tên bản mẫu",
                   },
                 ]}
@@ -804,6 +812,7 @@ export const ManagementCreateProductTemplate = () => {
                 rules={[
                   {
                     required: true,
+                    whitespace: true,
                     message: "Giá tiền không được để trống",
                   },
                   {
@@ -827,6 +836,7 @@ export const ManagementCreateProductTemplate = () => {
                 rules={[
                   {
                     required: true,
+                    whitespace: true,
                     message: "Nhập mô tả cho bản mẫu",
                   },
                 ]}
@@ -1144,7 +1154,8 @@ export const ManagementCreateProductTemplate = () => {
                                             handleDeleteComponent(
                                               saveProductTemplateId,
                                               data.id,
-                                              component.id
+                                              component.id,
+                                              component?.name
                                             );
                                           }}
                                         />,
@@ -1294,6 +1305,7 @@ export const ManagementCreateProductTemplate = () => {
                                 rules={[
                                   {
                                     required: true,
+                                    whitespace: true,
                                     message: "Quy trình không được bỏ trống",
                                   },
                                 ]}
@@ -1614,7 +1626,8 @@ const CollectionCreateFormStep2 = ({
           rules={[
             {
               required: true,
-              message: "Please input the title of collection!",
+              whitespace: true,
+              message: "Tên kiểu không được để trống!",
             },
           ]}
         >
@@ -1629,7 +1642,7 @@ const CollectionCreateFormStep2 = ({
           rules={[
             {
               required: true,
-              message: "Thumbnail không được để trống",
+              message: "Ảnh kiểu không được để trống",
             },
           ]}
         >

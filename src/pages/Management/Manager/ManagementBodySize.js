@@ -25,6 +25,7 @@ import {
   Upload,
   InputNumber,
   Select,
+  message,
 } from "antd";
 import CircularProgress from "@mui/material/CircularProgress";
 import StraightenIcon from "@mui/icons-material/Straighten";
@@ -191,17 +192,14 @@ const ManagementBodySizeContent = () => {
         },
         body: values,
       });
+      const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        message.success(responseData);
         handleBodySize();
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
