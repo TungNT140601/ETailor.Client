@@ -124,7 +124,7 @@ export default function Order() {
       >
         <Input
           ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
+          placeholder={`Tìm kiếm ngày`}
           value={selectedKeys[0]}
           onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
@@ -143,7 +143,7 @@ export default function Order() {
               width: 90,
             }}
           >
-            Search
+            Tìm
           </Button>
           <Button
             onClick={() => clearFilters && handleReset(clearFilters)}
@@ -152,7 +152,7 @@ export default function Order() {
               width: 90,
             }}
           >
-            Reset
+            Huỷ
           </Button>
           <Button
             type="link"
@@ -165,7 +165,7 @@ export default function Order() {
               setSearchedColumn(dataIndex);
             }}
           >
-            Filter
+            Lọc
           </Button>
           <Button
             type="link"
@@ -174,7 +174,7 @@ export default function Order() {
               close();
             }}
           >
-            close
+            Đóng
           </Button>
         </Space>
       </div>
