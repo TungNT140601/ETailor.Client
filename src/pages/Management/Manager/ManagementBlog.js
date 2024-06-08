@@ -188,6 +188,12 @@ const BlogUpdateFormModal = ({
           name="image"
           label="Ảnh Thumbnail"
           style={{ width: "130px" }}
+          rules={[
+            {
+              required:true,
+              message:"Không được để trống ảnh"
+            }
+          ]}
         >
           <Upload
             beforeUpload={(file) => {
@@ -373,6 +379,12 @@ const BlogCreateFormModal = ({ open, onCreate, onCancel, initialValues }) => {
         <Form.Item
           name="image"
           label="Ảnh Thumbnail"
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng upload ảnh"
+            }
+          ]}
           style={{ width: "130px" }}
         >
           <Upload
@@ -498,12 +510,13 @@ const ManagementBlogContent = () => {
 
         body: formData,
       });
-
+      const text = await response.text()
       if (response.ok) {
+
         setOpen(false);
         await Swal.fire({
           icon: "success",
-          title: "Tạo mới thành công",
+          title: text,
           timer: 2000,
         });
         LoadBlog();
@@ -511,8 +524,8 @@ const ManagementBlogContent = () => {
       } else {
         Swal.fire({
           icon: "error",
-          title: "Oops...",
-          text: "Tạo mới không thành công!",
+          title: "Tạo blog không thành công",
+          text: text,
         });
       }
     } catch (error) {
@@ -542,12 +555,12 @@ const ManagementBlogContent = () => {
 
         body: formData,
       });
-
+      const text = await response.text()
       if (response.ok) {
         setOpenUpdateModal(false);
         await Swal.fire({
           icon: "success",
-          title: "Update thành công",
+          title: "Chỉnh sửa thành công",
           timer: 2000,
         });
         LoadBlog();
@@ -555,8 +568,8 @@ const ManagementBlogContent = () => {
       } else {
         Swal.fire({
           icon: "error",
-          title: "Oops...",
-          text: "Tạo mới không thành công!",
+          title: "Chỉnh sửa thất bại!",
+          text: text,
         });
       }
     } catch (error) {

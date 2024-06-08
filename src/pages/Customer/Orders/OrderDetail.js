@@ -652,9 +652,9 @@ export default function OrderDetail() {
                                     </p>
                                 </div> */}
 
-                                <div style={{ display: "flex" }}>
+                                <div style={{ display: "flex", justifyContent: "space-between" }}>
                                     <div>
-                                        <p className="title is-5" style={{ margin: 10, fontSize: 15, fontWeight: "bold", maxWidth: 200 }}>
+                                        <p className="title is-5" style={{ margin: 10, fontSize: 15, fontWeight: "bold", maxWidth: 400, overflow: "hidden", textOverflow: "ellipsis", width: 130, textWrap: "nowrap" }}>
                                             Tên sản phẩm: <span style={{ fontWeight: "400", paddingLeft: 5 }}>{productDetail?.productTemplateName}</span>
                                         </p>
                                         <p className="title is-5" style={{ margin: 10, fontSize: 15, fontWeight: "bold" }}>
@@ -672,12 +672,12 @@ export default function OrderDetail() {
                                         )}
 
                                     </div>
-                                    <div>
+                                    <div style={{ marginRight: "20px" }}>
                                         <Image
                                             width={150}
                                             height={100}
                                             src={productDetail?.productTemplateImage}
-                                            style={{ objectFit: "cover", alignSelf: "center", borderRadius: 5, marginLeft: 150 }}
+                                            style={{ objectFit: "cover", borderRadius: 5 }}
                                             alt=""
                                             preview={{
                                                 imageRender: () => (
@@ -697,9 +697,6 @@ export default function OrderDetail() {
                                             }}
                                         />
                                     </div>
-
-
-
                                 </div>
 
                                 <Divider />

@@ -70,6 +70,12 @@ const getStatusTextAndColor = (status) => {
             text = "Tạm dừng";
             break;
         case 4:
+            color = "#d46b08";
+            borderColor = "#d46b08"
+            text = "Từ chối";
+            backgroundColor = "#fff7e6";
+            break;
+        case 5:
             color = "#67b645";
             borderColor = "#c6f0a6"
             text = "Hoàn thành";
@@ -215,24 +221,24 @@ export default function ManagementTask() {
         }
 
         const handleAutoAssign = async () => {
-                setLoading(true);
-                const URL = `https://e-tailorapi.azurewebsites.net/api/task/auto/create-and-assign-task`;
-                const response = await fetch(URL, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
+            setLoading(true);
+            const URL = `https://e-tailorapi.azurewebsites.net/api/task/auto/create-and-assign-task`;
+            const response = await fetch(URL, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
 
-                })
-                if (response.ok && response.status === 200) {
-                    setLoading(false);
-                    notify("Tự động phân thành công!");
-                    handleGetAllTasks();
-                }else{
-                    setLoading(false);
-                    notifyFailure("Tự động phân thất bại!");
-                }
-            
+            })
+            if (response.ok && response.status === 200) {
+                setLoading(false);
+                notify("Tự động phân thành công!");
+                handleGetAllTasks();
+            } else {
+                setLoading(false);
+                notifyFailure("Tự động phân thất bại!");
+            }
+
         }
         const content = (
             <div>
@@ -349,7 +355,7 @@ export default function ManagementTask() {
                                             <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: "#9F78FF", paddingLeft: 20 }}>Tất cả nhân viên</h2>
                                         </div>
                                         <div style={{ display: "flex", marginLeft: "22vw" }}>
-                                            {[1, 2].map(index => (
+                                            {[1, 2, 4].map(index => (
                                                 <div key={index} style={{ display: "flex", alignItems: "center", marginRight: "10px" }}>
                                                     <button style={{ width: "2rem", height: "1rem", backgroundColor: getStatusTextAndColor(index).backgroundColor, borderRadius: 5, border: `1px solid ${getStatusTextAndColor(index).borderColor}` }}></button>
                                                     &nbsp;<p style={{ fontSize: 15, color: getStatusTextAndColor(index).color }}>{getStatusTextAndColor(index).text}</p>
@@ -357,7 +363,7 @@ export default function ManagementTask() {
                                             ))}
                                         </div>
                                         <div style={{ paddingLeft: 16 }} className='btn-automation'>
-                                            <Button onClick={() => handleAutoAssign()}><FontAwesomeIcon icon={faRotate}/></Button>
+                                            <Button onClick={() => handleAutoAssign()}><FontAwesomeIcon icon={faRotate} /></Button>
                                         </div>
 
 

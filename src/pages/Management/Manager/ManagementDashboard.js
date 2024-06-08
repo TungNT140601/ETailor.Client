@@ -22,6 +22,7 @@ import 'dayjs/locale/vi';
 import dayjs from 'dayjs';
 import FormatVNCurrency from '../../utils/FormatVNCurrency'
 import { useNavigate } from 'react-router-dom';
+import MedalIcon from '../../../assets/images/medal.png'
 dayjs.locale('vi');
 
 ChartJS.register(
@@ -238,7 +239,6 @@ export default function ManagementDashboard() {
             setTaskLoading(false)
             const data = await response.json();
             setAllTask(data)
-            console.log("task statistic", data);
           }
         } catch (error) {
           console.log("Error:", error);
@@ -305,7 +305,6 @@ export default function ManagementDashboard() {
           });
           if (response.ok) {
             const data = await response.json();
-            console.log("total order rate", data);
             setOrderLoading(false)
             setTotalOrderRate(data);
           }
@@ -329,7 +328,6 @@ export default function ManagementDashboard() {
           if (response.ok) {
             setRevenueLoading(false)
             const data = await response.json();
-            console.log("revenue rate", data);
             setTotalRevenueRate(data);
           }
         } catch (error) {
@@ -515,7 +513,6 @@ export default function ManagementDashboard() {
     )
   }
   const currentDate = dayjs()
-  console.log(" CURRENT DATE ", currentDate.month())
   const [searchMonth, setSearchMonth] = useState(currentDate.month() + 1)
 
   const handleChoseMonth = (value) => {
@@ -557,7 +554,6 @@ export default function ManagementDashboard() {
           if (response.ok) {
             const data = await response.json();
             setFabricLoading(false)
-            console.log("material statistic", data);
             setMaterialStatistic(data);
           }
         } catch (error) {
@@ -581,7 +577,6 @@ export default function ManagementDashboard() {
           if (response.ok) {
             const data = await response.json();
             setCommonTemplateLoading(false)
-            console.log("common template", data);
             setCommonTemplate(data);
           }
         } catch (error) {
@@ -593,7 +588,6 @@ export default function ManagementDashboard() {
       fetchMaterialStatistic();
     }, [searchMonth, searchYear])
 
-    const fabricLabels = materialStatistic.map(material => material.name);
     const options = {
       indexAxis: 'y',
       elements: {
@@ -615,18 +609,27 @@ export default function ManagementDashboard() {
       },
     };
 
+    const fabricLabels = materialStatistic
+      .filter(material => material.totalProducts > 0)
+      .map(material => material.name);
+
+    const fData = materialStatistic
+      .filter(material => material.totalProducts > 0)
+      .map(material => material.totalProducts);
+
+    console.log(fabricLabels);
+    console.log(fData);
+
     const fabricData = {
       labels: fabricLabels,
-      datasets:
-        [
-          {
-            label: '',
-            data: materialStatistic.map(material => material.totalProducts),
-            borderColor: 'rgb(255, 99, 132)',
-            backgroundColor: 'rgba(255, 99, 132, 0.5)',
-          },
-        ]
-    }
+      datasets: [{
+        label: 'Total Products',
+        data: fData,
+        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        borderColor: 'rgb(255, 99, 132)',
+        borderWidth: 1
+      }]
+    };
 
     const templateData = {
       templateLabels: commonTemplate && commonTemplate.map(template => template.name),
@@ -651,6 +654,7 @@ export default function ManagementDashboard() {
             align: "center",
             padding: 10,
             maxWidth: 40,
+            height: 70,
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
           },
@@ -669,7 +673,7 @@ export default function ManagementDashboard() {
       },
     };
     const onChange = (key) => {
-      console.log(key);
+
     };
     const items = [
       {
@@ -682,7 +686,7 @@ export default function ManagementDashboard() {
               {materialStatistic.map((material, index) => (
                 <Col xs={24} sm={12} md={12} lg={12} xl={12} key={index}>
                   <div style={{ display: "flex", alignItems: "center", border: "1px solid #e8e8e8", borderRadius: 10, padding: 10 }}>
-                    <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }} alt={material.name} />
+                    <img src={material.image} style={{ width: 50, height: 40, objectFit: "cover", borderRadius: 5 }} alt={material.name} />
                     <div style={{ marginLeft: 10 }}>
                       <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{material?.name}</p>
                       {material && material.quantity < 10 ? (
@@ -702,24 +706,34 @@ export default function ManagementDashboard() {
       {
         key: '2',
         label: 'Xu hướng thịnh hành',
-        children: <>
-          {commonTemplate && commonTemplate.total > 0 ? (
-            commonTemplate.map((template, index) => (
-              <div style={{ padding: 5, alignItems: "center" }} key={index}>
-                <div>
-                  <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }} alt={template.name} />
+        children:
+          <>
+            <Row gutter={[16, 16]}>
+              {commonTemplate ? (
+                commonTemplate.map((material, index) => (
+                  material.total > 0 &&
+                  <Col xs={24} sm={12} md={12} lg={12} xl={12} key={index}>
+                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #e8e8e8", borderRadius: 10, padding: 10, position: "relative" }}>
+                      {(index === 0 || index === 2 || index == 1) && (
+                        <div style={{ position: "absolute", top: -12, right: 0 }}>
+                          <img src={MedalIcon} style={{ width: 40, height: 40 }} />
+                        </div>
+                      )}
+                      <img title={material.name} src={material.thumbnailImage} width={50} height={40} style={{ width: 50, height: 40, objectFit: "cover", borderRadius: 5 }} alt={material.name} />
+                      <div style={{ marginLeft: 10 }}>
+                        <p title={material.name} style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0, color: "#000000", margin: 0, overflow: "hidden", textOverflow: "ellipsis", width: 130, textWrap: "nowrap" }}>{material?.name}</p>
+                        <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {material.total ? material.total : 0}</p>
+                      </div>
+                    </div>
+                  </Col>
+                ))
+              ) : (
+                <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+                  <p style={{ fontSize: 18, fontWeight: 600, color: "#000000", margin: 0 }}>Không có dữ liệu hoặc chưa có đơn hàng</p>
                 </div>
-                <div style={{ marginLeft: 20 }}>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{template?.name}</p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-              <p style={{ fontSize: 18, fontWeight: 600, color: "#000000", margin: 0 }}>Không có dữ liệu hoặc chưa có đơn hàng</p>
-            </div>
-          )}
-        </>,
+              )}
+            </Row>
+          </>,
       },
 
     ];
@@ -749,7 +763,7 @@ export default function ManagementDashboard() {
                           .map((material, index) => (
                             <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
                               <div>
-                                <img src={material.image} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }}></img>
+                                <img src={material.image} style={{ width: 50, height: 40, objectFit: "cover", borderRadius: 5 }}></img>
                               </div>
                               <div style={{ marginLeft: 20 }}>
                                 <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0, overflow: "hidden", textOverflow: "ellipsis", width: 130, textWrap: "nowrap" }}>{material.name}</p>
@@ -776,10 +790,10 @@ export default function ManagementDashboard() {
                         <h1 style={{ fontSize: 20, fontWeight: 600, color: "#727272", padding: 10 }}>Bản mẫu được ưa chuộng tháng {searchMonth}</h1>
                       </div>
                       <Bar options={templateChartOptions} data={{
-                        labels: commonTemplate && commonTemplate.map(template => template?.name),
+                        labels: commonTemplate && commonTemplate.filter(template => template.total > 0).map(template => template?.name),
                         datasets: [{
                           label: '',
-                          data: commonTemplate && commonTemplate.map(template => template?.total),
+                          data: commonTemplate && commonTemplate.filter(template => template.total > 0).map(template => template?.total),
                           borderColor: 'rgb(53, 162, 235)',
                           backgroundColor: 'rgba(53, 162, 235, 0.5)',
                         }],
@@ -789,6 +803,20 @@ export default function ManagementDashboard() {
                       <div style={{ padding: "20px 5px 20px 50px", alignContent: "center", alignItems: "center", height: "100%" }}>
                         <p style={{ padding: 5, fontSize: 14, fontWeight: 600, color: "#727272", }}>Top 3 bản mẫu được ưa chuộng nhất</p>
                         {/* <p><FontAwesomeIcon icon={faRankingStar} /></p> */}
+                        {commonTemplate
+                          .sort((a, b) => (b.total ? b.total : 0) - (a.total ? a.total : 0))
+                          .slice(0, 3)
+                          .map((material, index) => (
+                            <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
+                              <div>
+                                <img src={material.thumbnailImage} title={material?.name} style={{ width: 50, height: 40, objectFit: "cover", borderRadius: 5 }}></img>
+                              </div>
+                              <div style={{ marginLeft: 20 }}>
+                                <p title={material?.name} style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0, overflow: "hidden", textOverflow: "ellipsis", width: 130, textWrap: "nowrap" }}>{material.name}</p>
+                                <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {material.total ? material.total : 0}</p>
+                              </div>
+                            </div>
+                          ))}
 
                       </div>
 
@@ -814,7 +842,6 @@ export default function ManagementDashboard() {
     )
   }
 
-  console.log("search year", searchYear)
 
   return (
     <div style={{ width: "100%", height: "99vh", backgroundColor: "#f0f4f5", borderRadius: 10, border: "1px solid #9F78FF", overflowY: "scroll", scrollbarWidth: "none" }}>
