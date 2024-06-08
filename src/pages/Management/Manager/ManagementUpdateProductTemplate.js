@@ -1123,7 +1123,6 @@ const ManagementUpdateProductTemplateContent = () => {
                 rules={[
                   {
                     required: true,
-                    whitespace: true,
                     message: "Giá tiền không được để trống",
                   },
                   {

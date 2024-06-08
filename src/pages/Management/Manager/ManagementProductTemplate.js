@@ -812,7 +812,6 @@ export const ManagementCreateProductTemplate = () => {
                 rules={[
                   {
                     required: true,
-                    whitespace: true,
                     message: "Giá tiền không được để trống",
                   },
                   {
