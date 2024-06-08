@@ -6,17 +6,20 @@ import { Typography, Badge, Popover, message, Spin, Alert } from "antd";
 import { Avatar } from "antd";
 import { Link } from "react-router-dom";
 import { NotificationRealTime } from "../NotificationManager/NotificationRealTime";
+import { useNavigate } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
 const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
   const manager = JSON.parse(localStorage.getItem("manager"));
   const chatNotification = NotificationRealTime();
+  const navigate = useNavigate();
   const { messageReturn, resetMessageReturn } = chatNotification;
   const [allNotification, setAllNotification] = useState(null);
   const [loadingNotification, setLoadingNotification] = useState(false);
   useEffect(() => {
     if (messageReturn) {
+      message.info("Bạn có thông báo mới");
       fetchNotification();
     }
   }, [messageReturn]);
@@ -56,6 +59,7 @@ const ManagerHeader = ({ name, link, iconHome, iconRoute }) => {
       });
       if (response.ok && response.status === 200) {
         message.success("Đã xem thông báo");
+        navigate("/manager/orders");
         fetchNotification();
       } else if (response.status === 400 || response.status === 500) {
         const data = await response.text();

@@ -4,6 +4,7 @@ import {
   EyeOutlined,
   ArrowLeftOutlined,
   LoadingOutlined,
+  ReloadOutlined,
 } from "@ant-design/icons";
 import { Typography, Table } from "antd";
 
@@ -749,8 +750,9 @@ export const ViewDetailOrder = ({
       const responseData = await response.text();
       if (response.ok && response.status === 200) {
         message.success(responseData);
-        handleViewProductDetail(id);
-        handleDataOrder();
+        await handleViewProductDetail(id);
+        await handleDataOrder();
+        await handleDataOrderContent();
       } else if (response.status === 400 || response.status === 500) {
         message.error(responseData);
       }
@@ -836,7 +838,28 @@ export const ViewDetailOrder = ({
           />
         )}
         <Modal
-          title="Chi tiết đơn hàng"
+          title={
+            <>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Title level={5} style={{ margin: 0 }}>
+                  Chi tiết đơn hàng
+                </Title>
+
+                <Button
+                  onClick={() => handleDataOrder()}
+                  style={{
+                    width: 50,
+                    marginLeft: 20,
+                    height: 25,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <ReloadOutlined />
+                </Button>
+              </div>
+            </>
+          }
           open={isModalOpen}
           onOk={handleApproveOrder}
           onCancel={() => {
@@ -855,20 +878,22 @@ export const ViewDetailOrder = ({
                 margin: "0 20px",
               }}
             >
-              {checkStatus >= 1 && checkStatus <= 4 && (
-                <Button
-                  key="cancel"
-                  type="primary"
-                  onClick={() => {
-                    handleCancelOrder(saveIdOrder);
-                  }}
-                  danger
-                  style={{ marginLeft: 15 }}
-                  loading={cancelOrderLoading}
-                >
-                  Hủy đơn hàng
-                </Button>
-              )}
+              {dataOrderDetail &&
+                dataOrderDetail.status >= 1 &&
+                dataOrderDetail.status <= 4 && (
+                  <Button
+                    key="cancel"
+                    type="primary"
+                    onClick={() => {
+                      handleCancelOrder(saveIdOrder);
+                    }}
+                    danger
+                    style={{ marginLeft: 15 }}
+                    loading={cancelOrderLoading}
+                  >
+                    Hủy đơn hàng
+                  </Button>
+                )}
 
               {dataOrderDetail && dataOrderDetail.status === 5 && (
                 <button
@@ -920,22 +945,24 @@ export const ViewDetailOrder = ({
                 </button>
               )}
 
-              {checkStatus >= 1 && checkStatus <= 4 && (
-                <Button
-                  key="cancel"
-                  type="primary"
-                  onClick={() => {
-                    handleConfirmCancel(dataOrderDetail?.paidMoney);
-                  }}
-                  style={{
-                    marginLeft: 15,
-                  }}
-                  loading={cancelOrderLoading}
-                >
-                  Hoàn trả đơn
-                </Button>
-              )}
-              {checkStatus === 1 && (
+              {dataOrderDetail &&
+                dataOrderDetail.status >= 1 &&
+                dataOrderDetail.status <= 4 && (
+                  <Button
+                    key="cancel"
+                    type="primary"
+                    onClick={() => {
+                      handleConfirmCancel(dataOrderDetail?.paidMoney);
+                    }}
+                    style={{
+                      marginLeft: 15,
+                    }}
+                    loading={cancelOrderLoading}
+                  >
+                    Hoàn trả đơn
+                  </Button>
+                )}
+              {dataOrderDetail && dataOrderDetail.status === 1 && (
                 <>
                   <Button
                     key="approve"
@@ -1404,8 +1431,9 @@ export const ViewDetailOrder = ({
                         </Row>
                       </div>
                       {detailProductData &&
+                        dataOrderDetail &&
                         detailProductData.status === 5 &&
-                        checkStatus !== 8 && (
+                        dataOrderDetail.status !== 8 && (
                           <div
                             style={{
                               marginBottom: 15,
@@ -1443,7 +1471,6 @@ export const ViewDetailOrder = ({
                         dataOrderDetail={dataOrderDetail}
                         setChatWithCustomer={setChatWithCustomer}
                         setBadgeChatCount={setBadgeChatCount}
-                        checkStatus={checkStatus}
                       />
                     </>
                   ) : (

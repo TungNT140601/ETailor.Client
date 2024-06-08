@@ -22,6 +22,7 @@ import 'dayjs/locale/vi';
 import dayjs from 'dayjs';
 import FormatVNCurrency from '../../utils/FormatVNCurrency'
 import { useNavigate } from 'react-router-dom';
+import MedalIcon from '../../../assets/images/medal.png'
 dayjs.locale('vi');
 
 ChartJS.register(
@@ -653,6 +654,7 @@ export default function ManagementDashboard() {
             align: "center",
             padding: 10,
             maxWidth: 40,
+            height: 70,
             textOverflow: "ellipsis",
             whiteSpace: "nowrap",
           },
@@ -704,25 +706,34 @@ export default function ManagementDashboard() {
       {
         key: '2',
         label: 'Xu hướng thịnh hành',
-        children: <>
-          {commonTemplate ? (
-            commonTemplate.map((template, index) => (
-              template.total > 0 &&
-              <div style={{ padding: 5, alignItems: "center" }} key={index}>
-                <div>
-                  <img src={template?.thumbnailImage} style={{ width: 50, height: 50, objectFit: "contain", borderRadius: 10 }} alt={template.name} />
+        children:
+          <>
+            <Row gutter={[16, 16]}>
+              {commonTemplate ? (
+                commonTemplate.map((material, index) => (
+                  material.total > 0 &&
+                  <Col xs={24} sm={12} md={12} lg={12} xl={12} key={index}>
+                    <div style={{ display: "flex", alignItems: "center", border: "1px solid #e8e8e8", borderRadius: 10, padding: 10, position: "relative" }}>
+                      {(index === 0 || index === 2 || index == 1) && (
+                        <div style={{ position: "absolute", top: -12, right: 0 }}>
+                          <img src={MedalIcon} style={{ width: 40, height: 40 }} />
+                        </div>
+                      )}
+                      <img title={material.name} src={material.thumbnailImage} width={50} height={40} style={{ width: 50, height: 40, objectFit: "cover", borderRadius: 5 }} alt={material.name} />
+                      <div style={{ marginLeft: 10 }}>
+                        <p title={material.name} style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0, color: "#000000", margin: 0, overflow: "hidden", textOverflow: "ellipsis", width: 130, textWrap: "nowrap" }}>{material?.name}</p>
+                        <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>Số đơn: {material.total ? material.total : 0}</p>
+                      </div>
+                    </div>
+                  </Col>
+                ))
+              ) : (
+                <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
+                  <p style={{ fontSize: 18, fontWeight: 600, color: "#000000", margin: 0 }}>Không có dữ liệu hoặc chưa có đơn hàng</p>
                 </div>
-                <div style={{ marginLeft: 20 }}>
-                  <p style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0 }}>{template?.name}</p>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div style={{ width: "100%", display: "flex", justifyContent: "center" }}>
-              <p style={{ fontSize: 18, fontWeight: 600, color: "#000000", margin: 0 }}>Không có dữ liệu hoặc chưa có đơn hàng</p>
-            </div>
-          )}
-        </>,
+              )}
+            </Row>
+          </>,
       },
 
     ];
@@ -798,7 +809,7 @@ export default function ManagementDashboard() {
                           .map((material, index) => (
                             <div style={{ display: "flex", padding: 5, alignItems: "center" }} key={index}>
                               <div>
-                                <img src={material.thumbnailImage} style={{ width: 50, height: 40, objectFit: "cover", borderRadius: 5 }}></img>
+                                <img src={material.thumbnailImage} title={material?.name} style={{ width: 50, height: 40, objectFit: "cover", borderRadius: 5 }}></img>
                               </div>
                               <div style={{ marginLeft: 20 }}>
                                 <p title={material?.name} style={{ fontSize: 12, fontWeight: 600, color: "#000000", margin: 0, overflow: "hidden", textOverflow: "ellipsis", width: 130, textWrap: "nowrap" }}>{material.name}</p>

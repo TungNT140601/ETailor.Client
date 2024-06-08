@@ -1364,30 +1364,9 @@ function ManagementMaterialCategoryContent() {
       console.error("Error calling API:", error);
     }
   };
-  // const handleDataMaterialType = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       "https://e-tailorapi.azurewebsites.net/api/material-type",
-  //       {
-  //         method: "GET",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${manager?.token}`,
-  //         },
-  //       }
-  //     );
-  //     if (response.ok && response.status === 200) {
-  //       const responseData = await response.json();
-  //       setMaterialType(responseData);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error calling API:", error);
-  //   }
-  // };
 
   useEffect(() => {
     handleDataMaterialCategory();
-    // handleDataMaterialType();
   }, []);
 
   const columns1 = [
@@ -1403,30 +1382,13 @@ function ManagementMaterialCategoryContent() {
       title: "Tên danh mục",
       dataIndex: "name",
       key: "1",
-      width: "25%",
+      width: "55%",
     },
-    {
-      title: "Giá tiền theo đơn vị",
-      dataIndex: "pricePerUnit",
-      key: "2",
-      width: "25%",
-      render: (_, record) => (
-        <Text>
-          {`${record.pricePerUnit}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
-        </Text>
-      ),
-    },
-    // {
-    //   title: "Loại nguyên liệu",
-    //   dataIndex: "materialTypeName",
-    //   key: "3",
-    //   width: "25%",
-    // },
     {
       title: "Tùy chỉnh",
       dataIndex: "Action",
       key: "4",
-      width: "15%",
+      width: "20%",
       fixed: "right",
       render: (_, record) => (
         <Row justify="start">
@@ -1464,8 +1426,6 @@ function ManagementMaterialCategoryContent() {
     stt: index,
     id: item.id,
     name: item.name,
-    pricePerUnit: item.pricePerUnit,
-    // materialTypeName: item.materialTypeName,
   }));
 
   //------------------------------------------------------------Modal create-------------------------------------------------------
@@ -1645,9 +1605,13 @@ function ManagementMaterialCategoryContent() {
             dataSource={getApi}
             pagination={{
               position: ["bottomCenter"],
+              locale: { items_per_page: " / trang" },
             }}
             style={{
               marginTop: 24,
+            }}
+            scroll={{
+              y: 410,
             }}
           />
         </>
@@ -1724,7 +1688,6 @@ const UpdateMaterialCategory = ({
             const dataBackEnd = {
               id: saveMaterialCategoryId,
               name: values.name,
-              pricePerUnit: values.pricePerUnit,
             };
             const check = await onUpdate(dataBackEnd);
             if (check === 1) {
@@ -1741,7 +1704,7 @@ const UpdateMaterialCategory = ({
     >
       <Form
         style={{
-          height: 200,
+          height: 100,
           overflowY: "scroll",
           scrollbarWidth: "none",
           WebkitScrollbar: "none",
@@ -1780,58 +1743,6 @@ const UpdateMaterialCategory = ({
             >
               <Input />
             </Form.Item>
-            <Form.Item
-              name="pricePerUnit"
-              label="Giá tiền theo đơn vị đo"
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: "Giá tiền theo đơn vị đo không được để trống",
-                },
-                {
-                  type: "number",
-                  min: 1,
-                  max: 1000000000,
-                  message:
-                    "Giá tiền theo đơn vị phải là số và ít nhất là 1.000đ đến 1.000.000.000đ",
-                },
-              ]}
-            >
-              <InputNumber
-                style={{ width: 470 }}
-                formatter={(value) =>
-                  `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-                }
-                parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
-              />
-            </Form.Item>
-            {/* <Form.Item
-              hasFeedback
-              label={`Loại vải`}
-              name="materialTypeId"
-              rules={[
-                {
-                  required: true,
-                  message: "Loại vải không được để trống",
-                },
-              ]}
-            >
-              <Select style={{ height: 45 }} disabled>
-                <Select.Option>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                  }}
-                >
-                  <Title level={5}>
-                    {materialCategoryDetail.materialTypeName}
-                  </Title>
-                </div>
-              </Select.Option>
-              </Select>
-            </Form.Item> */}
           </div>
         )}
       </Form>
@@ -1846,7 +1757,7 @@ const CreateMaterialCategory = ({ open, onCreate, onCancel }) => {
   return (
     <Modal
       open={open}
-      style={{ top: 155 }}
+      style={{ top: 170 }}
       title="Thêm mới danh mục"
       okText="Tạo mới"
       cancelText="Hủy bỏ"
@@ -1873,7 +1784,7 @@ const CreateMaterialCategory = ({ open, onCreate, onCancel }) => {
     >
       <Form
         style={{
-          height: 200,
+          height: 100,
           overflowY: "scroll",
           scrollbarWidth: "none",
           WebkitScrollbar: "none",
@@ -1900,60 +1811,6 @@ const CreateMaterialCategory = ({ open, onCreate, onCancel }) => {
           >
             <Input />
           </Form.Item>
-          <Form.Item
-            name="pricePerUnit"
-            label="Giá tiền theo đơn vị đo"
-            hasFeedback
-            rules={[
-              {
-                required: true,
-                message: "Giá tiền theo đơn vị đo không được để trống",
-              },
-              {
-                type: "number",
-                min: 1,
-                max: 1000000000,
-                message:
-                  "Giá tiền theo đơn vị phải là số và ít nhất là 1.000đ đến 1.000.000.000đ",
-              },
-            ]}
-          >
-            <InputNumber
-              style={{ width: 470 }}
-              formatter={(value) =>
-                `${value}đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-              }
-              parser={(value) => value.replace(/đ\s?|(,*)/g, "")}
-            />
-          </Form.Item>
-          {/* <Form.Item
-            hasFeedback
-            label={`Loại nguyên phụ liệu`}
-            name="materialTypeId"
-            rules={[
-              {
-                required: true,
-                message: "Loại nguyên phụ liệu không được để trống",
-              },
-            ]}
-          >
-            <Select style={{ height: 45 }}>
-              {materialType?.map((item) => {
-                return (
-                  <Select.Option value={item.id} key={item.id}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Title level={5}>{item.name}</Title>
-                    </div>
-                  </Select.Option>
-                );
-              })}
-            </Select>
-          </Form.Item> */}
         </div>
       </Form>
     </Modal>

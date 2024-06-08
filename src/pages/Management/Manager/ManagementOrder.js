@@ -209,7 +209,7 @@ const ManagementOrderContent = () => {
     clearFilters();
     setSearchText("");
   };
-  const getColumnSearchProps = (dataIndex) => ({
+  const getColumnSearchProps = (dataIndex, textPlaceholder) => ({
     filterDropdown: ({
       setSelectedKeys,
       selectedKeys,
@@ -225,7 +225,7 @@ const ManagementOrderContent = () => {
       >
         <Input
           ref={searchInput}
-          placeholder={`Search ${dataIndex}`}
+          placeholder={`Nhập ${textPlaceholder}`}
           value={selectedKeys[0]}
           onChange={(e) =>
             setSelectedKeys(e.target.value ? [e.target.value] : [])
@@ -255,7 +255,7 @@ const ManagementOrderContent = () => {
               width: 90,
             }}
           >
-            Hủy toàn bộ
+            Hủy
           </Button>
           <Button
             type="link"
@@ -326,7 +326,7 @@ const ManagementOrderContent = () => {
       dataIndex: "createdTime",
       key: "createdTime",
       fixed: "left",
-      ...getColumnSearchProps("createdTime"),
+      ...getColumnSearchProps("createdTime", "ngày tạo"),
     },
 
     {
@@ -335,7 +335,7 @@ const ManagementOrderContent = () => {
       dataIndex: "id",
       key: "1",
       fixed: "left",
-      ...getColumnSearchProps("id"),
+      ...getColumnSearchProps("id", "mã đơn"),
     },
 
     {
@@ -393,7 +393,7 @@ const ManagementOrderContent = () => {
       width: 120,
       dataIndex: "cusName",
       key: "2",
-      ...getColumnSearchProps("cusName"),
+      ...getColumnSearchProps("cusName", "tên khách hàng"),
     },
     {
       title: "Ngày dự kiến hoàn thành",
@@ -599,6 +599,7 @@ const ManagementOrderContent = () => {
             onChange={onFilterStatus}
             pagination={{
               position: ["bottomCenter"],
+              locale: { items_per_page: " / trang" },
             }}
             style={{
               marginTop: 24,
