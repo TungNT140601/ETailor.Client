@@ -1339,7 +1339,7 @@ export const ManagementCreateProductTemplate = () => {
                                 <Select
                                   mode="multiple"
                                   size={"default"}
-                                  placeholder="Select items"
+                                  placeholder="Bộ phận thực hiện"
                                   style={{ width: "100%" }}
                                   labelInValue
                                 >
