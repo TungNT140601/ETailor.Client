@@ -153,7 +153,8 @@ const CollectionCreateFormStep2 = ({
           rules={[
             {
               required: true,
-              message: "Please input the title of collection!",
+              whitespace: true,
+              message: "Tên kiểu không được để trống",
             },
           ]}
         >
@@ -168,7 +169,7 @@ const CollectionCreateFormStep2 = ({
           rules={[
             {
               required: true,
-              message: "Hình ảnh không được để trống",
+              message: "Ảnh kiểu không được để trống!",
             },
           ]}
         >
@@ -639,15 +640,19 @@ const ManagementUpdateProductTemplateContent = () => {
         },
         body: formData,
       });
+      const responseData = await response.text();
       if (response.ok && response.status === 200) {
-        const responseData = await response.text();
+        message.success(responseData);
         handleGetComponentType();
+        setOpen(false);
         return 1;
+      } else if (response.status === 400 || response.status === 500) {
+        message.error(responseData);
+        return 0;
       }
     } catch (error) {
       console.error("Error calling API:", error);
     }
-    setOpen(false);
   };
 
   const handleGetComponentType = async () => {
@@ -677,39 +682,51 @@ const ManagementUpdateProductTemplateContent = () => {
   const handleDeleteComponent = async (
     templateId,
     componentTypeId,
-    componentId
+    componentId,
+    name
   ) => {
-    const getDetailUrl = `https://e-tailorapi.azurewebsites.net/api/Component/template/${templateId}/${componentTypeId}/${componentId}`;
-    try {
-      const response = await fetch(getDetailUrl, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${manager?.token}`,
-        },
-      });
-      if (response.ok && response.status === 200) {
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: "Xóa thành công",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        await handleGetComponentType();
-      } else if (response.status === 400 || response.status === 500) {
-        const responseData = await response.text();
-        Swal.fire({
-          position: "top-center",
-          icon: "success",
-          title: responseData,
-          showConfirmButton: false,
-          timer: 1500,
-        });
+    Swal.fire({
+      title: `Xác nhận xóa kiểu ${name} ?`,
+      showCancelButton: true,
+      confirmButtonText: "Xóa",
+      denyButtonText: `Không xóa`,
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const getDetailUrl = `https://e-tailorapi.azurewebsites.net/api/Component/template/${templateId}/${componentTypeId}/${componentId}`;
+        try {
+          const response = await fetch(getDetailUrl, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${manager?.token}`,
+            },
+          });
+          const responseData = await response.text();
+          if (response.ok && response.status === 200) {
+            Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 1500,
+            });
+            await handleGetComponentType();
+          } else if (response.status === 400 || response.status === 500) {
+            Swal.fire({
+              position: "top-center",
+              icon: "success",
+              title: responseData,
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          }
+        } catch (error) {
+          console.error("Error calling API:", error);
+        }
+      } else if (result.dismiss) {
+        Swal.fire("Hủy xóa", "", "info");
       }
-    } catch (error) {
-      console.error("Error calling API:", error);
-    }
+    });
   };
 
   //--------------------------------------------------------------step 3---------------------------------------------
@@ -1035,6 +1052,7 @@ const ManagementUpdateProductTemplateContent = () => {
                 rules={[
                   {
                     required: true,
+                    whitespace: true,
                     message: "Nhập tên bản mẫu",
                   },
                 ]}
@@ -1105,6 +1123,7 @@ const ManagementUpdateProductTemplateContent = () => {
                 rules={[
                   {
                     required: true,
+                    whitespace: true,
                     message: "Giá tiền không được để trống",
                   },
                   {
@@ -1128,6 +1147,7 @@ const ManagementUpdateProductTemplateContent = () => {
                 rules={[
                   {
                     required: true,
+                    whitespace: true,
                     message: "Nhập mô tả cho bản mẫu",
                   },
                 ]}
@@ -1511,7 +1531,8 @@ const ManagementUpdateProductTemplateContent = () => {
                                             handleDeleteComponent(
                                               id,
                                               data.id,
-                                              component.id
+                                              component.id,
+                                              component?.name
                                             );
                                           }}
                                         />,
@@ -1663,7 +1684,8 @@ const ManagementUpdateProductTemplateContent = () => {
                                 rules={[
                                   {
                                     required: true,
-                                    message: "Please input quy trình",
+                                    whitespace: true,
+                                    message: "Quy trình không được bỏ trống!",
                                   },
                                 ]}
                               >
@@ -1685,11 +1707,7 @@ const ManagementUpdateProductTemplateContent = () => {
                                       if (value && value.length > 0) {
                                         return Promise.resolve();
                                       }
-                                      return Promise.reject(
-                                        new Error(
-                                          "Please select at least one item."
-                                        )
-                                      );
+                                      return Promise.reject(new Error(""));
                                     },
                                   },
                                 ]}
@@ -1697,7 +1715,7 @@ const ManagementUpdateProductTemplateContent = () => {
                                 <Select
                                   mode="multiple"
                                   size={"default"}
-                                  placeholder="Select items"
+                                  placeholder="Bộ phận thực hiện"
                                   style={{ width: "100%" }}
                                   labelInValue
                                 >
