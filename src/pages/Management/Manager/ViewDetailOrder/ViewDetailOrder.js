@@ -444,7 +444,12 @@ export const ViewDetailOrder = ({
                     .map((item) => {
                       return (
                         <Col span={12}>
-                          <Image width={100} src={item.ObjectUrl} />
+                          <Image
+                            width={150}
+                            src={item.ObjectUrl}
+                            height={150}
+                            style={{ objectFit: "cover" }}
+                          />
                         </Col>
                       );
                     })}
