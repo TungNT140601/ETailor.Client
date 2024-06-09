@@ -7,6 +7,7 @@ export default function Footer() {
                 <p style={{ fontSize: 20, fontWeight: "bold" }}>Giới thiệu:</p>
                 <p style={{ marginTop: 5 }}>E-tailor là thương hiệu với hơn 10 năm kinh nghiệm trong lĩnh vực thời trang cao cấp, tự hào mang đến cho quý khách những trang phục hoàn hảo nhất,</p>
                 <p style={{ marginTop: 5 }}>Địa chỉ: 117/18 Phan Văn Hân, phường 17, Q.Bình Thạnh, TP. HCM</p>
+                <p style={{ marginTop: 5 }}>Liên hệ: 0338 010 426</p>
                 <p>No copyright © {new Date().getFullYear()}</p>
             </div>
         </div>

@@ -20,25 +20,7 @@ import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import ManagerHeader from "../../../components/ManagerHeader/index.js";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate } from '@fortawesome/free-solid-svg-icons';
-const { Search } = Input;
-const { Title, Text } = Typography;
-const { Option } = Select;
 
-
-function formatCurrency(amount) {
-    if (amount) {
-        const strAmount = amount.toString();
-        const parts = [];
-        for (let i = strAmount.length - 1, j = 0; i >= 0; i--, j++) {
-            if (j > 0 && j % 3 === 0) {
-                parts.unshift(".");
-            }
-            parts.unshift(strAmount[i]);
-        }
-        return parts.join("") + "đ";
-    }
-    return null;
-}
 const getStatusTextAndColor = (status) => {
     let color;
     let text;
@@ -266,7 +248,7 @@ export default function ManagementTask() {
                         <DragDropContext onDragEnd={handleDragEnd}>
                             <div style={{ width: 500, height: "82vh", borderRight: "1px solid #9F78FF" }}>
                                 <div style={{ height: 60, borderBottom: "1px solid #9F78FF", alignItems: "end", alignContent: "end", width: "100%", paddingLeft: 20 }}>
-                                    <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: " #9F78FF", paddingBottom: 5 }}>Tất cả công việc</h2>
+                                    <h2 style={{ fontWeight: "bold", fontSize: "1.5rem", color: " #9F78FF", paddingBottom: 5 }}> Tất cả công việc</h2>
                                 </div>
                                 <Droppable key={unAssignedTasks?.id} droppableId={unAssignedTasks?.id}>
                                     {(provided) => (
