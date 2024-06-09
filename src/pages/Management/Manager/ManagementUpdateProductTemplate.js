@@ -1039,6 +1039,7 @@ const ManagementUpdateProductTemplateContent = () => {
               }}
               initialValues={{
                 remember: true,
+                gender: "-1",
               }}
               autoComplete="off"
             >
@@ -1091,7 +1092,7 @@ const ManagementUpdateProductTemplateContent = () => {
                   },
                 ]}
               >
-                <Select placeholder="Bản mẫu này phù hợp với" defaultValue="-1">
+                <Select placeholder="Bản mẫu này phù hợp với">
                   <Option value="-1">Nam và Nữ</Option>
                   <Option value="0">Nam</Option>
                   <Option value="1">Nữ</Option>

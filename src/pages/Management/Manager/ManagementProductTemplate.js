@@ -325,6 +325,7 @@ export const ManagementCreateProductTemplate = () => {
   }, []);
   const onFinishStep1 = async () => {
     const values = form.getFieldsValue();
+    console.log("values", values);
     const formData = new FormData();
     formData.append("Id", saveProductTemplateId ? saveProductTemplateId : null);
     formData.append("CategoryId", values.CategoryId);
@@ -725,6 +726,7 @@ export const ManagementCreateProductTemplate = () => {
               }}
               initialValues={{
                 remember: true,
+                gender: "-1",
               }}
               autoComplete="off"
             >
@@ -780,7 +782,7 @@ export const ManagementCreateProductTemplate = () => {
                   },
                 ]}
               >
-                <Select placeholder="Bản mẫu này phù hợp với" defaultValue="-1">
+                <Select placeholder="Bản mẫu này phù hợp với">
                   <Option value="-1">Nam và Nữ</Option>
                   <Option value="0">Nam</Option>
                   <Option value="1">Nữ</Option>
