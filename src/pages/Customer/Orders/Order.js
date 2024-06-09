@@ -333,8 +333,7 @@ export default function Order() {
         style={{
           padding: "140px 20px 0 20px",
         }}
-      >{/*  */}
-        <div></div>
+      >
         <div
           style={{
             width: "100%",
@@ -357,8 +356,6 @@ export default function Order() {
             />
           </div>
         </div>
-
-
       </div>
     </>
   );
