@@ -927,7 +927,7 @@ const ManagementUpdateProductTemplateContent = () => {
   const [exportFileLoading, setExportFileLoading] = useState(false);
   const handleDownloadExportFile = async () => {
     if (id) {
-      const getlUrl = `https://e-tailorapi.azurewebsites.net/api/test/DownloadExportFile?templateId=${id}`;
+      const getlUrl = `https://e-tailorapi.azurewebsites.net/api/Component/export/template/${id}`;
       setExportFileLoading(true);
       const response = await fetch(getlUrl, {
         method: "GET",
